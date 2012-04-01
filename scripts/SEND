@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if [ $# != 1 ]
+then
+  echo "Usage: SEND <file>"
+  exit 1
+fi
+
+if [ ! -f "$1" ]
+then
+  echo "File not found: $1"
+  exit 1
+fi
+
+tr "\n" "\r" <$1 >/tmp/X
+#tr -d "\n" <$1 >/tmp/X
+ascii-xfr -s /tmp/X >/dev/ttyUSB0
+rm -f /tmp/X
