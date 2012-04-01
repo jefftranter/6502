@@ -1,0 +1,32 @@
+As I built my Replica 1 I noticed a few minor errors in the manual. Hopefully these can be corrected in an update. The version of manual I have is "JULY 2010 TE EDITION".
+
+Cover page:
+
+The board shown is the rev 0. The current rev 3 boards have some component layout differences.
+
+Page 8:
+
+Same issue as above with board shown figure 3. It would be good to update this to reflect the current board.
+
+Page 13:
+
+U3 may may be a 28HC64 rather than a 27C64 (my kit included the former).
+
+Page 14:
+
+Lists quantity 9 of 3.3K resistors for R1-R8. Should also list R26.
+
+Under 100uF capacitor it lists quantity 1 but lists C21 and C22. C22 was removed from the current board revisions and should not be listed.
+
+Page 16:
+The quantity of 0.1uF capacitors should be 11 rather than 15.
+Lists 22pF and .22uF capacitors but these are not part of the current board design.
+
+Page 18:
+
+I would suggest adding a check for the 3.3V rail, such at pin 32 of U8 (Propeller chip).
+
+Page 22:
+
+It would be useful to show serial terminal settings for Mac and Linux computers.
+I may be able to provide settings for Minicom on Linux once I get my board up and running.

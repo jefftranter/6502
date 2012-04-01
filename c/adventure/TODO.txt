@@ -1,0 +1,4 @@
+To Do
+-----
+
+- try to shrink down to 8K for EPROM or Apple 1 Mimeo

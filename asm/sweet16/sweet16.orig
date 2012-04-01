@@ -1,0 +1,511 @@
+***************************
+*                         *
+* APPLE II PSEUDO MACHINE *
+*        INTERPRETER      *
+*                         *
+* COPYRIGHT (C) 1977      *
+* APPLE COMPUTER INC.     *
+*                         *
+* STEVE WOZNIAK           *
+*                         *
+***************************
+* TITLE: SWEET 16 INTERPRETER
+;
+     *=  $7889
+;
+R0L =   $E0
+R0H =   $E1
+R14H =  $FD
+R15L =  $FE
+R15H =  $FF
+;
+;
+; PRESERVE 6502 REG CONTENT
+;
+SW16 JSR SAVE
+;
+; INIT SWEET16 PC
+; FROM RETURN ADDRESS
+;
+SW16A PLA 
+     STA R15L
+     PLA 
+     STA R15H
+;
+; INTERPRET AND EXECUTE
+; ONE SWEET16 INSTRUCTION
+;
+SW16B JSR SW16C
+     JMP SW16B
+;
+; INCREMENT SWEET16 PC
+; FOR FETCH
+;
+SW16C INC R15L
+     BNE SW16D
+     INC R15H
+;
+; COMMON HIG BZTE FOR ALL
+; ROUTINES, PUSH ON STACK FOR
+; RTS
+SW16D LDA  # >SET
+     PHA 
+;
+; FETCH INSTRUCTION
+;
+     LDY #$00
+     LDA (R15L),Y
+;
+; MASK REGISTER SPECIFICATION
+;
+     AND #$0F
+;
+; DOUBLE FOR TWO BYTE REGISTERS
+;
+     ASL A
+;
+; TO X REGISTER FOR INDEXING
+;
+     TAX 
+     LSR A
+;
+; NOW HAVE OPCODE
+;
+     EOR (R15L),Y
+;
+; IF ZERO THEN NO REG OPCODE
+;
+     BEQ TOBR
+;
+; INDICATE PRIOR RESULT REG
+;
+     STX R14H
+;
+; OPCODE * 2 TO LSB'S
+;
+     LSR A
+     LSR A
+     LSR A
+;
+; TO Y REGISTER FOR INDEXING
+;
+     TAY 
+;
+; LOW ORDER ADR BYTE ON STACK
+;
+     LDA OPTBL-2,Y
+     PHA 
+;
+; GOTO REG-OPCODE ROUTINE
+;
+     RTS 
+;
+; INCREMENT PC
+;
+TOBR
+     INC R15L
+     BNE TOBR2
+     INC R15H
+;
+; LOW ORDER ADR BYTE ONTO
+; STACK FOR NON-REG OPCODE
+;
+TOBR2 LDA BRTBL,X
+     PHA 
+;
+; PRIOR RESULT REG INDEX
+;
+     LDA R14H
+;
+; PREPARE CARRY FOR BC. BNC.
+;
+     LSR A
+;
+; GOTO NON-REG OPCODE ROUTINE
+;
+     RTS 
+;
+; RETURN TO 6502 MODE ROUTINE
+;
+; POP RETURN ADDRESS
+;
+RTNZ PLA 
+     PLA 
+;
+; RESTORE 6502 REG CONTENT
+;
+     JSR RESTORE
+;
+; RETURN TO 6502 CODE VIA PC
+;
+     JMP (R15L)
+;
+; SET REGISTER ROUTINE
+;
+; GET HIGH BYTE OF CONSTANT
+;
+SETZ LDA (R15L),Y
+     STA R0H,X
+     DEY 
+;
+; GET LOW BYTE OF CONSTANT
+;
+     LDA (R15L),Y
+     STA R0L,X
+;
+; Y REG CONTAINS 1
+;
+     TYA 
+;
+; ADD 2 TO PC
+;
+     SEC 
+     ADC R15L
+     STA R15L
+     BCC SET2
+     INC R15H
+SET2 RTS 
+;
+; OPCODE TABLE
+;
+OPTBL .BYTE  <SET-1 ; 1X
+BRTBL .BYTE  <RTN-1 ; 0
+     .BYTE  <LD-1 ; 2X
+     .BYTE  <BR-1 ; 1
+     .BYTE  <ST-1 ; 3X
+     .BYTE  <BNC-1 ; 2
+     .BYTE  <LDAT-1 ; 4X
+     .BYTE  <BC-1 ; 3
+     .BYTE  <STAT-1 ; 5X
+     .BYTE  <BP-1 ; 4
+     .BYTE  <LDDAT-1 ; 6X
+     .BYTE  <BM-1 ; 5
+     .BYTE  <STDAT-1 ; 7X
+     .BYTE  <BZ-1 ; 6
+     .BYTE  <POP-1 ; 8X
+     .BYTE  <BNZ-1 ; 7
+     .BYTE  <STPAT-1 ; 9X
+     .BYTE  <BM1-1 ; 8
+     .BYTE  <ADD-1 ; AX
+     .BYTE  <BNM1-1 ; 9
+     .BYTE  <SUB-1 ; BX
+     .BYTE  <BK-1 ; A
+     .BYTE  <POPD-1 ; CX
+     .BYTE  <RS-1 ; B
+     .BYTE  <CPR-1 ; DX
+     .BYTE  <BS-1 ; C
+     .BYTE  <INR-1 ; EX
+     .BYTE  <NUL-1 ; D
+     .BYTE  <DCR-1 ; FX
+     .BYTE  <NUL-1 ; E
+     .BYTE  <NUL-1 ; UNUSED
+     .BYTE  <NUL-1 ; F
+;
+; THE FOLLOWING CODE MUST
+; BE CONTAINED IN A SINGLE PAGE
+;
+SET
+     JMP SETZ    ; ALWAYS
+LD
+     LDA R0L,X
+BK  =   LD+1
+     STA R0L
+;
+; MOV RX TO R0
+;
+     LDA R0H,X
+     STA R0H
+     RTS 
+;
+ST  LDA R0L
+;
+; MOV R0 TO RX
+;
+     STA R0L,X
+     LDA R0H
+     STA R0H,X
+     RTS 
+;
+; STORE BYTE INDEIRECT
+;
+STAT LDA R0L
+STAT2 STA (R0L,X)
+     LDY #$00
+;
+; INDICATE R0 IS RESULT NEG
+;
+STAT3 STY R14H
+INR INC R0L,X
+     BNE INR2    ; INC RX
+     INC R0H,X
+INR2 RTS 
+;
+; LOAD INDIRECT (RX) TO R0
+;
+LDAT LDA (R0L,X)
+     STA R0L
+;
+; ZERO HIGH ORDER R0 BYTE
+;
+     LDY #$00
+     STY R0H
+     BEQ STAT3   ; ALWAYS
+;
+; HIGH ORDER BYTE = 0
+;
+POP LDY #$00
+     BEQ POP2    ; ALWAYS
+POPD JSR DCR    ; DECR RX
+;
+; POP HIGH ORDER BYTE @RX
+; AND SAV IN Y REG
+;
+     LDA (R0L,X)
+     TAY 
+POP2 JSR DCR    ; DECR RX
+;
+; LOW ORDER BYTE TO R0
+;
+     LDA (R0L,X)
+     STA R0L
+     STY R0H
+;
+; INDICATE R0 AS LAST RES. REG
+;
+POP3 LDY #$00
+     STY R14H
+     RTS 
+;
+; LOW ORDER BYTE TO R0, INC RX
+;
+LDDAT JSR LDAT
+;
+; HIGH ORDER BYTE TO R0
+     LDA (R0L,X)
+     STA R0H
+     JMP INR     ; INC RX
+;
+; STORE INDIRECT LOW ORDER
+; BYTE AND INC RX THEN
+; STORE HIGH  ORDER BYTE,
+; INC RX AND RETURN
+;
+STDAT JSR LDAT
+     LDA R0H
+     STA (R0L,X)
+     JMP INR
+STPAT JSR DCR   ; DEC RX
+     LDA R0L
+;
+; STORE R0 LOW BYTE @RX
+;
+     STA (R0L,X)
+;
+; INDICATE R0 AS LAST RES REG
+;
+     JMP POP3
+;
+DCR LDA R0L,X
+     BNE DCR2    ; DEC RX
+     DEC R0H,X
+DCR2 DEC R0L,X
+     RTS 
+;
+; RESULT TO R0
+;
+SUB LDY #$00
+;
+; NOTE Y REG = 13 * 2 FOR CPR
+;
+CPR SEC 
+     LDA R0L
+     SBC R0L,X
+     STA R0L,Y   ; RY=R0-RX
+     LDA R0H
+     SBC R0H,X
+SUB2 STA R0H,Y
+;
+; LAST RESULT REG * 2
+;
+     TYA
+;
+; CARRY TO LSB
+;
+     ADC #$00
+     STA R14H
+     RTS 
+;
+ADD LDA R0L
+     ADC R0L,X
+     STA R0L     ; R0=RX+R0
+     LDA R0H
+     ADC R0H,X
+;
+; R0 FOR RESULT
+;
+     LDY #$00
+; FINISH ADD
+     BEQ SUB2
+;
+; NOTE X REG IS 12 * 2 !
+;
+BS  LDA R15L
+;
+; PUSH LOW PC BYTE VIA R12
+;
+     JSR STAT2
+     LDA R15H
+;
+; PUSH HIGH PC BYTE
+;
+     JSR STAT2
+BR  CLC 
+BNC BCS BNC2    ; NO CARRY TEST
+;
+; DISPLACEMENT BYTE
+;
+BR1 LDA (R15L),Y
+     BPL BR2
+     DEY 
+;
+; ADD TO PC
+;
+BR2 ADC R15L
+     STA R15L
+     TYA 
+     ADC R15H
+     STA R15H
+BNC2 RTS 
+BC  BCS BR
+     RTS 
+;
+; DOUBLE RESULT REG INDEX
+;
+BP  ASL A
+;
+; TO X REG FOR INDEX
+;
+     TAX 
+; TEST FOR PLUS, BRANCH IF SO
+;
+     LDA R0H,X
+     BPL BR1
+     RTS 
+;
+; DOUBLE RESULT REG INDEX
+;
+BM  ASL A
+     TAX 
+;
+; TEST FOR MINUS
+;
+     LDA R0H,X
+     BMI BR1
+     RTS 
+;
+; DOUBLE RESULT REG INDEX
+;
+BZ  ASL A
+     TAX 
+;
+; TEST FOR ZERO (BOTH BYTES)
+;
+     LDA R0L,X
+     ORA R0H,X
+     BEQ BR1
+     RTS 
+;
+; DOUBLE RESULT REG INDEX
+;
+BNZ ASL A
+     TAX 
+;
+; TEST FOR NON-ZERO (BOTH)
+;
+     LDA R0L,X
+     ORA R0H,X
+     BNE BR1
+     RTS 
+;
+; DOUBLE RESULT REG INDEX
+;
+BM1 ASL A
+     TAX 
+;
+; TEST FOR $FF (-1) BOTH BYTES
+;
+     LDA R0L,X
+     AND R0H,X
+     EOR #$FF
+     BEQ BR1
+     RTS 
+;
+; DOUBLE RESULT REG
+;
+BNM1 ASL A
+     TAX 
+;
+; TEST FOR NO $FF
+;
+     LDA R0L,X
+     AND R0H,X
+     EOR #$FF
+     BNE BR1
+NUL RTS 
+; 12*2 FOR R12 AS STACK POINTER
+;
+RS  LDX #$18
+;
+; DECR STACK POINTER
+;
+     JSR DCR
+;
+; POP HIGHRETURN ADDRESS TO PC
+;
+     LDA (R0L,X)
+     STA R15H
+;
+; SAME WITH LOW ORDER BYTE
+;
+     JSR DCR
+     LDA (R0L,X)
+     STA R15L
+     RTS 
+RTN JMP RTNZ
+;------------------------------
+SAVE
+     STA ACC
+     STX XREG
+     STY YREG
+     PHP 
+     PLA 
+     STA STATUS
+     CLD 
+     RTS 
+;------------------------------
+RESTORE LDA STATUS
+     PHA 
+     LDA ACC
+     LDX XREG
+     LDY YREG
+     PLP 
+     RTS 
+;-------------------------------
+ACC .BYTE 0
+XREG .BYTE 0
+YREG .BYTE 0
+STATUS .BYTE 0
+
+;------------------------------
+TEST
+     JSR SW16A
+     .BYTE $11,$00,$F0 ; SET R1
+     .BYTE $12,$00,$40 ; SET R2
+     .BYTE $13,$00,$02 ; SET R3
+     .BYTE $41   ; LD @R1
+     .BYTE $52   ; ST @R2
+     .BYTE $F3   ; DCR R3
+     .BYTE $07,$FB ; BNZ -4
+     .BYTE $00   ; RTN
+     RTS 
+;------------------------------
