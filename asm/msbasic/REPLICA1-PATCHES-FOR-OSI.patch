@@ -1,0 +1,145 @@
+diff -u -N msbasic.orig//defines_osi.s msbasic.replica1//defines_osi.s
+--- msbasic.orig//defines_osi.s	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//defines_osi.s	2012-04-07 21:24:54.000000000 -0400
+@@ -30,8 +30,8 @@
+ L0200           := $0200
+ 
+ ; monitor functions
+-MONRDKEY        := $FFEB
+-MONCOUT         := $FFEE
+-MONISCNTC       := $FFF1
+-LOAD            := $FFF4
+-SAVE            := $FFF7
++;MONRDKEY        := $FFEB
++MONCOUT         := $FFEF
++;MONISCNTC       := $FFF1
++;LOAD            := $FFF4
++;SAVE            := $FFF7
+diff -u -N msbasic.orig//extra.s msbasic.replica1//extra.s
+--- msbasic.orig//extra.s	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//extra.s	2012-04-07 21:27:04.000000000 -0400
+@@ -12,6 +12,10 @@
+ .include "kbd_extra.s"
+ .endif
+ 
++.ifdef OSI
++.include "osi_extra.s"
++.endif
++
+ .ifdef APPLE
+ .include "apple_extra.s"
+ .endif
+diff -u -N msbasic.orig//init.s msbasic.replica1//init.s
+--- msbasic.orig//init.s	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//init.s	2012-04-06 23:25:53.000000000 -0400
+@@ -82,7 +82,7 @@
+         lda     #WIDTH2
+         sta     Z18
+   .endif
+-.endif /* KBD */
++.endif
+ 
+ ; All non-CONFIG_SMALL versions of BASIC have
+ ; the same bug here: While the number of bytes
+@@ -440,4 +440,4 @@
+     .endif
+         .byte   CR,LF,0
+   .endif
+-.endif /* KBD */
++.endif
+diff -u -N msbasic.orig//inline.s msbasic.replica1//inline.s
+--- msbasic.orig//inline.s	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//inline.s	2012-04-07 21:25:39.000000000 -0400
+@@ -115,7 +115,7 @@
+         nop
+         and     #$7F
+     .endif
+-  .endif /* APPLE */
++  .endif
+   .ifdef APPLE
+ RDKEY:
+         jsr     LFD0C
+@@ -130,4 +130,4 @@
+         pla
+ L2465:
+         rts
+-.endif /* KBD */
++.endif
+diff -u -N msbasic.orig//make.sh msbasic.replica1//make.sh
+--- msbasic.orig//make.sh	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//make.sh	2012-04-08 10:36:25.000000000 -0400
+@@ -2,11 +2,11 @@
+ 	mkdir tmp
+ fi
+ 
+-for i in cbmbasic1 cbmbasic2 kbdbasic osi kb9 applesoft microtan; do
++#for i in cbmbasic1 cbmbasic2 kbdbasic osi kb9 applesoft microtan; do
++for i in osi; do
+ 
+ echo $i
+-ca65 -D $i msbasic.s -o tmp/$i.o &&
+-ld65 -C $i.cfg tmp/$i.o -o tmp/$i.bin -Ln tmp/$i.lbl
+-
++ca65 -l -D $i msbasic.s -o tmp/$i.o &&
++ld65 -vm -m tmp/$i.map -C $i.cfg tmp/$i.o -o tmp/$i.bin -Ln tmp/$i.lbl
+ done
+-
++bintomon -v -l 0xa000 -r - tmp/osi.bin > tmp/osi.mon
+diff -u -N msbasic.orig//osi.cfg msbasic.replica1//osi.cfg
+--- msbasic.orig//osi.cfg	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//osi.cfg	2012-04-07 17:56:12.000000000 -0400
+@@ -1,6 +1,6 @@
+ MEMORY {
+ 	ZP:		start = $0000, size = $0100, type = rw;
+-	BASROM:		start = $A000, size = $3F00, fill = no, file = %O;
++	BASROM:		start = $A000, size = $2000, fill = no, file = %O;
+ 	DUMMY:		start = $0000, size = $00FF, file = "";
+ }
+ 
+diff -u -N msbasic.orig//osi_extra.s msbasic.replica1//osi_extra.s
+--- msbasic.orig//osi_extra.s	1969-12-31 19:00:00.000000000 -0500
++++ msbasic.replica1//osi_extra.s	2012-04-07 21:37:41.000000000 -0400
+@@ -0,0 +1,10 @@
++.segment "EXTRA"
++
++MONRDKEY:
++        LDA     $D011           ; keyboard status
++        BPL     MONRDKEY        ; branch until key pressed
++        LDA     $D010           ; keyboard data
++        RTS
++LOAD:
++SAVE:
++        RTS     ; not implemented
+diff -u -N msbasic.orig//osi_iscntc.s msbasic.replica1//osi_iscntc.s
+--- msbasic.orig//osi_iscntc.s	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//osi_iscntc.s	2012-04-07 21:38:17.000000000 -0400
+@@ -1,12 +1,9 @@
+ .segment "CODE"
+ ISCNTC:
+-        jmp     MONISCNTC
+-        nop
+-        nop
+-        nop
+-        nop
+-        lsr     a
+-        bcc     RET2
+-        jsr     GETLN
+-        cmp     #$03
+-;!!! *used*to* run into "STOP"
+\ No newline at end of file
++        lda     $D011           ; keyboard status
++        bmi     L0ECC           ; branch if key pressed
++        rts                     ; return
++L0ECC:
++        lda     $D010           ; get key data
++        cmp     #$83            ; is it Ctrl-C ?
++;!!! *used*to* run into "STOP"
+diff -u -N msbasic.orig//poke.s msbasic.replica1//poke.s
+--- msbasic.orig//poke.s	2008-10-21 02:18:14.000000000 -0400
++++ msbasic.replica1//poke.s	2012-04-06 23:25:44.000000000 -0400
+@@ -115,4 +115,4 @@
+         beq     L362C
+ RTS3:
+         rts
+-.endif /* KBD */
++.endif
