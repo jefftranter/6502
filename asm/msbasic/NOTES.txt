@@ -76,6 +76,10 @@ all memory or it will overwrite itself.  In this example you can use
 24000 to leave room for the 8K of BASIC at the top of memory.  You
 should have about 23K of memory available for BASIC programs.
 
+I've included here binaries in Woz monitor format that are linked in
+ROM and RAM in the files osi-rom.mon and osi-ram.mon for the
+convenience of people who don't have the assembler.
+
 To port it to the Replica 1, I made the following changes (for
 details, see the patch):
 
