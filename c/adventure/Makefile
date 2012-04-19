@@ -20,5 +20,9 @@ native: adventure.c
 
 release: adventure.mon
 	zip adventure-1.0.zip adventure.c Makefile adventure.mon README.txt LICENSE-2.0.txt
+
 clean:
-	$(RM) adventure.o adventure.lst adventure.mon adventure.map adventure
+	$(RM) adventure.o adventure.lst adventure.map adventure
+
+distclean: clean
+	$(RM) adventure.mon
