@@ -1,0 +1,92 @@
+--- min_mon.asm.orig	2012-04-21 10:49:22.000000000 -0400
++++ min_mon.asm	2012-04-21 10:48:23.000000000 -0400
+@@ -126,7 +126,7 @@
+ END_CODE
+ 
+ LAB_mess
+-	.byte	$0D,$0A,"6502 EhBASIC [C]old/[W]arm ?",$00
++	.byte	$0D,$0A,"6502 EHBASIC [C]OLD/[W]ARM ?",$00
+ 					; sign on string
+ 
+ ; system vectors
+--- basic.asm.orig	2012-04-21 10:49:22.000000000 -0400
++++ basic.asm	2012-04-21 10:48:15.000000000 -0400
+@@ -7795,11 +7795,11 @@
+ EndTab
+ 
+ LAB_MSZM
+-	.byte	$0D,$0A,"Memory size ",$00
++	.byte	$0D,$0A,"MEMORY SIZE ",$00
+ 
+ LAB_SMSG
+-	.byte	" Bytes free",$0D,$0A,$0A
+-	.byte	"Enhanced BASIC 2.22",$0A,$00
++	.byte	" BYTES FREE",$0D,$0A,$0A
++	.byte	"ENHANCED BASIC 2.22",$0A,$00
+ 
+ ; numeric constants and series
+ 
+@@ -8655,37 +8655,37 @@
+ 
+ ;	.word ERR_UA		;$26 undimensioned array
+ 
+-ERR_NF	.byte	"NEXT without FOR",$00
+-ERR_SN	.byte	"Syntax",$00
+-ERR_RG	.byte	"RETURN without GOSUB",$00
+-ERR_OD	.byte	"Out of DATA",$00
+-ERR_FC	.byte	"Function call",$00
+-ERR_OV	.byte	"Overflow",$00
+-ERR_OM	.byte	"Out of memory",$00
+-ERR_US	.byte	"Undefined statement",$00
+-ERR_BS	.byte	"Array bounds",$00
+-ERR_DD	.byte	"Double dimension",$00
+-ERR_D0	.byte	"Divide by zero",$00
+-ERR_ID	.byte	"Illegal direct",$00
+-ERR_TM	.byte	"Type mismatch",$00
+-ERR_LS	.byte	"String too long",$00
+-ERR_ST	.byte	"String too complex",$00
+-ERR_CN	.byte	"Can't continue",$00
+-ERR_UF	.byte	"Undefined function",$00
+-ERR_LD	.byte	"LOOP without DO",$00
++ERR_NF	.byte	"NEXT WITHOUT FOR",$00
++ERR_SN	.byte	"SYNTAX",$00
++ERR_RG	.byte	"RETURN WITHOUT GOSUB",$00
++ERR_OD	.byte	"OUT OF DATA",$00
++ERR_FC	.byte	"FUNCTION CALL",$00
++ERR_OV	.byte	"OVERFLOW",$00
++ERR_OM	.byte	"OUT OF MEMORY",$00
++ERR_US	.byte	"UNDEFINED STATEMENT",$00
++ERR_BS	.byte	"ARRAY BOUNDS",$00
++ERR_DD	.byte	"DOUBLE DIMENSION",$00
++ERR_D0	.byte	"DIVIDE BY ZERO",$00
++ERR_ID	.byte	"ILLEGAL DIRECT",$00
++ERR_TM	.byte	"TYPE MISMATCH",$00
++ERR_LS	.byte	"STRING TOO LONG",$00
++ERR_ST	.byte	"STRING TOO COMPLEX",$00
++ERR_CN	.byte	"CAN'T CONTINUE",$00
++ERR_UF	.byte	"UNDEFINED FUNCTION",$00
++ERR_LD	.byte	"LOOP WITHOUT DO",$00
+ 
+-;ERR_UV	.byte	"Undefined variable",$00
++;ERR_UV	.byte	"UNDEFINED VARIABLE",$00
+ 
+ ; the above error has been tested and works (see code and comments below LAB_1D8B)
+ 
+-;ERR_UA	.byte	"Undimensioned array",$00
++;ERR_UA	.byte	"UNDIMENSIONED ARRAY",$00
+ 
+-LAB_BMSG	.byte	$0D,$0A,"Break",$00
+-LAB_EMSG	.byte	" Error",$00
+-LAB_LMSG	.byte	" in line ",$00
+-LAB_RMSG	.byte	$0D,$0A,"Ready",$0D,$0A,$00
++LAB_BMSG	.byte	$0D,$0A,"BREAK",$00
++LAB_EMSG	.byte	" ERROR",$00
++LAB_LMSG	.byte	" IN LINE ",$00
++LAB_RMSG	.byte	$0D,$0A,"READY",$0D,$0A,$00
+ 
+-LAB_IMSG	.byte	" Extra ignored",$0D,$0A,$00
+-LAB_REDO	.byte	" Redo from start",$0D,$0A,$00
++LAB_IMSG	.byte	" EXTRA IGNORED",$0D,$0A,$00
++LAB_REDO	.byte	" REDO FROM START",$0D,$0A,$00
+ 
+ AA_end_basic
