@@ -16,4 +16,4 @@ clean:
 	$(RM) *.o *.lst *.map *.bin
 
 distclean: clean
-	$(RM) *.mon basic.asm min_mon.asm readme.txt
+	$(RM) basic.asm min_mon.asm readme.txt

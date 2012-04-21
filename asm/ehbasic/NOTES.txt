@@ -11,6 +11,13 @@ To build it:
 A prebuilt Woz monitor binary file is provided.
 The start address is $7825.
 
+If you want to run it on a system that doesn't support displaying
+lowercase characters, such as an Apple 1, Mimeo or Obtronix, there is
+an additional patch that will convert all the displayed strings to
+uppercase. Apply the patch UPPERCASE.patch (in addition to the other
+patch). I've provided a binary with this patch applied in the file
+basic-uppercase.mon.
+
 Known issues:
 
 IRQ and NMI handling is not implemented because the vectors are in the
