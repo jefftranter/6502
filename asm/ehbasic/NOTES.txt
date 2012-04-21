@@ -1,0 +1,19 @@
+This is a port of Enhanced BASIC 2.22 for the Replica 1.
+The original code is at http://mycorner.no-ip.org/6502/ehbasic/index.html
+
+It was built with the cc65 assembler.
+
+To build it:
+- unzip the source, i.e. "unzip source.zip"
+- apply the patches, i.e. "patch -p1 < REPLICA1.patch"
+- build using the provided makefile, i.e. "make"
+
+A prebuilt Woz monitor binary file is provided.
+The start address is $7825.
+
+Known issues:
+
+IRQ and NMI handling is not implemented because the vectors are in the
+Woz monitor ROM and cannot be changed.
+
+SAVE and LOAD commands do nothing.
