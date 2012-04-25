@@ -7,6 +7,7 @@ IOBUF   = $00           ; I/O Buffer; prompt or command field.
 LABEL   = $07           ; I/O buffer; label field.
 OPCODE  = $0E           ; I/O buffer; opcode field.
 OPRAND  = $15           ; I/O buffer; operand field.
+OFFSET  = $1C           ; ??? Not Documented
 USER    = $23           ; Six bytes available for use by user commands.
 ADL     = $29           ; Low address pointer for various subroutines.
 ADH     = $2A           ; High address pointer.
@@ -24,6 +25,7 @@ HBC     = $35           ; Number of highest bye in record which must match.
 NUM     = $36           ; Number of highest record in table (MATCH).
 OPCPTR  = $37           ; Pointer to opcode in OPCTAB.
 PRNTOK  = $38           ; Flag to enable printing by Subroutine PRNTCK.
+SYMPTR  = $38           ; ??? Undocumented
 WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
 MODE    = $3A           ; Code for address mode.
 SAVX    = $3B           ; Used to preserve X register.
@@ -357,6 +359,45 @@ NOT2HI: CLC
         LDA   #'3'              ; "3" Illegal.
         RTS
 OPCLGL: NOP
+
+; Subroutine ENCODE (part 3). Find operand code, if required, for
+; address modes other than relative and 3-byte address modes.
+
+        LDA     OPCPTR          ; Consider opcode.
+        CMP     #$1D
+        BPL     OPRRQD          ; Operand required?
+        LDA     #'-'            ; "-"
+        RTS                     ; No; return.
+OPRRQD: INC     BYTES           ; At least 2 bytes.
+        CMP     #$2A
+        BPL     NOTIMM
+        LDX     #$15            ; Immediate addressing.
+        JSR     HX2BIN          ; Find binary value
+        STX     SYMPTR
+        LDA     #'-'            ; "-"
+        RTS
+NOTIMM: LDX     #$15            ; Set up operand search.
+        STX     SYMRFL
+        CMP     #$61
+        BPL     NOTZPG          ; Zpage addressing?
+        LDX     #$50            ; Yes.
+        JSR     MATCH           ; Look up operand.
+        BEQ     FOUND
+        LDA     #'4'            ; "4" Not found.
+        RTS
+FOUND:  JSR     ADDRSS
+        BEQ     OK
+        LDA     #'5'            ; "5" Not zpage.
+        RTS
+OK:     STX     SYMPTR          ; Store operand.
+        LDA     OFFSET          ; Check for offset.
+        CMP     #' '            ; "SP"
+        BEQ     DONE
+        LDA     #'6'            ; "6" offset illegal.
+        RTS
+DONE:   LDA     #'-'            ; "-"
+        RTS                     ; OK, return.
+NOTZPG: NOP                     ; Continue.
         
         .endproc
 
@@ -364,3 +405,4 @@ MODLIM: ; Lower opcode pointer limits for modes.
         .byte $00,$19,$1D,$2A,$3F,$4F,$51,$59,$61,$69,$80,$90,$9C
 
 DECODE:
+
