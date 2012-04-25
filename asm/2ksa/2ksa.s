@@ -49,7 +49,7 @@ LAST2   = $5B           ; High order address; same as CRNTAH.
         .org $0200
 
 MNETAB: ; Three-character ASCII mnemonics for instructions
-	.byte   "BRK"
+        .byte   "BRK"
         .byte   "CLC"
         .byte   "CLD"
         .byte   "CLI"
@@ -327,16 +327,37 @@ MNEFND: STX   MNE               ; Save menmonic.
         BEQ   MODFND
         LDA   #'2'              ; "2" Error-
         RTS                     ; not found.
-MODFND: LDA  MNE                ; Special cases:
-        CMP  #$19
-        BPL  NOTIMP
-        LDX  #0                 ; Implied mode.
-NOTIMP: CMP  #$30
-        BMI  NOTREL
-        LDX  #8                 ; Relative mode.
+MODFND: LDA   MNE               ; Special cases:
+        CMP   #$19
+        BPL   NOTIMP
+        LDX   #0                ; Implied mode.
+NOTIMP: CMP   #$30
+        BMI   NOTREL
+        LDX   #8                ; Relative mode.
 NOTREL: NOP
 
+; Subroutine ENCODE (part 2). Check legality of mnemonic/address mode combination.
 
+        LDA   MNE               ; Legal mnemonic
+        CMP   MIN,X             ; for address mode?
+        BPL   NOT2LO
+        LDA   #'3'              ; "3" Too low.
+        RTS
+NOT2LO: CMP   MAX,X
+        BMI   NOT2HI
+        LDA   #'3'              ; "3" Too high.
+        RTS
+NOT2HI: CLC
+        ADC   BASE,X
+        STA   OPCPTR            ; Store pointer
+        TAX                     ; to opcode
+        LDA   OPCTAB,X
+        CMP   #$FF
+        BNE   OPCLGL
+        LDA   #'3'              ; "3" Illegal.
+        RTS
+OPCLGL: NOP
+        
         .endproc
 
 MODLIM: ; Lower opcode pointer limits for modes.
