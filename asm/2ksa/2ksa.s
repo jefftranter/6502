@@ -4,11 +4,12 @@
 
 ; Global Symbols on Page Zero
 IOBUF   = $00           ; I/O Buffer; prompt or command field.
+IOBUF1  = $01           ; ??? Not Documented
 LABEL   = $07           ; I/O buffer; label field.
-OPCODE  = $0E           ; I/O buffer; opcode field.
-OPRAND  = $15           ; I/O buffer; operand field.
+;OPCODE  = $0E           ; I/O buffer; opcode field.
+;OPRAND  = $15           ; I/O buffer; operand field.
 OFFSET  = $1C           ; ??? Not Documented
-USER    = $23           ; Six bytes available for use by user commands.
+;USER    = $23           ; Six bytes available for use by user commands.
 ADL     = $29           ; Low address pointer for various subroutines.
 ADH     = $2A           ; High address pointer.
 MISCL   = $2B           ; Miscellaneous uses.
@@ -19,35 +20,35 @@ BYTES   = $2F           ; Lengths of lines, etc.
 TBL     = $30           ; Low address pointer for table; used by MATCH.
 TBH     = $31           ; High address pointer (Subroutine MATCH).
 RFL     = $32           ; Low address pointer for string to be matched.
-RFH     = $33           ; High address pointer (MATCH).
+;RFH     = $33           ; High address pointer (MATCH).
 LEN     = $34           ; Length of each record in table (MATCH).
 HBC     = $35           ; Number of highest bye in record which must match.
 NUM     = $36           ; Number of highest record in table (MATCH).
 OPCPTR  = $37           ; Pointer to opcode in OPCTAB.
-PRNTOK  = $38           ; Flag to enable printing by Subroutine PRNTCK.
+;PRNTOK  = $38           ; Flag to enable printing by Subroutine PRNTCK.
 SYMPTR  = $38           ; ??? Undocumented
 OPRDSP  = $39           ; ??? Undocumented
-WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
+;WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
 MODE    = $3A           ; Code for address mode.
-SAVX    = $3B           ; Used to preserve X register.
+;SAVX    = $3B           ; Used to preserve X register.
 GLOBAL  = $3C           ; Number of last global symbol.
 PRGLEN  = $3D           ; Length of source code.
 CRNTAL  = $3E           ; Low address pointer to current source code line.
 CRNTAH  = $3F           ; High address pointer.
 MDLADL  = $40           ; Module pointer, low address.
 MDLADH  = $41           ; Module pointer, high address.
-MNETBL  = $42           ; Parameters for MNETAB (see TBL to NUM above).
-MODTBL  = $49           ; Parameters for MODTAB.
+;MNETBL  = $42           ; Parameters for MNETAB (see TBL to NUM above).
+;MODTBL  = $49           ; Parameters for MODTAB.
 SYMTBL  = $50           ; Low address pointer to last entry in symbol table.
 SYMTBH  = $51           ; High address pointer.
 SYMRFL  = $52           ; Low address pointer for symbol to be compared.
-SYMRFH  = $53           ; High address pointer.
+;SYMRFH  = $53           ; High address pointer.
 SYMNUM  = $56           ; Number of last symbol.
-OBJECT  = $57           ; Low address pointer to object code.
-OBJCT1  = $58           ; High address pointer.
-FIRST   = $59           ; First line in range for print (PRNTCK).
-LAST    = $5A           ; First line after print range.
-LAST2   = $5B           ; High order address; same as CRNTAH.
+;OBJECT  = $57           ; Low address pointer to object code.
+;OBJCT1  = $58           ; High address pointer.
+;FIRST   = $59           ; First line in range for print (PRNTCK).
+;LAST    = $5A           ; First line after print range.
+;LAST2   = $5B           ; High order address; same as CRNTAH.
 
         .org $0200
 
@@ -197,7 +198,7 @@ NUMER:  AND     #$0F            ; Convert to binary.
         RTS
         .endproc
 
-; Subroutine HX2BIN. Convert 2 ASCII characters on page zero, pointedto by X, to 8 binary bits in X.
+; Subroutine HX2BIN. Convert 2 ASCII characters on page zero, pointed to by X, to 8 binary bits in X.
         .proc HX2BIN
         JSR     HEX             ; Find high byte.
         ASL     A
@@ -467,12 +468,194 @@ FOUND:  LDA     #$05            ; Set up return.
         JSR     ADDRSS          ; Get address.
         JMP     (ADL)           ; Execute command.
         RTS
-       .endproc
+        .endproc
+
+; Subroutine FIN. Add line to program; assign addreess to label, if any.
+        .proc   FIN
+        JSR     INSERT          ; Adjust if inserting.
+        LDY     BYTES
+        DEY
+ADDLIN: LDA     OPCPTR,Y        ; Add line
+        STA     (CRNTAL),Y      ; to program.
+        DEY
+        BPL     ADDLIN
+        LDA     LABEL
+        CMP     #' '            ; "SP"
+        BEQ     INCADR          ; Any label?
+        LDA     #7              ; Yes. Add to
+        JSR     NEWSYM          ; symbol table
+        LDA     #7              ; if new, and
+        LDA     CRNTAH          ; assign address.
+        STA     (MISCL),Y
+        DEY
+        LDA     CRNTAL
+        STA     (MISCL),Y
+INCADR: CLC
+        LDA     CRNTAL          ; Increment pointers.
+        ADC     BYTES
+        STA     CRNTAL
+        CLC
+        LDA     PRGLEN
+        ADC     BYTES
+        STA     PRGLEN
+        BPL     OK
+        LDA     #'B'            ; "B" Error-
+        RTS                     ; program overflow.
+OK:     BIT     SYMNUM
+        BVC     OK2
+        LDA     #'C'            ; "C" Error-
+        RTS                     ; symbol overflow.
+OK2:    LDA     #$2D
+        RTS
+        .endproc
+
+; Main program. Process command, or translate input into source code.
+        .proc MAIN
+        CLD
+        LDX      #$18           ; Initialize
+ INIT:  LDA      PRMTAB         ; program parameters.
+        STA      CRNTAH,X
+        DEX
+        BPL     INIT
+        LDA     #'?'            ; "?" Set.
+START:  STA     IOBUF           ; command mode.
+        LDY     #' '            ; "SP"
+        LDX     #$21
+CLEAR:  STY     IOBUF1,X        ; Clear I/O buffer
+        DEX                     ; except error code.
+        BPL     CLEAR
+        LDX     #'?'            ; "?" Command.
+        CMP     #'?'            ; Command mode?
+        BPL     GETLIN
+        LDA     CRNTAH          ; No; input mode.
+        LDX     #2              ; Display address.
+        JSR     DSPHEX
+        LDA     CRNTAL
+        LDX     #4
+        JSR     DSPHEX
+        LDX     #'-'            ; "-" Input.
+GETLIN: STX     MODE            ; Save mode.
+        LDA     #1              ; Initialize.
+        STA     BYTES
+        JSR     INPUT           ; Input line.
+        LDA     MODE            ; Mode?
+        CMP     #'-'            ; "-"
+        BNE     CMODE           ; Command mode?
+        LDA     IOBUF1          ; Input mode command?
+        CMP     #' '            ; "SP"
+CMODE:  BNE     EXEC            ; If neither,
+        JSR     ENCODE          ; translate line.
+        CMP     #'-'            ; "-"
+        BNE     NG              ; If line legal,
+        JSR     FIN             ; add to program.
+NG:     LDX     #0
+EXEC:   BEQ     DONE            ; If command,
+        JSR     CMAND           ; execute it.
+DONE:   CLC
+        BCC     START           ; Repeat until reset.
+        NOP
+        .endproc
+
+; ? BEGIN. Add module name to symbol table; enter input mode.
+        .proc   BEGIN
+        LDA     #7              ; Add name to
+        JSR     NEWSYM          ; symbol table.
+        BEQ     OK
+        LDA     #'D'            ; "D" Error-
+        RTS                     ; label in use.
+OK:     STX     GLOBAL          ; Set local cutoff.
+        LDA     #0              ; Clear pointers.
+        STA     CRNTAL
+        STA     PRGLEN
+        LDY     #6
+        STA     (MISCL),Y       ; Set start address
+        LDA     CRNTAH          ; =CRNTAL, H.
+        INY
+        STA     (MISCL),Y
+        LDA     #'-'            ; "-" Set
+        RTS                     ; input mode.
+        .endproc
+
+; ? ASSGN.Assign address to labels.
+        .proc   ASSGN
+        LDA     LABEL
+START:  CMP     #' '            ; "SP"
+        BNE     MORE            ; Label supplied?
+        LDA     #$3F            ; No, done.
+        RTS
+MORE:   LDA     #7
+        JSR     NEWSYM          ; Add symbol to table.
+        BEQ     NOTOLD
+        LDA     #'D'            ; "D" Error-
+        RTS                     ; label in use.
+NOTOLD: LDX     #$0E            ; Assign address.
+        JSR     HX2BIN
+        LDY     #7
+        TXA
+        STA     (MISCL),Y
+        LDX     #$10
+        JSR     HX2BIN
+        DEY
+        TXA
+        STA     (MISCL),Y
+        LDA     #' '            ; "SP"
+        LDX     #$0C            ; clear I/O buffer
+CLEAR:  STA     LABEL,X         ; except prompt.
+        DEX
+        BPL     CLEAR
+        JSR     INPUT           ; Next symbol.
+        LDA     LABEL
+        BPL     START
+        NOP
+        .endproc
+
+; -LOCAL. Add local symbols to symbol table; assign addresses.
+        .proc   LOCAL
+        JSR     ASSGN           ; Add to
+        CMP     #$44            ; symbol table
+        BNE     OK              ; if new.
+        LDA     #':'            ; ":" Error-
+        RTS                     ; symbol in use.
+OK:     LDA     #'-'            ; "-" stay in
+        RTS                     ; input mode.        
+        .endproc
+
+; ?REDEF. Redefine module start address.
+        .proc REDEF
+        LDX     #7              ; Find high address.
+        JSR     HX2BIN
+        STX     MDLADH          ; Store.
+        LDX     #9              ; Find low address.
+        JSR     HX2BIN
+        STX     MDLADL          ; Store.
+        LDA     #'?'            ; "?" stay in
+        RTS                     ; command mode.
+        .endproc
 
 
+; Subroutine ASMBL. Translate line into machine code; store result at
+; (OBJECT). Return length-1 in Y.
+
+        .proc ASMBL
+        LDA   #0                ; Get first byte
+
+        .endproc
+
+
+LOCSYM:
+ASSEM:
+TABLE:
+INPUT:
+STORE:
 
 MODLIM: ; Lower opcode pointer limits for modes.
         .byte $00,$19,$1D,$2A,$3F,$4F,$51,$59,$61,$69,$80,$90,$9C
 
 DECODE:
-
+OUTLIN:
+PRNTCK:
+PRINT:
+FIXSYM:
+INSERT:
+INSRT:
+COMAND:
