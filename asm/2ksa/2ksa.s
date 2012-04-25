@@ -26,6 +26,7 @@ NUM     = $36           ; Number of highest record in table (MATCH).
 OPCPTR  = $37           ; Pointer to opcode in OPCTAB.
 PRNTOK  = $38           ; Flag to enable printing by Subroutine PRNTCK.
 SYMPTR  = $38           ; ??? Undocumented
+OPRDSP  = $39           ; ??? Undocumented
 WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
 MODE    = $3A           ; Code for address mode.
 SAVX    = $3B           ; Used to preserve X register.
@@ -399,7 +400,76 @@ DONE:   LDA     #'-'            ; "-"
         RTS                     ; OK, return.
 NOTZPG: NOP                     ; Continue.
         
+; Subroutine ENCODE (part 4). Look up operand; add if required.
+
+        LDX     #$50            ; Look up operand.
+        JSR     MATCH
+        BEQ     FOUND1
+        LDA     #$15            ; Not found; add
+        JSR     ADDLAB          ; to symbol table.
+FOUND1: STX     SYMPTR
+        LDA     OPCPTR
+        CMP     #$69            ; Relative addressing?
+        BPL     NOTREL1
+        CPX     GLOBAL
+        BPL     OK1
+        LDA     #'7'            ; "7" Error-
+        RTS                     ; branch not local.
+OK1:    LDA     #'-'            ; "-"
+        RTS
+NOTREL1: NOP
+
+; Subroutine ENCODE (part 5). For absolute addressing, check legality and find offset.
+
+        CPX     GLOBAL          ; Operand must
+        BMI     OK              ; be global or
+        JSR     ADDRSS          ; outside block.
+        CMP     CRNTAH
+        BNE     OK2
+        LDA     #'8'            ; "8" Absolute
+        RTS                     ; mode w/in block.
+ OK2:   LDA     OFFSET
+        LDX     #0
+        CMP     #' '            ; "SP"
+        BEQ     STROFS
+        LDX     #$1C            ; Find offset;
+        JSR     HX2BIN
+STROFS: STX     OPRDSP
+        INC     BYTES
+        LDA     #'-'            ; "-" Stay in
+        RTS                     ; edit mode.
         .endproc
+
+; Subroutine CMAND. Look up and execute command.
+        .proc   CMAND
+        LDA     MODE            ; Command legal
+        CMP     IOBUF           ; for mode?
+        BEQ     OK
+        CLC                     ; No; illegal.
+        ADC     #$0C            ; Return "9" or "K"
+        RTS
+OK:     LDA     #0              ; Look up command.
+        STA     SYMRFL
+        LDX     #$50
+        JSR     MATCH
+        BEQ     FOUND
+        LDA     IOBUF           ; Not found.
+        CMP     #$3F
+        BPL     CMODE
+        LDA     #'0'            ; "0" Error-
+        RTS                     ; input mode.
+CMODE:  LDA     #'A'            ; "A" Error-
+        RTS                     ; command mode.
+FOUND:  LDA     #$05            ; Set up return.
+        PHA
+        LDA     #$75
+        PHA
+        JSR     ADDRSS          ; Get address.
+        JMP     (ADL)           ; Execute command.
+        RTS
+       .endproc
+
+
 
 MODLIM: ; Lower opcode pointer limits for modes.
         .byte $00,$19,$1D,$2A,$3F,$4F,$51,$59,$61,$69,$80,$90,$9C
