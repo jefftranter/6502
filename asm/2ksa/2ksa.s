@@ -6,7 +6,11 @@
 IOBUF   = $00           ; I/O Buffer; prompt or command field.
 IOBUF1  = $01           ; ??? Not Documented
 LABEL   = $07           ; I/O buffer; label field.
-;OPCODE  = $0E           ; I/O buffer; opcode field.
+OPCODE  = $0E           ; I/O buffer; opcode field.
+OPCOD1  = $0F           ; ??? Not Documented
+OPCOD2  = $10           ; ??? Not Documented
+OPCOD3  = $11           ; ??? Not Documented
+OPCOD4  = $12           ; ??? Not Documented
 ;OPRAND  = $15           ; I/O buffer; operand field.
 OFFSET  = $1C           ; ??? Not Documented
 ;USER    = $23           ; Six bytes available for use by user commands.
@@ -44,11 +48,17 @@ SYMTBH  = $51           ; High address pointer.
 SYMRFL  = $52           ; Low address pointer for symbol to be compared.
 ;SYMRFH  = $53           ; High address pointer.
 SYMNUM  = $56           ; Number of last symbol.
-;OBJECT  = $57           ; Low address pointer to object code.
-;OBJCT1  = $58           ; High address pointer.
+OBJECT  = $57           ; Low address pointer to object code.
+OBJCT1  = $58           ; High address pointer.
 ;FIRST   = $59           ; First line in range for print (PRNTCK).
 ;LAST    = $5A           ; First line after print range.
 ;LAST2   = $5B           ; High order address; same as CRNTAH.
+
+; I/O Routines - KIM-1
+CRLF     = $1E2F        ; Output Carriage return, line feed.
+OUTCH    = $1EA0        ; Output ASCII from A. Preserve X.
+GETCH    = $1E5A        ; Input ASCII to A. Preserve X.
+OUTSP    = $1E9E        ; Output one space.
 
         .org $0200
 
@@ -632,30 +642,372 @@ OK:     LDA     #'-'            ; "-" stay in
         RTS                     ; command mode.
         .endproc
 
-
 ; Subroutine ASMBL. Translate line into machine code; store result at
 ; (OBJECT). Return length-1 in Y.
 
-        .proc ASMBL
-        LDA   #0                ; Get first byte
-
+        .proc   ASMBL
+        LDA     #0              ; Get first byte
+        LDA     (CRNTAL),Y
+        TAX
+        LDA     OPCTAB,X        ; Look up opcode.
+        STA     (OBJECT),Y
+        CPX     #$1D
+        BPL     OPREQ
+        RTS                     ; No operand.
+OPREQ:  INY
+        LDA     (CRNTAL),Y
+        CPX     #$2A
+        BPL     NOTIMM          ; Address mode?
+        STA     (OBJECT),Y      ; Immediate.
+        RTS
+NOTIMM: STX     MNE
+        TAX
+        JSR     ADDRSS          ; Get address.
+        LDA     ADL
+        LDY     #1
+        LDX     MNE
+        CPX     #$61
+        BPL     NOTZPG
+        STA     (OBJECT),Y      ; Zero page.
+        RTS
+NOTZPG: CPX     #$69
+        BPL     NOTREL
+        SEC                     ; Relative.
+        SBC     #2              ; Computer branch.
+        SEC
+        SBC     CRNTAL
+        STA     (OBJECT),Y
+        RTS
+NOTREL: CLC                     ; Absolute.
+        INY
+        ADC     (CRNTAL),Y      ; Add offset.
+        DEY
+        STA     (OBJECT),Y
+        INY
+        LDA     ADH
+        ADC     #0
+        STA     (OBJECT),Y
+        RTS
         .endproc
 
+; Subroutine LOCSYM. Displays undefined local symbols.
+        .proc   LOCSYM
+        LDX     GLOBAL          ; For local symbols,
+NXTSYM: INX
+        JSR     ADDRSS          ; see if defined.
+        CMP     #$FF
+        BNE     DEFIND          ; If not,
+        LDY     #5              ; display symbol.
+SHOW:   LDA     (MISCL),Y
+        STA     IOBUF,Y
+        DEY
+        BPL     SHOW
+        STX     MISCL
+        JSR     OUTLIN
+        LDX     MISCL
+DEFIND: CPX     SYMNUM          ; If more
+        BMI     NXTSYM          ; symbols, repeat.
+        RTS
+        .endproc
 
-LOCSYM:
-ASSEM:
-TABLE:
-INPUT:
-STORE:
+; -ASSEM. Assemble module; store result in RAM locationsbeginning at (MDLADL, H).
 
-MODLIM: ; Lower opcode pointer limits for modes.
-        .byte $00,$19,$1D,$2A,$3F,$4F,$51,$59,$61,$69,$80,$90,$9C
+        .proc   ASSEM
+        JSR     LOCSYM          ; Check for local
+        LDA     #$2D            ; undefined symbols.
+        CMP     IOBUF
+        BEQ     ALLOK           ; If any; return.
+        RTS
+ALLOK:  LDA     #0              ; Else, assemble.
+        STA     CRNTAL
+        LDA     MDLADL
+        STA     OBJECT
+        LDA     MDLADH
+        STA     OBJCT1
+NEXTLN: JSR     ASMBL           ; Translate a line.
+        STY     TEMP            ; Save bytes -1.
+        SEC                     ; Increment pointers.
+        LDA     OBJECT          ; For object code.
+        ADC     TEMP
+        STA     OBJECT
+        BCC     SKIP
+        INC     OBJCT1
+SKIP:   SEC                     ; For source code.
+        LDA     CRNTAL
+        ADC     TEMP
+        STA     CRNTAL
+        CMP     PRGLEN
+        BMI     NEXTLN          ; Finished?
+        LDA     #'-'            ; "-" Stay in
+        RTS                     ; edit mode.
+        .endproc
 
-DECODE:
-OUTLIN:
+; ? TABLE. Allocate space for tables.
+        .proc   TABLE
+        LDA     LABEL
+START:  CMP     #' '            ; "SP"
+        BNE     MORE            ; Any label?
+        LDA     #$3F            ; No; done.
+        RTS
+MORE:   LDA     #7
+        JSR     NEWSYM          ; Add symbol to
+        BEQ     NOTOLD          ; symbol table.
+        LDA     #'D'            ; "D" Error-
+        RTS                     ; not new.
+NOTOLD: LDY     #6              ; Assign address.
+        LDA     MDLADL
+        STA     (MISCL),Y
+        INY
+        LDA     MDLADH
+        STA     (MISCL),Y
+        LDX     #$0E            ; Allocate space
+        JSR     HX2BIN          ; by incrementing
+        TXA                     ; MDLADL, H.
+        CLC
+        ADC     MDLADL
+        STA     MDLADL
+        BCC     NOINC
+        INC     MDLADH
+NOINC:  LDA     #' '            ; "SP"
+        LDX     #$0C
+CLEAR:  STA     LABEL,X         ; Clear I/O buffer
+        DEX                     ; except prompt.
+        BPL     CLEAR
+        JSR     INPUT
+        LDA     LABEL           ; Another symbol?
+        BPL     START
+        NOP
+        .endproc
+
+; Subroutine INPUT. Prompt w/ first word in IOBUF. Input up to 5
+; words. Special keys: ESC, CR, BKSP, SP.
+
+        .proc   INPUT
+        JSR     CRLF            ; New line.
+        LDX     #0              ; Prompt w/
+PROMPT: LDA     IOBUF,X         ; first 6 chars
+        JSR     OUTCH
+        INX
+        CPX     #6
+        BMI     PROMPT
+        LDX     #0              ; Initialize pointer.
+        LDA     #6              ; 7 chars/word
+        STA     TEMP            ; includes space.
+START:  JSR     GETCH           ; Input a char.
+        CMP     #$1B            ; "ESC"
+        BNE     NOTBRK
+        BRK                     ; Break.
+NOTBRK: CMP     #$0D            ; "CR"
+        BNE     NOTCR
+        RTS                     ; End of line.
+NOTCR:  CMP     #$08            ; "BS"
+        BNE     NOTBSP
+        DEX                     ; Backspace.
+        INC     TEMP
+        LDA     #$08
+NOTBSP: CMP     #' '            ; "SP"
+        BNE     NOTSP
+        NOP                     ; Next word.
+TAB:    JSR     OUTSP           ; Add spaces
+        INX                     ; to fill word.
+        DEC     TEMP
+        BPL     TAB
+        LDA     #$06
+        STA     TEMP
+NOTSP:  CMP     #$20            ; If not a
+        BMI     DONE            ; control char:
+        STA     IOBUF,X         ; Add char to
+        INX                     ; I/O buffer.
+        DEC     TEMP
+DONE:   CLC
+        BCC     START           ; Next character.
+        NOP
+        .endproc
+
+; -STORE. Clear local symbols; assign address to
+; module. IncrementMDLADL,H to prevent overwrite by next
+; module. Return to command mode.
+
+        .proc   STORE
+        LDX     GLOBAL          ; Clear local
+        JSR     SYM             ; symbols from
+        STX     SYMNUM          ; symbol table.
+        LDA     MISCL
+        STA     SYMTBL
+        LDA     MISCH
+        STA     SYMTBH
+        LDY     #$07            ; Assign address
+        LDA     MDLADH          ; to module.
+        STA     (MISCL),Y
+        DEY
+        LDA     MDLADL
+        STA     (MISCL),Y
+        CLC
+        ADC     PRGLEN          ; Increment MDLADL,H
+        STA     MDLADL          ; by length of
+        BCC     SKIP            ; module.
+        INC     MDLADH
+SKIP:   LDA     #$3F            ; "?" Return to
+        RTS                     ; command mode.
+        .endproc
+
+ ; Lower opcode pointer limits for modes.
+        .proc   MODLIM
+        .byte   $00,$19,$1D,$2A,$3F,$4F,$51,$59,$61,$69,$80,$90,$9C
+        .endproc
+
+; Subroutine DECODE. Decode line pointed to by CRNTAL and OBJECT. Put
+; line in IOBUF, length in BYTES.
+
+        .proc   DECODE
+        LDA     #1              ; Assume 1 byte.
+        STA     BYTES
+        LDX     #$22            ; Clear I/O buffer.
+        LDA     #$20
+CLEAR:  STA     IOBUF,X
+        DEX
+        BPL     CLEAR
+        LDX     SYMNUM          ; Check for label.
+START:  JSR     ADDRSS          ; Compare address
+        LDA     CRNTAL          ; to current line
+        CMP     ADL
+        BNE     SKIP
+        LDA     CRNTAH
+        CMP     ADH
+SKIP:   BNE     SKIP2           ; If they match,
+        LDY     #5              ; put label in
+LABL:   LDA     (MISCL),Y       ; I/O buffer.
+        STA     LABEL,Y
+        DEY
+        BPL     LABL
+        LDX     #1              ; End search.
+SKIP2:  DEX
+        CPX     GLOBAL          ; Consider local
+        BPL     START           ; symbols only.
+        LDY     #0              ; Get opcode.
+        LDA     (OBJECT),Y
+        LDX     #0              ; Put opcode in
+        JSR     DSPHEX          ; I/O buffer.
+        LDA     (CRNTAL),Y      ; Decode opcode.
+        STA     OPCPTR
+
+; Subroutine DECODE (part 2). Decode address mode and opcode; put in I/O buffer.
+
+        LDX     #$0C            ; Find mode.
+        CMP     #$1D            ; Any operand?
+        BPL     FNDMOD          ; If not, only check
+        LDX     #1              ; implied and accum.
+FNDMOD: CMP     MODLIM,X        ; In range
+        BMI     NOPE            ; for mode?
+        STX     MODE            ; Yes; save mode.
+        LDX     #0              ; End search.
+NOPE:   DEX
+        BPL     FNDMOD
+        LDA     MODE            ; Put mode in
+        ASL     A               ; I/O buffer
+        TAX
+        LDA     MODTAB,X
+        STA     OPCOD3
+        LDA     MODTAB+1,X
+        STA     OPCOD4
+        LDA     (CRNTAL),Y      ; Find mnemonic.
+        SEC
+        LDX     MODE
+        SBC     BASE,X          ; Mnemonic number.
+        STA     TEMP            ; Multiply by 3.
+        ASL     A
+        CLC
+        ADC     TEMP
+        TAX                     ; Get ASCII.
+        LDA     MNETAB,X        ; Put mnemonic in
+        STA     OPCODE          ; I/O buffer.
+        LDA     MNETAB+1,X
+        STA     OPCOD1
+        LDA     MNETAB+2,X
+        STA     OPCOD2
+        LDA     OPCPTR          ; Operand needed?
+        CMP     #$1D
+        BPL     OPRND
+        RTS                     ; No; finished.
+OPRND:  INC     BYTES           ; At least 2 bytes.
+
+; Subroutine DECODE (part 3). Decode operands and offset, if any.
+        LDY     #1
+        LDA     (OBJECT),Y      ; Machine code
+        LDX     #2              ; for operand in
+        JSR     DSPHEX          ; I/O buffer.
+        LDA     OPCPTR
+        CMP     #$2A            ; Immediate mode?
+        BPL     NOTIMM
+        LDA     (CRNTAL),Y      ; Yes; put hex.
+        LDX     #$15            ; number in
+        JSR     DSPHEX          ; I/O buffer.
+        RTS
+NOTIMM: LDA     (CRNTAL),Y      ; No; look up
+        TAX                     ; operand
+        JSR     SYM
+        LDY     #5              ; Put operand
+SHOWOP: LDA     (MISCL),Y       ; in IOBUF.
+        STA     OPRND,Y
+        DEY
+        BPL     SHOWOP
+        LDA     OPCPTR          ; 3-byte instruction.
+        CMP     #$69
+        BPL     ABS
+        RTS                     ; No, done.
+ABS:    INC     BYTES           ; Yes.
+        LDY     #2
+        LDA     (OBJECT),Y      ; Add code to
+        LDX     #4              ; I/O buffer.
+        JSR     DSPHEX
+        LDA     (CRNTAL),Y      ; Offset?
+        BEQ     DONE
+        LDX     #$1C            ; Show offset.
+        JSR     DSPHEX
+DONE:   RTS
+        .endproc
+
+; Subroutine OUTLIN. Output line from IOBUF.
+
+        .proc   OUTLIN
+        JSR     CRLF            ; New line.
+        LDX     #0
+NXTCHR: LDA     IOBUF,X         ; Output one
+        JSR     OUTCH           ; character at
+        INX                     ; at time,
+        CPX     #$23            ; until done.
+        BMI     NXTCHR
+        RTS
+        .endproc
+
 PRNTCK:
+
 PRINT:
+
 FIXSYM:
+
 INSERT:
+
 INSRT:
+
+; Table COMAND. First nine entries in symbol table; commands.
+
 COMAND:
+        .byte   "?ASSGN"
+        .word   ASSGN
+        .byte   "?BEGIN"
+        .word   BEGIN
+        .byte   "-LOCAL"
+        .word   LOCAL
+        .byte   "?REDEF"
+        .word   REDEF
+        .byte   "-ASSEM"
+        .word   ASSEM
+        .byte   "?TABLE"
+        .word   TABLE
+        .byte   "-STORE"
+        .word   STORE
+        .byte   "-PRINT"
+        .word   PRINT
+        .byte   "-INSRT"
+        .word   INSRT
