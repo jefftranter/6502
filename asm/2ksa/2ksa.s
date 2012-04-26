@@ -1,7 +1,13 @@
 ; 2KSA - A 2K Symbolic Assembler for the 6502
 ;
 ; by Robert Ford Denison
+;
+; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
 
+; Uncomment one of the following lines to define whether to build for KIM-1 or Apple 1/Replica 1
+KIM1 = 1
+;REPLICA1 = 1
+        
 ; Global Symbols on Page Zero
 IOBUF   = $00           ; I/O Buffer; prompt or command field.
 IOBUF1  = $01           ; ??? Not Documented
@@ -29,10 +35,10 @@ LEN     = $34           ; Length of each record in table (MATCH).
 HBC     = $35           ; Number of highest bye in record which must match.
 NUM     = $36           ; Number of highest record in table (MATCH).
 OPCPTR  = $37           ; Pointer to opcode in OPCTAB.
-;PRNTOK  = $38           ; Flag to enable printing by Subroutine PRNTCK.
+PRNTOK  = $38           ; Flag to enable printing by Subroutine PRNTCK.
 SYMPTR  = $38           ; ??? Undocumented
 OPRDSP  = $39           ; ??? Undocumented
-;WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
+WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
 MODE    = $3A           ; Code for address mode.
 ;SAVX    = $3B           ; Used to preserve X register.
 GLOBAL  = $3C           ; Number of last global symbol.
@@ -50,8 +56,8 @@ SYMRFL  = $52           ; Low address pointer for symbol to be compared.
 SYMNUM  = $56           ; Number of last symbol.
 OBJECT  = $57           ; Low address pointer to object code.
 OBJCT1  = $58           ; High address pointer.
-;FIRST   = $59           ; First line in range for print (PRNTCK).
-;LAST    = $5A           ; First line after print range.
+FIRST   = $59           ; First line in range for print (PRNTCK).
+LAST    = $5A           ; First line after print range.
 ;LAST2   = $5B           ; High order address; same as CRNTAH.
 
 ; I/O Routines - KIM-1
@@ -60,7 +66,16 @@ OUTCH    = $1EA0        ; Output ASCII from A. Preserve X.
 GETCH    = $1E5A        ; Input ASCII to A. Preserve X.
 OUTSP    = $1E9E        ; Output one space.
 
+; The original KIM1 version links at $0200 or alternatively at $2000
+; Replica 1 version links at $0300 but can be changed if desired.
+
+.if .defined(KIM1)
         .org $0200
+.elseif .defined(REPLICA1)
+        .org $0300
+.else
+        .error "Must define KIM1 or REPLICA1"
+.endif
 
 MNETAB: ; Three-character ASCII mnemonics for instructions
         .byte   "BRK"
@@ -980,11 +995,74 @@ NXTCHR: LDA     IOBUF,X         ; Output one
         RTS
         .endproc
 
-PRNTCK:
+; Subroutine PRNTCK. Check that FIRST and LAST are legal line numbers. Print lines in range if PRNTOK=1.
 
-PRINT:
+        .proc   PRNTCK
+        LDA     #0              ; Initialize.
+        STA     CRNTAL
+        LDA     MDLADL
+        STA     OBJECT
+        LDA     MDLADH
+        STA     OBJCT1
+        LDX     #7              ; Decode range.
+        JSR     HX2BIN
+        STX     FIRST
+        LDX     #$0B
+        JSR     HX2BIN
+        STX     LAST
+        LDA     #2              ; Initialize flag
+        STA     WRONG           ; for mismatch.
+NXTLIN: JSR     DECODE          ; Decode line.
+        LDA     CRNTAL
+        CMP     FIRST           ; Decrement WRONG
+        BNE     SKIP            ; each time a
+        DEC     WRONG           ; match is found.
+SKIP:   CMP     LAST
+        BNE     SKIP2
+        DEC     WRONG
+SKIP2:  CMP     FIRST           ; In range
+        BMI     LOW             ; for print?
+        CMP     LAST
+        BPL     HIGH
+        BIT     PRNTOK          ; Yes, but
+        BMI     NOPRNT          ; print wanted?
+        LDX     #$1F            ; Yes; add
+        JSR     DSPHEX          ; line number.
+        JSR     OUTLIN          ; Print line.
+NOPRNT: NOP
+HIGH:   NOP
+LOW:    CLC                     ; Update pointers.
+        LDA     OBJECT
+        ADC     BYTES
+        STA     OBJECT
+        BCC     NOINC
+        INC     OBJCT1
+NOINC:  CLC
+        LDA     CRNTAL
+        ADC     BYTES
+        STA     CRNTAL
+        CMP     PRGLEN          ; Last line?
+        BMI     NXTLIN          ; If not, repeat.
+        RTS
+        .endproc
 
-FIXSYM:
+; -PRINT. Output lines in specified range.
+
+        .proc   PRINT
+        LDA     #1              ; Set print flag.
+        STA     PRNTOK
+        JSR     PRNTCK          ; Run print routine.
+        LDA     #'-'            ; "-" Stay in
+        RTS                     ; edit mode.
+        .endproc
+
+; Subroutine FIXSYM. Adds BYTES to addresses of line labels. Used by -INSRT and subroutine INSERT.
+
+        .proc   FIXSYM
+        LDX     SYMNUM          ; For local symbols.
+
+        .endproc
+
 
 INSERT:
 
