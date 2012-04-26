@@ -7,7 +7,7 @@
 ; Uncomment one of the following lines to define whether to build for KIM-1 or Apple 1/Replica 1
 KIM1 = 1
 ;REPLICA1 = 1
-        
+
 ; Global Symbols on Page Zero
 IOBUF   = $00           ; I/O Buffer; prompt or command field.
 IOBUF1  = $01           ; ??? Not Documented
@@ -17,9 +17,9 @@ OPCOD1  = $0F           ; ??? Not Documented
 OPCOD2  = $10           ; ??? Not Documented
 OPCOD3  = $11           ; ??? Not Documented
 OPCOD4  = $12           ; ??? Not Documented
-;OPRAND  = $15           ; I/O buffer; operand field.
+;OPRAND  = $15          ; I/O buffer; operand field.
 OFFSET  = $1C           ; ??? Not Documented
-;USER    = $23           ; Six bytes available for use by user commands.
+;USER    = $23          ; Six bytes available for use by user commands.
 ADL     = $29           ; Low address pointer for various subroutines.
 ADH     = $2A           ; High address pointer.
 MISCL   = $2B           ; Miscellaneous uses.
@@ -30,7 +30,7 @@ BYTES   = $2F           ; Lengths of lines, etc.
 TBL     = $30           ; Low address pointer for table; used by MATCH.
 TBH     = $31           ; High address pointer (Subroutine MATCH).
 RFL     = $32           ; Low address pointer for string to be matched.
-;RFH     = $33           ; High address pointer (MATCH).
+;RFH     = $33          ; High address pointer (MATCH).
 LEN     = $34           ; Length of each record in table (MATCH).
 HBC     = $35           ; Number of highest bye in record which must match.
 NUM     = $36           ; Number of highest record in table (MATCH).
@@ -40,38 +40,45 @@ SYMPTR  = $38           ; ??? Undocumented
 OPRDSP  = $39           ; ??? Undocumented
 WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
 MODE    = $3A           ; Code for address mode.
-;SAVX    = $3B           ; Used to preserve X register.
+;SAVX    = $3B          ; Used to preserve X register.
 GLOBAL  = $3C           ; Number of last global symbol.
 PRGLEN  = $3D           ; Length of source code.
 CRNTAL  = $3E           ; Low address pointer to current source code line.
 CRNTAH  = $3F           ; High address pointer.
 MDLADL  = $40           ; Module pointer, low address.
 MDLADH  = $41           ; Module pointer, high address.
-;MNETBL  = $42           ; Parameters for MNETAB (see TBL to NUM above).
-;MODTBL  = $49           ; Parameters for MODTAB.
+;MNETBL  = $42          ; Parameters for MNETAB (see TBL to NUM above).
+;MODTBL  = $49          ; Parameters for MODTAB.
 SYMTBL  = $50           ; Low address pointer to last entry in symbol table.
 SYMTBH  = $51           ; High address pointer.
 SYMRFL  = $52           ; Low address pointer for symbol to be compared.
-;SYMRFH  = $53           ; High address pointer.
+;SYMRFH  = $53          ; High address pointer.
 SYMNUM  = $56           ; Number of last symbol.
 OBJECT  = $57           ; Low address pointer to object code.
 OBJCT1  = $58           ; High address pointer.
 FIRST   = $59           ; First line in range for print (PRNTCK).
 LAST    = $5A           ; First line after print range.
-;LAST2   = $5B           ; High order address; same as CRNTAH.
+LAST1   = $5B           ; High order address; same as CRNTAH.
+;LAST2   = $5B          ; High order address; same as CRNTAH.
 
+.ifdef KIM1
 ; I/O Routines - KIM-1
 CRLF     = $1E2F        ; Output Carriage return, line feed.
 OUTCH    = $1EA0        ; Output ASCII from A. Preserve X.
 GETCH    = $1E5A        ; Input ASCII to A. Preserve X.
 OUTSP    = $1E9E        ; Output one space.
+.endif
 
+; I/O Routines - Replica 1
+.ifdef REPLICA1
+ECHO     = $FFEF
+.endif
+
+.ifdef KIM1
 ; The original KIM1 version links at $0200 or alternatively at $2000
-; Replica 1 version links at $0300 but can be changed if desired.
-
-.if .defined(KIM1)
         .org $0200
 .elseif .defined(REPLICA1)
+; Replica 1 version links at $0300 but can be changed if desired.
         .org $0300
 .else
         .error "Must define KIM1 or REPLICA1"
@@ -134,7 +141,7 @@ MNETAB: ; Three-character ASCII mnemonics for instructions
         .byte   "BPL"
         .byte   "BVC"
         .byte   "BVS"
-        
+
 MODTAB: ; Two-character ASCII mode codes.
         .byte   "  "
         .byte   "A "
@@ -240,7 +247,7 @@ NUMER:  AND     #$0F            ; Convert to binary.
 
 ; Subroutine BIN2HX. Convert 4 bits in A to an ASCII character. Store in page zero, X.
         .proc   BIN2HX
-        CMP     #$0A            ; Number of letter?
+        CMP     #$0A            ; Number or letter?
         BMI     NUMER
         CLC                     ; Letter; adjust.
         ADC     #7
@@ -319,7 +326,7 @@ NOADDR: LDY   #7
         DEY
         DEY
 XFRSYM: LDA   (ADL),Y           ; Add symbol to
-        STA   (SYMTBL),Y        ; symbol table
+        STA   (SYMTBL),Y        ; symbol table.
         DEY
         BPL   XFRSYM
         LDX   SYMNUM            ; Increment number
@@ -336,7 +343,7 @@ XFRSYM: LDA   (ADL),Y           ; Add symbol to
        LDX    #$50
        JSR    MATCH             ; Look up symbol.
        BEQ    OLD
-       LDA    SYMRFL            ; No found; add
+       LDA    SYMRFL            ; Not found; add
        JSR    ADDLAB            ; to symbol table.
 OLD:   JSR    SYM               ; Address in MISCL, H.
        CPX    SYMNUM            ; Set z if new.
@@ -688,7 +695,7 @@ NOTIMM: STX     MNE
 NOTZPG: CPX     #$69
         BPL     NOTREL
         SEC                     ; Relative.
-        SBC     #2              ; Computer branch.
+        SBC     #2              ; Compute branch.
         SEC
         SBC     CRNTAL
         STA     (OBJECT),Y
@@ -1059,17 +1066,112 @@ NOINC:  CLC
 ; Subroutine FIXSYM. Adds BYTES to addresses of line labels. Used by -INSRT and subroutine INSERT.
 
         .proc   FIXSYM
-        LDX     SYMNUM          ; For local symbols.
-
+        LDX     SYMNUM          ; For local symbols,
+START:  JSR     ADDRSS          ; find address.
+        CMP     CRNTAH          ; Line label?
+        BNE     NOTLAB
+        LDA     ADL             ; Yes, but in
+        CMP     CRNTAL          ; move zone?
+        BMI     NOREV
+        LDY     ADL             ; Yes.
+        CPY     LAST            ; Line deleted?
+        BPL     NEWADR
+        LDA     #$FE            ; Yes.
+        LDY     #7              ; Delete symbol.
+        STA     (MISCL),Y
+NEWADR: CLC                     ; Fix address
+        ADC     BYTES
+        LDY     #6
+        STA     (MISCL),Y
+NOREV:  NOP
+NOTLAB: DEX                     ; More local
+        CPX     GLOBAL          ; symbols?
+        BPL     START
+        RTS
         .endproc
 
+; Subroutine INSERT. Open gap in program to insert current line. Adjust symbol table.
 
-INSERT:
+        .proc   INSERT
+        LDA     CRNTAL          ; Inserting line?
+        CMP     PRGLEN
+        BNE     INS
+        RTS                     ; Nope.
+INS:    STA     LAST
+        JSR     FIXSYM          ; Fix symbols.
+        CLC
+        LDA     CRNTAL          ; Set up offset
+        ADC     BYTES           ; pointer for move.
+        STA     ADL
+        LDA     CRNTAH
+        STA     ADH
+        LDA     PRGLEN
+        SEC
+        SBC     CRNTAL
+        TAY
+MOVE:   LDA     (CRNTAL),Y      ; Move lines to
+        STA     (ADL),Y         ; open gap.
+        DEY
+        BPL     MOVE
+        RTS
+        .endproc
 
-INSRT:
+; -INSRT. Check supplied line numbers for legality. Set program
+; pointer to first line number; delete to second.
+
+        .proc   INSRT
+        LDA     #$FF            ; Legal line?
+        STA     PRNTOK
+        JSR     PRNTCK
+        CMP     LAST            ; Last+1 is
+        BNE     NOTLST          ; legal line
+        DEC     WRONG           ; number.
+NOTLST: LDA     WRONG
+        BEQ     OK
+        LDA     #'%'            ; "%" Error-
+        RTS                     ; illegal address.
+OK:     LDA     FIRST
+        STA     CRNTAL
+        LDX     LAST            ; Deletion needed?
+        BEQ     DONE
+        SEC                     ; Fix addresses
+        SBC     LAST            ; for labels.
+        STA     BYTES
+        JSR     FIXSYM
+        LDA     CRNTAH          ; Set pointer
+        STA     LAST1           ; for move.
+        LDA     PRGLEN          ; Find bytes
+        SEC                     ; to move.
+        SBC     CRNTAL
+        STA     TEMP
+        LDA     PRGLEN          ; Correct length
+        CLC                     ; of program.
+        ADC     BYTES
+        STA     PRGLEN
+        LDY     #0              ; Move lines to
+MOVE:   LDA     (LAST),Y        ; close gap.
+        STA     (CRNTAL),Y
+        INY
+        CPY     TEMP
+        BMI     MOVE
+        NOP
+DONE:   LDA     #'-'            ; "-" Stay in
+        RTS                     ; edit mode.
+        .endproc
+
+; Move first nine entries in symbol table to RAM. Entry point for assembler in ROM.
+
+        LDX     #$47
+MOVSYM: LDA     ROM,X
+        STA     RAM,X
+        DEX
+        BPL     MOVSYM
+        JMP     MAIN
 
 ; Table COMAND. First nine entries in symbol table; commands.
 
+RAM:
+ROM:
 COMAND:
         .byte   "?ASSGN"
         .word   ASSGN
@@ -1089,3 +1191,29 @@ COMAND:
         .word   PRINT
         .byte   "-INSRT"
         .word   INSRT
+
+.ifdef REPLICA1
+
+; I/O Routines - Replica 1
+
+; Output Carriage return, line feed.
+CRLF:    LDA    #$0D
+         JSR    OUTCH
+         RTS
+
+; Output ASCII from A. Preserve X.
+OUTCH:   JSR   ECHO
+         RTS
+
+; Input ASCII to A. Preserve X.
+GETCH:   LDA  $D011          ; Read keyboard status
+         BPL  GETCH          ; until key pressed.
+         LDA  $D010          ; Key character.
+         AND #$7F            ; Clear MSB to convert to standard ASCII.
+         RTS
+
+; Output one space.
+OUTSP:   LDA    #' '
+         JSR    OUTCH
+         RTS
+.endif
