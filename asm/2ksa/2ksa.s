@@ -3,6 +3,13 @@
 ; by Robert Ford Denison
 ;
 ; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
+;
+; TODO:
+; - add support for relocation
+; - add revisions listed in back of manual
+; - changes for Replica 1
+; - debug and test
+; - enhancements
 
 ; Uncomment one of the following lines to define whether to build for KIM-1 or Apple 1/Replica 1
 KIM1 = 1
@@ -73,6 +80,8 @@ OUTSP    = $1E9E        ; Output one space.
 .ifdef REPLICA1
 ECHO     = $FFEF
 .endif
+
+; Note: Program must be linked starting at a page boundary.
 
 .ifdef KIM1
 ; The original KIM1 version links at $0200 or alternatively at $2000
@@ -1168,10 +1177,13 @@ MOVSYM: LDA     ROM,X
         BPL     MOVSYM
         JMP     MAIN
 
-; Table COMAND. First nine entries in symbol table; commands.
+; See page 55 for defining RAM and ROM.
 
 RAM:
 ROM:
+
+; Table COMAND. First nine entries in symbol table; commands.
+
 COMAND:
         .byte   "?ASSGN"
         .word   ASSGN
@@ -1202,14 +1214,14 @@ CRLF:    LDA    #$0D
          RTS
 
 ; Output ASCII from A. Preserve X.
-OUTCH:   JSR   ECHO
+OUTCH:   JSR    ECHO
          RTS
 
 ; Input ASCII to A. Preserve X.
-GETCH:   LDA  $D011          ; Read keyboard status
-         BPL  GETCH          ; until key pressed.
-         LDA  $D010          ; Key character.
-         AND #$7F            ; Clear MSB to convert to standard ASCII.
+GETCH:   LDA    $D011           ; Read keyboard status
+         BPL    GETCH           ; until key pressed.
+         LDA    $D010           ; Key character.
+         AND    #$7F            ; Clear MSB to convert to standard ASCII.
          RTS
 
 ; Output one space.
