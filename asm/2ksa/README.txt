@@ -8,6 +8,70 @@ itself, due to the different assembler syntax.
 The code can be conditionally assembled to produce the original KIM-1
 version as well as a port to the Apple 1/Replica 1 (in progress).
 
-I found a number of errors in the documentation but was able to
-resolve them by looking at the assembly listing and binary dump. I
-have not tested it on a KIM-1 as I do not have one.
+I have not tested it on a KIM-1 as I do not have one.
+
+Relocation
+----------
+
+The document describes what needs to be changed to manually relocate
+the code to run at different addresses. This source code will handle
+this automatically. You do need to make sure it starts on a page
+boundary.
+
+Errors
+-------
+
+I found a number of errors in the documentation. It is not surprising
+given that the document was typed by hand on a typewriter. There is
+evidence that some corrections were made to the document later as the
+typewriter font changes.
+
+Where there were discrepancies I was able to resolve them by looking
+at the assembly listing and binary dump, as they appear to be correct.
+
+I noticed the following errors:
+
+Symbols defined but never used, in table 4.2 on page 43:
+
+USER
+RFH
+SAVX
+MNETBL
+MODTBL
+SYMRFH
+LAST2
+
+Symbols used in the listing but not documented the above table:
+
+IOBUF1
+OPCODE1
+OPCODE2
+OPCODE3
+OPCODE4
+OFFSET
+SYMPTR
+OPRDP
+
+Source code errors:
+
+Page 16: The two instances of "JSR BIN2HEX" should read "JSR BIN2HX".
+
+Page 24: The third instruction "LDAZ PRMTAB" should be "LDAZX PRMTAB"
+(or in the the more conventional CC65 assembler, "LDA PRMTAB,X").
+
+Page 28: The first instruction "LDA #00" should be "LDY #00".
+
+Page 34: The syntax of some instructions is unusual, e.g.  "LDAX
+MODTAB 01" means "LDAX MODTAB+01" or in the more conventional CC65
+assembler, "LDA MODTAB+1,X".
+
+The binary dump at the end of the document was very useful for
+conforming that my assembled version exactly matched the original.
+The only discrepancy in this listing is that the addresses for the I/O
+routines (GETCH, etc.) do not match the KIM-1 ROM addresses. This
+could be because the code was using the alternative I/O system listed
+in Appendix A. Or possibly this dump was for a SYM-1 system as the
+listing says "SYM USER'S GROUP" ?
+
+Note that the last column in the memory dump is a checksum, an 8-bit
+running total of the bytes in the file up to that point.
