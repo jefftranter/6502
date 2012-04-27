@@ -17,9 +17,9 @@ OPCOD1  = $0F           ; ??? Not Documented
 OPCOD2  = $10           ; ??? Not Documented
 OPCOD3  = $11           ; ??? Not Documented
 OPCOD4  = $12           ; ??? Not Documented
-;OPRAND  = $15          ; I/O buffer; operand field.
+OPRAND  = $15           ; I/O buffer; operand field.
 OFFSET  = $1C           ; ??? Not Documented
-;USER    = $23          ; Six bytes available for use by user commands.
+;USER   = $23           ; Six bytes available for use by user commands.
 ADL     = $29           ; Low address pointer for various subroutines.
 ADH     = $2A           ; High address pointer.
 MISCL   = $2B           ; Miscellaneous uses.
@@ -30,7 +30,7 @@ BYTES   = $2F           ; Lengths of lines, etc.
 TBL     = $30           ; Low address pointer for table; used by MATCH.
 TBH     = $31           ; High address pointer (Subroutine MATCH).
 RFL     = $32           ; Low address pointer for string to be matched.
-;RFH     = $33          ; High address pointer (MATCH).
+;RFH    = $33           ; High address pointer (MATCH).
 LEN     = $34           ; Length of each record in table (MATCH).
 HBC     = $35           ; Number of highest bye in record which must match.
 NUM     = $36           ; Number of highest record in table (MATCH).
@@ -40,26 +40,26 @@ SYMPTR  = $38           ; ??? Undocumented
 OPRDSP  = $39           ; ??? Undocumented
 WRONG   = $39           ; Flag for illegal line numbers (PRNTCK).
 MODE    = $3A           ; Code for address mode.
-;SAVX    = $3B          ; Used to preserve X register.
+;SAVX   = $3B           ; Used to preserve X register.
 GLOBAL  = $3C           ; Number of last global symbol.
 PRGLEN  = $3D           ; Length of source code.
 CRNTAL  = $3E           ; Low address pointer to current source code line.
 CRNTAH  = $3F           ; High address pointer.
 MDLADL  = $40           ; Module pointer, low address.
 MDLADH  = $41           ; Module pointer, high address.
-;MNETBL  = $42          ; Parameters for MNETAB (see TBL to NUM above).
-;MODTBL  = $49          ; Parameters for MODTAB.
+;MNETBL = $42           ; Parameters for MNETAB (see TBL to NUM above).
+;MODTBL = $49           ; Parameters for MODTAB.
 SYMTBL  = $50           ; Low address pointer to last entry in symbol table.
 SYMTBH  = $51           ; High address pointer.
 SYMRFL  = $52           ; Low address pointer for symbol to be compared.
-;SYMRFH  = $53          ; High address pointer.
+;SYMRFH = $53           ; High address pointer.
 SYMNUM  = $56           ; Number of last symbol.
 OBJECT  = $57           ; Low address pointer to object code.
 OBJCT1  = $58           ; High address pointer.
 FIRST   = $59           ; First line in range for print (PRNTCK).
 LAST    = $5A           ; First line after print range.
 LAST1   = $5B           ; High order address; same as CRNTAH.
-;LAST2   = $5B          ; High order address; same as CRNTAH.
+;LAST2  = $5B           ; High order address; same as CRNTAH.
 
 .ifdef KIM1
 ; I/O Routines - KIM-1
@@ -174,7 +174,7 @@ USRPRM: ; Four bytes available for user parameters.
 
 OPCTAB: ; Machine language opcodes pointed to by OPCPTR
         .byte   $00,$18,$D8,$58,$B8,$CA,$88,$E8,$C8,$EA,$48
-        .byte   $08,$68,$28,$40,$60,$38,$F8,$78,$AA,$A8,$BA,$BA,$9A,$98,$0A,$4A
+        .byte   $08,$68,$28,$40,$60,$38,$F8,$78,$AA,$A8,$BA,$8A,$9A,$98,$0A,$4A
         .byte   $2A,$6A,$E0,$FF,$A2,$C0,$A0,$FF,$69,$29,$C9,$49,$A9,$09,$E9,$E4
         .byte   $86,$A6,$C4,$A4,$84,$65,$25,$C5,$45,$A5,$05,$E5,$85,$06,$46,$26
         .byte   $66,$C6,$E6,$24,$B4,$94,$75,$35,$D5,$55,$B5,$15,$F5,$95,$16,$56
@@ -455,7 +455,7 @@ NOTREL1: NOP
 ; Subroutine ENCODE (part 5). For absolute addressing, check legality and find offset.
 
         CPX     GLOBAL          ; Operand must
-        BMI     OK              ; be global or
+        BMI     OK2             ; be global or
         JSR     ADDRSS          ; outside block.
         CMP     CRNTAH
         BNE     OK2
@@ -516,7 +516,7 @@ ADDLIN: LDA     OPCPTR,Y        ; Add line
         BEQ     INCADR          ; Any label?
         LDA     #7              ; Yes. Add to
         JSR     NEWSYM          ; symbol table
-        LDA     #7              ; if new, and
+        LDY     #7              ; if new, and
         LDA     CRNTAH          ; assign address.
         STA     (MISCL),Y
         DEY
@@ -545,7 +545,7 @@ OK2:    LDA     #$2D
         .proc MAIN
         CLD
         LDX      #$18           ; Initialize
- INIT:  LDA      PRMTAB         ; program parameters.
+ INIT:  LDA      PRMTAB,X       ; program parameters.
         STA      CRNTAH,X
         DEX
         BPL     INIT
@@ -668,7 +668,7 @@ OK:     LDA     #'-'            ; "-" stay in
 ; (OBJECT). Return length-1 in Y.
 
         .proc   ASMBL
-        LDA     #0              ; Get first byte
+        LDY     #0              ; Get first byte
         LDA     (CRNTAL),Y
         TAX
         LDA     OPCTAB,X        ; Look up opcode.
@@ -970,7 +970,7 @@ NOTIMM: LDA     (CRNTAL),Y      ; No; look up
         JSR     SYM
         LDY     #5              ; Put operand
 SHOWOP: LDA     (MISCL),Y       ; in IOBUF.
-        STA     OPRND,Y
+        STA     OPRAND,Y
         DEY
         BPL     SHOWOP
         LDA     OPCPTR          ; 3-byte instruction.
