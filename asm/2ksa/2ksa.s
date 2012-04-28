@@ -5,10 +5,12 @@
 ; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - add support for relocation
-; - add revisions listed in back of manual
+; - add sample input code (as separate file) from page 56.
+; - add code for alternate I/O routines
+; - make loadable files for KIM-1 users (See http://retro.hansotten.nl/index.php?page=micro-kim) (2 versions, linked at $0200 and $2000)
 ; - changes for Replica 1
 ; - debug and test
+; - add revisions listed in back of manual
 ; - enhancements
 
 ; Uncomment one of the following lines to define whether to build for KIM-1 or Apple 1/Replica 1
@@ -176,7 +178,14 @@ BASE: ; Base value for mode added to MNE to get OPCPTR
         .byte   $00,$F2,$04,$11,$22,$35,$32,$3A,$31,$50,$63,$75,$6E
 
 PRMTAB: ; Initialization values for CRNTAH through SYMNUM.
-        .byte   $0C,$80,$0C,$A5,$02,$0E,$00,$03,$02,$37,$C0,$02,$11,$00,$02,$01,$0C,$F8,$09,$15,$00,$08,$05,$08
+        .byte   >(MNETAB+$0A00)
+        .word   MNETAB+$0A80
+        .word   MODTAB-3
+        .byte   $0E,$00,$03,$02,$37
+        .word   MIN-2
+        .byte   $11,$00,$02,$01,$0C
+        .word   COMAND+$40
+        .byte   $15,$00,$08,$05,$08
 
 USRPRM: ; Four bytes available for user parameters.
         .byte   $FF,$FF,$FF,$FF
@@ -502,7 +511,7 @@ OK:     LDA     #0              ; Look up command.
         RTS                     ; input mode.
 CMODE:  LDA     #'A'            ; "A" Error-
         RTS                     ; command mode.
-FOUND:  LDA     #$05            ; Set up return.
+FOUND:  LDA     #>*             ; Set up return.
         PHA
         LDA     #$75
         PHA
