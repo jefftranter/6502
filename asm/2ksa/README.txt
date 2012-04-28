@@ -10,6 +10,32 @@ version as well as a port to the Apple 1/Replica 1 (in progress).
 
 I have not tested it on a KIM-1 as I do not have one.
 
+Sample Session
+--------------
+
+See the manual for detailed instructions on how to run the
+assembler. Here is the output of a sample run:
+
+?     ?ASSGN  ECHO    FFEF
+?ASSGN
+?     ?BEGIN  DEMO
+- 0D00                LDA#    00
+- 0D02        LOOP    TAX
+- 0D03                JSR     ECHO
+- 0D06                INX
+- 0D07                TXA
+- 0D08                BVC     LOOP
+- 0D0A-PRINT  00TO10
+A900   DEMO   LDA#   00        00  
+AA     LOOP   TAX              02  
+20EFFF        JSR    ECHO      03  
+E8            INX              06  
+8A            TXA              07  
+50F8          BVC    LOOP      08  
+- 0D0A-ASSEM
+- 0D0A-STORE
+?     
+
 Relocation
 ----------
 

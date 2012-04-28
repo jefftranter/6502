@@ -5,17 +5,15 @@
 ; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - add sample input code (as separate file) from page 56.
-; - add code for alternate I/O routines
-; - make loadable files for KIM-1 users (See http://retro.hansotten.nl/index.php?page=micro-kim) (2 versions, linked at $0200 and $2000)
-; - changes for Replica 1
-; - debug and test
+; - debug and test in Replica 1
+; - <ESC> should go to Woz mon on Replica 1
+; - make some optional changes settable at assemble time (e.g. prompt character)
 ; - add revisions listed in back of manual
 ; - enhancements
 
 ; Uncomment one of the following lines to define whether to build for KIM-1 or Apple 1/Replica 1
-KIM1 = 1
-;REPLICA1 = 1
+;KIM1 = 1
+REPLICA1 = 1
 
 ; Global Symbols on Page Zero
 IOBUF   = $00           ; I/O Buffer; prompt or command field.
@@ -87,12 +85,39 @@ ECHO     = $FFEF
 
 .ifdef KIM1
 ; The original KIM1 version links at $0200 or alternatively at $2000
-        .org $0200
+        .org $2000
 .elseif .defined(REPLICA1)
-; Replica 1 version links at $0300 but can be changed if desired.
-        .org $0300
+; Start address here is adjusted so that 2KSA code proper starts at $0300 but can be changed if desired.
+        .org $02E2
 .else
         .error "Must define KIM1 or REPLICA1"
+.endif
+
+.ifdef REPLICA1
+
+; I/O Routines - Replica 1
+
+; Output Carriage return, line feed.
+CRLF:    LDA    #$0D
+         JSR    OUTCH
+         RTS
+
+; Output ASCII from A. Preserve X.
+OUTCH:   JSR    ECHO
+         RTS
+
+; Input ASCII to A. Preserve X.
+GETCH:   LDA    $D011           ; Read keyboard status
+         BPL    GETCH           ; until key pressed.
+         LDA    $D010           ; Key character.
+         AND    #$7F            ; Clear MSB to convert to standard ASCII.
+         JSR    OUTCH           ; Echo it
+         RTS
+
+; Output one space.
+OUTSP:   LDA    #' '
+         JSR    OUTCH
+         RTS
 .endif
 
 MNETAB: ; Three-character ASCII mnemonics for instructions
@@ -1212,29 +1237,3 @@ COMAND:
         .word   PRINT
         .byte   "-INSRT"
         .word   INSRT
-
-.ifdef REPLICA1
-
-; I/O Routines - Replica 1
-
-; Output Carriage return, line feed.
-CRLF:    LDA    #$0D
-         JSR    OUTCH
-         RTS
-
-; Output ASCII from A. Preserve X.
-OUTCH:   JSR    ECHO
-         RTS
-
-; Input ASCII to A. Preserve X.
-GETCH:   LDA    $D011           ; Read keyboard status
-         BPL    GETCH           ; until key pressed.
-         LDA    $D010           ; Key character.
-         AND    #$7F            ; Clear MSB to convert to standard ASCII.
-         RTS
-
-; Output one space.
-OUTSP:   LDA    #' '
-         JSR    OUTCH
-         RTS
-.endif
