@@ -6,7 +6,7 @@ tools. Because the code was modified it is not able to assemble
 itself, due to the different assembler syntax.
 
 The code can be conditionally assembled to produce the original KIM-1
-version as well as a port to the Apple 1/Replica 1 (in progress).
+version as well as a port to the Apple 1/Replica 1.
 
 I have not tested it on a KIM-1 as I do not have one.
 
@@ -87,17 +87,17 @@ Page 24: The third instruction "LDAZ PRMTAB" should be "LDAZX PRMTAB"
 
 Page 28: The first instruction "LDA #00" should be "LDY #00".
 
-Page 34: The syntax of some instructions is unusual, e.g.  "LDAX
+Page 34: The syntax of some instructions is unusual, e.g. "LDAX
 MODTAB 01" means "LDAX MODTAB+01" or in the more conventional CC65
 assembler, "LDA MODTAB+1,X".
 
 The binary dump at the end of the document was very useful for
 conforming that my assembled version exactly matched the original.
 The only discrepancy in this listing is that the addresses for the I/O
-routines (GETCH, etc.) do not match the KIM-1 ROM addresses. This
-could be because the code was using the alternative I/O system listed
-in Appendix A. Or possibly this dump was for a SYM-1 system as the
-listing says "SYM USER'S GROUP" ?
+routines (GETCH, etc.) do not match the KIM-1 ROM addresses. This is
+because the dump was for a SYM system as the listing says "SYM USER'S
+GROUP" (see page 55 of the manual for the changes for a SYM computer).
 
 Note that the last column in the memory dump is a checksum, an 8-bit
-running total of the bytes in the file up to that point.
+running total of the bytes in the file up to that point. I found this
+useful to help in checking that my program matched the listing.
