@@ -5,15 +5,18 @@
 ; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - debug and test in Replica 1
-; - <ESC> should go to Woz mon on Replica 1
-; - make some optional changes settable at assemble time (e.g. prompt character)
 ; - add revisions listed in back of manual
 ; - enhancements
 
 ; Uncomment one of the following lines to define whether to build for KIM-1 or Apple 1/Replica 1
 ;KIM1 = 1
 REPLICA1 = 1
+
+; Key used to jump to monitor program. Default is <Escape>
+ESC = $1B
+
+; Key used to delete characters. Default is <Backspace>
+BS = $08
 
 ; Global Symbols on Page Zero
 IOBUF   = $00           ; I/O Buffer; prompt or command field.
@@ -79,6 +82,7 @@ OUTSP    = $1E9E        ; Output one space.
 ; I/O Routines - Replica 1
 .ifdef REPLICA1
 ECHO     = $FFEF
+WOZMON   = $FF00
 .endif
 
 ; Note: Program must be linked starting at a page boundary.
@@ -530,7 +534,7 @@ OK:     LDA     #0              ; Look up command.
         JSR     MATCH
         BEQ     FOUND
         LDA     IOBUF           ; Not found.
-        CMP     #$3F
+        CMP     #'?'
         BPL     CMODE
         LDA     #'0'            ; "0" Error-
         RTS                     ; input mode.
@@ -580,7 +584,7 @@ OK:     BIT     SYMNUM
         BVC     OK2
         LDA     #'C'            ; "C" Error-
         RTS                     ; symbol overflow.
-OK2:    LDA     #$2D
+OK2:    LDA     #'-'
         RTS
         .endproc
 
@@ -656,7 +660,7 @@ OK:     STX     GLOBAL          ; Set local cutoff.
         LDA     LABEL
 START:  CMP     #' '            ; "SP"
         BNE     MORE            ; Label supplied?
-        LDA     #$3F            ; No, done.
+        LDA     #'?'            ; No, done.
         RTS
 MORE:   LDA     #7
         JSR     NEWSYM          ; Add symbol to table.
@@ -779,7 +783,7 @@ DEFIND: CPX     SYMNUM          ; If more
 
         .proc   ASSEM
         JSR     LOCSYM          ; Check for local
-        LDA     #$2D            ; undefined symbols.
+        LDA     #'-'            ; undefined symbols.
         CMP     IOBUF
         BEQ     ALLOK           ; If any; return.
         RTS
@@ -812,7 +816,7 @@ SKIP:   SEC                     ; For source code.
         LDA     LABEL
 START:  CMP     #' '            ; "SP"
         BNE     MORE            ; Any label?
-        LDA     #$3F            ; No; done.
+        LDA     #'?'            ; No; done.
         RTS
 MORE:   LDA     #7
         JSR     NEWSYM          ; Add symbol to
@@ -859,13 +863,17 @@ PROMPT: LDA     IOBUF,X         ; first 6 chars
         LDA     #6              ; 7 chars/word
         STA     TEMP            ; includes space.
 START:  JSR     GETCH           ; Input a char.
-        CMP     #$1B            ; "ESC"
+        CMP     #ESC            ; "ESC"
         BNE     NOTBRK
+        .ifdef REPLICA1
+        JMP     WOZMON          ; For Replica 1 go to Woz monitor
+        .else
         BRK                     ; Break.
+        .endif
 NOTBRK: CMP     #$0D            ; "CR"
         BNE     NOTCR
         RTS                     ; End of line.
-NOTCR:  CMP     #$08            ; "BS"
+NOTCR:  CMP     #BS             ; "BS"
         BNE     NOTBSP
         DEX                     ; Backspace.
         INC     TEMP
@@ -912,7 +920,7 @@ DONE:   CLC
         STA     MDLADL          ; by length of
         BCC     SKIP            ; module.
         INC     MDLADH
-SKIP:   LDA     #$3F            ; "?" Return to
+SKIP:   LDA     #'?'            ; "?" Return to
         RTS                     ; command mode.
         .endproc
 
