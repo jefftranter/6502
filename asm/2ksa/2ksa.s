@@ -5,8 +5,9 @@
 ; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
 ;
 
-; Uncomment one of the following lines to define whether to build for KIM-1 or Apple 1/Replica 1
+; Uncomment one of the following lines to define whether to build for KIM-1, SYM-1 or Apple 1/Replica 1.
 ;KIM1 = 1
+;SYM1 = 1
 REPLICA1 = 1
 
 ; Uncoment if you want the address assignment bug fix. See P.57 of manual
@@ -79,6 +80,14 @@ GETCH    = $1E5A        ; Input ASCII to A. Preserve X.
 OUTSP    = $1E9E        ; Output one space.
          .endif
 
+        .ifdef SYM1
+; I/O Routines - SYM-1
+CRLF     = $834D        ; Output Carriage return, line feed.
+OUTCH    = $8A47        ; Output ASCII from A. Preserve X.
+GETCH    = $8A1B        ; Input ASCII to A. Preserve X.
+OUTSP    = $8342        ; Output one space.
+         .endif
+
 ; I/O Routines - Replica 1
          .ifdef REPLICA1
 ECHO     = $FFEF
@@ -90,11 +99,15 @@ WOZMON   = $FF00
         .ifdef KIM1
 ; The original KIM-1 version links at $0200 or alternatively at $2000
         .org $0200
+        .elseif .defined(SYM1)
+        .org $0200
         .elseif .defined(REPLICA1)
 ; Start address here is adjusted so that 2KSA code proper starts at $0300 but can be changed if desired.
         .org $02E2
+        .export ORG
+ORG:
         .else
-        .error "Must define KIM1 or REPLICA1"
+        .error "Must define KIM1, SYM1, or REPLICA1"
         .endif
 
         .ifdef REPLICA1
@@ -594,6 +607,7 @@ OK2:    LDA     #'-'
         .endproc
 
 ; Main program. Process command, or translate input into source code.
+        .export MAIN
         .proc MAIN
         CLD
         LDX      #$18           ; Initialize
@@ -885,7 +899,9 @@ NOTCR:  CMP     #BS             ; "BS"
         LDA     #$08
 NOTBSP: CMP     #' '            ; "SP"
         BNE     NOTSP
+        .ifndef REPLICA1        ; Remove NOP to compensate for extra instructions above.
         NOP                     ; Next word.
+        .endif
 TAB:    JSR     OUTSP           ; Add spaces
         INX                     ; to fill word.
         DEC     TEMP
@@ -899,7 +915,9 @@ NOTSP:  CMP     #$20            ; If not a
         DEC     TEMP
 DONE:   CLC
         BCC     START           ; Next character.
+        .ifndef REPLICA1        ; Remove NOP to compensate for extra instructions above.
         NOP
+        .endif
         .endproc
 
 ; -STORE. Clear local symbols; assign address to
