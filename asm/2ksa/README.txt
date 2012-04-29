@@ -44,6 +44,15 @@ the code to run at different addresses. This source code will handle
 this automatically. You do need to make sure it starts on a page
 boundary.
 
+Changes for Replica 1
+---------------------
+
+The following changes were made to run on the Replica 1:
+
+- start address changed to $0300 to avoid conflict with the Woz Monitor input buffer
+- I/O routines implemented for the Replica 1
+- hitting <Escape> jumps to the Woz Monitor rather than BRK (which has no handler on the Replica 1)
+
 Errors
 -------
 
