@@ -71,33 +71,33 @@ LAST    = $5A           ; First line after print range.
 LAST1   = $5B           ; High order address; same as CRNTAH.
 ;LAST2  = $5B           ; High order address; same as CRNTAH.
 
-.ifdef KIM1
+        .ifdef KIM1
 ; I/O Routines - KIM-1
 CRLF     = $1E2F        ; Output Carriage return, line feed.
 OUTCH    = $1EA0        ; Output ASCII from A. Preserve X.
 GETCH    = $1E5A        ; Input ASCII to A. Preserve X.
 OUTSP    = $1E9E        ; Output one space.
-.endif
+         .endif
 
 ; I/O Routines - Replica 1
-.ifdef REPLICA1
+         .ifdef REPLICA1
 ECHO     = $FFEF
 WOZMON   = $FF00
-.endif
+         .endif
 
 ; Note: Program must be linked starting at a page boundary.
 
-.ifdef KIM1
+        .ifdef KIM1
 ; The original KIM-1 version links at $0200 or alternatively at $2000
         .org $0200
-.elseif .defined(REPLICA1)
+        .elseif .defined(REPLICA1)
 ; Start address here is adjusted so that 2KSA code proper starts at $0300 but can be changed if desired.
         .org $02E2
-.else
+        .else
         .error "Must define KIM1 or REPLICA1"
-.endif
+        .endif
 
-.ifdef REPLICA1
+        .ifdef REPLICA1
 
 ; I/O Routines - Replica 1
 
@@ -122,9 +122,9 @@ GETCH:   LDA    $D011           ; Read keyboard status
 OUTSP:   LDA    #' '
          JSR    OUTCH
          RTS
-.endif
+         .endif
 
-MNETAB: ; Three-character ASCII mnemonics for instructions
+MNETAB: ; Three-character ASCII mnemonics for instructions.
         .byte   "BRK"
         .byte   "CLC"
         .byte   "CLD"
