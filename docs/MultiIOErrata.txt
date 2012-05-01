@@ -1,0 +1,22 @@
+As I built my Multi I/O board I noticed a few minor errors in the
+manual. Hopefully these can be corrected in an update. The version of
+manual I have is "September 2007 Preliminary Edition".
+
+Page 5:
+
+The 5, 1 uF capacitors in the parts list should be 10 uF.
+The MAX232 chip is missing from the list.
+
+Page 8:
+
+You should set your terminal program to "no hardware handshaking".
+The modified Woz monitor program to be loaded into RAM is named woz7F00.txt
+There is also a wozA000.txt version that can run in the EEPROM on the Multi I/O board.
+
+Page 13:
+
+Address C203 should be "DDRA" rather than "DDRC".
+
+Schematic diagram:
+
+Capacitors C9, C10, and C12 should be 10 uF.
