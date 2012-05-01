@@ -1,5 +1,5 @@
 jmon.mon: jmon.bin
-	bintomon -v jmon.bin >jmon.mon
+	bintomon -v `./getaddress` jmon.bin >jmon.mon
 
 jmon.bin: jmon.o
 	ld65 -t replica1 -vm -m jmon.map -o jmon.bin jmon.o
