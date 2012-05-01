@@ -34,18 +34,6 @@
 ; Uncomment next line to link with start address of $A000 for Multi I/0 Board EEPROM.
 ; .org $A000
 
-; *** CONSTANTS ***
-
-; Characters
-;  CR  = $0D ; Carriage Return
-;  SP  = $20 ; Space
-;  ESC = $1B ; Escape
-
-; External Routines
-;  ECHO     = $FFEF ; Woz monitor ECHO routine
-;  PRBYTE   = $FFDC ; Woz monitor print byte as two hex chars
-  PRHEX    = $FFE5 ; Woz monitor print nybble as hex digit
-
 ; Instructions. Matches entries in table of MNEMONICS
  OP_INV = $00
  OP_ADC = $01
@@ -137,53 +125,7 @@
  AM_INDIRECT_ZEROPAGE = 14         ; LDA ($12) [65C02 only]
  AM_ABSOLUTE_INDEXED_INDIRECT = 15 ; JMP ($1234,X) [65C02 only]
 
-; *** VARIABLES ***
-
-; Page zero variables
-; T1     = $35     ; temp variable 1
-; T2     = $36     ; temp variable 2
-; ADDR   = $49     ; instruction address, 2 bytes (low/high)
- OPCODE = $4B     ; instruction opcode
- OP     = $4C     ; instruction type OP_*
- AM     = $4D     ; addressing mode AM_*
- LEN    = $4E     ; instruction length
- REL    = $50     ; relative addressing branch offset (2 bytes)
- DEST   = $51     ; relative address destination address (2 bytes)
-
 ; *** CODE ***
-
-; Main program disassembles starting from itself. Prompts user to hit
-; key to continue after each screen.
-;START:
-;  JSR PrintCR
-;  LDX #<WelcomeString
-;  LDY #>WelcomeString
-;  JSR PrintString
-;  JSR PrintCR
-;  LDA #<START
-;  STA ADDR
-;  LDA #>START
-;  STA ADDR+1
-;OUTER:
-;  JSR PrintCR
-;  LDA #23
-;LOOP:
-;  PHA
-;  JSR DISASM
-;  PLA
-;  SEC
-;  SBC #1
-;  BNE LOOP
-;  LDX #<ContinueString
-;  LDY #>ContinueString
-;  JSR PrintString
-;@SpaceOrEscape:
-;  JSR GetKey
-;  CMP #' '
-;  BEQ OUTER
-;  CMP #ESC
-;  BNE @SpaceOrEscape
-;  RTS
 
 ; Disassemble instruction at address ADDR (low) / ADDR+1 (high). On
 ; return ADDR/ADDR+1 points to next instruction so it can be called
@@ -522,153 +464,6 @@ DONEOPS:
   ADC #0                ; to add carry
   STA ADDR+1
   RTS
-
-;------------------------------------------------------------------------
-; Utility functions
-
-; Print a dollar sign
-; Registers changed: None
-PrintDollar:
-  PHA
-  LDA #'$'
-  JSR PrintChar
-  PLA
-  RTS
-
-; Print ",X"
-; Registers changed: None
-PrintCommaX:
-  PHA
-  LDA #','
-  JSR PrintChar
-  LDA #'X'
-  JSR PrintChar
-  PLA
-  RTS
-
-; Print ",Y"
-; Registers changed: None
-PrintCommaY:
-  PHA
-  LDA #','
-  JSR PrintChar
-  LDA #'Y'
-  JSR PrintChar
-  PLA
-  RTS
-
-; Print "($"
-; Registers changed: None
-PrintLParenDollar:
-  PHA
-  LDA #'('
-  JSR PrintChar
-  LDA #'$'
-  JSR PrintChar
-  PLA
-  RTS
-
-; Print a right parenthesis
-; Registers changed: None
-PrintRParen:
-  PHA
-  LDA #')'
-  JSR PrintChar
-  PLA
-  RTS
-
-; Print a carriage return
-; Registers changed: None
-;PrintCR:
-;  PHA
-;  LDA #CR
-;  JSR PrintChar
-;  PLA
-;  RTS
-
-; Print a space
-; Registers changed: None
-;PrintSpace:
-;  PHA
-;  LDA #SP
-;  JSR PrintChar
-;  PLA
-;  RTS
-
-; Print number of spaces in X
-; Registers changed: X
-PrintSpaces:
-  PHA
-  LDA #SP
-@LOOP:
-  JSR ECHO
-  DEX
-  BNE @LOOP
-  PLA
-  RTS
-
-; Output a character
-; Calls Woz monitor ECHO routine
-; Registers changed: none
-;PrintChar:
-;  JSR ECHO
-;  RTS
-
-; Get character from keyboard
-; Returns in A
-; Clears high bit to be valid ASCII
-; Registers changed: A
-;GetKey:
-;  LDA $D011 ; Keyboard CR
-;  BPL GetKey
-;  LDA $D010 ; Keyboard data
-;  AND #%01111111
-;  RTS
-
-; Print 16-bit address in hex
-; Pass byte in X (low) and Y (high)
-; Registers changed: None
-;PrintAddress:
-;  PHA
-;  TYA
-;  JSR PRBYTE
-;  TXA
-;  JSR PRBYTE
-;  PLA
-;  RTS
-
-; Print byte in hex
-; Pass byte in A
-; Registers changed: None
-;PrintByte:
-;  JSR PRBYTE
-;  RTS
-
-; Print a string
-; Pass address of string in X (low) and Y (high).
-; String must be terminated in a null.
-; Cannot be longer than 256 characters.
-; Registers changed: A, Y
-;
-;PrintString:
-;  STX T1
-;  STY T1+1
-;  LDY #0
-;@loop:
-;  LDA (T1),Y
-;  BEQ done
-;  JSR PrintChar
-;  INY
-;  BNE @loop       ; if doesn't branch, string is too long
-;done:
-;  RTS
-
-;  get opcode
-;  get mnemonic, addressing mode, instruction length
-;  display opcode string
-;  display arguments based on addressing mode
-;  increment instruction pointer based on instruction length
-;  loop back
 
 ; DATA
 
@@ -1027,10 +822,3 @@ OPCODES2:
  .byte OP_SBC, AM_ABSOLUTE_X         ; $FD
  .byte OP_INC, AM_ABSOLUTE_X         ; $FE
  .byte OP_BBS, AM_ABSOLUTE           ; $FF [65C02 only]
-
-; *** Strings ***
-
-;ContinueString:
-;  .asciiz "  <SPACE> TO CONTINUE, <ESC> TO STOP"
-;WelcomeString:
-;  .asciiz "DISASM VERSION 0.9 by JEFF TRANTER"

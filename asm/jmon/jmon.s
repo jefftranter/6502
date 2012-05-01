@@ -36,11 +36,17 @@
   LZ   = $47       ; boolean for leading zero suppression
   LAST = $48       ; boolean for leading zero suppression / indicates last byte
   ADDR = $49       ; instruction address, 2 bytes (low/high)
-  START = $50      ; USER ENTERS START OF MEMORY RANGE min is 8
-  END  = $52       ; USER ENTERS END OF MEMORY RANGE
-  ADDRS = $54      ; 2 BYTES - ADDRESS OF MEMORY
-  TEST_PATRN = $56 ; 1 BYTE - CURRENT TEST PATTERN
-  PASSES = $57     ; NUMBER of PASSES
+  OPCODE = $4B     ; instruction opcode
+  OP   = $4C       ; instruction type OP_*
+  AM   = $4D       ; addressing mode AM_*
+  LEN  = $4E       ; instruction length
+  REL  = $50       ; relative addressing branch offset (2 bytes)
+  DEST = $52       ; relative address destination address (2 bytes)
+  START = $54      ; USER ENTERS START OF MEMORY RANGE min is 8 (2 bytes)
+  END  = $556      ; USER ENTERS END OF MEMORY RANGE (2 bytes)
+  ADDRS = $58      ; 2 BYTES - ADDRESS OF MEMORY
+  TEST_PATRN = $5A ; 1 BYTE - CURRENT TEST PATTERN
+  PASSES = $5B     ; NUMBER of PASSES
   BPA     = $60    ; address of breakpoint (2 bytes * 4 breakpoints)
   BPD     = $68    ; instruction at breakpoint (1 byte * 4 breakpoints)
   SAVE_A  = $70    ; holds saved values of registers
@@ -56,6 +62,7 @@
   MINIMON   = $FE14  ; Mini monitor entry point (valid for Krusader 6502 version 1.3)
   WOZMON    = $FF00  ; Woz monitor entry point
   PRBYTE    = $FFDC  ; Woz monitor print byte as two hex chars
+  PRHEX     = $FFE5  ; Woz monitor print nybble as hex digit
   ECHO      = $FFEF  ; Woz monitor ECHO routine
   BRKVECTOR = $FFFE  ; and $FFFF (2 bytes)   
 
@@ -1114,6 +1121,73 @@ PrintString:
         BNE @loop       ; if doesn't branch, string is too long
 done:   RTS
 
+;------------------------------------------------------------------------
+;
+; Utility functions
+
+; Print a dollar sign
+; Registers changed: None
+PrintDollar:
+  PHA
+  LDA #'$'
+  JSR PrintChar
+  PLA
+  RTS
+
+; Print ",X"
+; Registers changed: None
+PrintCommaX:
+  PHA
+  LDA #','
+  JSR PrintChar
+  LDA #'X'
+  JSR PrintChar
+  PLA
+  RTS
+
+; Print ",Y"
+; Registers changed: None
+PrintCommaY:
+  PHA
+  LDA #','
+  JSR PrintChar
+  LDA #'Y'
+  JSR PrintChar
+  PLA
+  RTS
+
+; Print "($"
+; Registers changed: None
+PrintLParenDollar:
+  PHA
+  LDA #'('
+  JSR PrintChar
+  LDA #'$'
+  JSR PrintChar
+  PLA
+  RTS
+
+; Print a right parenthesis
+; Registers changed: None
+PrintRParen:
+  PHA
+  LDA #')'
+  JSR PrintChar
+  PLA
+  RTS
+
+; Print number of spaces in X
+; Registers changed: X
+PrintSpaces:
+  PHA
+  LDA #SP
+@LOOP:
+  JSR ECHO
+  DEX
+  BNE @LOOP
+  PLA
+  RTS
+        
 ; Below came from
 ; http://www.6502.org/source/integers/hex2dec-more.htm
 ; Convert an 16 bit binary value to BCD
