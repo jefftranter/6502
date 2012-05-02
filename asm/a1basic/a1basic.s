@@ -66,6 +66,7 @@ buffer	=	$0200
 Dd010	=	$d010
 Dd011	=	$d011
 Dd0f2	=	$d0f2
+
 	.org	$e000
 
 Pe000:	JMP	cold
@@ -265,7 +266,7 @@ Le161:	PLA
 	BPL	Le161
 	INX
 	RTS
-	.byte	$ea                     	; "j"
+	NOP
 Le16d:	LDY	#$80	; 128 .
 Le16f:	BNE	go_errmess_1
 
@@ -1283,7 +1284,7 @@ return_stmt:	LDY	#$4a	; 74 J
 	STA	pline
 	LDA	gstk_plineh-1,Y
 	STA	pline+1
-	LDX	synpag+1,Y
+	LDX	a:synpag+1,Y	        ; force absolute addressing mode
 	LDA	gstk_pverbh-1,Y
 Le8be:	TAY
 	TXA
@@ -1629,11 +1630,13 @@ plot_comma:	JSR	getbyte
 	CPY	#$28	; 40 (
 	BCS	range_err
 	RTS
-	.byte	$ea,$ea                  	; "jj"
+        NOP
+        NOP
 
 Tee4e:	JSR	getbyte
 	RTS
-	.byte	$ea,$ea                  	; "jj"
+        NOP
+        NOP
 
 man_cmd:	LSR	auto_flag
 	RTS
@@ -1643,7 +1646,8 @@ vtab_stmt:	JSR	getbyte
 	BCS	range_err
 	STA	cv
 	RTS
-	.byte	$ea,$ea                  	; "jj"
+        NOP
+        NOP
 gr_255_err:	LDY	#$77	; 119 w
 go_errmess_5:	JMP	print_err_msg
 range_err:	LDY	#$7b	; 123 {
@@ -1700,7 +1704,8 @@ Leecb:	BCS	range_err
 	TAY
 	LDA	text_index
 	RTS
-	.byte	$ea,$ea                  	; "jj"
+        NOP
+        NOP
 
 ;print_err_msg:
         TYA
@@ -1863,4 +1868,4 @@ Seff8:	CPX	#$80	; 128 .
 	BNE	Leffd
 	DEY
 Leffd:	JMP	Se00c
-Tffff	=	$ffff
+
