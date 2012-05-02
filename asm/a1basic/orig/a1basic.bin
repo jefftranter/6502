@@ -1,0 +1,376 @@
+; Definitions file for dis6502 to disassemble Apple 1 BASIC
+; $Id: a1basic.defs,v 1.7 2003/09/17 07:28:37 eric Exp eric $
+; Copyright 2003 Eric Smith <eric@brouhaha.com>
+; http://www.brouhaha.com/~eric/retrocomputing/apple/apple1/basic/
+; http://www.brouhaha.com/~eric/software/dis6502/
+
+; cold start:
+	.trace $e000
+
+; warm start:
+;	.trace $e2b3
+
+	.jtab2 $ea10,$ea88,$78
+
+
+ch	 .equ $24	; horizontal cursor location
+cv	 .equ $25       ; vertical cursor location
+
+lomem	 .eqs $4a,2	; ..$4b
+himem	 .eqs $4c,2	; ..$4d
+
+rnd      .eqs $4e,2     ; ..$4f: random number
+
+; The noun stack and syntax stack appear to overlap, which is OK since
+; they apparently are not used simultaneously.
+
+; The noun stack size appears to be 32 entries, based on LDX #$20
+; instruction at e67f.  However, there seems to be enough room for
+; another 8 entries.  The noun stack builds down from noun_stk_<part>+$1f
+; to noun_stk_<part>+$00, indexed by the X register.
+
+; Noun stack usage appears to be:
+;   integer:
+;       (noun_stk_h_int,noun_stk_l) = value
+;       noun_stk_h_str = 0
+;   string:
+;       (noun_stk_h_str,noun_stk_l) = pointer to string
+;       noun_stk_h_int = any
+; Since noun_stk_h_str determines whether stack entry is integer or string,
+; strings can't start in zero page.
+
+noun_stk_l .eqs $50,32	; ..$6f
+
+noun_stk_h_str .eqs $78,32	; ..$97
+; noun_stk_h_str sometimes referenced from base-1, base-2, or base-3
+	   .ofs $75,$78
+	   .ofs $76,$78
+	   .ofs $77,$78
+
+noun_stk_h_int .eqs $a0,32	; ..$bf
+; noun_stk_h_int sometimes referenced from base-1 or base-2
+	   .ofs $9e,$a0
+	   .ofs $9f,$a0
+
+syn_stk_h  .eqs $58,32	; ..$77
+
+syn_stk_l  .eqs $80,32	; ..$9f
+
+txtndxstk  .eqs $a8,32	; ..$c7
+
+text_index .equ $c8     ; index into text being tokenized (in buffer at $0200)
+
+leadbl	 .equ $c9	; leading blanks
+pp	 .eqs $ca,2	; ..$cb: end of program pointer
+pv	 .eqs $cc,2	; ..$cd: end of variables pointer
+acc	 .eqs $ce,2	; ..$cf
+
+srch	 .equ $d0
+tokndxstk .equ $d1
+srch2	  .eqs $d2,2
+
+if_flag	     .equ $d4
+cr_flag      .equ $d5
+current_verb .equ $d6
+precedence   .equ $d7
+x_save	     .equ $d8
+run_flag     .equ $d9
+
+aux	 .eqs $da,2	; ..$db
+pline    .eqs $dc,2     ; ..$dd: pointer to current program line
+pverb    .eqs $e0,2     ; ..$e1: pointer to current verb
+p1	 .eqs $e2,2	; ..$e3
+p2	 .eqs $e4,2	; ..$e5
+p3	 .eqs $e6,2	; ..$e7
+
+token_index .equ $f1    ; pointer used to write tokens into buffer
+
+pcon	  .eqs $f2,2	; ..$f3:  temp used in decimal output, ...
+auto_inc  .eqs $f4,2	; ..$f5
+auto_ln	  .eqs $f6,2	; ..$f7
+auto_flag .equ $f8
+char	  .equ $f9
+leadzr	  .equ $fa
+for_nest_count	 .equ $fb ; count of active (nested) FOR loops
+gosub_nest_count .equ $fc ; count of active (nested) subroutines calls (GOSUB)
+synstkdx  .equ $fd
+synpag    .eqs $fe,2      ; ..$ff
+
+; GOSUB stack, max eight entries
+; note that the Apple II version has sixteen entries
+gstk_pverbl .eqs $100,8	; saved pverb
+gstk_pverbh .eqs $108,8
+gstk_plinel .eqs $110,8	; saved pline
+gstk_plineh .eqs $118,8
+
+; stacks sometimes referenced from base-1
+	 .ofs $107,$108
+	 .ofs $10f,$110
+	 .ofs $117,$118
+
+; FOR stack, max eight entries
+; note that the Apple II version has sixteen entries
+fstk_varl	.equ $120	; pointer to index variable
+fstk_varh	.equ $128
+fstk_stepl	.equ $130	; step value
+fstk_steph	.equ $138
+fstk_plinel	.equ $140	; saved pline
+fstk_plineh	.equ $148
+fstk_pverbl	.equ $150	; saved pverb
+fstk_pverbh	.equ $158
+fstk_tol	.equ $160	; "to" (limit) value
+fstk_toh	.equ $168
+
+; stacks sometimes referenced from base-1
+	 .ofs $11f,$120
+	 .ofs $127,$128
+	 .ofs $12f,$130
+	 .ofs $137,$138
+	 .ofs $13f,$140
+	 .ofs $147,$148
+	 .ofs $14f,$150
+	 .ofs $157,$158
+	 .ofs $15f,$160
+	 .ofs $167,$168
+
+buffer	 .equ $0200
+; buffer sometimes referenced from base-1
+	 .ofs $01ff,$0200
+
+rdkey	.equ $e003	; get keyboard input (PIA at D010)
+
+nextbyte .equ $e02a
+
+list_comman  .equ $e035	; token $75 - "," in LIST command
+
+list_all     .equ $e04b	; token $76 - LIST command w/ no args
+
+list_cmd     .equ $e05d	; token $74 - LIST command w/ line number(s)
+
+list_line    .equ $e06d ; list one program line
+
+list_token   .equ $e0a3 ; list a single token
+
+list_int     .equ $e077 ; list an integer (line number or literal)
+
+paren_substr .equ $e0fb	; token $2A - left paren for substring like A$(3,5)
+
+string_err   .equ $e104
+go_errmess_1 .equ $e106
+
+comma_substr .equ $e109 ; token $2B - comma for substring like A$(3,5)
+
+str_arr_dest .equ $e121 ; token $42 - left paren for string array as dest
+			;             A$(1)="FOO"
+
+dim_str      .equ $e130 ; token $43 - comma, next var in DIM statement is string
+			; token $4E - "DIM", next var in DIM is string
+
+input_str    .equ $e171 ; token ???
+
+string_lit   .equ $e18c ; token $70 - string literal
+
+string_eq    .equ $e1d7 ; token $39 - "=" for string equality operator
+
+string_neq   .equ $e21c ; token $3A - "#" for string inequality operator
+
+mult_op      .equ $e222 ; token $14 - "*" for numeric multiplication
+
+mod_op       .equ $e27a ; token $1f - "MOD"
+
+read_line    .equ $e29e ; read a line from keyboard (using rdkey) into buffer
+
+cold	     .equ $e2b0 ; cold start
+warm	     .equ $e2b3 ; warm start
+
+del_comma    .equ $e36f ; token $0a - "," in DEL command
+
+del_cmd      .equ $e387 ; token $09 - "DEL"
+
+
+cout	 .equ $e3c9	; character output
+crout	 .equ $e3cd
+
+too_long_err .equ $e3de
+
+print_err_msg .equ $e3e0	; print error message specified in Y
+
+put_token     .equ $e41c ; write a token to the buffer
+			 ; buffer [++tokndx] = A
+
+go_errmess_2 .equ $e4a6
+
+prdec	 .equ $e51b	; output A:X in decimal
+dectabl	 .equ $e563	; ..$e567: powers of 10 table, low byte
+dectabh	 .equ $e568	; ..$e56c: powers of 10 table, high byte
+
+find_line    .equ $e56d
+find_line1   .equ $e575
+find_line2   .equ $e576
+
+new_cmd      .equ $e5ad ; token $0B - "NEW"
+clr          .equ $e5b7 ; token $0C - "CLR"
+
+execute_var     .equ $e60c
+
+execute_stmt    .equ $e679
+; e67f - init X as noun stack pointer
+
+push_old_verb   .equ $e681
+; e681 - push old verb on stack for later use in precedence test
+
+fetch_prog_byte .equ $e682
+; e686 - test whether program byte is a token (less than $80)
+; e688 - test whether program byte is a variable or integer literal
+; e68b - integer literal
+
+execute_token .equ $e6a0
+; e6a0 - test whether token is a string literal
+; e6a4 - string literal
+
+execute_verb  .equ $e6c3
+; e6c3 - if if_flag (false conditional) and end of line or colon, clear if_flag
+; e6cd - check verb left precedence as compared to previous verb right precedence (previous verb on stack)
+
+do_verb       .equ $e6ec
+; e6ec - actually execute the very (code in Y)
+
+get_next_prog_byte .equ $e6ff ; a = *++pverb, enter with Y=0
+
+push_ya_noun_stk .equ $e708
+push_a_noun_stk  .equ $e70a
+
+go_errmess_3 .equ $e712
+
+get16bit .equ $e715
+
+eq_op        .equ $e733 ; token $16 - "=" for numeric equality operator
+
+not_op       .equ $e736 ; token $37 - "NOT"
+
+neq_op       .equ $e74a ; token $17 - "#" for numeric inequality operator
+                        ; token $1B - "<>" for numeric inequality operator
+
+abs_fn       .equ $e750 ; token $31 - "ABS"
+
+sgn_fn       .equ $e759 ; token $30 - "SGN"
+negate	     .equ $e76f ; token $36 - "-" for unary negation
+subtract     .equ $e782 ; token $13 - "-" for numeric subtraction
+add          .equ $e785 ; token $12 - "+" for numeric addition
+unary_pos    .equ $e7a3 ; token $35 - "+" for unary positive
+
+tab_fn        .equ $e7a4 ; token $50 - "TAB" function
+
+tabout	      .equ $e7b1 ; horizontal tab
+
+print_com_num .equ $e7c1 ; token $49 - "," in print, numeric follows
+print_num     .equ $e7c4 ; token $62 - "PRINT" numeric
+
+auto_cmd      .equ $e7e2 ; token $0D - "AUTO" command
+auto_com      .equ $e7f8 ; token $0E - "," in AUTO command
+
+var_assign    .equ $e801 ; token $56 - "=" in FOR statement
+                         ; token $71 - "=" in LET (or implied LET) statement
+
+begin_line    .equ $e817 ; token $00 - begining of line
+colon         .equ $e819 ; token $03 - ":" statement separator
+print_cr      .equ $e81d ; token $63 - "PRINT" with no arg
+print_semi    .equ $e820 ; token $47 - ";" at end of print statement
+
+left_paren    .equ $e823 ; token $22 - "(" in string DIM
+                         ; token $34 - "(" in numeric DIM
+                         ; token $38 - "(" in numeric expression
+                         ; token $3F - "(" in some PEEK, RND, SGN, ABS (PDL)
+
+right_paren   .equ $e827 ; token $72 - ")" everywhere
+
+if_stmt       .equ $e828 ; token $60 - "IF" statement
+
+run_warm      .equ $e836 ; RUN without CLR, used by Apple DOS
+
+gosub_stmt    .equ $e83c ; token $5C - "GOSUB" statement
+
+goto_stmt     .equ $e85b ; token $24 - "THEN"
+                         ; token $5F - "GOTO" statement
+
+run_loop      .equ $e86b ; loop to run a program
+
+go_errmess_4 .equ $e8a2
+
+return_stmt   .equ $e8a5 ; token $5B - "RETURN" statement
+
+end_stmt      .equ $e8d3 ; token $51 - "END" statement
+
+next_stmt     .equ $e8d8 ; token $59 - "NEXT" statement
+                         ; token $5A - "," in NEXT statement
+
+for_stmt      .equ $e93a ; token $55 - "FOR" statement
+
+to_clause     .equ $e950 ; token $57 - "TO"
+
+verb_prec_tbl .equ $e998 ; ..$ea0f  verb precedence
+			 ; (verb_prec[token]&0xAA)>>1 for left (?)
+			 ; verb_prec[token]&0x55 for right (?)
+
+verb_adr_l    .equ $ea10 ; ..$ea87
+verb_adr_h    .equ $ea88 ; ..$eaff
+
+error_msg_tbl .equ $eb00
+
+input_num_stmt  .equ $ebaa ; token $54 - "INPUT" statement, numeric, no prompt
+input_num_comma .equ $ebcb ; token $27 - "," numeric input
+
+syntabl_index   .equ $ec20 ; indexes into syntabl
+
+syntabl2        .equ $ed03
+
+print_str_comma .equ $ee00 ; token $48 - "," string output
+print_str       .equ $ee03 ; token $45 - ";" string output
+                           ; token $61 - "PRINT" string
+
+len_fn          .equ $ee22 ; token $3B - "LEN(" funciton
+
+getbyte         .equ $ee34
+
+plot_comma      .equ $ee3e ; token $68 - "," for PLOT statement (???)
+
+; routine at ee4e is JSR getbyte then return - could be JMP --  COLOR= ???
+
+man_cmd         .equ $ee54 ; token $0F - "MAN" command
+vtab_stmt       .equ $ee57 ; token $6F - "VTAB" statement
+
+gr_255_err      .equ $ee63 ; >255 error
+
+go_errmess_5 .equ $ee65
+
+range_err       .equ $ee68 ; range error
+
+call_stmt       .equ $eea0 ; token $4D - "CALL" statement
+
+		.stop $eea6 ; leftover code from eea6-eeb9
+bogus_eea6	.equ $eea6  ; token $6A - ',' for HLIN - won't work!
+
+		.stop $eec2 ; leftover code from eec2-eeca
+bogus_eec2	.equ $eec2  ; token $3C - "ASC(" function - won't work!
+
+print_err_msg   .equ $eed3
+
+peek_fn         .equ $eef6 ; token $2E - "PEEK" fn (uses $3F left paren)
+
+poke_stmt       .equ $ef00 ; token $65 - "," for POKE statement
+
+divide          .equ $ef10 ; token $15 - "/" for numeric division
+
+dim_num         .equ $ef1e ; token $44 - "," next var in DIM statement is numeric
+                           ; token $4F - "DIM", next var is numeric
+
+num_array_subs  .equ $ef24 ; token $2D - "(" for numeric array subscript
+
+rnd_fn          .equ $ef4e ; token $2F - "RND" fn (uses $3F left paren)
+
+string_input    .equ $efb6 ; token $26 - "," for string input
+                           ; token $52 - "INPUT" statement for string
+
+input_prompt    .equ $efbc ; token $53 - "INPUT" with literal string prompt
+
+mem_init_4k	.equ $efd3 ; memory initialization for 4K RAM
