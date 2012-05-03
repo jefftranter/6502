@@ -1,5 +1,7 @@
 ; Apple 1 BASIC
-
+;
+; Modifications to build with CC65 by Jeff Tranter <tranter@pobox.com>
+;
 ; Apple 1 BASIC was written by Steve Wozniak
 ; Uses disassembly copyright 2003 Eric Smith <eric@brouhaha.com>
 ; http://www.brouhaha.com/~eric/retrocomputing/apple/apple1/basic/
@@ -450,7 +452,7 @@ read_line:	JSR	rdkey
 cold:	JSR	mem_init_4k
 warm:	JSR	crout
 Le2b6:	LSR	run_flag
-	LDA	#$be	; 190 >
+	LDA	#'>'+$80	; Prompt character (high bit set)
 	JSR	cout
 	LDY	#$00	; 0 .
 	STY	leadzr
