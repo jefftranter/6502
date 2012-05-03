@@ -79,25 +79,25 @@ rdkey:	LDA	KBDCR
 	RTS
 
 Se00c:	TXA
-	AND	#$20	; 32  
+	AND	#$20
 	BEQ	Le034
 
-Se011:	LDA	#$A0	; 160  
+Se011:	LDA	#$A0
 	STA	p2
 	JMP	cout
 
-Se018:	LDA	#$20	; 32  
+Se018:	LDA	#$20
 
 Se01a:	CMP	ch
 	BCS	nextbyte
-	LDA	#$8d	; 141 .
-	LDY	#$07	; 7 .
+	LDA	#$8d
+	LDY	#$07
 Le022:	JSR	cout
-	LDA	#$a0	; 160  
+	LDA	#$a0
 	DEY
 	BNE	Le022
 
-nextbyte:	LDY	#$00	; 0 .
+nextbyte:	LDY	#$00
 	LDA	(p1),Y
 	INC	p1
 	BNE	Le034
@@ -133,7 +133,7 @@ list_cmd:	JSR	get16bit
 	BCS	Le034
 
 list_line:	STX	x_save
-	LDA	#$a0	; 160  
+	LDA	#$a0
 	STA	leadzr
 	JSR	nextbyte
 	TYA
@@ -158,7 +158,7 @@ Le099:	LDA	#$25	; 37 %
 	TAX
 	BMI	Le096
 	STA	p2
-list_token:	CMP	#$01	; 1 .
+list_token:	CMP	#$01
 	BNE	Le0ac
 	LDX	x_save
 	JMP	crout
@@ -541,7 +541,7 @@ Le35c:	LDA	auto_ln+1,X
 	BEQ	Le35c
 Le365:	BPL	Le3e5
 	BRK
-	.byte	$00,$00,$00               	; "..."
+	.byte	$00,$00,$00
 Le36b:	LDY	#$14	; 20 .
 	BNE	print_err_msg
 
@@ -1739,7 +1739,7 @@ poke_stmt:	JSR	getbyte
 	STA	(acc),Y
 
 Tef0c:	RTS
-	.byte	$ff,$ff,$ff               	; "..."
+	.byte	$ff,$ff,$ff
 
 divide:	JSR	See6c
 	LDA	acc
