@@ -65,9 +65,9 @@ fstk_toh	=	$0168
 buffer	=	$0200
 Dd010	=	$d010
 Dd011	=	$d011
-Dd0f2	=	$d0f2
+Dd012	=	$d012
 
-	.org	$e000
+	.org	$E000
 
 Pe000:	JMP	cold
 
@@ -597,12 +597,12 @@ crout:	LDA	#$00	; 0 .
 	STA	ch
 	LDA	#$8d	; 141 .
 Le3d3:	INC	ch
-Le3d5:	BIT	Dd0f2
+Le3d5:	BIT	Dd012
 	BMI	Le3d5
-	STA	Dd0f2
+	STA	Dd012
 	RTS
 too_long_err:	LDY	#$06	; 6 .
-print_err_msg:	JSR	print_err_msg
+print_err_msg:	JSR	print_err_msg1
 	BIT	run_flag
 Le3e5:	BMI	Le3ea
 	JMP	Le2b6
@@ -1636,18 +1636,16 @@ plot_comma:	JSR	getbyte
 Tee4e:	JSR	getbyte
 	RTS
         NOP
-        NOP
-
-man_cmd:	LSR	auto_flag
-	RTS
-
-vtab_stmt:	JSR	getbyte
-	CMP	#$18	; 24 .
-	BCS	range_err
-	STA	cv
-	RTS
-        NOP
-        NOP
+Tee5e:  TXA
+        LDX     #$01
+l123:   LDY     acc,X
+        STY     himem,X
+        LDY     $48,X
+        STY     pp,X
+        DEX
+        BEQ     l123
+        TAX
+        RTS
 gr_255_err:	LDY	#$77	; 119 w
 go_errmess_5:	JMP	print_err_msg
 range_err:	LDY	#$7b	; 123 {
@@ -1680,25 +1678,23 @@ Lee96:	DEY
 
 call_stmt:	JSR	get16bit
 	JMP	(acc)
-bogus_eea6:	.byte	$20,$34,$ee,$c5,$c8,$90,$bb,$85	; " 4nEH.;."
-
-Teeae:	LDA	himem+1
-
-Teeb0:	PHA
-	LDA	himem
-	JSR	push_ya_noun_stk
-	PLA
-	STA	noun_stk_h_int,X
-	RTS
-
-Teeba:	LDA	lomem+1
-
-Teebc:	PHA
-	LDA	lomem
-	JMP	Lefb3
-bogus_eec2:	.byte	$a5,$85,$2d,$60            	; "%.-`"
-
-Teec6:	JSR	getbyte
+l1233:  LDA     himem
+        BNE     l1235
+        DEC     $4D
+l1235:  DEC     himem
+        LDA     $48
+        BNE     l1236
+        DEC     $49
+l1236:  DEC     $48
+l1237:  LDY     #$00
+        LDA     (himem),Y
+        STA     ($48),Y
+        LDA     pp
+        CMP     himem
+        LDA     pp+1
+        SBC     himem+1
+        BCC     l1233
+        JMP     Tee5e
 	CMP	#$28	; 40 (
 Leecb:	BCS	range_err
 	TAY
@@ -1707,7 +1703,7 @@ Leecb:	BCS	range_err
         NOP
         NOP
 
-;print_err_msg:
+print_err_msg1:
         TYA
 	TAX
 	LDY	#$6e	; 110 n
@@ -1804,29 +1800,31 @@ Lef66:	LDA	rnd+1
 
 Tef80:	JSR	get16bit
 	LDY	acc
-	CPY	lomem
-	LDA	acc+1
-	SBC	lomem+1
-	BCC	Lefab
-	STY	himem
-	LDA	acc+1
-	STA	himem+1
-Lef93:	JMP	new_cmd
-
-Tef96:	JSR	get16bit
-	LDY	acc
 	CPY	himem
 	LDA	acc+1
 	SBC	himem+1
+	BCC	Lefab
+	STY	$48
+	LDA	acc+1
+	STA	$49
+Lef93:	JMP	l1237
+
+Tef96:	JSR	get16bit
+	LDY	acc
+	CPY	pp
+	LDA	acc+1
+	SBC	pp+1
 	BCS	Lefab
 	STY	lomem
 	LDA	acc+1
 	STA	lomem+1
-	BCC	Lef93
-Lefab:	JMP	Leecb
-	.byte	$a5,$4d,$48,$a5,$4c         	; "%MH%L"
+      	JMP	clr
+Lefab:  JMP     Leecb
+        NOP
+        NOP
+        NOP
+        NOP
 Lefb3:	JSR	Sefc9
-
 string_input:	JSR	input_str
 	JMP	Lefbf
 
@@ -1868,4 +1866,3 @@ Seff8:	CPX	#$80	; 128 .
 	BNE	Leffd
 	DEY
 Leffd:	JMP	Se00c
-
