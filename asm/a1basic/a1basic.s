@@ -7,49 +7,49 @@
 ; http://www.brouhaha.com/~eric/retrocomputing/apple/apple1/basic/
 
 RESET	=	$00
-Z1d	=	$1d
+Z1d	=	$1D
 ch	=	$24
 cv	=	$25
-lomem	=	$4a
-himem	=	$4c
-rnd	=	$4e
-noun_stk_l	=	$50
+lomem	=	$4A
+himem	=	$4C
+rnd	=	$4E
+noun_stk_l =	$50
 syn_stk_h =     $58	; through $77
-noun_stk_h_str	=	$78
-syn_stk_l  =    $80     ; through $9f
-noun_stk_h_int	=	$a0
-txtndxstk  =    $a8	; through $c7
-text_index	=	$c8
-leadbl	=	$c9
-pp	=	$ca
-pv	=	$cc
-acc	=	$ce
-srch	=	$d0
-tokndxstk	=	$d1
-srch2	=	$d2
-if_flag	=	$d4
-cr_flag	=	$d5
-current_verb	=	$d6
-precedence	=	$d7
-x_save	=	$d8
-run_flag	=	$d9
-aux	=	$da
-pline	=	$dc
-pverb	=	$e0
-p1	=	$e2
-p2	=	$e4
-p3	=	$e6
-token_index	=	$f1
-pcon	=	$f2
-auto_inc	=	$f4
-auto_ln	=	$f6
-auto_flag	=	$f8
-char	=	$f9
-leadzr	=	$fa
-for_nest_count	=	$fb
-gosub_nest_count	=	$fc
-synstkdx	=	$fd
-synpag	=	$fe
+noun_stk_h_str = $78
+syn_stk_l  =    $80     ; through $9F
+noun_stk_h_int = $A0
+txtndxstk  =    $A8	; through $C7
+text_index =	$C8
+leadbl	=	$C9
+pp	=	$CA
+pv	=	$CC
+acc	=	$CE
+srch	=	$D0
+tokndxstk =	$D1
+srch2	=	$D2
+if_flag	=	$D4
+cr_flag	=	$D5
+current_verb =	$D6
+precedence =	$D7
+x_save	=	$D8
+run_flag =	$D9
+aux	=	$DA
+pline	=	$DC
+pverb	=	$E0
+p1	=	$E2
+p2	=	$E4
+p3	=	$E6
+token_index =	$F1
+pcon	=	$F2
+auto_inc =	$F4
+auto_ln	=	$F6
+auto_flag =	$F8
+char	=	$F9
+leadzr	=	$FA
+for_nest_count = $FB
+gosub_nest_count = $FC
+synstkdx =	$FD
+synpag	=	$FE
 gstk_pverbl	=	$0100
 gstk_pverbh	=	$0108
 gstk_plinel	=	$0110
@@ -65,24 +65,24 @@ fstk_pverbh	=	$0158
 fstk_tol	=	$0160
 fstk_toh	=	$0168
 buffer	=	$0200
-Dd010	=	$d010
-Dd011	=	$d011
-Dd012	=	$d012
+KBD	=	$D010
+KBDCR	=	$D011
+DSP	=	$D012
 
 	.org	$E000
 
-Pe000:	JMP	cold
+Pe000:	JMP	cold            ; BASIC cold start entry point
 
-rdkey:	LDA	Dd011
+rdkey:	LDA	KBDCR
 	BPL	rdkey
-	LDA	Dd010
+	LDA	KBD
 	RTS
 
 Se00c:	TXA
 	AND	#$20	; 32  
 	BEQ	Le034
 
-Se011:	LDA	#$a0	; 160  
+Se011:	LDA	#$A0	; 160  
 	STA	p2
 	JMP	cout
 
@@ -450,7 +450,7 @@ read_line:	JSR	rdkey
 	STA	buffer,Y
 	RTS
 cold:	JSR	mem_init_4k
-warm:	JSR	crout
+warm:	JSR	crout           ; BASIC warm start entry point
 Le2b6:	LSR	run_flag
 	LDA	#'>'+$80	; Prompt character (high bit set)
 	JSR	cout
@@ -599,9 +599,9 @@ crout:	LDA	#$00	; 0 .
 	STA	ch
 	LDA	#$8d	; 141 .
 Le3d3:	INC	ch
-Le3d5:	BIT	Dd012
+Le3d5:	BIT	DSP
 	BMI	Le3d5
-	STA	Dd012
+	STA	DSP
 	RTS
 too_long_err:	LDY	#$06	; 6 .
 print_err_msg:	JSR	print_err_msg1
@@ -1248,7 +1248,7 @@ Le867:	LDA	p2
 	LDY	p2+1
 run_loop:	STA	pline
 	STY	pline+1
-	BIT	Dd011
+	BIT	KBDCR
 	BMI	Le8c3
 	CLC
 	ADC	#$03	; 3 .
@@ -1844,13 +1844,13 @@ Sefcd:	JSR	not_op
 	LDA	noun_stk_l,X
 	RTS
 
-mem_init_4k:	LDA	#$00	; 0 .
+mem_init_4k:	LDA	#$00
 	STA	lomem
 	STA	himem
-	LDA	#$08	; 8 .
-	STA	lomem+1
-	LDA	#$10	; 16 .
-	STA	himem+1
+	LDA	#$08
+	STA	lomem+1         ; LOMEM defaults to $0800
+	LDA	#$10
+	STA	himem+1         ; HIMEM defaults to $1000
 	JMP	new_cmd
 
 Sefe4:	CMP	noun_stk_h_str,X
