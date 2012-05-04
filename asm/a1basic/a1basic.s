@@ -11,8 +11,8 @@ Z1d     =       $1D
 ch      =       $24
 cv      =       $25
 var     =       $48
-lomem   =       $4A
-himem   =       $4C
+lomem   =       $4A     ; lower limit of memory used by BASIC (2 bytes)
+himem   =       $4C     ; upper limit of memory used by BASIC (2 bytes)
 rnd     =       $4E
 noun_stk_l =    $50
 syn_stk_h =     $58     ; through $77
@@ -23,7 +23,7 @@ txtndxstk  =    $A8     ; through $C7
 text_index =    $C8
 leadbl  =       $C9
 pp      =       $CA
-pv      =       $CC
+pv      =       $CC     ; pointer to end of variable storage (2 bytes)
 acc     =       $CE
 srch    =       $D0
 tokndxstk =     $D1
@@ -542,8 +542,7 @@ Le35c:  LDA     auto_ln+1,X
         INX
         BEQ     Le35c
 Le365:  BPL     Le3e5
-        BRK
-        .byte   $00,$00,$00
+        .byte   $00,$00,$00,$00
 Le36b:  LDY     #$14
         BNE     print_err_msg
 
@@ -1391,7 +1390,8 @@ Te97e:  JSR     get16bit
         JMP     Le966
         .byte   $00,$00,$00,$00,$00,$00,$00,$00 ; "........"
         .byte   $00,$00,$00                     ; "..."
-verb_prec_tbl:  .byte   $00,$00,$00,$AB,$03,$03,$03,$03 ; "...+...."
+verb_prec_tbl:
+        .byte   $00,$00,$00,$AB,$03,$03,$03,$03 ; "...+...."
         .byte   $03,$03,$03,$03,$03,$03,$03,$03 ; "........"
         .byte   $03,$03,$3F,$3F,$C0,$C0,$3C,$3C ; "..??@@<<"
         .byte   $3C,$3C,$3C,$3C,$3C,$30,$0F,$C0 ; "<<<<<0.@"
@@ -1406,7 +1406,8 @@ verb_prec_tbl:  .byte   $00,$00,$00,$AB,$03,$03,$03,$03 ; "...+...."
         .byte   $57,$03,$03,$03,$03,$07,$03,$03 ; "W......."
         .byte   $03,$03,$03,$03,$03,$03,$03,$03 ; "........"
         .byte   $03,$03,$AA,$FF,$FF,$FF,$FF,$FF ; "..*....."
-verb_adr_l:     .byte   $17,$FF,$FF,$19,$5D,$35,$4B,$F2 ; "....]5Kr"
+verb_adr_l:
+        .byte   $17,$FF,$FF,$19,$5D,$35,$4B,$F2 ; "....]5Kr"
         .byte   $EC,$87,$6F,$AD,$B7,$E2,$F8,$54 ; "l.o-7bxT"
         .byte   $80,$96,$85,$82,$22,$10,$33,$4A ; "....".3J"
         .byte   $13,$06,$0B,$4A,$01,$40,$47,$7A ; "...J.@Gz"
@@ -1421,7 +1422,8 @@ verb_adr_l:     .byte   $17,$FF,$FF,$19,$5D,$35,$4B,$F2 ; "....]5Kr"
         .byte   $28,$03,$C4,$1D,$00,$0C,$4E,$00 ; "(.D...N."
         .byte   $3E,$00,$A6,$B0,$00,$BC,$C6,$57 ; ">.&0.<FW"
         .byte   $8C,$01,$27,$FF,$FF,$FF,$FF,$FF ; "..'....."
-verb_adr_h:     .byte   $E8,$FF,$FF,$E8,$E0,$E0,$E0,$EF ; "h..h```o"
+verb_adr_h:
+        .byte   $E8,$FF,$FF,$E8,$E0,$E0,$E0,$EF ; "h..h```o"
         .byte   $EF,$E3,$E3,$E5,$E5,$E7,$E7,$EE ; "occeeggn"
         .byte   $EF,$EF,$E7,$E7,$E2,$EF,$E7,$E7 ; "ooggbogg"
         .byte   $EC,$EC,$EC,$E7,$EC,$EC,$EC,$E2 ; "lllglllb"
@@ -1512,6 +1514,7 @@ Lebce:  STA     acc
         BNE     Lebfa
         JSR     negate
 Lebfa:  JMP     var_assign
+
         .byte   $FF,$FF,$FF,$50            
 
 Tec01:  JSR     Tec13
@@ -1528,8 +1531,10 @@ Tec13:  JSR     subtract
 Lec16:  JSR     sgn_fn
         LSR     noun_stk_l,X
 Lec1b:  JMP     not_op
+
         .byte   $FF,$FF                  
-syntabl_index:  .byte   $C1,$FF,$7F,$D1,$CC,$C7,$CF,$CE ; "A..QLGON"
+syntabl_index:
+        .byte   $C1,$FF,$7F,$D1,$CC,$C7,$CF,$CE ; "A..QLGON"
         .byte   $C5,$9A,$98,$8B,$96,$95,$93,$BF ; "E......?"
         .byte   $B2,$32,$2D,$2B,$BC,$B0,$AC,$BE ; "22-+<0,>"
         .byte   $35,$8E,$61,$FF,$FF,$FF,$DD,$FB ; "5.a...]{"
@@ -1565,7 +1570,8 @@ Lec4c:  STA     noun_stk_l,X
         .byte   $AE,$A9,$7F,$05,$28,$B4,$B5,$B0 ; ".)..(450"
         .byte   $AE,$A9,$7F,$05,$2A,$B4,$B5,$B0 ; ".)..*450"
         .byte   $AE,$A9,$E4,$AE,$A5,$00,$FF,$FF ; ".)d.%..."
-syntabl2:       .byte   $47,$A2,$A1,$B4,$7F,$0D,$30,$AD ; "G"!4..0-"
+syntabl2:
+        .byte   $47,$A2,$A1,$B4,$7F,$0D,$30,$AD ; "G"!4..0-"
         .byte   $A9,$A4,$7F,$0D,$23,$AD,$A9,$A4 ; ")$..#-)$"
         .byte   $67,$AC,$AC,$A1,$A3,$00,$40,$80 ; "g,,!#.@."
         .byte   $C0,$C1,$80,$00,$47,$8C,$68,$8C ; "@A..G.h."
@@ -1627,6 +1633,7 @@ len_fn: INX
         SBC     rnd+1,X
         STA     noun_stk_l,X
         JMP     left_paren
+
         .byte   $FF
 
 getbyte:        JSR     get16bit
@@ -1686,6 +1693,7 @@ Lee7a:  ASL     acc
 Lee96:  DEY
         BNE     Lee7a
         RTS
+
         .byte   $FF,$FF,$FF,$FF,$FF,$FF
 
 call_stmt:      JSR     get16bit
@@ -1749,6 +1757,7 @@ poke_stmt:      JSR     getbyte
         STA     (acc),Y
 
 Tef0c:  RTS
+
         .byte   $FF,$FF,$FF
 
 divide: JSR     See6c
