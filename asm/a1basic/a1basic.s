@@ -73,10 +73,11 @@ DSP	=	$D012
 
 Pe000:	JMP	cold            ; BASIC cold start entry point
 
-rdkey:	LDA	KBDCR
-	BPL	rdkey
-	LDA	KBD
-	RTS
+; Get character for keyboard, return in A.
+rdkey:	LDA	KBDCR           ; Read control register
+	BPL	rdkey           ; Loop if no key pressed
+	LDA	KBD             ; Read key data
+	RTS                     ; and return
 
 Se00c:	TXA
 	AND	#$20
@@ -599,10 +600,13 @@ crout:	LDA	#$00	; 0 .
 	STA	ch
 	LDA	#$8d	; 141 .
 Le3d3:	INC	ch
-Le3d5:	BIT	DSP
-	BMI	Le3d5
-	STA	DSP
-	RTS
+
+; Send character to display. Char is in A.
+Le3d5:	BIT	DSP          ; See if display ready
+	BMI	Le3d5        ; Loop if not
+	STA	DSP          ; Write display data
+	RTS                  ; and return
+
 too_long_err:	LDY	#$06	; 6 .
 print_err_msg:	JSR	print_err_msg1
 	BIT	run_flag
@@ -1432,7 +1436,7 @@ verb_adr_h:	.byte	$e8,$ff,$ff,$e8,$e0,$e0,$e0,$ef	; "h..h```o"
 	.byte	$ee,$ef,$ee,$ee,$ef,$ee,$ee,$ee	; "nonnonnn"
 	.byte	$e1,$e8,$e8,$ff,$ff,$ff,$ff,$ff	; "ahh....."
 
-; Error message strings. Last character has high byte unset.
+; Error message strings. Last character has high bit unset.
 error_msg_tbl:
         .byte	$be,$b3,$b2,$b7,$b6,$37         ; ">32767"
         .byte   $d4,$cf,$cf,$a0,$cc,$cf,$ce,$47 ; "TOO LONG"
