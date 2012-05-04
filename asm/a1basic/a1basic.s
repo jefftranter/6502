@@ -70,8 +70,8 @@ KBDCR	=	$D011
 DSP	=	$D012
 
 	.org	$E000
-
-Pe000:	JMP	cold            ; BASIC cold start entry point
+        .export START
+START:	JMP	cold            ; BASIC cold start entry point
 
 ; Get character for keyboard, return in A.
 rdkey:	LDA	KBDCR           ; Read control register
@@ -1459,7 +1459,7 @@ error_msg_tbl:
         .byte   $d3,$d4,$d2,$a0,$cf,$d6,$c6,$4c ; "STR OVFL"
         .byte   $dc,$0d                         ; "\\\n"
         .byte   $d2,$c5,$d4,$d9,$d0,$c5,$a0,$cc,$c9,$ce,$c5,$8D	; "RETYPE LINE\n"
-	.byte	$3f                  	        ; "?" (INPUT prompt)
+	.byte	$3f                  	        ; "?"
 Leb9a:	LSR	run_flag
 	BCC	Leba1
 	JMP	Le8c3
