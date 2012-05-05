@@ -6,10 +6,8 @@
 ; Uses disassembly copyright 2003 Eric Smith <eric@brouhaha.com>
 ; http://www.brouhaha.com/~eric/retrocomputing/apple/apple1/basic/
 
-RESET   =       $00
 Z1d     =       $1D
 ch      =       $24
-cv      =       $25
 var     =       $48
 lomem   =       $4A     ; lower limit of memory used by BASIC (2 bytes)
 himem   =       $4C     ; upper limit of memory used by BASIC (2 bytes)
@@ -452,6 +450,7 @@ read_line:      JSR     rdkey
         STA     buffer,Y
         RTS
 cold:   JSR     mem_init_4k
+        .export warm
 warm:   JSR     crout           ; BASIC warm start entry point
 Le2b6:  LSR     run_flag
         LDA     #'>'+$80        ; Prompt character (high bit set)
