@@ -11,7 +11,7 @@ ch      =       $24     ; horizontal cursor location
 var     =       $48
 lomem   =       $4A     ; lower limit of memory used by BASIC (2 bytes)
 himem   =       $4C     ; upper limit of memory used by BASIC (2 bytes)
-rnd     =       $4E     ; randon number (2 bytes)
+rnd     =       $4E     ; random number (2 bytes)
 
 ; The noun stack and syntax stack appear to overlap, which is OK since
 ; they apparently are not used simultaneously.
@@ -1735,7 +1735,7 @@ Lee1d:  LDA     #$FF
         STA     cr_flag
         RTS
 
-; token $3B - "LEN(" funciton
+; token $3B - "LEN(" function
 len_fn: INX
         LDA     #$00
         STA     noun_stk_h_str,X
