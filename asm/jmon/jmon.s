@@ -12,18 +12,12 @@
 ; 0.2     10-Mar-2012  Added search command. Avoid endless loop in PrintString if string too long.
 ; 0.3     28-Mar-2012  Added Unassemble command.
 ; 0.4     30-Mar-2012  Added Test and Breakpoint commands.
-; 0.5     08-May-2012  Added optional delay for EEPROM access
+; 0.5     08-May-2012  Added write delay command for slow EEPROM access
 
 ; Constants
   CR  = $0D        ; Carriage Return
   SP  = $20        ; Space
   ESC = $1B        ; Escape
-
-; Set this to add a delay after all writes to accomodate slow EEPROMs.
-; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
-; Applies to COPY, FILL, and TEST commands.
-; Comment out if no delay is desired.
-;  EEPROM_DELAY = 32; With 2 MHz clock this is approx 1.5ms delay (see routine DELAY for details)
 
 ; Page Zero locations
   T1   = $35       ; temp variable 1
@@ -47,6 +41,7 @@
   OP   = $4C       ; instruction type OP_*
   AM   = $4D       ; addressing mode AM_*
   LEN  = $4E       ; instruction length
+  WDELAY = $4F     ; delay value when writing (defaults to zero)
   REL  = $50       ; relative addressing branch offset (2 bytes)
   DEST = $52       ; relative address destination address (2 bytes)
   START = $54      ; USER ENTERS START OF MEMORY RANGE min is 8 (2 bytes)
@@ -73,17 +68,6 @@
   ECHO      = $FFEF  ; Woz monitor ECHO routine
   BRKVECTOR = $FFFE  ; and $FFFF (2 bytes)   
 
-; Macros
-
-; Delay. Calls routine WAIT using specific delay constant val.
-; Only enabled if EEPROM_DELAY is defined
-  .macro  DELAY val
-  .ifdef EEPROM_DELAY
-        LDA   #val
-        JSR WAIT
-  .endif
-  .endmacro
-
 ; Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
 
@@ -95,7 +79,9 @@ JMON:
   CLI                  ; clear interrupt disable
   LDX #$80             ; initialize stack pointer to $0180
   TXS                  ; so we are less likely to clobber BRK vector at $0100
-  JSR  BPSETUP         ; initializAtion for breakpints
+  LDA #0
+  STA  WDELAY          ; initialize write delay to zero
+  JSR  BPSETUP         ; initialization for breakpoints
 
 ; Display Welcome message
   LDX #<WelcomeMessage
@@ -195,8 +181,14 @@ MainLoop:
 ; U
 @TryU:
   CMP #'U'
-  BNE @Invalid
+  BNE @TryW
   JMP DoUnassemble
+
+; W
+@TryW:
+  CMP #'W'
+  BNE @Invalid
+  JMP DoWriteDelay
 
 ; Invalid command
 @Invalid:
@@ -216,6 +208,19 @@ DoHelp:
   LDY #>HelpString2
   JSR PrintString
   JMP MainLoop
+
+; Add a delay after all writes to accomodate slow EEPROMs.
+; Applies to COPY, FILL, and TEST commands.
+; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
+; Value of $20 works well for me (approx 1.5ms delay with 2MHz clock).
+; See routine WAIT for details.
+DoWriteDelay:
+        JSR PrintChar   ; echo command
+        JSR PrintSpace
+        JSR GetByte     ; get delay value
+        STA WDELAY
+        JSR PrintCR
+        JMP MainLoop
 
 ; Go to Woz Monitor
 DoMon:  JMP WOZMON
@@ -366,7 +371,7 @@ DoCopy:
         LDY #0
 @copy:  LDA (SL),Y              ; copy from source
         STA (DL),Y              ; to destination
-        DELAY EEPROM_DELAY      ; approx 1ms delay after writing to EEPROM
+        JSR DELAY               ; delay after writing to EEPROM
         LDA SH                  ; reached end yet?
         CMP EH
         BNE @NotDone
@@ -661,7 +666,7 @@ DoFill:
         LDY #0
 @fill:  LDA DA
         STA (SL),Y              ; store data
-        DELAY EEPROM_DELAY      ; Delay after writing to EEPROM
+        JSR DELAY               ; delay after writing to EEPROM
         LDA SH                  ; reached end yet?
         CMP EH
         BNE @NotDone
@@ -1207,6 +1212,14 @@ PrintSpaces:
   PLA
   RTS
         
+; Delay. Calls routine WAIT using delay constant in WDELAY.
+DELAY:
+  LDA WDELAY
+  BEQ NODELAY
+  JMP WAIT
+NODELAY:
+RTS
+
 ; Below came from
 ; http://www.6502.org/source/integers/hex2dec-more.htm
 ; Convert an 16 bit binary value to BCD
@@ -1270,6 +1283,7 @@ HelpString2:
         .byte "TEST:       T <START> <END>",CR
         .byte "UNASSEMBLE: U <START>",CR
         .byte "VERIFY:     V <START> <END> <DEST>",CR
+        .byte "WRITE DELAY W <DATA>",CR
         .byte "WOZ MON:    $",CR
         .byte "HELP:       ?",CR,0
 

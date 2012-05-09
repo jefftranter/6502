@@ -75,7 +75,7 @@ LOOP1:
         SET_PATRN                       ; sets up TEST_PATRN for address in address test
         LDA        TEST_PATRN
         STA        (ADDRS, X)           ; STORE PATTERN
-        DELAY EEPROM_DELAY              ; Delay after writing to EEPROM
+        JSR        DELAY                ; delay after writing to EEPROM
         LDA        (ADDRS, X)           ; READ (save result of read in case of error)
         CMP        TEST_PATRN           ; CHECK
         BNE        LOOP_ERR2            ; branch if error
