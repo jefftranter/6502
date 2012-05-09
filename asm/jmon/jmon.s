@@ -12,11 +12,18 @@
 ; 0.2     10-Mar-2012  Added search command. Avoid endless loop in PrintString if string too long.
 ; 0.3     28-Mar-2012  Added Unassemble command.
 ; 0.4     30-Mar-2012  Added Test and Breakpoint commands.
+; 0.5     08-May-2012  Added optional delay for EEPROM access
 
 ; Constants
-  CR  = $0D ; Carriage Return
-  SP  = $20 ; Space
-  ESC = $1B ; Escape
+  CR  = $0D        ; Carriage Return
+  SP  = $20        ; Space
+  ESC = $1B        ; Escape
+
+; Set this to add a delay after all writes to accomodate slow EEPROMs.
+; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
+; Applies to COPY, FILL, and TEST commands.
+; Comment out if no delay is desired.
+;  EEPROM_DELAY = 32; With 2 MHz clock this is approx 1.5ms delay (see routine DELAY for details)
 
 ; Page Zero locations
   T1   = $35       ; temp variable 1
@@ -65,6 +72,17 @@
   PRHEX     = $FFE5  ; Woz monitor print nybble as hex digit
   ECHO      = $FFEF  ; Woz monitor ECHO routine
   BRKVECTOR = $FFFE  ; and $FFFF (2 bytes)   
+
+; Macros
+
+; Delay. Calls routine WAIT using specific delay constant val.
+; Only enabled if EEPROM_DELAY is defined
+  .macro  DELAY val
+  .ifdef EEPROM_DELAY
+        LDA   #val
+        JSR WAIT
+  .endif
+  .endmacro
 
 ; Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
@@ -348,7 +366,7 @@ DoCopy:
         LDY #0
 @copy:  LDA (SL),Y              ; copy from source
         STA (DL),Y              ; to destination
-
+        DELAY EEPROM_DELAY      ; approx 1ms delay after writing to EEPROM
         LDA SH                  ; reached end yet?
         CMP EH
         BNE @NotDone
@@ -643,6 +661,7 @@ DoFill:
         LDY #0
 @fill:  LDA DA
         STA (SL),Y              ; store data
+        DELAY EEPROM_DELAY      ; Delay after writing to EEPROM
         LDA SH                  ; reached end yet?
         CMP EH
         BNE @NotDone
@@ -1226,7 +1245,7 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
 ; Strings
 
 WelcomeMessage:
-        .byte CR,CR,"JMON MONITOR V0.4 BY JEFF TRANTER",CR,0
+        .byte CR,CR,"JMON MONITOR V0.5 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
@@ -1302,3 +1321,4 @@ KnownBPString2:
 
   .include "disasm.s"
   .include "memtest4.s"
+  .include "delay.s"

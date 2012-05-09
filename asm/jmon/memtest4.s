@@ -26,7 +26,7 @@
        .endmacro
 
 ; SET TEST PATTERN
-; only for tests 4 and 5 (address in address tests), make addres High or Low 
+; only for tests 4 and 5 (address in address tests), make address High or Low 
 ; equal to pattern
 ; test 4 is LSB of address
 ; test 5 is MSB of address
@@ -52,7 +52,7 @@
 ;        2 = floating 1s
 ;        3 = floating 0s
 ;        4 = address in address (LS 8 address bits)
-;        5 = adddress in address(MS 8 address bits)
+;        5 = address in address (MS 8 address bits)
 
 MEM_TEST:
         CLC
@@ -72,12 +72,13 @@ REPEAT:
 NX_PASS:
         INI_ADDRS
 LOOP1:
-        SET_PATRN                ; sets up TEST_PATRN for address in address test
+        SET_PATRN                       ; sets up TEST_PATRN for address in address test
         LDA        TEST_PATRN
-        STA        (ADDRS, X)         ; STORE PATTERN
-        LDA        (ADDRS, X)         ; READ (save result of read in case of error)
-        CMP        TEST_PATRN        ; CHECK
-        BNE        LOOP_ERR2         ; branch if error
+        STA        (ADDRS, X)           ; STORE PATTERN
+        DELAY EEPROM_DELAY              ; Delay after writing to EEPROM
+        LDA        (ADDRS, X)           ; READ (save result of read in case of error)
+        CMP        TEST_PATRN           ; CHECK
+        BNE        LOOP_ERR2            ; branch if error
         INC_ADDRSC
         BNE        LOOP1
 
