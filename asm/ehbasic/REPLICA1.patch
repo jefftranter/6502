@@ -1,6 +1,6 @@
-diff -uw ehbasic.orig/basic.asm ehbasic/basic.asm
+diff -u ehbasic.orig/basic.asm ehbasic/basic.asm
 --- ehbasic.orig/basic.asm	2010-07-29 15:58:42.000000000 -0400
-+++ ehbasic/basic.asm	2012-04-20 23:20:43.000000000 -0400
++++ ehbasic/basic.asm	2012-05-12 21:52:24.000000000 -0400
 @@ -419,7 +419,7 @@
  LAB_SKFF		= LAB_STAK+$FF
  					; flushed stack address
@@ -35,10 +35,13 @@ diff -uw ehbasic.orig/basic.asm ehbasic/basic.asm
  	BCS	LAB_15D9		; branch if A>=TAB (do syntax error then warm start)
  					; only tokens before TAB can start a line
  	TAY				; copy to index
+Only in ehbasic: basic.mon
+Only in ehbasic: basic-uppercase.mon
+Only in ehbasic: CFFA1_API.s
 Only in ehbasic: Makefile
-diff -uw ehbasic.orig/min_mon.asm ehbasic/min_mon.asm
+diff -u ehbasic.orig/min_mon.asm ehbasic/min_mon.asm
 --- ehbasic.orig/min_mon.asm	2005-04-08 02:53:46.000000000 -0400
-+++ ehbasic/min_mon.asm	2012-04-20 23:13:11.000000000 -0400
++++ ehbasic/min_mon.asm	2012-05-12 22:54:54.000000000 -0400
 @@ -1,5 +1,6 @@
  
  ; minimal monitor for EhBASIC and 6502 simulator V1.05
@@ -46,7 +49,17 @@ diff -uw ehbasic.orig/min_mon.asm ehbasic/min_mon.asm
  
  ; To run EhBASIC on the simulator load and assemble [F7] this file, start the simulator
  ; running [F6] then start the code with the RESET [CTRL][SHIFT]R. Just selecting RUN
-@@ -23,7 +24,7 @@
+@@ -7,6 +8,9 @@
+ 
+ 	.include "basic.asm"
+ 
++; For support of the CFFA1 flash card for LOAD and SAVE
++        .include "CFFA1_API.s"
++
+ ; put the IRQ and MNI code in RAM so that it can be changed
+ 
+ IRQ_vec	= VEC_SV+2		; IRQ code vector
+@@ -23,7 +27,7 @@
  ; and wait for the user to select [C]old or [W]arm start. nothing else
  ; fits in less than 128 bytes
  
@@ -55,7 +68,7 @@ diff -uw ehbasic.orig/min_mon.asm ehbasic/min_mon.asm
  
  ; reset vector points here
  
-@@ -67,18 +68,22 @@
+@@ -67,25 +71,43 @@
  LAB_dowarm
  	JMP	LAB_WARM		; do EhBASIC warm start
  
@@ -83,7 +96,41 @@ diff -uw ehbasic.orig/min_mon.asm ehbasic/min_mon.asm
  	SEC				; flag byte received
  	RTS
  
-@@ -126,7 +131,7 @@
+ LAB_nobyw
+ 	CLC				; flag no byte received
+-no_load				; empty load vector for EhBASIC
+-no_save				; empty save vector for EhBASIC
++
++; LOAD and SAVE commands will call into CFFA1 flash interface if one
++; is present. Not sure how to determine range of memory to save and
++; load. For now, can save from Ram_base to Ram_top. Future enhancement
++; would be to pass filename on command line and call read/write
++; routines in CFFA1.
++LOAD
++SAVE
++        LDA     CFFA1_ID1               ; if CFFA1 card is present
++        CMP     #$CF                    ; these two locations will return
++        BNE     NoCFFA1                 ; $CF and $FA.
++        LDA     CFFA1_ID2
++        CMP     #$FA
++        BNE     NoCFFA1
++        JSR     Menu                    ; Jump to CFFA1 menu, will return when done.
++NoCFFA1
+ 	RTS
+ 
+ ; vector tables
+@@ -93,8 +115,8 @@
+ LAB_vec
+ 	.word	ACIAin		; byte in from simulated ACIA
+ 	.word	ACIAout		; byte out to simulated ACIA
+-	.word	no_load		; null load vector for EhBASIC
+-	.word	no_save		; null save vector for EhBASIC
++	.word	LOAD		; load vector for EhBASIC
++	.word	SAVE		; save vector for EhBASIC
+ 
+ ; EhBASIC IRQ support
+ 
+@@ -126,7 +148,7 @@
  
  ; system vectors
  
@@ -95,3 +142,4 @@ diff -uw ehbasic.orig/min_mon.asm ehbasic/min_mon.asm
 Only in ehbasic: NOTES.txt
 Only in ehbasic: REPLICA1.patch
 Only in ehbasic: source.zip
+Only in ehbasic: UPPERCASE.patch
