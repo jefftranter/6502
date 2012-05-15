@@ -13,6 +13,7 @@
 ; 0.3     28-Mar-2012  Added Unassemble command.
 ; 0.4     30-Mar-2012  Added Test and Breakpoint commands.
 ; 0.5     08-May-2012  Added write delay command for slow EEPROM access
+; 0.6     15-May-2012  Support overlapping addresses in copy command
 
 ; Constants
   CR  = $0D        ; Carriage Return
@@ -351,35 +352,31 @@ DoCopy:
         JSR PrintString
         JMP MainLoop
 
-; Check that start address < dest address to avoid overlapping memory issues
+; Separate copy up and down routines to handle avoid overlapping memory
 
 @okay1:
         LDA SH
         CMP DH
-        BCC @okay2
-        BNE @invalid2
+        BCC @okayUp             ; copy up
+        BNE @okayDown           ; copy down
         LDA SL
         CMP DL
-        BCC @okay2
-@invalid2:
-        LDX #<OverlappingRange
-        LDY #>OverlappingRange
-        JSR PrintString
-        JMP MainLoop
+        BCC @okayUp
+        BCS @okayDown
 
-@okay2:
+@okayUp:
         LDY #0
-@copy:  LDA (SL),Y              ; copy from source
+@copyUp: LDA (SL),Y             ; copy from source
         STA (DL),Y              ; to destination
         JSR DELAY               ; delay after writing to EEPROM
         LDA SH                  ; reached end yet?
         CMP EH
-        BNE @NotDone
+        BNE @NotDone1
         LDA SL
         CMP EL
         BNE @NotDone
         JMP MainLoop            ; done
-@NotDone:
+@NotDone1:
         LDA SL                  ; increment start address
         CLC
         ADC #1
@@ -395,7 +392,52 @@ DoCopy:
         BCC @NoCarry2
         INC DH
 @NoCarry2:
-        JMP @copy
+        JMP @copyUp
+
+
+@okayDown:
+        LDA  EL                 ; Calculate length = End - Start
+        SEC
+        SBC  SL
+        STA  T1
+        LDA  EH
+        SBC  SH
+        STA  T2
+        LDA  DL                 ; add length to Destination
+        CLC
+        ADC  T1
+        STA  DL
+        LDA  DH
+        ADC  T2
+        STA  DH
+        LDY  #0
+@copyDown:
+        LDA (EL),Y              ; copy from source
+        STA (DL),Y              ; to destination
+        JSR DELAY               ; delay after writing to EEPROM
+        LDA EH                  ; reached end yet?
+        CMP SH
+        BNE @NotDone
+        LDA EL
+        CMP SL
+        BNE @NotDone
+        JMP MainLoop            ; done
+@NotDone:
+        LDA EL                  ; decrement end address
+        SEC
+        SBC #1
+        STA EL
+        BCS @NoBorrow1
+        DEC EH
+@NoBorrow1:
+        LDA DL                  ; decrement destination address
+        SEC
+        SBC #1
+        STA DL
+        BCS @NoBorrow2
+        DEC DH
+@NoBorrow2:
+        JMP @copyDown
 
 ; Search Memory
 DoSearch:
@@ -1258,7 +1300,7 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
 ; Strings
 
 WelcomeMessage:
-        .byte CR,CR,"JMON MONITOR V0.5 BY JEFF TRANTER",CR,0
+        .byte CR,CR,"JMON MONITOR V0.6 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
@@ -1293,10 +1335,9 @@ ContinueString:
 InvalidRange:
         .byte "ERROR: START MUST BE < END",CR,0
 
-OverlappingRange:
-        .byte "ERROR: START MUST BE < DEST",CR,0
 NotFound:
         .byte "NOT FOUND",CR,0
+
 Found:
         .asciiz "FOUND AT: "
 
