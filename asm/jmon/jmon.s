@@ -14,6 +14,7 @@
 ; 0.4     30-Mar-2012  Added Test and Breakpoint commands.
 ; 0.5     08-May-2012  Added write delay command for slow EEPROM access
 ; 0.6     15-May-2012  Support overlapping addresses in copy command
+; 0.7     16-May-2012  Prompt whether to continue when Verify detects mismatch or Search finds match.
 
 ; Constants
   CR  = $0D        ; Carriage Return
@@ -473,6 +474,7 @@ DoSearch:
         LDA DA
         CMP (SL),Y              ; compare with memory data
         BEQ @Match              ; found match
+@Cont:
         LDA SH                  ; reached end yet?
         CMP EH
         BNE @NotDone
@@ -500,6 +502,8 @@ DoSearch:
         LDY SH
         JSR PrintAddress
         JSR PrintCR
+        JSR PromptToContinue
+        BCC @Cont
         JMP MainLoop            ; done
 
 ; Verify Memory
@@ -561,12 +565,15 @@ DoVerify:
         LDA (DL),Y
         JSR PrintByte
         JSR PrintCR
+        JSR PromptToContinue
+        BCS @Done               ; ESC pressed, return
 @match: LDA SH                  ; reached end yet?
         CMP EH
         BNE @NotDone
         LDA SL
         CMP EL
         BNE @NotDone
+@Done:
         JMP MainLoop            ; done
 @NotDone:
         LDA SL                  ; increment start address
@@ -606,16 +613,8 @@ DoDump:
         INX
         CPX #23 ; display 23 lines
         BNE @loop
-        LDX #<ContinueString
-        LDY #>ContinueString
-        JSR PrintString
-@SpaceOrEscape:
-        JSR GetKey
-        CMP #' '
-        BEQ @line
-        CMP #ESC
-        BNE @SpaceOrEscape
-        JSR PrintCR
+        JSR PromptToContinue
+        BCC @line
         JMP MainLoop
 
 ; Unassemble Memory
@@ -634,16 +633,8 @@ DoUnassemble:
         SEC
         SBC #1
         BNE @loop
-        LDX #<ContinueString
-        LDY #>ContinueString
-        JSR PrintString
-@SpaceOrEscape:
-        JSR GetKey
-        CMP #' '
-        BEQ @line
-        CMP #ESC
-        BNE @SpaceOrEscape
-        JSR PrintCR
+        JSR PromptToContinue
+        BCC @line
         JMP MainLoop
 
 ; Test Memory
@@ -1253,6 +1244,39 @@ PrintSpaces:
   BNE @LOOP
   PLA
   RTS
+
+; Ask user whether to continue or not. Returns with carry clear if
+; user selected <space> to continue, carry set if user selected <ESC>
+; to stop.
+; Registers changed: none
+
+PromptToContinue:
+        PHA			; save registers
+        TXA
+        PHA
+        TYA
+        PHA
+        LDX #<ContinueString
+        LDY #>ContinueString
+        JSR PrintString
+@SpaceOrEscape:
+        JSR GetKey
+        CMP #' '
+        BEQ @Cont
+        CMP #ESC
+        BNE @SpaceOrEscape
+        SEC                     ; carry set indicates ESC pressed
+        BCS @Ret
+@Cont:
+        CLC
+@Ret:
+        JSR PrintCR
+        PLA                     ; restore registers
+        TAY
+        PLA
+        TAX
+        PLA        
+        RTS
         
 ; Delay. Calls routine WAIT using delay constant in WDELAY.
 DELAY:
@@ -1300,7 +1324,7 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
 ; Strings
 
 WelcomeMessage:
-        .byte CR,CR,"JMON MONITOR V0.6 BY JEFF TRANTER",CR,0
+        .byte CR,CR,"JMON MONITOR V0.7 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
