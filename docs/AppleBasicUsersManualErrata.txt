@@ -1,0 +1,82 @@
+This documents lists some corrections to errors in the document
+"Preliminary Apple Basic Users Manual' October 1976. It also lists
+some notes on features that are non-obvious or of interest.
+
+Title Page:
+
+Note: The woodcut image of Sir Issac Newton sitting under an Apple
+Tree was the original Apple Computer Company Logo drawn by Ronald
+Wayne, the third employee of Apple.
+
+Note: The address listed is no longer the headquarters of Apple
+Computer :-)
+
+Second page:
+
+Error: The word "likley" is misspelled (It is ironic that this is the
+page that says the manual may contain errors and asks users to send in
+corrections).
+
+Page 1:
+
+Note: An alternative way to get to the monitor from BASIC is to
+execute the command "CALL -256".
+
+Page 2:
+
+Note: The instructions for saving BASIC programs on tape assume LOMEM
+and HIMEM have their default values. If not, you need to adjust the
+command listed in step 3 accordingly.
+
+Page 4:
+
+Note: A quirk of Apple BASIC is that the number -32768, which is a
+valid 32 bit signed value, is not accepted. I don't think this was an
+oversight As Woz was an excellent programmer and had designed
+calculators in his career. I suspect it was to allow the the "***
+>32767 ERR" message to be used for all overflow errors. We'll come
+across this issue later.
+
+Page 6:
+
+Error: Under point 3, if a string is not dimensioned it's length is
+taken to be one, not zero.
+
+Page 7:
+
+Error: The word "destingation" should be "destination" (in two places).
+
+Page 8:
+
+Note: Unlike expressions, string comparison using "<>" is not
+supported, only "#".
+
+Page 10:
+
+Error: The statement that changing LOMEM or HIMEM destroys the current
+user program is not correct. The program will still exist but may not
+run reliably. You should execute a SCR command before setting LOMEM or
+HIMEM. There is also no check that the values for LOMEM and HIMEM are
+valid.
+
+Note: There is no way to suppress the question mark prompt in INPUT
+statements.
+
+Page 12:
+
+Note: The target of a GOTO or GOSUB can be an expression. This feature
+is not supported in most other versions of BASIC.
+
+Note: In a remark statement like 
+
+10 REM A COMMENT : GOTO 100
+
+Apple BASIC considers the whole line to be a comment.
+
+Page 13:
+
+Note: An error is reported if the last line executed in a program was
+not an END statement.
+
+Note: Due to the quirk of not supporting the number -32768, you cannot
+use this address ($8000 in hex) with PEEK, POKE, or CALL.
