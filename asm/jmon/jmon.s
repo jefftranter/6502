@@ -76,7 +76,7 @@
   BRKVECTOR = $FFFE  ; and $FFFF (2 bytes)   
 
 ; Use start address of $A000 for Multi I/0 Board EEPROM
-; .org $0280
+; .org $A000
 
 ; JMON Entry point
   .export JMON
