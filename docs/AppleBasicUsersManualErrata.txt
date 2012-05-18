@@ -1,4 +1,4 @@
-This documents lists some corrections to errors in the document
+This document lists some corrections to errors in the document
 "Preliminary Apple Basic Users Manual' October 1976. It also lists
 some notes on features that are non-obvious or of interest.
 
