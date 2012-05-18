@@ -5,6 +5,10 @@
 ;
 ; Jeff Tranter <tranter@pobox.com>
 ;
+; TODO:
+; - allow start address = end address in commands
+; - allow 8 or 16 bit data patterns in fill and search commands
+;
 ; Revision History
 ; Version Date         Comments
 ; 0.0     19-Feb-2012  First version started
@@ -15,20 +19,21 @@
 ; 0.5     08-May-2012  Added write delay command for slow EEPROM access
 ; 0.6     15-May-2012  Support overlapping addresses in copy command
 ; 0.7     16-May-2012  Prompt whether to continue when Verify detects mismatch or Search finds match.
+; 0.8     17-May-2012  Search and Fill commands now use 16 bit patterns.
 
 ; Constants
   CR  = $0D        ; Carriage Return
   SP  = $20        ; Space
   ESC = $1B        ; Escape
 
-; Page Zero locations
+; Page Zero locations (Note: Woz Mon uses $24 through $2B and $0200 through $027F)
   T1   = $35       ; temp variable 1
   T2   = $36       ; temp variable 2
   SL   = $37       ; start address low byte
   SH   = $38       ; start address high byte
   EL   = $39       ; end address low byte
   EH   = $3A       ; end address high byte
-  DA   = $3F       ; fill data byte
+  DA   = $3E       ; fill/search data (2 bytes)
   DL   = $40       ; destination address low byte
   DH   = $41       ; destination address high byte
   BIN  = $42       ; holds binary value low byte
@@ -71,7 +76,7 @@
   BRKVECTOR = $FFFE  ; and $FFFF (2 bytes)   
 
 ; Use start address of $A000 for Multi I/0 Board EEPROM
-; .org $A000
+; .org $0280
 
 ; JMON Entry point
   .export JMON
@@ -452,27 +457,31 @@ DoSearch:
         STX EL
         STY EH
         JSR PrintSpace
-        JSR GetByte   ; Get data
-        STA DA
+        JSR GetAddress  ; Get data (16-bit)
+        STY DA
+        STX DA+1
         JSR PrintCR
 ; Check that start address < end address
         LDA SH
         CMP EH
-        BCC @okay
+        BCC @search
         BNE @invalid
         LDA SL
         CMP EL
-        BCC @okay
+        BCC @search
 @invalid:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
         JMP MainLoop
-@okay:
-        LDY #0
 @search:
+        LDY #0
         LDA DA
-        CMP (SL),Y              ; compare with memory data
+        CMP (SL),Y              ; compare with memory data (first byte)
+        BNE @Cont
+        INY
+        LDA DA+1                ; compare with memory data (second byte)
+        CMP (SL),Y
         BEQ @Match              ; found match
 @Cont:
         LDA SH                  ; reached end yet?
@@ -679,42 +688,61 @@ DoFill:
         STX EL
         STY EH
         JSR PrintSpace
-        JSR GetByte   ; Get data
-        STA DA
+        JSR GetAddress  ; Get data (16 bits)
+        STY DA
+        STX DA+1
         JSR PrintCR
 ; Check that start address < end address
         LDA SH
         CMP EH
-        BCC @okay
+        BCC @fill
         BNE @invalid
         LDA SL
         CMP EL
-        BCC @okay
+        BCC @fill
 @invalid:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
         JMP MainLoop
-@okay:
+@fill:
         LDY #0
-@fill:  LDA DA
-        STA (SL),Y              ; store data
+        LDA DA
+        STA (SL),Y              ; store data (first byte)
         JSR DELAY               ; delay after writing to EEPROM
         LDA SH                  ; reached end yet?
         CMP EH
-        BNE @NotDone
+        BNE @NotDone1
         LDA SL
         CMP EL
-        BNE @NotDone
+        BNE @NotDone1
         JMP MainLoop            ; done
-@NotDone:
+@NotDone1:
         LDA SL                  ; increment address
         CLC
         ADC #1
         STA SL
-        BCC @NoCarry
+        BCC @NoCarry1
         INC SH
-@NoCarry:
+@NoCarry1:
+        LDA DA+1
+        STA (SL),Y              ; store data (second byte)
+        JSR DELAY               ; delay after writing to EEPROM
+        LDA SH                  ; reached end yet?
+        CMP EH
+        BNE @NotDone2
+        LDA SL
+        CMP EL
+        BNE @NotDone2
+        JMP MainLoop            ; done
+@NotDone2:
+        LDA SL                  ; increment address
+        CLC
+        ADC #1
+        STA SL
+        BCC @NoCarry2
+        INC SH
+@NoCarry2:
         JMP @fill
         
 ; Do setup so we can support breakpoints
@@ -1324,7 +1352,7 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
 ; Strings
 
 WelcomeMessage:
-        .byte CR,CR,"JMON MONITOR V0.7 BY JEFF TRANTER",CR,0
+        .byte CR,CR,"JMON MONITOR V0.8 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
