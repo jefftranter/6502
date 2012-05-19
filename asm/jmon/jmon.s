@@ -62,9 +62,9 @@
   BPA     = $60    ; address of breakpoint (2 bytes * 4 breakpoints)
   BPD     = $68    ; instruction at breakpoint (1 byte * 4 breakpoints)
   SAVE_A  = $70    ; holds saved values of registers
-  SAVE_X  = $71
-  SAVE_Y  = $72
-  SAVE_P  = $73 
+  SAVE_X  = $71    ; "
+  SAVE_Y  = $72    ; "
+  SAVE_P  = $73    ; "
   SAVE_PC = $74    ; holds PC while in BRK handler (2 bytes)
   VECTOR  = $76    ; holds adddress of IRQ/BREAK entry point
 

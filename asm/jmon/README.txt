@@ -12,7 +12,7 @@ Jumps to Krusader assembler.
 BREAKPOINT: B <N> <ADDRESS>
 
 Set up to 4 breakpoints, numbered 0 through 3.
-"B ? lists status of all breakpoints.
+"B ?" lists status of all breakpoints.
 "B <n> <address>" sets breakpoint number <n> at address <address>
 "B <n> 0000" removes breakpoint <n>.
 Breakpoint number <n> is 0 through 3.
@@ -27,15 +27,15 @@ Breakpoints must be in RAM. IRQ/BRK vector must be in RAM. Error is displayed if
 COPY:       C <START> <END> <DEST>
 
 Copy memory from START through END to DEST.
-Range can overlap but start address must be < end address.
+Range can overlap but start address must be <= end address.
 
 DUMP:       D <START>
 
-Dump mempory in hex and ASCII a screen at a time.
+Dump memory in hex and ASCII a screen at a time.
 
 FILL:       F <START> <END> <DATA>
 
-Fill a range of memory with a byte pattern.
+Fill a range of memory with a 16-bit pattern.
 
 HEX TO DEC  H <ADDRESS>
 
@@ -55,7 +55,7 @@ Run from an address.
 
 SEARCH:     S <START> <END> <DATA>
 
-Search range of memory for a byte data pattern.
+Search range of memory for a 16-bit data pattern.
 
 TEST:       T <START> <END>
 
@@ -64,11 +64,19 @@ Not recommended to test writable EEPROM as it has a limited number of write cycl
 
 UNASSEMBLE: U <START>
 
-Disasseble memory a page at a time. Supports 65C02 op codes.
+Disassemble memory a page at a time. Supports 65C02 op codes.
 
 VERIFY:     V <START> <END> <DEST>
 
 Verify that memory from start to end matches memory at destination.
+
+WRITE DELAY:   W <DATA>
+
+Add a delay after all writes to accommodate slow EEPROMs.
+Applies to COPY, FILL, and TEST commands.
+Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
+Value of $20 works well for me (approx 1.5ms delay with 2MHz clock).
+See routine WAIT for details on delay values versus delay time.
 
 WOZ MON:    $
 
