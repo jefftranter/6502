@@ -6,8 +6,7 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - allow start address = end address in commands
-; - allow 8 or 16 bit data patterns in fill and search commands
+; - allow 8 or 16 bit data patterns in fill, search commands
 ;
 ; Revision History
 ; Version Date         Comments
@@ -347,14 +346,16 @@ DoCopy:
         STY DH
         JSR PrintCR
 
-; Check that start address < end address
+; Check that start address <= end address
         LDA SH
         CMP EH
         BCC @okay1
+        BEQ @okay1
         BNE @invalid1
         LDA SL
         CMP EL
         BCC @okay1
+        BEQ @okay1
 @invalid1:
         LDX #<InvalidRange
         LDY #>InvalidRange
@@ -464,14 +465,16 @@ DoSearch:
         STY DA
         STX DA+1
         JSR PrintCR
-; Check that start address < end address
+; Check that start address <= end address
         LDA SH
         CMP EH
         BCC @search
+        BEQ @search
         BNE @invalid
         LDA SL
         CMP EL
         BCC @search
+        BEQ @search
 @invalid:
         LDX #<InvalidRange
         LDY #>InvalidRange
@@ -535,14 +538,16 @@ DoVerify:
         STY DH
         JSR PrintCR
 
-; Check that start address < end address
+; Check that start address <= end address
         LDA SH
         CMP EH
         BCC @verify
+        BEQ @verify
         BNE @invalid
         LDA SL
         CMP EL
         BCC @verify
+        BEQ @verify
 @invalid:
         LDX #<InvalidRange
         LDY #>InvalidRange
@@ -694,14 +699,16 @@ DoFill:
         STY DA
         STX DA+1
         JSR PrintCR
-; Check that start address < end address
+; Check that start address <= end address
         LDA SH
         CMP EH
         BCC @fill
+        BEQ @fill
         BNE @invalid
         LDA SL
         CMP EL
         BCC @fill
+        BEQ @fill
 @invalid:
         LDX #<InvalidRange
         LDY #>InvalidRange
@@ -1387,7 +1394,7 @@ ContinueString:
         .asciiz "  <SPACE> TO CONTINUE, <ESC> TO STOP"
 
 InvalidRange:
-        .byte "ERROR: START MUST BE < END",CR,0
+        .byte "ERROR: START MUST BE <= END",CR,0
 
 NotFound:
         .byte "NOT FOUND",CR,0
