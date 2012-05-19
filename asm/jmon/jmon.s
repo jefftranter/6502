@@ -26,7 +26,10 @@
   SP  = $20        ; Space
   ESC = $1B        ; Escape
 
-; Page Zero locations (Note: Woz Mon uses $24 through $2B and $0200 through $027F)
+; Page Zero locations
+; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
+; Krusader uses $F8, $F9, $FF, $FF.
+; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
   T1   = $35       ; temp variable 1
   T2   = $36       ; temp variable 2
   SL   = $37       ; start address low byte
@@ -535,19 +538,18 @@ DoVerify:
 ; Check that start address < end address
         LDA SH
         CMP EH
-        BCC @okay
+        BCC @verify
         BNE @invalid
         LDA SL
         CMP EL
-        BCC @okay
+        BCC @verify
 @invalid:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
         JMP MainLoop
-@okay:
-        LDY #0
 @verify:
+        LDY #0
         LDA (SL),Y              ; compare source
         CMP (DL),Y              ; to destination
         BEQ @match
