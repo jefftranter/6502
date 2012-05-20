@@ -45,7 +45,7 @@ GETLINE:        LDA #$8D        ; CR.
                 LDY #$01        ; Initialize text index.
 BACKSPACE:      DEY             ; Back up text index.
                 BMI GETLINE     ; Beyond start of line, reinitialize.
-NEXTCHAR:       LDA KBD         ; CR Key ready?
+NEXTCHAR:       LDA KBDCR       ; Key ready?
                 BPL NEXTCHAR    ; Loop until ready.
                 LDA KBD         ; Load character. B7 should be ‘1’.
                 STA IN,Y        ; Add to text buffer.
@@ -63,7 +63,7 @@ NEXTITEM:       LDA IN,Y        ; Get character.
                 BEQ GETLINE     ; Yes, done this line.
                 CMP #'.'+$80    ; "."?
                 BCC BLSKIP      ; Skip delimiter.
-                BEQ GETLINE     ; Yes. Set STOR mode.
+                BEQ SETMODE     ; Yes. Set STOR mode.
                 CMP #':'+$80    ; ":"?
                 BEQ SETSTOR     ; Yes. Set STOR mode.
                 CMP #'R'+$80    ; "R"?
