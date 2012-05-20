@@ -32,13 +32,13 @@ RESET:          CLD             ; Clear decimal arithmetic mode.
                 LDA #$A7        ; KBD and DSP control register mask.
                 STA KBDCR       ; Enable interrupts, set CA1, CB1, for
                 STA DSPCR       ; positive edge sense/output mode.
-NOTCR:          CMP #$DF        ; “_”?
+NOTCR:          CMP #'_'+$80    ; "_"?
                 BEQ BACKSPACE   ; Yes.
                 CMP #$9B        ; ESC?
                 BEQ ESCAPE      ; Yes.
                 INY             ; Advance text index.
                 BPL NEXTCHAR    ; Auto ESC if > 127.
-ESCAPE:         LDA #$DC        ; “\”.
+ESCAPE:         LDA #'\'+$80    ; "\".
                 JSR ECHO        ; Output it.
 GETLINE:        LDA #$8D        ; CR.
                 JSR ECHO        ; Output it.
@@ -61,12 +61,12 @@ BLSKIP:         INY             ; Advance text index.
 NEXTITEM:       LDA IN,Y        ; Get character.
                 CMP #$8D        ; CR?
                 BEQ GETLINE     ; Yes, done this line.
-                CMP #$AE        ; “.”?
+                CMP #'.'+$80    ; "."?
                 BCC BLSKIP      ; Skip delimiter.
                 BEQ GETLINE     ; Yes. Set STOR mode.
-                CMP #$BA        ; “:”?
+                CMP #':'+$80    ; ":"?
                 BEQ SETSTOR     ; Yes. Set STOR mode.
-                CMP #$D2        ; “R”?
+                CMP #'R'+$80    ; "R"?
                 BEQ RUN         ; Yes. Run user program.
                 STX L           ; $00-> L.
                 STX H           ; and H.
@@ -75,7 +75,7 @@ NEXTHEX:        LDA IN,Y        ; Get character for hex test.
                 EOR #$B0        ; Map digits to $0-9.
                 CMP #$0A        ; Digit?
                 BCC DIG         ; Yes.
-                ADC #$88        ; Map letter “A”-“F” to $FA-FF.
+                ADC #$88        ; Map letter "A"-"F" to $FA-FF.
                 CMP #$FA        ; Hex letter?
                 BCC NOTHEX      ; No, character not hex.
 DIG:            ASL
@@ -115,7 +115,7 @@ NXTPRNT:        BNE PRDATA      ; NE means no address to print.
                 JSR PRBYTE      ; Output it in hex format.
                 LDA XAML        ; Low-order ‘examine index’ byte.
                 JSR PRBYTE      ; Output it in hex format.
-                LDA #$BA        ; “:”.
+                LDA #':'+$80    ; ":".
                 JSR ECHO        ; Output it.
 PRDATA:         LDA #$A0        ; Blank.
                 JSR ECHO        ; Output it.
@@ -141,7 +141,7 @@ PRBYTE:         PHA             ; Save A for LSD.
                 JSR PRHEX       ; Output hex digit.
                 PLA             ; Restore A.
 PRHEX:          AND #$0F        ; Mask LSD for hex print.
-                ORA #$B0        ; Add “0”.
+                ORA #'0'+$80    ; Add "0".
                 CMP #$BA        ; Digit?
                 BCC ECHO        ; Yes, output it.
                 ADC #$06        ; Add offset for letter.
