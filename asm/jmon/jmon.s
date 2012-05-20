@@ -1028,7 +1028,7 @@ GetKey:
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
 ; ESC key cancels command and goes back to command loop.
-; Ignors invalid characters. Returns binary value in A
+; Ignores invalid characters. Returns binary value in A
 ; Registers changed: A
 GetHex:
         JSR GetKey
