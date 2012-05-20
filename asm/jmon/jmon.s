@@ -1373,7 +1373,7 @@ InvalidCommand:
 HelpString1:
         .byte "COMMANDS:",CR
         .byte "ASSEMBLER:  A",CR
-        .byte "BREAKPOINT: B <N> <ADDRESS>",CR
+        .byte "BREAKPOINT: B <N OR ?> <ADDRESS>",CR
         .byte "COPY:       C <START> <END> <DEST>",CR
         .byte "DUMP:       D <START>",CR
         .byte "FILL:       F <START> <END> <DATA>",CR
