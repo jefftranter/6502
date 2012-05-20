@@ -30,3 +30,12 @@ Page 22:
 
 It would be useful to show serial terminal settings for Mac and Linux computers.
 I may be able to provide settings for Minicom on Linux once I get my board up and running.
+
+Page 29:
+
+The monitor in the Replica 1 is not quite the same as the original Woz
+Monitor listed here. It uses a modified versions that is part of
+Krusader.
+
+There is also an error in the listing at addess FF4F. The instruction
+should be "BEQ SETMODE".
