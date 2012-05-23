@@ -6,6 +6,7 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
+; - use more elegant table-driven command parser
 ; - allow 8 or 16 bit data patterns in fill, search commands
 ;
 ; Revision History
@@ -19,7 +20,7 @@
 ; 0.6     15-May-2012  Support overlapping addresses in copy command
 ; 0.7     16-May-2012  Prompt whether to continue when Verify detects mismatch or Search finds match.
 ; 0.8     17-May-2012  Search and Fill commands now use 16 bit patterns.
-; 0.9     22-May-2012  Add M command to call CFFA1 menu.
+; 0.9     22-May-2012  Added M command to call CFFA1 menu.
 
 ; Constants
   CR  = $0D        ; Carriage Return
@@ -242,24 +243,26 @@ DoWriteDelay:
         JMP MainLoop
 
 ; Call CFFA1 flash interface menu
-DoMenu:
-
 ; The documented way to check for a CFFA1 is to check for two ID bytes.
-; These are not valid in my CFFA1 and apparently different in the
-; firmware versus the API docs. So for now use a simple check that
-; location "Menu" is a JMP instruction to confirm if CFFA1 card is
-; probably present.
+; The documentation says it is addresses $AFFC and $AFFD but the firmware
+; actually uses addresses $AFDC and $AFDD. Further, my CFFA1 board did
+; not have these locations programmed even though firmware on CD-ROM did.
+; I manually wrote these bytes to my EEPROM.
 
-        LDA     MENU                    ; Entry point for CFFA1 menu code
-        CMP     #$4C                    ; JMP instruction?
-        BNE     NoCFFA1                 ; Branch if not.
+DoMenu:
+        LDA     $AFDC                   ; First CFFA1 ID byte
+        CMP     #$CF                    ; Should contain $CF
+        BNE     NoCFFA1
+        LDA     $AFDD                   ; First CFFA1 ID byte
+        CMP     #$FA                    ; Should contain $FA
+        BNE     NoCFFA1
         JSR     MENU                    ; Jump to CFFA1 menu, will return when done.
-        JMP MainLoop
+        JMP     MainLoop
 NoCFFA1:
-        LDX #<NoCFFA1String
-        LDY #>NoCFFA1String
-        JSR PrintString
-        JMP MainLoop
+        LDX     #<NoCFFA1String         ; Display error that no CFFA1 is present.
+        LDY     #>NoCFFA1String
+        JSR     PrintString
+        JMP     MainLoop
 
 ; Go to Woz Monitor
 DoMon:  JMP WOZMON
