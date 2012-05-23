@@ -19,6 +19,7 @@
 ; 0.6     15-May-2012  Support overlapping addresses in copy command
 ; 0.7     16-May-2012  Prompt whether to continue when Verify detects mismatch or Search finds match.
 ; 0.8     17-May-2012  Search and Fill commands now use 16 bit patterns.
+; 0.9     22-May-2012  Add M command to call CFFA1 menu.
 
 ; Constants
   CR  = $0D        ; Carriage Return
@@ -76,6 +77,7 @@
   PRHEX     = $FFE5  ; Woz monitor print nybble as hex digit
   ECHO      = $FFEF  ; Woz monitor ECHO routine
   BRKVECTOR = $FFFE  ; and $FFFF (2 bytes)   
+  MENU      = $9006  ; CFFA1 menu
 
 ; Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
@@ -196,8 +198,14 @@ MainLoop:
 ; W
 @TryW:
   CMP #'W'
-  BNE @Invalid
+  BNE @TryM
   JMP DoWriteDelay
+
+; M
+@TryM:
+  CMP #'M'
+  BNE @Invalid
+  JMP DoMenu
 
 ; Invalid command
 @Invalid:
@@ -209,7 +217,9 @@ MainLoop:
 ; Display help
 DoHelp:
   JSR PrintChar ; echo command
-  JSR PrintCR
+  LDX #<WelcomeMessage
+  LDY #>WelcomeMessage
+  JSR PrintString
   LDX #<HelpString1
   LDY #>HelpString1
   JSR PrintString
@@ -229,6 +239,26 @@ DoWriteDelay:
         JSR GetByte     ; get delay value
         STA WDELAY
         JSR PrintCR
+        JMP MainLoop
+
+; Call CFFA1 flash interface menu
+DoMenu:
+
+; The documented way to check for a CFFA1 is to check for two ID bytes.
+; These are not valid in my CFFA1 and apparently different in the
+; firmware versus the API docs. So for now use a simple check that
+; location "Menu" is a JMP instruction to confirm if CFFA1 card is
+; probably present.
+
+        LDA     MENU                    ; Entry point for CFFA1 menu code
+        CMP     #$4C                    ; JMP instruction?
+        BNE     NoCFFA1                 ; Branch if not.
+        JSR     MENU                    ; Jump to CFFA1 menu, will return when done.
+        JMP MainLoop
+NoCFFA1:
+        LDX #<NoCFFA1String
+        LDY #>NoCFFA1String
+        JSR PrintString
         JMP MainLoop
 
 ; Go to Woz Monitor
@@ -1361,7 +1391,7 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
 ; Strings
 
 WelcomeMessage:
-        .byte CR,CR,"JMON MONITOR V0.8 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON MONITOR V0.9 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
@@ -1378,7 +1408,8 @@ HelpString1:
         .byte "DUMP:       D <START>",CR
         .byte "FILL:       F <START> <END> <DATA>",CR
         .byte "HEX TO DEC  H <ADDRESS>",CR
-        .byte "BASIC:      I",CR,0
+        .byte "BASIC:      I",CR
+        .byte "CFFA1 MENU: M",CR,0
 HelpString2:
         .byte "MINI MON:   K",CR
         .byte "RUN:        R <ADDRESS>",CR
@@ -1434,6 +1465,9 @@ KnownBPString1:
 
 KnownBPString2:
   .asciiz " AT $"
+
+NoCFFA1String:
+  .byte "NO CFFA1 CARD FOUND!",CR,0
 
   .include "disasm.s"
   .include "memtest4.s"
