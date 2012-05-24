@@ -21,6 +21,7 @@
 ; 0.7     16-May-2012  Prompt whether to continue when Verify detects mismatch or Search finds match.
 ; 0.8     17-May-2012  Search and Fill commands now use 16 bit patterns.
 ; 0.9     22-May-2012  Added M command to call CFFA1 menu.
+; 0.91    23-May-2012  Now uses smarter "option picker" for commands.
 
 ; Constants
   CR  = $0D        ; Carriage Return
@@ -109,114 +110,19 @@ MainLoop:
 ;  Get first character of command
   JSR GetKey
 
-; ?
-  CMP #'?'
-  BEQ DoHelp
-
-; H
-  CMP #'H'
-  BNE @TryMon
-  JMP DoHex
-
-; $
-@TryMon:
-  CMP #'$'
-  BNE @TryF
-  JMP DoMon
-
-; F
-@TryF:
-  CMP #'F'
-  BNE @TryC
-  JMP DoFill
-
-; C
-@TryC:
-  CMP #'C'
-  BNE @TryV
-  JMP DoCopy
-
-; V
-@TryV:
-  CMP #'V'
-  BNE @TryS
-  JMP DoVerify
-
-; S
-@TryS:
-  CMP #'S'
-  BNE @TryK
-  JMP DoSearch
-
-; K
-@TryK:
-  CMP #'K'
-  BNE @TryA
-  JMP DoMiniMonitor
-
-; A
-@TryA:
-  CMP #'A'
-  BNE @TryB
-  JMP DoAssembler
-
-; B
-@TryB:
-  CMP #'B'
-  BNE @TryI
-  JMP DoBreakpoint
-
-; I
-@TryI:
-  CMP #'I'
-  BNE @TryR
-  JMP DoBasic
-
-; R
-@TryR:
-  CMP #'R'
-  BNE @TryD
-  JMP DoRun
-
-; D
-@TryD:
-  CMP #'D'
-  BNE @TryT
-  JMP DoDump
-
-; T
-@TryT:
-  CMP #'T'
-  BNE @TryU
-  JMP DoTest
-
-; U
-@TryU:
-  CMP #'U'
-  BNE @TryW
-  JMP DoUnassemble
-
-; W
-@TryW:
-  CMP #'W'
-  BNE @TryM
-  JMP DoWriteDelay
-
-; M
-@TryM:
-  CMP #'M'
-  BNE @Invalid
-  JMP DoMenu
+; Call option picker to run appropriate command
+  JSR OPICK
+  JMP MainLoop
 
 ; Invalid command
-@Invalid:
+Invalid:
   LDX #<InvalidCommand
   LDY #>InvalidCommand
   JSR PrintString
-  JMP MainLoop
+  RTS
 
 ; Display help
-DoHelp:
+Help:
   JSR PrintChar ; echo command
   LDX #<WelcomeMessage
   LDY #>WelcomeMessage
@@ -227,20 +133,20 @@ DoHelp:
   LDX #<HelpString2
   LDY #>HelpString2
   JSR PrintString
-  JMP MainLoop
+  RTS
 
 ; Add a delay after all writes to accomodate slow EEPROMs.
 ; Applies to COPY, FILL, and TEST commands.
 ; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
 ; Value of $20 works well for me (approx 1.5ms delay with 2MHz clock).
 ; See routine WAIT for details.
-DoWriteDelay:
+WriteDelay:
         JSR PrintChar   ; echo command
         JSR PrintSpace
         JSR GetByte     ; get delay value
         STA WDELAY
         JSR PrintCR
-        JMP MainLoop
+        RTS
 
 ; Call CFFA1 flash interface menu
 ; The documented way to check for a CFFA1 is to check for two ID bytes.
@@ -249,7 +155,7 @@ DoWriteDelay:
 ; not have these locations programmed even though firmware on CD-ROM did.
 ; I manually wrote these bytes to my EEPROM.
 
-DoMenu:
+CFFA1:
         LDA     $AFDC                   ; First CFFA1 ID byte
         CMP     #$CF                    ; Should contain $CF
         BNE     NoCFFA1
@@ -257,31 +163,31 @@ DoMenu:
         CMP     #$FA                    ; Should contain $FA
         BNE     NoCFFA1
         JSR     MENU                    ; Jump to CFFA1 menu, will return when done.
-        JMP     MainLoop
+        RTS
 NoCFFA1:
         LDX     #<NoCFFA1String         ; Display error that no CFFA1 is present.
         LDY     #>NoCFFA1String
         JSR     PrintString
-        JMP     MainLoop
+        RTS
 
 ; Go to Woz Monitor
-DoMon:  JMP WOZMON
+Monitor:  JMP WOZMON
 
 ; Go to Krusader Mini Monitor
-DoMiniMonitor:  JMP MINIMON
+MiniMonitor:  JMP MINIMON
 
 ; Go to Krusader Assembler
-DoAssembler:  JMP KRUSADER
+Assembler:  JMP KRUSADER
 
 ; Go to BASIC
-DoBasic:  JMP BASIC
+Basic:  JMP BASIC
 
 ; Handle breakpoint
 ; B ?                    <- list status of all breakpoints
 ; B <n> <address>        <- set breakpoint number <n> at address <address>
 ; B <n> 0000             <- remove breakpoint <n>
 ; <n> is 0 through 3.
-DoBreakpoint:
+Breakpoint:
         JSR PrintChar   ; echo command
         JSR PrintSpace  ; print space
 IGN:    JSR GetKey      ; get breakpoint number
@@ -302,13 +208,13 @@ VALIDBP:
         JSR PrintCR
         PLA             ; restore BP number
         JSR BPADD
-        JMP MainLoop
+        RTS
 LISTB:  JSR PrintCR
         JSR BPLIST
-        JMP MainLoop
+        RTS
 
 ; Hex to decimal conversion command
-DoHex:
+Hex:
         JSR PrintChar   ; echo command
         JSR PrintSpace  ; print space
         JSR GetAddress  ; prompt for address
@@ -351,10 +257,10 @@ DoHex:
         LDA BCD
         JSR PrintByteLZ
         JSR PrintCR
-        JMP MainLoop
+        RTS
 
 ; Run at address
-DoRun:
+Run:
         JSR PrintChar   ; echo command
         JSR PrintSpace  ; print space
         JSR GetAddress  ; prompt for address
@@ -363,7 +269,7 @@ DoRun:
         JMP (SL)        ; jump to address
 
 ; Copy Memory
-DoCopy:
+Copy:
         JSR PrintChar   ; echo command
         JSR PrintSpace  ; print space
         JSR GetAddress  ; prompt for start address
@@ -393,7 +299,7 @@ DoCopy:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
-        JMP MainLoop
+        RTS
 
 ; Separate copy up and down routines to handle avoid overlapping memory
 
@@ -418,7 +324,7 @@ DoCopy:
         LDA SL
         CMP EL
         BNE @NotDone
-        JMP MainLoop            ; done
+        RTS                     ; done
 @NotDone1:
         LDA SL                  ; increment start address
         CLC
@@ -464,7 +370,7 @@ DoCopy:
         LDA EL
         CMP SL
         BNE @NotDone
-        JMP MainLoop            ; done
+        RTS                     ; done
 @NotDone:
         LDA EL                  ; decrement end address
         SEC
@@ -483,7 +389,7 @@ DoCopy:
         JMP @copyDown
 
 ; Search Memory
-DoSearch:
+Search:
         JSR PrintChar   ; echo command
         JSR PrintSpace
         JSR GetAddress  ; get start address
@@ -512,7 +418,7 @@ DoSearch:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
-        JMP MainLoop
+        RTS
 @search:
         LDY #0
         LDA DA
@@ -532,7 +438,7 @@ DoSearch:
         LDX #<NotFound
         LDY #>NotFound
         JSR PrintString
-        JMP MainLoop            ; done
+        RTS                     ; done
 @NotDone:
         LDA SL                  ; increment address
         CLC
@@ -552,10 +458,10 @@ DoSearch:
         JSR PrintCR
         JSR PromptToContinue
         BCC @Cont
-        JMP MainLoop            ; done
+        RTS             ; done
 
 ; Verify Memory
-DoVerify:
+Verify:
         JSR PrintChar   ; echo command
         JSR PrintSpace  ; print space
         JSR GetAddress  ; prompt for start address
@@ -585,7 +491,7 @@ DoVerify:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
-        JMP MainLoop
+        RTS
 @verify:
         LDY #0
         LDA (SL),Y              ; compare source
@@ -623,7 +529,7 @@ DoVerify:
         CMP EL
         BNE @NotDone
 @Done:
-        JMP MainLoop            ; done
+        RTS                     ; done
 @NotDone:
         LDA SL                  ; increment start address
         CLC
@@ -642,7 +548,7 @@ DoVerify:
         JMP @verify
 
 ; Dump Memory
-DoDump:
+Dump:
 ; echo 'D' and space, wait for start address
         JSR PrintChar
         JSR PrintSpace
@@ -664,10 +570,10 @@ DoDump:
         BNE @loop
         JSR PromptToContinue
         BCC @line
-        JMP MainLoop
+        RTS
 
 ; Unassemble Memory
-DoUnassemble:
+Unassemble:
 ; echo 'U' and space, wait for start address
         JSR PrintChar
         JSR PrintSpace
@@ -684,10 +590,10 @@ DoUnassemble:
         BNE @loop
         JSR PromptToContinue
         BCC @line
-        JMP MainLoop
+        RTS
 
 ; Test Memory
-DoTest:
+Test:
         JSR PrintChar   ; echo command
         JSR PrintSpace
         JSR GetAddress  ; get start address
@@ -714,10 +620,10 @@ DoTest:
         LDY #>TestString3
         JSR PrintString
         JSR MEM_TEST
-        JMP MainLoop
+        RTS
 
 ; Memory fill command
-DoFill:
+Fill:
         JSR PrintChar   ; echo command
         JSR PrintSpace
         JSR GetAddress  ; get start address
@@ -746,7 +652,7 @@ DoFill:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
-        JMP MainLoop
+        RTS
 @fill:
         LDY #0
         LDA DA
@@ -758,7 +664,7 @@ DoFill:
         LDA SL
         CMP EL
         BNE @NotDone1
-        JMP MainLoop            ; done
+        RTS                     ; done
 @NotDone1:
         LDA SL                  ; increment address
         CLC
@@ -776,7 +682,7 @@ DoFill:
         LDA SL
         CMP EL
         BNE @NotDone2
-        JMP MainLoop            ; done
+        RTS                     ; done
 @NotDone2:
         LDA SL                  ; increment address
         CLC
@@ -1356,6 +1262,57 @@ DELAY:
 NODELAY:
 RTS
 
+; Option picker. Adapted from "Assembly Cookbook for the Apple II/IIe" by Don Lancaster.
+; Call with command letter in A.
+; Registers affected: X
+OPICK:
+        TAY                     ; save A
+        LDX  #MATCHN            ; Get legal number of matches
+SCAN:   CMP  MATCHFL,X          ; Search for a match
+        BEQ  GOTMCH             ; Found
+        DEX                     ; Try next
+        BPL  SCAN
+
+GOTMCH: INX                     ; Makes zero a miss
+        TXA                     ; Get jump vector
+        ASL  A                  ; Double pointer
+        TAX
+        LDA  JMPFL+1,X          ; Get page address first!
+        PHA                     ; and force on stack
+        LDA  JMPFL,X            ; Get position address
+        PHA                     ; and force on stack
+        TYA                     ; restore A
+        RTS                     ; Jump via forced subroutine return
+
+; Matchn holds the number of matches.
+; Matchfl holds the legal characters.
+; JMPFL holds the jump vectors (minus 1).
+
+        MATCHN = JMPFL-MATCHFL
+
+MATCHFL:
+        .byte  "$?ABCDFHIKMRSTUVW"
+
+JMPFL:
+        .word  Invalid-1
+        .word  Monitor-1
+        .word  Help-1
+        .word  Assembler-1
+        .word  Breakpoint-1
+        .word  Copy-1
+        .word  Dump-1
+        .word  Fill-1
+        .word  Hex-1
+        .word  Basic-1
+        .word  MiniMonitor-1
+        .word  CFFA1-1
+        .word  Run-1
+        .word  Search-1
+        .word  Test-1
+        .word  Unassemble-1
+        .word  Verify-1
+        .word  WriteDelay-1
+
 ; Below came from
 ; http://www.6502.org/source/integers/hex2dec-more.htm
 ; Convert an 16 bit binary value to BCD
@@ -1394,7 +1351,7 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON MONITOR V0.9 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON MONITOR V0.91 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
