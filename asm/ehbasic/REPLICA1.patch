@@ -1,5 +1,46 @@
---- min_mon.asm.orig	2005-04-08 02:53:46.000000000 -0400
-+++ min_mon.asm	2012-05-23 18:26:17.000000000 -0400
+diff -u ehbasic.orig/basic.asm ehbasic/basic.asm
+--- ehbasic.orig/basic.asm	2012-05-24 21:25:07.000000000 -0400
++++ ehbasic/basic.asm	2012-05-24 21:25:54.000000000 -0400
+@@ -419,7 +419,7 @@
+ LAB_SKFF		= LAB_STAK+$FF
+ 					; flushed stack address
+ 
+-ccflag		= $0200	; BASIC CTRL-C flag, 00 = enabled, 01 = dis
++ccflag		= $0300	; BASIC CTRL-C flag, 00 = enabled, 01 = dis
+ ccbyte		= ccflag+1	; BASIC CTRL-C byte
+ ccnull		= ccbyte+1	; BASIC CTRL-C byte timeout
+ 
+@@ -436,12 +436,12 @@
+ 					; start of input buffer after IRQ/NMI code
+ Ibuffe		= Ibuffs+$47; end of input buffer
+ 
+-Ram_base		= $0300	; start of user RAM (set as needed, should be page aligned)
+-Ram_top		= $C000	; end of user RAM+1 (set as needed, should be page aligned)
++Ram_base		= $0400	; start of user RAM (set as needed, should be page aligned)
++Ram_top		= $5000	; end of user RAM+1 (set as needed, should be page aligned)
+ 
+ ; This start can be changed to suit your system
+ 
+-	*=	$C000
++	.org	$5000
+ 
+ ; BASIC cold start entry point
+ 
+@@ -1555,7 +1555,7 @@
+ 	JMP	LAB_LET		; else go do implied LET
+ 
+ LAB_1609
+-	CMP	#[TK_TAB-$80]*2	; compare normalised token * 2 with TAB
++	CMP	#(TK_TAB-$80)*2	; compare normalised token * 2 with TAB
+ 	BCS	LAB_15D9		; branch if A>=TAB (do syntax error then warm start)
+ 					; only tokens before TAB can start a line
+ 	TAY				; copy to index
+Only in ehbasic: basic.mon
+Only in ehbasic: basic-uppercase.mon
+Only in ehbasic: Makefile
+diff -u ehbasic.orig/min_mon.asm ehbasic/min_mon.asm
+--- ehbasic.orig/min_mon.asm	2012-05-24 21:25:07.000000000 -0400
++++ ehbasic/min_mon.asm	2012-05-24 21:25:54.000000000 -0400
 @@ -1,5 +1,6 @@
  
  ; minimal monitor for EhBASIC and 6502 simulator V1.05
@@ -96,39 +137,7 @@
  
  	.word	NMI_vec		; NMI vector
  	.word	RES_vec		; RESET vector
---- basic.asm.orig	2010-07-29 15:58:42.000000000 -0400
-+++ basic.asm	2012-05-23 18:26:21.000000000 -0400
-@@ -419,7 +419,7 @@
- LAB_SKFF		= LAB_STAK+$FF
- 					; flushed stack address
- 
--ccflag		= $0200	; BASIC CTRL-C flag, 00 = enabled, 01 = dis
-+ccflag		= $0300	; BASIC CTRL-C flag, 00 = enabled, 01 = dis
- ccbyte		= ccflag+1	; BASIC CTRL-C byte
- ccnull		= ccbyte+1	; BASIC CTRL-C byte timeout
- 
-@@ -436,12 +436,12 @@
- 					; start of input buffer after IRQ/NMI code
- Ibuffe		= Ibuffs+$47; end of input buffer
- 
--Ram_base		= $0300	; start of user RAM (set as needed, should be page aligned)
--Ram_top		= $C000	; end of user RAM+1 (set as needed, should be page aligned)
-+Ram_base		= $0400	; start of user RAM (set as needed, should be page aligned)
-+Ram_top		= $5000	; end of user RAM+1 (set as needed, should be page aligned)
- 
- ; This start can be changed to suit your system
- 
--	*=	$C000
-+	.org	$5000
- 
- ; BASIC cold start entry point
- 
-@@ -1555,7 +1555,7 @@
- 	JMP	LAB_LET		; else go do implied LET
- 
- LAB_1609
--	CMP	#[TK_TAB-$80]*2	; compare normalised token * 2 with TAB
-+	CMP	#(TK_TAB-$80)*2	; compare normalised token * 2 with TAB
- 	BCS	LAB_15D9		; branch if A>=TAB (do syntax error then warm start)
- 					; only tokens before TAB can start a line
- 	TAY				; copy to index
+Only in ehbasic: NOTES.txt
+Only in ehbasic: REPLICA1.patch
+Only in ehbasic: source.zip
+Only in ehbasic: UPPERCASE.patch
