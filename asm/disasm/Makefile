@@ -12,3 +12,5 @@ archive: disasm.mon
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin
+
+distclean: clean

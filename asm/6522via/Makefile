@@ -57,5 +57,7 @@ exp6.o: exp6.s
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin
 
+distclean: clean
+
 archive: all
 	zip 6522via.zip exp1.s exp2.x exp3.s exp4.s exp5.s exp6.s *.mon sinetable.ods Makefile

@@ -1,0 +1,24 @@
+68816 Adapter Board for 6502
+
+Summary
+
+
+Parts List
+
+Qty Description              Supplier  Cost  Comments
+1   955-W65C816S6PG-14       Mouser    $8.68
+2   40 pin DIP socket
+1   40 pin DIP cable plug    Jameco 42712 p.67  $0.99
+1   28AWG flat ribbon cable  Jameco p.53
+1   74F04 hex inverter
+2   10K resistor
+1   protoboard
+2   14 pin DIP socket
+
+
+References
+
+1. http://www.6502.org/mini-projects/816conv/conv.html
+2. http://www.baltissen.org/newhtm/02to816.htm
+3. http://forum.6502.org/viewtopic.php?f=4&t=186
+4. http://www.macgui.com/usenet/?group=1&id=214542#msg

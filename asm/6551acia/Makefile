@@ -20,3 +20,5 @@ jmon.o:	jmon.s
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin
+
+distclean: clean

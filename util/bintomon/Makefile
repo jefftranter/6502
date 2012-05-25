@@ -5,3 +5,5 @@ install: bintomon
 	cp bintomon /usr/local/bin/bintomon 
 clean:
 	$(RM) bintomon
+
+distclean: clean
