@@ -13,7 +13,7 @@ basic.asm: source.zip
 	patch -p1 <REPLICA1.patch
 
 clean:
-	$(RM) *.o *.lst *.map *.bin
+	$(RM) *.o *.lst *.map *.bin basic.asm min_mon.asm readme.txt
 
 distclean: clean
-	$(RM) basic.asm min_mon.asm readme.txt
+
