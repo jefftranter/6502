@@ -1,26 +1,23 @@
-This is a port of Enhanced BASIC 2.22 for the Replica 1.
-The original code is at http://mycorner.no-ip.org/6502/ehbasic/index.html
+This is a port of Enhanced BASIC 2.22 for the Replica 1. A copy of the
+orignal source is in the file source.zip. The original code came from
+http://mycorner.no-ip.org/6502/ehbasic/index.html
 
-It was built with the cc65 assembler.
+To build it on a Linux system, use the provided make file, i.e. "make"
+It builds with the cc65 assembler.
 
-To build it:
-- unzip the source, i.e. "unzip source.zip"
-- apply the patches, i.e. "patch -p1 < REPLICA1.patch"
-- build using the provided makefile, i.e. "make"
-
-A prebuilt Woz monitor binary file is provided.
-The start address is $7825.
+A prebuilt Woz monitor binary file is provided. The start address is
+the same as the load address, $6000.
 
 If you want to run it on a system that doesn't support displaying
 lowercase characters, such as an Apple 1, Mimeo or Obtronix, there is
-an additional patch that will convert all the displayed strings to
-uppercase. Apply the patch UPPERCASE.patch (in addition to the other
-patch). I've provided a binary with this patch applied in the file
-basic-uppercase.mon.
+a patch that will convert all the displayed strings to uppercase.
+Apply the patch UPPERCASE.patch. I've provided a binary with this
+patch applied in the file basic-uppercase.mon.
+
+SAVE and LOAD commands will call the menu for a CFFA1 flash card, if
+one is present.
 
 Known issues:
 
 IRQ and NMI handling is not implemented because the vectors are in the
 Woz monitor ROM and cannot be changed.
-
-SAVE and LOAD commands do nothing.
