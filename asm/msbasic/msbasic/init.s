@@ -82,7 +82,7 @@ COLD_START:
         lda     #WIDTH2
         sta     Z18
   .endif
-.endif /* KBD */
+.endif
 
 ; All non-CONFIG_SMALL versions of BASIC have
 ; the same bug here: While the number of bytes
@@ -440,4 +440,4 @@ QT_BASIC:
     .endif
         .byte   CR,LF,0
   .endif
-.endif /* KBD */
+.endif

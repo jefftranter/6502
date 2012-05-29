@@ -115,7 +115,7 @@ GETLN:
         nop
         and     #$7F
     .endif
-  .endif /* APPLE */
+  .endif
   .ifdef APPLE
 RDKEY:
         jsr     LFD0C
@@ -130,4 +130,4 @@ RDKEY:
         pla
 L2465:
         rts
-.endif /* KBD */
+.endif

@@ -12,6 +12,10 @@
 .include "kbd_extra.s"
 .endif
 
+.ifdef OSI
+.include "osi_extra.s"
+.endif
+
 .ifdef APPLE
 .include "apple_extra.s"
 .endif
