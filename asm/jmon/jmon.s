@@ -6,7 +6,6 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - use more elegant table-driven command parser
 ; - allow 8 or 16 bit data patterns in fill, search commands
 ;
 ; Revision History
