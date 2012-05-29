@@ -65,7 +65,7 @@ code:
 
 If you don't have an EEPROM and Multi I/O board, you can run MS BASIC
 out of RAM.  Change the file osi.cfg so that the line specifying the
-start address of the ROM is, say, $6000 instead of $A00 for the
+start address of the ROM is, say, $6000 instead of $A000 for the
 EEPROM, e.g.
 
 BASROM:         start = $6000, size = $2000, fill = no, file = %O;
