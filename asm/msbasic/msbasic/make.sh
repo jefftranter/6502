@@ -9,4 +9,8 @@ echo $i
 ca65 -l -D $i msbasic.s -o tmp/$i.o &&
 ld65 -vm -m tmp/$i.map -C $i.cfg tmp/$i.o -o tmp/$i.bin -Ln tmp/$i.lbl
 done
-bintomon -v -l 0xa000 -r - tmp/osi.bin > tmp/osi.mon
+
+# For ROM
+bintomon -v -l 0xa000 -r 0xbd0d tmp/osi.bin > tmp/osi.mon
+# For RAM
+#bintomon -v -l 0x6000 -r 0x7d0d tmp/osi.bin > tmp/osi.mon

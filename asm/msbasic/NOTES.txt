@@ -13,19 +13,12 @@ I chose to use Ohio Scientific (OSI) BASIC since it has the fewest
 external dependencies. It also happens to be the BASIC I used on my
 first computer.
 
-All the code is at
-http://github.com/jefftranter/6502/tree/master/asm/msbasic . To get
-OSI BASIC running on the Replica 1, extract the source code, apply the
-patch REPLICA1-PATCHES-FOR-OSI.patch, and build it, e.g. on a Linux
-system:
+To build it on a Linux system, run the make.sh script, e.g.
 
-  mkdir msbasic
   cd msbasic
-  unzip ../msbasic.zip
-  patch -p1 <../REPLICA1-PATCHES-FOR-OSI.patch
   ./make.sh
 
-The patch defaults to linking at address $A000, the address of an
+It defaults to linking at address $A000, the address of an
 EEPROM on the Replica 1 Multi I/O board. It builds the "small" version
 of BASIC which fits in the 8K EEPROM.
 
