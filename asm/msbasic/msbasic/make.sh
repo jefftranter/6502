@@ -11,6 +11,6 @@ ld65 -vm -m tmp/$i.map -C $i.cfg tmp/$i.o -o tmp/$i.bin -Ln tmp/$i.lbl
 done
 
 # For ROM
-bintomon -v -l 0xa000 -r 0xbd0d tmp/osi.bin > tmp/osi.mon
+#bintomon -v -l 0xa000 -r 0xbd0d tmp/osi.bin > tmp/osi.mon
 # For RAM
-#bintomon -v -l 0x6000 -r 0x7d0d tmp/osi.bin > tmp/osi.mon
+bintomon -v -l 0x6000 -r 0x7d0d tmp/osi.bin > tmp/osi.mon
