@@ -6,6 +6,8 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
+; - add a command to write data to memory, e,g,
+; : A000 12 34 56 78 ... <Enter> or <Esc> (up to 255 chars)
 ; - allow 8 or 16 bit data patterns in fill, search commands
 ;
 ; Revision History
@@ -68,6 +70,9 @@
   SAVE_P  = $73    ; "
   SAVE_PC = $74    ; holds PC while in BRK handler (2 bytes)
   VECTOR  = $76    ; holds adddress of IRQ/BREAK entry point
+
+; Non page zero locations
+  IN    = $0200    ; Buffer from $0200 through $027F (shared with Woz Mon)
 
 ; External Routines
   BASIC     = $E000  ; BASIC
@@ -1311,6 +1316,39 @@ JMPFL:
         .word  Unassemble-1
         .word  Verify-1
         .word  WriteDelay-1
+
+; String input routine.
+; Enter characters from the keyboard terminated in <Return> or <ESC>.
+; Characters are echoed.
+; Can be up to 127 characters.
+: Returns:
+;   Length stored at IN (doesn't include zero byte).
+;   Characters stored starting at IN+1 ($0201-$027F, same as Woz Monitor)
+;   String is terminated in a 0 byte.
+;   Carry set if user hit <Esc>, clear if used <Enter> or max string length reached.
+; Registers changed: A, X
+GetLine:
+        LDX  #1                 ; Set buffer index to 1 so we start at IN+1
+loop:
+        JSR  GetKey		; Get character from keyboard
+        CMP  #CR                ; <Enter> key pressed?
+        BEQ  EnterPressed       ; If so, handle it
+        CMP  #ESC               ; <Esc> key pressed?
+        BEQ  EscapePressed      ; If so, handle it
+        JSR  PrintChar          ; Echo the key pressed
+        STA  IN,X               ; Store character in buffer
+        INX                     ; Advance index into buffer
+        CPX  #$7F               ; Buffer full?
+        BEQ  EnterPressed       ; If so, return as if <Enter> was pressed
+        BNE  loop               ; Always taken
+EnterPressed:
+        CLC                     ; Clear carry to indicate <Enter> pressed and fall through
+EscapePressed:
+        LDA  #0
+        STA  IN,X               ; Store 0 at end of buffer
+        DEX                     ; Adjust for correct string length
+        STX  IN                 ; Store length of string
+        RTS                     ; Return
 
 ; Below came from
 ; http://www.6502.org/source/integers/hex2dec-more.htm
