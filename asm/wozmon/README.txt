@@ -7,3 +7,4 @@ http://school.anhb.uwa.edu.au/personalpages/kwessen/apple1/Krusader.htm
 
 An enhanced version of the Woz Monitor called EWoz can be found at
 http://www.brielcomputers.com/phpBB3/viewtopic.php?f=9&t=197
+or https://gist.github.com/2760560
