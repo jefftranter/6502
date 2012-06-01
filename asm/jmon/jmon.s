@@ -1321,14 +1321,14 @@ JMPFL:
 ; Enter characters from the keyboard terminated in <Return> or <ESC>.
 ; Characters are echoed.
 ; Can be up to 127 characters.
-: Returns:
+; Returns:
 ;   Length stored at IN (doesn't include zero byte).
 ;   Characters stored starting at IN+1 ($0201-$027F, same as Woz Monitor)
 ;   String is terminated in a 0 byte.
 ;   Carry set if user hit <Esc>, clear if used <Enter> or max string length reached.
 ; Registers changed: A, X
 GetLine:
-        LDX  #1                 ; Set buffer index to 1 so we start at IN+1
+        LDX  #0                 ; Initialize index into buffer
 loop:
         JSR  GetKey		; Get character from keyboard
         CMP  #CR                ; <Enter> key pressed?
@@ -1336,17 +1336,16 @@ loop:
         CMP  #ESC               ; <Esc> key pressed?
         BEQ  EscapePressed      ; If so, handle it
         JSR  PrintChar          ; Echo the key pressed
-        STA  IN,X               ; Store character in buffer
+        STA  IN+1,X             ; Store character in buffer (skip first length byte)
         INX                     ; Advance index into buffer
-        CPX  #$7F               ; Buffer full?
+        CPX  #$7E               ; Buffer full?
         BEQ  EnterPressed       ; If so, return as if <Enter> was pressed
         BNE  loop               ; Always taken
 EnterPressed:
         CLC                     ; Clear carry to indicate <Enter> pressed and fall through
 EscapePressed:
         LDA  #0
-        STA  IN,X               ; Store 0 at end of buffer
-        DEX                     ; Adjust for correct string length
+        STA  IN+1,X             ; Store 0 at end of buffer
         STX  IN                 ; Store length of string
         RTS                     ; Return
 
