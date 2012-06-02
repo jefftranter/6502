@@ -16,26 +16,69 @@ MONRDKEY:
         LDA     $D010           ; keyboard data
         RTS
 
-; Display error that no CFFA1 is present.
-NoCFFA1:
-        LDX     #<NoCFFA1String
-        LDY     #>NoCFFA1String
-        JSR     PrintString
- 	RTS
-
-; LOAD and SAVE commands use a CFFA1 flash interface if one is present.
-LOAD:
-        JSR     Menu
-        RTS
-
-SAVE:
 ; Check for presence of CFFA1 by testing for two ID bytes
+CheckForCFFA1:
         LDA     CFFA1_ID1               ; First CFFA1 ID byte
         CMP     #$CF                    ; Should contain $CF
         BNE     NoCFFA1
         LDA     CFFA1_ID2               ; Second CFFA1 ID byte
         CMP     #$FA                    ; Should contain $FA
         BNE     NoCFFA1
+        RTS
+NoCFFA1:
+        LDX     #<NoCFFA1String         ; Display error that no CFFA1 is present.
+        LDY     #>NoCFFA1String
+        JSR     PrintString
+        PLA                             ; pop return address so we return to caller of calling routine
+        PLA
+ 	RTS
+
+; LOAD and SAVE commands use a CFFA1 flash interface if one is present.
+LOAD:
+        JSR     CheckForCFFA1
+
+; Prompt user for filename to load
+
+        LDX     #<FilenameString
+        LDY     #>FilenameString
+        JSR     PrintString
+
+; Get filename
+        JSR     GetLine
+
+; If user hit <Esc>, cancel the load
+        BCS     Return1
+
+; Need to save the page zero locations used by the CFFA1 because they are also used by BASIC.
+
+        JSR     SaveZeroPage
+
+; Call CFFA1 routines to load file.
+
+        LDA     #<IN                       ; Filename is in input buffer, length byte first.
+        STA     Filename
+        LDA     #>IN
+        STA     Filename+1
+
+        LDA     #$00                       ; Destination of $0000 means use file's Auxtype value
+        STA     Destination
+        STA     Destination+1
+
+        LDX     #CFFA1_ReadFile            ; Write the file
+        JSR     CFFA1_API
+        BCC     Restore1                   ; Branch if succeeded
+        LDX     #CFFA1_DisplayError        ; Otherwise display error message
+        JSR     CFFA1_API
+
+; Now restore the page zero locations
+Restore1:
+        JSR     RestoreZeroPage
+
+Return1:
+        RTS
+
+SAVE:
+        JSR     CheckForCFFA1
 
 ; Prompt user for filename to save
 
@@ -47,7 +90,7 @@ SAVE:
         JSR     GetLine
 
 ; If user hit <Esc>, cancel the save
-        BCS     Return
+        BCS     Return2
 
 ; Need to save the page zero locations used by the CFFA1 because they are also used by BASIC.
 
@@ -56,7 +99,7 @@ SAVE:
 ; Call CFFA1 routines to save file. Save memory from RAMSTART2 to
 ; MEMSIZ.
 
-        LDA     #<IN                    ; Filename is in input buffer, length byte first.
+        LDA     #<IN                       ; Filename is in input buffer, length byte first.
         STA     Filename
         LDA     #>IN
         STA     Filename+1
@@ -85,15 +128,15 @@ SAVE:
 
         LDX     #CFFA1_WriteFile           ; Write the file
         JSR     CFFA1_API
-        BCC     Restore                    ; Branch if succeeded
+        BCC     Restore2                   ; Branch if succeeded
         LDX     #CFFA1_DisplayError        ; Otherwise display error message
         JSR     CFFA1_API
 
 ; Now restore the page zero locations
-Restore:
+Restore2:
         JSR     RestoreZeroPage
 
-Return:
+Return2:
         RTS
 
 ; Print a string
