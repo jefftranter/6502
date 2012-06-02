@@ -33,9 +33,9 @@ NoCFFA1:
         PLA
  	RTS
 
-; LOAD and SAVE commands use a CFFA1 flash interface if one is present.
+; Implementation of LOAD using a CFFA1 flash interface if present.
 LOAD:
-        JSR     CheckForCFFA1
+        JSR     CheckForCFFA1           ; returns to caller of this routine if not present
 
 ; Prompt user for filename to load
 
@@ -49,8 +49,15 @@ LOAD:
 ; If user hit <Esc>, cancel the load
         BCS     Return1
 
+; If filename was empty, call CFFA1 menu
+        LDA     IN                     ; string length
+        BNE     LoadFile               ; Was is zero length?
+        JSR     Menu                   ; If so, call CFFA1 menu
+        RTS                            ; and return
+
 ; Need to save the page zero locations used by the CFFA1 because they are also used by BASIC.
 
+LoadFile:
         JSR     SaveZeroPage
 
 ; Call CFFA1 routines to load file.
@@ -77,6 +84,7 @@ Restore1:
 Return1:
         RTS
 
+; Implementation of SAVE using a CFFA1 flash interface if present.
 SAVE:
         JSR     CheckForCFFA1
 
@@ -92,8 +100,14 @@ SAVE:
 ; If user hit <Esc>, cancel the save
         BCS     Return2
 
-; Need to save the page zero locations used by the CFFA1 because they are also used by BASIC.
+; If filename was empty, call CFFA1 menu
+        LDA     IN                     ; string length
+        BNE     SaveFile               ; Was is zero length?
+        JSR     Menu                   ; If so, call CFFA1 menu
+        RTS                            ; and return
 
+; Need to save the page zero locations used by the CFFA1 because they are also used by BASIC.
+SaveFile:
         JSR     SaveZeroPage
 
 ; Call CFFA1 routines to save file. Save memory from RAMSTART2 to
