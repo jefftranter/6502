@@ -7,6 +7,9 @@ CONFIG_PRINT_CR := 1 ; print CR when line end reached
 CONFIG_SCRTCH_ORDER := 3
 CONFIG_SMALL := 1
 
+CRLF_1 := CR
+CRLF_2 := $00
+
 ; zero page
 ZP_START1 = $00
 ZP_START2 = $0D
