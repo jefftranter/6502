@@ -926,10 +926,18 @@ Memory:
 writeLoop:
         JSR PrintSpace   ; Echo space
         JSR GetByte      ; Get data byte (ESC will exit)
-; TODO: Support <Enter> as well as <Esc> to quit.
         LDY #0
         STA (SL),Y       ; write data to address
-; TODO: Read data back, display error if same data not written back
+        CMP (SL),Y
+        BEQ Okay
+        LDX #<ReadString ; Display message that same data not written back
+        LDY #>ReadString
+        JSR PrintString
+        LDY #0
+        LDA (SL),Y
+        JSR PrintByte
+        JSR PrintSpace
+Okay:
         CLC              ; increment address
         LDA SL
         ADC #1
@@ -1421,7 +1429,7 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON MONITOR V0.91 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON MONITOR V0.92 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
@@ -1499,6 +1507,9 @@ KnownBPString2:
 
 NoCFFA1String:
   .byte "NO CFFA1 CARD FOUND!",CR,0
+
+ReadString:
+  .byte " Read: ",0
 
   .include "disasm.s"
   .include "memtest4.s"
