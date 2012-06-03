@@ -6,8 +6,6 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - add a command to write data to memory, e,g,
-; : A000 12 34 56 78 ... <Enter> or <Esc> (up to 255 chars)
 ; - allow 8 or 16 bit data patterns in fill, search commands
 ;
 ; Revision History
@@ -23,6 +21,7 @@
 ; 0.8     17-May-2012  Search and Fill commands now use 16 bit patterns.
 ; 0.9     22-May-2012  Added M command to call CFFA1 menu.
 ; 0.91    23-May-2012  Now uses smarter "option picker" for commands.
+; 0.92    03-Jun-2012  Added ":" command
 
 ; Constants
   CR  = $0D        ; Carriage Return
@@ -913,6 +912,40 @@ RESTORE:
   PLP
   JMP MINIMON     ; go to the mini monitor
 
+; Memory write command.
+; Format:
+; : <addr> <bb> <bb> ... <Enter> or <Esc> (up to 255 chars)
+; eg:
+; : A000 12 34 56 78
+Memory:
+        JSR PrintChar   ; Echo command
+        JSR PrintCR
+        JSR GetAddress  ; Get start address (ESC will exit)
+        STX SL
+        STY SH
+writeLoop:
+        JSR PrintSpace   ; Echo space
+        JSR GetByte      ; Get data byte (ESC will exit)
+; TODO: Support <Enter> as well as <Esc> to quit.
+        LDY #0
+        STA (SL),Y       ; write data to address
+; TODO: Read data back, display error if same data not written back
+        CLC              ; increment address
+        LDA SL
+        ADC #1
+        STA SL
+        BCC nocarry
+        INC SH
+nocarry:
+        LDA #$07         ; Is address a multiple of 8?
+        BIT SL
+        BNE writeLoop    ; If not, keep getting data
+        JSR PrintCR      ; Otherwise start new line
+        LDX SL
+        LDY SH
+        JSR PrintAddress ; Display current address
+        JMP writeLoop    ; Input more data
+
 ; -------------------- Utility Functions --------------------
 
 ; Generate one line of output for the dump command.
@@ -1295,7 +1328,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte  "$?ABCDFHIKMRSTUVW"
+        .byte  "$?ABCDFHIKMRSTUVW:"
 
 JMPFL:
         .word  Invalid-1
@@ -1316,6 +1349,7 @@ JMPFL:
         .word  Unassemble-1
         .word  Verify-1
         .word  WriteDelay-1
+        .word  Memory-1
 
 ; String input routine.
 ; Enter characters from the keyboard terminated in <Return> or <ESC>.
@@ -1415,6 +1449,7 @@ HelpString2:
         .byte "VERIFY:     V <START> <END> <DEST>",CR
         .byte "WRITE DELAY W <DATA>",CR
         .byte "WOZ MON:    $",CR
+        .byte "FILL MEMORY : <ADDRESS> <DATA>...",CR
         .byte "HELP:       ?",CR,0
 
 ContinueString:
