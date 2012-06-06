@@ -6,7 +6,7 @@ To build it on a Linux system, use the provided make file, i.e. "make"
 It builds with the cc65 assembler.
 
 A prebuilt Woz monitor binary file is provided. The start address is
-the same as the load address, $6000.
+the same as the load address, $5000.
 
 If you want to run it on a system that doesn't support displaying
 lowercase characters, such as an Apple 1, Mimeo or Obtronix, there is
