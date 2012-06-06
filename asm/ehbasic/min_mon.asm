@@ -156,8 +156,9 @@ LoadFile:
         LDA     #>IN
         STA     Filename+1
 
-        LDA     #$00                       ; Destination of $0000 means use file's Auxtype value
+        LDA     Smeml
         STA     Destination
+        LDA     Smemh
         STA     Destination+1
 
         LDX     #CFFA1_ReadFile            ; Write the file
@@ -168,8 +169,19 @@ LoadFile:
 
 ; Now restore the page zero locations
 Restore1:
-        JSR     RestoreZeroPage
-
+        LDA     FileSize                   ; Save FileSize before it gets overwritten by RestoreZeroPage
+        STA     IN
+        LDA     FileSize+1
+        STA     IN+1
+        JSR     RestoreZeroPage            ; Restore page zero addresses used by CFFA1 firmware
+        CLC
+        LDA     Smeml                      ; Calculate end address by taking start
+        ADC     IN                         ; add FileSize
+        STA     Svarl                      ; And save
+        LDA     Smemh                      ; Same for high byte
+        ADC     IN+1                       ; FileSize+1
+        STA     Svarh
+        JSR     LAB_1477                   ;  Need to call this BASIC routine to clear variables and reset the execution pointer
 Return1:
         RTS
 
@@ -199,25 +211,24 @@ SAVE:
 SaveFile:
         JSR     SaveZeroPage
 
-; Call CFFA1 routines to save file. Save memory from RAMSTART2 to
-; MEMSIZ.
+; Call CFFA1 routines to save file.
 
         LDA     #<IN                       ; Filename is in input buffer, length byte first.
         STA     Filename
         LDA     #>IN
         STA     Filename+1
 
-        LDA     #<Ram_base                 ; Start address
+        LDA     Smeml                      ; Start address is (Smeml,Smemh)
         STA     Destination
-        LDA     #>Ram_base
+        LDA     Smemh
         STA     Destination+1
    
         SEC
-        LDA     #<Ram_top                  ; Length is end address minus start address
+        LDA     Svarl                      ; Length is end address (Svarl, svarh) - start address
         SBC     Destination
         STA     FileSize
 
-        LDA     #>Ram_top
+        LDA     Svarh
         SBC     Destination+1
         STA     FileSize+1
 
