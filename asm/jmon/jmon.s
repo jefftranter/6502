@@ -7,6 +7,8 @@
 ;
 ; TODO:
 ; - allow 8 or 16 bit data patterns in fill, search commands
+; - make indentation consistent
+
 ;
 ; Revision History
 ; Version Date         Comments
@@ -22,6 +24,7 @@
 ; 0.9     22-May-2012  Added M command to call CFFA1 menu.
 ; 0.91    23-May-2012  Now uses smarter "option picker" for commands.
 ; 0.92    03-Jun-2012  Added ":" command
+; 0.93    06-Jun-2012  Added Register command. Former Run command is now Go.
 
 ; Constants
   CR  = $0D        ; Carriage Return
@@ -66,9 +69,10 @@
   SAVE_A  = $70    ; holds saved values of registers
   SAVE_X  = $71    ; "
   SAVE_Y  = $72    ; "
-  SAVE_P  = $73    ; "
-  SAVE_PC = $74    ; holds PC while in BRK handler (2 bytes)
-  VECTOR  = $76    ; holds adddress of IRQ/BREAK entry point
+  SAVE_S  = $73    ; "
+  SAVE_P  = $74    ; "
+  SAVE_PC = $75    ; holds PC while in BRK handler (2 bytes)
+  VECTOR  = $77    ; holds adddress of IRQ/BREAK entry point
 
 ; Non page zero locations
   IN    = $0200    ; Buffer from $0200 through $027F (shared with Woz Mon)
@@ -90,7 +94,20 @@
 ; JMON Entry point
   .export JMON
 JMON:
+
+; Save values of registers
+
+  PHP
+  STA SAVE_A
+  STX SAVE_X
+  STY SAVE_Y
+  PLA
+  STA SAVE_P
+  TSX
+  STX SAVE_S
+
 ; Initialize some things just in case
+
   CLD                  ; clear decimal mode
   CLI                  ; clear interrupt disable
   LDX #$80             ; initialize stack pointer to $0180
@@ -263,12 +280,24 @@ Hex:
         RTS
 
 ; Run at address
-Run:
+Go:
         JSR PrintChar   ; echo command
         JSR PrintSpace  ; print space
         JSR GetAddress  ; prompt for address
         STX SL          ; store address
         STY SH
+
+; Restore saved values of registers
+
+        LDX SAVE_S
+        TXS
+        LDA SAVE_P
+        PHA
+        LDY SAVE_Y
+        LDX SAVE_X
+        LDA SAVE_A
+        PLP
+
         JMP (SL)        ; jump to address
 
 ; Copy Memory
@@ -954,6 +983,104 @@ nocarry:
         JSR PrintAddress ; Display current address
         JMP writeLoop    ; Input more data
 
+; Register change command.
+; Displays and sets values of registers
+; Values are set when JMON is entered.
+; Uses values with Go command.
+;
+; R A-D2 X-00 Y-04 S-01FE P-FF NVBDIZC
+;   A-?? X-00 Y-00 S-0180 P-01
+;
+; Displays saved value of registers
+; Prompts for new value for each register.
+; <Esc> cancels at any time.
+
+Registers:
+        JSR PrintChar   ; Echo command
+        JSR PrintSpace
+        LDA #'A'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_A
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'X'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_X
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'Y'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_Y
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'S'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA #01
+        JSR PrintByte
+        LDA SAVE_S
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'P'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_P
+        JSR PrintByte
+        JSR PrintSpace
+        JSR OUTP
+        JSR PrintCR
+
+        LDX #4
+        JSR PrintSpaces
+        LDA #'A'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        JSR GetByte
+        STA SAVE_A
+        JSR PrintSpace
+        LDA #'X'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        JSR GetByte
+        STA SAVE_X
+        JSR PrintSpace
+        LDA #'Y'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        JSR GetByte
+        STA SAVE_Y
+        JSR PrintSpace
+        LDA #'S'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA #$01
+        JSR PrintByte
+        JSR GetByte
+        STA SAVE_S
+        JSR PrintSpace
+        LDA #'P'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        JSR GetByte
+        STA SAVE_P
+        JSR PrintSpace
+        JSR OUTP
+        JSR PrintCR
+        RTS
+
 ; -------------------- Utility Functions --------------------
 
 ; Generate one line of output for the dump command.
@@ -1336,7 +1463,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte  "$?ABCDFHIKMRSTUVW:"
+        .byte  "$?ABCDFGHIKMRSTUVW:"
 
 JMPFL:
         .word  Invalid-1
@@ -1347,11 +1474,12 @@ JMPFL:
         .word  Copy-1
         .word  Dump-1
         .word  Fill-1
+        .word  Go-1
         .word  Hex-1
         .word  Basic-1
         .word  MiniMonitor-1
         .word  CFFA1-1
-        .word  Run-1
+        .word  Registers-1
         .word  Search-1
         .word  Test-1
         .word  Unassemble-1
@@ -1426,10 +1554,29 @@ CNVBIT: ASL BIN+0    ; Shift out one bit
         CLD        ; Back to binary
         RTS        ; All Done.
 
+
+; Display processor flags
+; Based on code at http://6502org.wikidot.com/software-output-flags
+
+OUTP:
+        LDA SAVE_P
+P1:     LDX #7
+@1:     ASL
+        PHA
+        LDA @3,X
+        BCS @2
+        LDA #'.'
+@2:     JSR PrintChar
+        PLA
+        DEX
+        BPL @1
+        RTS
+@3: .byte "CZIDB-VN"
+
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON MONITOR V0.92 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON MONITOR V0.93 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
@@ -1445,12 +1592,13 @@ HelpString1:
         .byte "COPY:       C <START> <END> <DEST>",CR
         .byte "DUMP:       D <START>",CR
         .byte "FILL:       F <START> <END> <DATA>",CR
+        .byte "GO:         G <ADDRESS>",CR
         .byte "HEX TO DEC  H <ADDRESS>",CR
         .byte "BASIC:      I",CR
         .byte "CFFA1 MENU: M",CR,0
 HelpString2:
         .byte "MINI MON:   K",CR
-        .byte "RUN:        R <ADDRESS>",CR
+        .byte "REGISTERS:  R",CR
         .byte "SEARCH:     S <START> <END> <DATA>",CR
         .byte "TEST:       T <START> <END>",CR
         .byte "UNASSEMBLE: U <START>",CR
