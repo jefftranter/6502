@@ -68,8 +68,9 @@
 ;
 ; Tiny Basic starts here
 ;
-         .org     $8000             ; Start of Basic.
+         .org     $6000             ; Start of Basic.
 
+         JMP      FBLK              ; Jump to initialization code. So load address is start address.
 
 CV       JMP      COLD_S            ; Cold start vector
 WV       JMP      WARM_S            ; Warm start vector
@@ -1214,15 +1215,16 @@ ACIAregs = $F000                    ; Base address of 6850
 ACIAdata = ACIAregs+$01             ; 6850 registers 
 
 
-         .ORG  $F800
+;         .ORG  $F800
 
 ;
 ; Begin base system initialization
 ;
-FBLK     LDA #$03                   ; Reset the ACIA
-         STA ACIAregs               ; Do the reset
-         LDA #$11                   ; 8 bits, 2 stop, divide by 16
-         STA ACIAregs               ; Do the configuration
+FBLK
+;         LDA #$03                   ; Reset the ACIA
+;         STA ACIAregs               ; Do the reset
+;         LDA #$11                   ; 8 bits, 2 stop, divide by 16
+;         STA ACIAregs               ; Do the configuration
          jsr CLRSC                  ; Go clear the screen
          ldx #$00                   ; Offset for welcome message and prompt
          jsr SNDMSG                 ; Go print it
@@ -1277,16 +1279,16 @@ SNDMSG   lda MBLK,X                 ; Get a character from the message block
 EXSM     rts                        ; Return
 
 ;
-; Get a character from the ACIA
+; Get a character from the keyboard
 ; Runs into SNDCHR to provide echo
 ;
-RCCHR    lda ACIAregs               ; GET STATUS FROM ACIA
-         lsr                        ; CHECK FOR A CHARACTER
-         bcc RCCHR                  ; Loop until we get one
-         LDA ACIAdata               ; GET CHARACTER
+RCCHR    lda $D011                  ; Keyboard CR
+         bpl RCCHR
+         lda $D010                  ; Keyboard data
+         and #%01111111             ; Clear high bit to be valid ASCII
 
 ;
-;Send a character to the ACIA
+; Send a character to the screen
 ;
 SNDCHR   sta $FE                    ; Save the character to be printed
          cmp #$FF                   ; Check for a bunch of characters
@@ -1299,12 +1301,11 @@ SNDCHR   sta $FE                    ; Save the character to be printed
          beq EXSC                   ;
          cmp #$80                   ;
          beq EXSC                   ;
-GETSTS   lda ACIAregs               ; GET ACIA STATUS
-         lsr                        ; CHECK TO SEE IF TRANSMITER IS BUSY 
-         lsr                        ;
-         bcc GETSTS                 ; IF STILL BUSY GO GET STATUS AGAIN
+
+GETSTS   bit $D012                  ; bit (B7) cleared yet?
+         bmi GETSTS                 ; No, wait for display.
          lda $FE                    ; Restore the character
-         STA ACIAdata               ; SEND CHARACTER
+         sta $D012                  ; Output character.
 EXSC     rts                        ; Return
 
 ;
@@ -1313,17 +1314,16 @@ EXSC     rts                        ; Return
 ;
 BREAK    sta $FE                    ; Save A
          clc                        ; Clear carry 
-         lda ACIAregs               ; Read the ACAI status to
-         lsr                        ; Check if there is character in the receiver
-         BCC NO_CHR                 ; Finnish up if no character typed
+         lda $D011                  ; Get keyboard status
+         bpl NO_CHR                 ; Finish up if no character typed
          sec                        ; Set carry (break detected)
-         lda ACIAdata               ; Get the character to reset ACIA status
+         lda $D010                  ; Get the character to reset keyboard status
 NO_CHR   lda $FE                    ; Restore the saved A value
          rts                        ; Return
 
 ;
 ; Setup reset vector         
 ;
-         .ORG $FFFC                 ; Address of reset vector
+;         .ORG $FFFC                 ; Address of reset vector
 
-         .WORD  FBLK                  ; Reset vector
+;         .WORD  FBLK                  ; Reset vector
