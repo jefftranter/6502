@@ -183,7 +183,7 @@ MEM_T    lda ($22),Y                ; Load accumulator With the contents of a by
          bne SKP_PI                 ; Skip if we don't need to increment page
          inc $23                    ; Increment $23 (for next memory page)
 SKP_PI   plp                        ; Now look at the result of the memory test
-         beq MEM_T                  ; Go test the next mempry location if the last one was ram
+         beq MEM_T                  ; Go test the next memory location if the last one was ram
          dey                        ; If last memory location did not test as ram, decrement Y (should be $00 now)
 IL__MT   cld                        ; Make sure we're not in decimal mode
          lda $20                    ; Load up the low-order by of the start of free ram
@@ -205,7 +205,7 @@ WARM_S   lda $22
          lda $23
          sta $C7
          sta $27
-         jsr P_NWLN                 ; Go print CR, LF and pad charachters
+         jsr P_NWLN                 ; Go print CR, LF and pad characters
 LBL014   lda LBL002                 ; Load up the start of the IL Table 
          sta $2A                    ;
          lda LBL002+$01             ;
@@ -264,7 +264,7 @@ LBL007   adc $C1
 ;
 ;
 ;
-LBL015   jsr P_NWLN                 ; Go print CR, LF and pad charachters
+LBL015   jsr P_NWLN                 ; Go print CR, LF and pad characters
          lda #$21                   ; Load an ASCII DC2
          jsr OUT_V                  ; Go print it
          lda $2A                    ; Load the current TBIL pointer (lo) 
@@ -286,7 +286,7 @@ LBL015   jsr P_NWLN                 ; Go print CR, LF and pad charachters
          jsr LBL010
 LBL012   lda #$07                   ; ASCII Bell
          jsr OUT_V                  ; Go ring Bell
-         jsr P_NWLN                 ; Go print CR, LF and pad charachters
+         jsr P_NWLN                 ; Go print CR, LF and pad characters
 LBL060   lda $26
          sta $C6
          lda $27
@@ -766,7 +766,7 @@ P_NWLN   lda #$0D                   ; Load up a CR
          jsr OUT_V                  ; Go print it
          lda PCC                    ; Load the pad character code
          and #$7F                   ; Test to see - 
-         sta $BF                    ; how many pad charachters to print
+         sta $BF                    ; how many pad characters to print
          beq LBL086                 ; Skip if 0
 LBL088   jsr LBL087                 ; Go print pad character
          dec $BF                    ; One less
@@ -1220,12 +1220,7 @@ ACIAdata = ACIAregs+$01             ; 6850 registers
 ;
 ; Begin base system initialization
 ;
-FBLK
-;         LDA #$03                   ; Reset the ACIA
-;         STA ACIAregs               ; Do the reset
-;         LDA #$11                   ; 8 bits, 2 stop, divide by 16
-;         STA ACIAregs               ; Do the configuration
-         jsr CLRSC                  ; Go clear the screen
+FBLK     jsr CLRSC                  ; Go clear the screen
          ldx #$00                   ; Offset for welcome message and prompt
          jsr SNDMSG                 ; Go print it
 ST_LP    jsr RCCHR                  ; Go get a character from the console
@@ -1263,7 +1258,7 @@ CLRSC    ldx #$19                   ; Load X - we're going tp print 25 lines
          lda #$0A                   ; LF
 CSLP     jsr SNDCHR                 ; Send the line feed
          dex                        ; One less to do
-         bne CSLP                   ; Go send another untill we're done
+         bne CSLP                   ; Go send another until we're done
          rts                        ; Return
 
 ;
@@ -1300,6 +1295,8 @@ SNDCHR   sta $FE                    ; Save the character to be printed
          cmp #$93                   ;
          beq EXSC                   ;
          cmp #$80                   ;
+         beq EXSC                   ;
+         cmp #$0A                   ; Ignore line feed
          beq EXSC                   ;
 
 GETSTS   bit $D012                  ; bit (B7) cleared yet?
