@@ -69,6 +69,7 @@
 ; Tiny Basic starts here
 ;
          .org     $7000             ; Start of Basic.
+START
 
          JMP      FBLK              ; Jump to initialization code. So load address is start address.
 
@@ -171,7 +172,6 @@ COLD_S   lda #$00                   ; Load accumulator with $00
 ; Begin test for free ram
 ;
 
-.ifdef DISABLED
          ldy #$01                   ; Load register Y with $01
 MEM_T    lda ($22),Y                ; Load accumulator With the contents of a byte of memory
          tax                        ; Save it to X
@@ -184,17 +184,13 @@ MEM_T    lda ($22),Y                ; Load accumulator With the contents of a by
          inc $22                    ; Increment $22 (for next memory location)
          bne SKP_PI                 ; Skip if we don't need to increment page
          inc $23                    ; Increment $23 (for next memory page)
+         lda $23                    ; Get high byte of memory address
+         cmp #>START                ; Did we reach start address of Tiny Basic?
+         beq TOP                    ; If so, stop memory test so we don't overwrite ourselves.
 SKP_PI   plp                        ; Now look at the result of the memory test
          beq MEM_T                  ; Go test the next memory location if the last one was ram
+TOP
          dey                        ; If last memory location did not test as ram, decrement Y (should be $00 now)
-.endif
-
-; Hard code end of memory to $7000 for now
-         ldy #$00
-         lda #$00
-         sta $22
-         lda #$70
-         sta $23
 
 IL__MT   cld                        ; Make sure we're not in decimal mode
          lda $20                    ; Load up the low-order by of the start of free ram
