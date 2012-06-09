@@ -6,14 +6,15 @@ Summary
 Parts List
 
 Qty Description              Supplier  Cost  Comments
-1   955-W65C816S6PG-14       Mouser    $8.68
-2   40 pin DIP socket
-1   40 pin DIP cable plug    Jameco 42712 p.67  $0.99
-1   28AWG flat ribbon cable  Jameco p.53
-1   74F04 hex inverter
-2   10K resistor
-1   protoboard
-2   14 pin DIP socket
+1   955-W65C816S6PG-14       Mouser             $8.68
+2   40 pin DIP socket        on hand
+2   40 pin DIP cable plug    Jameco 42712 p.67  $0.99
+1   28AWG flat ribbon cable  Jameco 644113 p.53 $7.95
+?   74F04 hex inverter       Jameco 287005        .35
+?   74LS04 hex inverter      Jameco 46316         .49
+2   10K resistor             on hand
+2?  protoboard               Jameco 262511      $14.95
+2   14 pin DIP socket        on hand
 
 
 References
