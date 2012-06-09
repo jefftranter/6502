@@ -68,7 +68,7 @@
 ;
 ; Tiny Basic starts here
 ;
-         .org     $6000             ; Start of Basic.
+         .org     $8000             ; Start of Basic.
 
          JMP      FBLK              ; Jump to initialization code. So load address is start address.
 
@@ -170,10 +170,12 @@ COLD_S   lda #$00                   ; Load accumulator with $00
 ;
 ; Begin test for free ram
 ;
+
+.ifdef DISABLED
          ldy #$01                   ; Load register Y with $01
 MEM_T    lda ($22),Y                ; Load accumulator With the contents of a byte of memory
          tax                        ; Save it to X
-         eor #$FF                   ; Next 4 instuctions test to see if this memeory location
+         eor #$FF                   ; Next 4 instuctions test to see if this memory location
          sta ($22),Y                ; is ram by trying to write something new to it - new value
          cmp ($22),Y                ; gets created by XORing the old value with $FF - store the
          php                        ; result of the test on the stack to look at later
@@ -185,6 +187,15 @@ MEM_T    lda ($22),Y                ; Load accumulator With the contents of a by
 SKP_PI   plp                        ; Now look at the result of the memory test
          beq MEM_T                  ; Go test the next memory location if the last one was ram
          dey                        ; If last memory location did not test as ram, decrement Y (should be $00 now)
+.endif
+
+; Hard code end of memory to $8000 for now
+         ldy #$00
+         lda #$00
+         sta $22
+         lda #$80
+         sta $23
+
 IL__MT   cld                        ; Make sure we're not in decimal mode
          lda $20                    ; Load up the low-order by of the start of free ram
          adc SSS                    ; Add to the spare stack size

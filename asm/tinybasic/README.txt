@@ -5,6 +5,7 @@ Changes needed:
 - modifications to assemble with CC65
 - input and output routines modified for Replica 1
 - memory map changes to run out of RAM by default
+- don't print LF after CR
 
 See:
 
