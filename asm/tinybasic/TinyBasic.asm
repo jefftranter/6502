@@ -68,7 +68,7 @@
 ;
 ; Tiny Basic starts here
 ;
-         .org     $8000             ; Start of Basic.
+         .org     $7000             ; Start of Basic.
 
          JMP      FBLK              ; Jump to initialization code. So load address is start address.
 
@@ -189,11 +189,11 @@ SKP_PI   plp                        ; Now look at the result of the memory test
          dey                        ; If last memory location did not test as ram, decrement Y (should be $00 now)
 .endif
 
-; Hard code end of memory to $8000 for now
+; Hard code end of memory to $7000 for now
          ldy #$00
          lda #$00
          sta $22
-         lda #$80
+         lda #$70
          sta $23
 
 IL__MT   cld                        ; Make sure we're not in decimal mode
