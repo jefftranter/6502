@@ -68,7 +68,7 @@
 ;
 ; Tiny Basic starts here
 ;
-         .org     $7000             ; Start of Basic.
+         .org     $7600             ; Start of Basic.
 START
 
          JMP      FBLK              ; Jump to initialization code. So load address is start address.
@@ -184,10 +184,14 @@ MEM_T    lda ($22),Y                ; Load accumulator With the contents of a by
          inc $22                    ; Increment $22 (for next memory location)
          bne SKP_PI                 ; Skip if we don't need to increment page
          inc $23                    ; Increment $23 (for next memory page)
-         lda $23                    ; Get high byte of memory address
+SKP_PI   lda $23                    ; Get high byte of memory address
          cmp #>START                ; Did we reach start address of Tiny Basic?
-         beq TOP                    ; If so, stop memory test so we don't overwrite ourselves.
-SKP_PI   plp                        ; Now look at the result of the memory test
+         bne PULL                   ; Branch if not
+         lda $22                    ; Get low byte of memory address
+         cmp #<START                ; Did we reach start address of Tiny Basic?
+         beq TOP                    ; If so, stop memory test so we don't overwrite ourselves
+PULL  
+         plp                        ; Now look at the result of the memory test
          beq MEM_T                  ; Go test the next memory location if the last one was ram
 TOP
          dey                        ; If last memory location did not test as ram, decrement Y (should be $00 now)
