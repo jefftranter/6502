@@ -23,8 +23,8 @@
 ; Revision History:
 ;
 ; v0.2.2 - 2011/11/11
-;        Reduced version containg only a terminal monitor
-;        for an 6850 ACIA ad Tom Pitman's Tiny Basic
+;        Reduced version containing only a terminal monitor
+;        for a 6850 ACIA and Tom Pitman's Tiny Basic
 ;
 ; v0.2.1 - 2011/05/18
 ;        Ported to Michal Kowalski's macro assembler
@@ -272,7 +272,7 @@ LBL007   adc $C1
 ;
 ;
 LBL015   jsr P_NWLN                 ; Go print CR, LF and pad characters
-         lda #$21                   ; Load an ASCII DC2
+         lda #$21                   ; '!' character
          jsr OUT_V                  ; Go print it
          lda $2A                    ; Load the current TBIL pointer (lo) 
          sec                        ; Set the carry flag
@@ -1259,7 +1259,7 @@ MBLK
 ;
 ; Clear the screen
 ;
-CLRSC    ldx #$19                   ; Load X - we're going tp print 25 lines
+CLRSC    ldx #$19                   ; Load X - we're going to print 25 lines
          lda #$0D                   ; CR
          jsr SNDCHR                 ; Send a carriage return
          lda #$0A                   ; LF
@@ -1328,6 +1328,6 @@ NO_CHR   lda $FE                    ; Restore the saved A value
 ;
 ; Setup reset vector         
 ;
-;         .ORG $FFFC                 ; Address of reset vector
+;         .ORG $FFFC                ; Address of reset vector
 
-;         .WORD  FBLK                  ; Reset vector
+;         .WORD  FBLK               ; Reset vector
