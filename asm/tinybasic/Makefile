@@ -1,6 +1,6 @@
 # Adjust the run address to match the .org in the source code
 TinyBasic.mon: TinyBasic.bin
-	bintomon -v -l 0x7000 TinyBasic.bin >TinyBasic.mon
+	bintomon -v -l 0x7600 TinyBasic.bin >TinyBasic.mon
 
 TinyBasic.bin: TinyBasic.o
 	ld65 -t replica1 -vm -m TinyBasic.map -o TinyBasic.bin TinyBasic.o
