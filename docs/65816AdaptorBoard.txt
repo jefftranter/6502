@@ -23,3 +23,50 @@ References
 2. http://www.baltissen.org/newhtm/02to816.htm
 3. http://forum.6502.org/viewtopic.php?f=4&t=186
 4. http://www.macgui.com/usenet/?group=1&id=214542#msg
+
+
+        65C02                          65C816
+    +------------+                  +------------+
+ VSS|1         40|/RES            VP|1         40|/RES
+ RDY|2         39|PH2            RDY|2         39|VDA
+ PH1|3         38|SO           ABORT|3         38|M/X
+/IRQ|4         37|PH0           /IRQ|4         37|ph2
+  NC|5         36|NC              ML|5         36|BE
+/NMI|6         35|NC             NMI|6         35|E
+SYNC|7         34|R/W            VPA|7         34|R/W
+ VCC|8         33|DB0            VDD|8         33|D0/BA0
+ AB0|0         32|DB1             A0|9         32|D1/BA1
+ AB1|10        31|DB2             A1|10        31|D2/BA2
+ AB2|11        30|DB3             A2|11        30|D3/BA3
+ AB3|1         29|DB4             A3|12        29|D4/BA4
+ AB4|13        28|DB5             A4|13        28|D5/BA5
+ AB5|14        27|DB6             A5|14        27|D6/BA6
+ AB6|15        26|DB7             A6|15        26|D7/BA7
+ AB7|16        25|AB15            A7|16        25|A15
+ AB8|17        24|AB14            A8|17        24|A14
+ AB9|18        23|AB13            A9|18        23|A13
+AB10|19        22|AB12           A10|19        22|A12
+AB11|20        21|VSS            A11|20        21|VSS
+    +------------+                  +------------+
+
+
+WIRING
+------
+
+
+6502 Socket Pin
+
+65816 Pin
+
+74F04
+-----
+
+Pin Name    Connection     Pin Name    Connection
+--- ------- ----------     --- ------- ----------
+1   input   unused         14  Vcc     Vcc
+2   output  unused         13  input   unused
+3   input   see schematic  12  output  unused
+4   output  see schematic  11  input   unused
+5   input   see schematic  10  output  unused
+6   output  see schematic   9  input   unused
+7   gnd     ground          8  output  unused
