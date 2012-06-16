@@ -869,9 +869,21 @@ BRKHANDLER:
         STA SAVE_A              ; save registers
         STX SAVE_X
         STY SAVE_Y
-        PHP
-        PLA
+        PLA                     ; P is on stack
         STA SAVE_P
+        PHA                     ; put P back on stack
+        LDA  #%00010000         ; position of B bit
+        BIT  SAVE_P             ; is B bit set, indicating BRK and not IRQ?
+        BNE  BREAK              ; If so, got to break handler
+        JSR  PrintCR            ; Otherwise print message that we got an interrupt
+        LDX  #<IntString        
+        LDY  #>IntString
+        JSR  PrintString
+        LDY  SAVE_Y
+        LDX  SAVE_X             ; Restore registers and return from interrupt
+        LDA  SAVE_A
+        RTI
+BREAK:
         TSX                     ; get stack pointer
         SEC                     ; subtract 2 from return address to get actual instruction address
         LDA $0102,X
