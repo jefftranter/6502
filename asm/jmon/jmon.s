@@ -5,8 +5,6 @@
 ;
 ; Jeff Tranter <tranter@pobox.com>
 ;
-; TODO:
-; - allow 8 or 16 bit data patterns in fill, search commands
 
 ;
 ; Revision History
@@ -24,6 +22,8 @@
 ; 0.91    23-May-2012  Now uses smarter "option picker" for commands.
 ; 0.92    03-Jun-2012  Added ":" command
 ; 0.93    06-Jun-2012  Added Register command. Former Run command is now Go.
+; 0.94    17-Jun-2012  Display error in break handler if interrupt occurred.
+;                      Fill command accepts variable length pattern.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -40,6 +40,7 @@
   SH      = $38                 ; start address high byte
   EL      = $39                 ; end address low byte
   EH      = $3A                 ; end address high byte
+  RET     = $3B                 ; sets whether <Return> key is accepted in some input routines
   DA      = $3E                 ; fill/search data (2 bytes)
   DL      = $40                 ; destination address low byte
   DH      = $41                 ; destination address high byte
@@ -113,6 +114,7 @@ JMON:
         TXS                     ; so we are less likely to clobber BRK vector at $0100
         LDA #0
         STA WDELAY              ; initialize write delay to zero
+        STA RET                 ; Don't accept <Return> by default
         JSR BPSETUP             ; initialization for breakpoints
 
 ; Display Welcome message
@@ -666,11 +668,14 @@ Fill:
         STX EL
         STY EH
         JSR PrintSpace
-        JSR GetAddress          ; Get data (16 bits)
-        STY DA
-        STX DA+1
+        JSR GetHexBytes         ; Get fill pattern
         JSR PrintCR
+        LDA IN                  ; If length of pattern is zero, return
+        BNE @lenokay
+        RTS
+
 ; Check that start address <= end address
+@lenokay:
         LDA SH
         CMP EH
         BCC @fill
@@ -685,45 +690,34 @@ Fill:
         LDY #>InvalidRange
         JSR PrintString
         RTS
+
 @fill:
         LDY #0
-        LDA DA
+        LDX #0                  ; Index into fill pattern
+@dofill:
+        LDA IN+1,X              ; Get next byte of fill pattern
         STA (SL),Y              ; store data (first byte)
         JSR DELAY               ; delay after writing to EEPROM
         LDA SH                  ; reached end yet?
         CMP EH
-        BNE @NotDone1
+        BNE @NotDone
         LDA SL
         CMP EL
-        BNE @NotDone1
+        BNE @NotDone
         RTS                     ; done
-@NotDone1:
+@NotDone:
         LDA SL                  ; increment address
         CLC
         ADC #1
         STA SL
-        BCC @NoCarry1
+        BCC @NoCarry
         INC SH
-@NoCarry1:
-        LDA DA+1
-        STA (SL),Y              ; store data (second byte)
-        JSR DELAY               ; delay after writing to EEPROM
-        LDA SH                  ; reached end yet?
-        CMP EH
-        BNE @NotDone2
-        LDA SL
-        CMP EL
-        BNE @NotDone2
-        RTS                     ; done
-@NotDone2:
-        LDA SL                  ; increment address
-        CLC
-        ADC #1
-        STA SL
-        BCC @NoCarry2
-        INC SH
-@NoCarry2:
-        JMP @fill
+@NoCarry:
+        INX                     ; increment index into pattern
+        CPX IN                  ; end of pattern reached?
+        BNE @dofill             ; if not, go back
+        LDX #0                  ; Otherwise go back to start of pattern
+        JMP @dofill
         
 ; Do setup so we can support breakpoints
 BPSETUP:
@@ -1136,23 +1130,33 @@ PrintChar:
 ; Registers changed: A
 GetKey:
         LDA $D011               ; Keyboard CR
-        BPL GetKey
+        BPL GetKey              ; loop until key pressed
         LDA $D010               ; Keyboard data
-        AND #%01111111
+        AND #%01111111          ; convert to ASCII
         RTS
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
 ; ESC key cancels command and goes back to command loop.
+; If RET is zero, ignore Return key.
+; If RET is non-zero, pressing Return will cause it to return with A=0 and carry set.
 ; Ignores invalid characters. Returns binary value in A
 ; Registers changed: A
 GetHex:
         JSR GetKey
         CMP #ESC                ; ESC key?
-        BNE @next
+        BNE @checkRet
         JSR PrintCR
         PLA                     ; pop return address on stack
         PLA
         JMP MainLoop            ; Abort command
+@checkRet:
+        CMP #CR                 ; Return key?
+        BNE @next
+        LDA RET                 ; Flag set to check for return?
+        BEQ GetHex              ; If not, ignore Return key
+        LDA #0
+        SEC                     ; Carry set indicates Return pressed
+        RTS
 @next:
         CMP #'0'
         BMI GetHex              ; Invalid, ignore and try again
@@ -1167,26 +1171,35 @@ GetHex:
         JSR PrintChar           ; echo
         SEC
         SBC #'0'                ; convert to value
+        CLC
         RTS
 @Letter:
         JSR PrintChar           ; echo
         SEC
         SBC #'A'-10             ; convert to value
+        CLC
         RTS
 
 ; Get Byte as 2 chars 0-9,A-F
 ; Echoes characters as typed.
 ; Ignores invalid characters
 ; Returns byte in A
+; If RET is zero, ignore Return key.
+; If RET is non-zero, pressing Return as first character will cause it to return with A=0 and carry set.
 ; Registers changed: A
 GetByte:
         JSR GetHex
+        BCC @NotRet
+        RTS                     ; <Return> was pressed, so return
+@NotRet:
         ASL
         ASL
         ASL
         ASL
         STA T1                  ; Store first nybble
+@IgnoreRet:
         JSR GetHex
+        BCS @IgnoreRet          ; If <Return> pressed, ignore it and try again
         CLC
         ADC T1                  ; Add second nybble
         RTS
@@ -1525,6 +1538,32 @@ EscapePressed:
         STX IN                  ; Store length of string
         RTS                     ; Return
 
+; Variable length hex number input routine.
+; Enter hex bytes from the keyboard terminated in <Return> or <ESC>.
+; Characters are echoed.
+; Can be up to 127 bytes.
+; Returns:
+;   Length stored at IN.
+;   Characters stored starting at IN+1 ($0201-$027F, same as Woz Monitor)
+; Registers changed: A, X
+
+GetHexBytes:
+        LDA #1
+        STA RET                 ; Set flag to accept <Return> key
+        LDX #0                  ; Initialize index into buffer
+@loop:
+        JSR GetByte             ; get hex number from keyboard (byte)
+        BCS @Return             ; Branch if key was <Return>
+        STA IN+1,X              ; Store character in buffer (skip first length byte)
+        INX                     ; Advance index into buffer
+        CPX #$7E                ; Buffer full?
+        BNE @loop               ; If not, go back and get more input
+@Return:
+        STX IN                  ; Store length of string
+        LDA #0
+        STA RET                 ; Clear flag to accept <Return> key
+        RTS                     ; Return
+
 ; Below came from
 ; http://www.6502.org/source/integers/hex2dec-more.htm
 ; Convert an 16 bit binary value to BCD
@@ -1582,7 +1621,7 @@ P1:     LDX #7
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON MONITOR V0.93 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON MONITOR V0.94 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
