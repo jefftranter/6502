@@ -24,6 +24,7 @@
 ; 0.93    06-Jun-2012  Added Register command. Former Run command is now Go.
 ; 0.94    17-Jun-2012  Display error in break handler if interrupt occurred.
 ;                      Fill command accepts variable length pattern.
+;                      Search command accepts variable length pattern.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -90,6 +91,7 @@
 
 ; Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
+  .org $0280
 
 ; JMON Entry point
   .export JMON
@@ -434,35 +436,43 @@ Search:
         STX EL
         STY EH
         JSR PrintSpace
-        JSR GetAddress  ; Get data (16-bit)
-        STY DA
-        STX DA+1
+        JSR GetHexBytes         ; Get search pattern
         JSR PrintCR
+        LDA IN                  ; If length of pattern is zero, return
+        BNE @lenokay
+        RTS
+
 ; Check that start address <= end address
+@lenokay:
         LDA SH
         CMP EH
-        BCC @search
-        BEQ @search
+        BCC @StartSearch
+        BEQ @StartSearch
         BNE @invalid
         LDA SL
         CMP EL
-        BCC @search
-        BEQ @search
+        BCC @StartSearch
+        BEQ @StartSearch
 @invalid:
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
         RTS
+
+@StartSearch:
+        LDX #0                  ; Index into fill pattern
 @search:
         LDY #0
-        LDA DA
-        CMP (SL),Y              ; compare with memory data (first byte)
-        BNE @Cont
-        INY
-        LDA DA+1                ; compare with memory data (second byte)
-        CMP (SL),Y
-        BEQ @Match              ; found match
-@Cont:
+        LDA IN+1,X              ; Get byte of pattern data
+        CMP (SL),Y              ; compare with memory data
+        BNE @Continue
+        INX
+        CPX IN                  ; End of pattern reached?
+        BEQ @Match              ; If so, found match
+        BNE @PartialMatch                
+@Continue:
+        LDX #0                  ; Reset search to end of pattern
+@PartialMatch:
         LDA SH                  ; reached end yet?
         CMP EH
         BNE @NotDone
@@ -482,7 +492,17 @@ Search:
         INC SH
 @NoCarry:
         JMP @search
+
 @Match:
+        DEC IN                  ; Calculate start address as SL,SH minus (IN - 1)
+        LDA SL
+        SEC
+        SBC IN
+        STA SL
+        LDA SH
+        SBC #0                  ; Includes possible carry
+        STA SH
+        INC IN
         LDX #<Found
         LDY #>Found
         JSR PrintString
@@ -491,7 +511,7 @@ Search:
         JSR PrintAddress
         JSR PrintCR
         JSR PromptToContinue
-        BCC @Cont
+        BCC @Continue
         RTS             ; done
 
 ; Verify Memory
