@@ -5,6 +5,10 @@
 ;
 ; Jeff Tranter <tranter@pobox.com>
 ;
+; TODO:
+; - add command for simple hex math calculations (add/subtract)
+; - support text strings for Fill and Search
+;
 ; Revision History
 ; Version Date         Comments
 ; 0.0     19-Feb-2012  First version started
@@ -23,11 +27,19 @@
 ; 0.94    17-Jun-2012  Display error in break handler if interrupt occurred.
 ;                      Fill command accepts variable length pattern.
 ;                      Search command accepts variable length pattern.
+; 0.95    18-Jun-2012  Use constants for keyboard registers.
+;                      Removed reliance on Woz Mon routines.
+;                      Go command now does a JSR (or equivalent) so called program can return.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
   SP      = $20                 ; Space
   ESC     = $1B                 ; Escape
+
+; Hardware addresses
+  KBD     = $D010               ;  PIA.A keyboard input
+  KBDCR   = $D011               ;  PIA.A keyboard control register
+  DSP     = $D012               ;  PIA.B display output register
 
 ; Page Zero locations
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
@@ -81,9 +93,6 @@
   KRUSADER = $F000              ; Krusader Assembler
   MINIMON = $FE14               ; Mini monitor entry point (valid for Krusader 6502 version 1.3)
   WOZMON  = $FF00               ; Woz monitor entry point
-  PRBYTE  = $FFDC               ; Woz monitor print byte as two hex chars
-  PRHEX   = $FFE5               ; Woz monitor print nybble as hex digit
-  ECHO    = $FFEF               ; Woz monitor ECHO routine
   BRKVECTOR = $FFFE             ; and $FFFF (2 bytes)   
   MENU    = $9006               ; CFFA1 menu
 
@@ -293,15 +302,26 @@ Go:
 
 ; Restore saved values of registers
 
-        LDX SAVE_S
+        LDX SAVE_S      ; Restore stack pointer
         TXS
-        LDA SAVE_P
+        LDA #>(@Return-1) ; Push return address-1 on the stack so an RTS in the called code will return here.
         PHA
-        LDY SAVE_Y
-        LDX SAVE_X
-        LDA SAVE_A
-        PLP
+        LDA #<(@Return-1)
+        PHA
+        LDA SAVE_P
+        PHA             ; Push P
+        LDY SAVE_Y      ; Restore Y
+        LDX SAVE_X      ; Restore X
+        LDA SAVE_A      ; Restore A
+        PLP             ; Restore P
         JMP (SL)        ; jump to address
+@Return:
+
+; The stack pointer was changed above and who knows what else, so we
+; can't RTS from the caller of this routine. Instead we jump directly
+; to the start of JMON.
+
+        JMP JMON
 
 ; Copy Memory
 Copy:
@@ -1156,9 +1176,9 @@ PrintChar:
 ; Clears high bit to be valid ASCII
 ; Registers changed: A
 GetKey:
-        LDA $D011               ; Keyboard CR
+        LDA KBDCR               ; Keyboard CR
         BPL GetKey              ; loop until key pressed
-        LDA $D010               ; Keyboard data
+        LDA KBD                 ; Keyboard data
         AND #%01111111          ; convert to ASCII
         RTS
 
@@ -1372,9 +1392,41 @@ PrintString:
         BNE @loop               ; if doesn't branch, string is too long
 done:   RTS
 
-;------------------------------------------------------------------------
-;
-; Utility functions
+; Print byte as two hex chars.
+; Taken from Woz Monitor PRBYTE routine ($FFDC).
+; Pass byte in A
+; Registers changed: A
+PRBYTE:
+       PHA             ; Save A for LSD.
+       LSR
+       LSR
+       LSR             ; MSD to LSD position.
+       LSR
+       JSR PRHEX       ; Output hex digit.
+       PLA             ; Restore A.
+                       ; Fall into PRHEX routine
+
+; Print nybble as one hex digit.
+; Take from Woz Monitor PRHEX routine ($FFE5).
+; Pass byte in A
+; Registers changed: A
+PRHEX:
+       AND #$0F        ; Mask LSD for hex print.
+       ORA #'0'+$80    ; Add "0".
+       CMP #$BA        ; Digit?
+       BCC ECHO        ; Yes, output it.
+       ADC #$06        ; Add offset for letter.
+                       ; Fall througn into ECHO routine
+
+; Send character to display.
+; Taken from Woz Monitor ECHO routine ($FFEF).
+; Pass byte in A
+; Registers changed: none
+ECHO:
+       BIT DSP                  ; bit (B7) cleared yet?
+       BMI ECHO                 ; No, wait for display.
+       STA DSP                  ; Output character. Sets DA.
+       RTS                      ; Return.
 
 ; Print a dollar sign
 ; Registers changed: None
@@ -1648,7 +1700,7 @@ P1:     LDX #7
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON MONITOR V0.94 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON MONITOR V0.95 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
