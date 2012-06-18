@@ -465,11 +465,20 @@ Search:
         LDY #0
         LDA IN+1,X              ; Get byte of pattern data
         CMP (SL),Y              ; compare with memory data
-        BNE @Continue
+        BNE @NoMatch
         INX
         CPX IN                  ; End of pattern reached?
         BEQ @Match              ; If so, found match
         BNE @PartialMatch                
+@NoMatch:
+        STX T1                  ; Subtract X from SL,SH
+        SEC
+        LDA SL
+        SBC T1
+        STA SL
+        LDA SH
+        SBC #0
+        STA SH
 @Continue:
         LDX #0                  ; Reset search to end of pattern
 @PartialMatch:
