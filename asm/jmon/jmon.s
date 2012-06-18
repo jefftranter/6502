@@ -5,8 +5,6 @@
 ;
 ; Jeff Tranter <tranter@pobox.com>
 ;
-
-;
 ; Revision History
 ; Version Date         Comments
 ; 0.0     19-Feb-2012  First version started
@@ -1665,7 +1663,7 @@ HelpString1:
         .byte "BREAKPOINT: B <N OR ?> <ADDRESS>",CR
         .byte "COPY:       C <START> <END> <DEST>",CR
         .byte "DUMP:       D <START>",CR
-        .byte "FILL:       F <START> <END> <DATA>",CR
+        .byte "FILL:       F <START> <END> <DATA>...",CR
         .byte "GO:         G <ADDRESS>",CR
         .byte "HEX TO DEC  H <ADDRESS>",CR
         .byte "BASIC:      I",CR
@@ -1673,13 +1671,13 @@ HelpString1:
 HelpString2:
         .byte "MINI MON:   K",CR
         .byte "REGISTERS:  R",CR
-        .byte "SEARCH:     S <START> <END> <DATA>",CR
+        .byte "SEARCH:     S <START> <END> <DATA>...",CR
         .byte "TEST:       T <START> <END>",CR
         .byte "UNASSEMBLE: U <START>",CR
         .byte "VERIFY:     V <START> <END> <DEST>",CR
         .byte "WRITE DELAY W <DATA>",CR
         .byte "WOZ MON:    $",CR
-        .byte "FILL MEMORY : <ADDRESS> <DATA>...",CR
+        .byte "WRITE       : <ADDRESS> <DATA>...",CR
         .byte "HELP:       ?",CR,0
 
 ContinueString:
