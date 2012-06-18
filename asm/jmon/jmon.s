@@ -6,7 +6,6 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - add command for simple hex math calculations (add/subtract)
 ; - support text strings for Fill and Search
 ;
 ; Revision History
@@ -30,6 +29,7 @@
 ; 0.95    18-Jun-2012  Use constants for keyboard registers.
 ;                      Removed reliance on Woz Mon routines.
 ;                      Go command now does a JSR (or equivalent) so called program can return.
+;                      Added = command for simple hex math calculations (add/subtract).
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -52,14 +52,11 @@
   EL      = $39                 ; end address low byte
   EH      = $3A                 ; end address high byte
   RET     = $3B                 ; sets whether <Return> key is accepted in some input routines
-  DA      = $3E                 ; fill/search data (2 bytes)
   DL      = $40                 ; destination address low byte
   DH      = $41                 ; destination address high byte
   BIN     = $42                 ; holds binary value low byte
   BINH    = $43                 ; holds binary value high byte
-  BCD     = $44                 ; holds BCD decimal number
-  BCD2    = $45                 ; holds BCD decimal number
-  BCD3    = $46                 ; holds BCD decimal number
+  BCD     = $44                 ; holds BCD decimal number (3 bytes)
   LZ      = $47                 ; boolean for leading zero suppression
   LAST    = $48                 ; boolean for leading zero suppression / indicates last byte
   ADDR    = $49                 ; instruction address, 2 bytes (low/high)
@@ -1126,6 +1123,65 @@ Registers:
         JSR PrintCR
         RTS
 
+; Math command. Add or substract two 16-bit hex numbers.
+; Format: = <ADDRESS> +/- <ADDRESS>
+; e.g.
+; = 1234 + 0077 = 12AB
+; = FF00 - 0002 = FEFE
+Math:
+        JSR PrintChar           ; Echo command
+        JSR PrintSpace
+        JSR GetAddress          ; Get first number
+        STX SL
+        STY SH
+        JSR PrintSpace
+@PlusOrMinus:
+        JSR GetKey
+        CMP #'+'                ; Is it plus?
+        BEQ @Okay
+        CMP #'-'                ; Is it minus?
+        BEQ @Okay
+        JMP @PlusOrMinus        ; If not, try again
+@Okay:
+        STA OP
+        JSR PrintChar
+        JSR PrintSpace
+        JSR GetAddress          ; Get second number
+        STX EL
+        STY EH
+        JSR PrintSpace
+        LDA #'='
+        JSR PrintChar
+        JSR PrintSpace
+        LDA OP
+        CMP #'-'
+        BEQ @Sub                ; Branch if operation is subtract
+
+        CLC                     ; Calculate DL,DH = SL,SH + EL,EH
+        LDA SL
+        ADC EL
+        STA DL
+        LDA SH
+        ADC EH
+        STA DH
+        JMP @PrintResult
+
+@Sub:
+        SEC                     ; Calculate DL,DH = SL,SH - EL,EH
+        LDA SL
+        SBC EL
+        STA DL
+        LDA SH
+        SBC EH
+        STA DH
+
+@PrintResult:
+        LDX DL                  ; Print the result
+        LDY DH
+        JSR PrintAddress
+        JSR PrintCR
+        RTS
+
 ; -------------------- Utility Functions --------------------
 
 ; Generate one line of output for the dump command.
@@ -1561,7 +1617,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDFGHIKMRSTUVW:"
+        .byte "$?ABCDFGHIKMRSTUVW:="
 
 JMPFL:
         .word Invalid-1
@@ -1584,6 +1640,7 @@ JMPFL:
         .word Verify-1
         .word WriteDelay-1
         .word Memory-1
+        .word Math-1
 
 ; String input routine.
 ; Enter characters from the keyboard terminated in <Return> or <ESC>.
@@ -1711,26 +1768,27 @@ InvalidCommand:
 ; Help string. Split in two because >255 characters
 HelpString1:
         .byte "COMMANDS:",CR
-        .byte "ASSEMBLER:  A",CR
-        .byte "BREAKPOINT: B <N OR ?> <ADDRESS>",CR
-        .byte "COPY:       C <START> <END> <DEST>",CR
-        .byte "DUMP:       D <START>",CR
-        .byte "FILL:       F <START> <END> <DATA>...",CR
-        .byte "GO:         G <ADDRESS>",CR
+        .byte "ASSEMBLER   A",CR
+        .byte "BREAKPOINT  B <N OR ?> <ADDRESS>",CR
+        .byte "COPY        C <START> <END> <DEST>",CR
+        .byte "DUMP        D <START>",CR
+        .byte "FILL        F <START> <END> <DATA>...",CR
+        .byte "GO          G <ADDRESS>",CR
         .byte "HEX TO DEC  H <ADDRESS>",CR
-        .byte "BASIC:      I",CR
-        .byte "CFFA1 MENU: M",CR,0
+        .byte "BASIC       I",CR
+        .byte "CFFA1 MENU  M",CR,0
+        .byte "MINI MON    K",CR
+        .byte "REGISTERS   R",CR
+        .byte "SEARCH      S <START> <END> <DATA>...",CR
 HelpString2:
-        .byte "MINI MON:   K",CR
-        .byte "REGISTERS:  R",CR
-        .byte "SEARCH:     S <START> <END> <DATA>...",CR
-        .byte "TEST:       T <START> <END>",CR
-        .byte "UNASSEMBLE: U <START>",CR
-        .byte "VERIFY:     V <START> <END> <DEST>",CR
+        .byte "TEST        T <START> <END>",CR
+        .byte "UNASSEMBLE  U <START>",CR
+        .byte "VERIFY      V <START> <END> <DEST>",CR
         .byte "WRITE DELAY W <DATA>",CR
-        .byte "WOZ MON:    $",CR
+        .byte "WOZ MON     $",CR
         .byte "WRITE       : <ADDRESS> <DATA>...",CR
-        .byte "HELP:       ?",CR,0
+        .byte "MATH        = <ADDRESS> +/- <ADDRESS>",CR
+        .byte "HELP        ?",CR,0
 
 ContinueString:
         .asciiz "  <SPACE> TO CONTINUE, <ESC> TO STOP"
