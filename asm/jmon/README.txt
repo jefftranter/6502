@@ -111,7 +111,15 @@ Jump to the Woz monitor (Address $FF00).
 WRITE       : <ADDRESS> <DATA>...
 
 Write hex data bytes to memory. Enter the start address followed by
-data bytes. Press enter to commit, <Esc> to cancel.
+data bytes. Starts a new line every multiple of 8 bytes. Press <Esc>
+to cancel input.
+
+MATH:        = <ADDRESS> +/- <ADDRESS>
+
+Math command. Add or substract two 16-bit hex numbers.
+Examples:
+= 1234 + 0077 = 12AB
+= FF00 - 0002 = FEFE
 
 HELP:       ?
 
