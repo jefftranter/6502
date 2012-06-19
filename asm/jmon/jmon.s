@@ -38,6 +38,7 @@
 ; 0.96    21-Jun-2012  Some refactoring to improve common code.
 ;                      Improvements to comments.
 ;                      Added new L command to clear screen.
+;                      Moved most variables out of page zero.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -53,42 +54,19 @@
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
 ; Krusader uses $F8, $F9, $FF, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
-  T1      = $35                 ; Temp variable 1
-  T2      = $36                 ; Temp variable 2
-  SL      = $37                 ; Start address low byte
-  SH      = $38                 ; Start address high byte
-  EL      = $39                 ; End address low byte
-  EH      = $3A                 ; End address high byte
-  RET     = $3B                 ; Sets whether <Return> key is accepted in some input routines
-  DL      = $40                 ; Destination address low byte
-  DH      = $41                 ; Destination address high byte
-  BIN     = $42                 ; Holds binary value low byte
-  BINH    = $43                 ; Holds binary value high byte
-  BCD     = $44                 ; Holds BCD decimal number (3 bytes)
-  LZ      = $47                 ; Boolean for leading zero suppression
-  LAST    = $48                 ; Boolean for leading zero suppression / indicates last byte
-  ADDR    = $49                 ; Instruction address, 2 bytes (low/high)
-  OPCODE  = $4B                 ; Instruction opcode
-  OP      = $4C                 ; Instruction type OP_*
-  AM      = $4D                 ; Addressing mode AM_*
-  LEN     = $4E                 ; Instruction length
-  WDELAY  = $4F                 ; Delay value when writing (defaults to zero)
-  REL     = $50                 ; Relative addressing branch offset (2 bytes)
-  DEST    = $52                 ; Relative address destination address (2 bytes)
-  START   = $54                 ; Memory test- user entered start of memory range. Min is 8 (2 bytes)
-  END     = $556                ; Memory test - user entered end of memory range (2 bytes)
-  ADDRS   = $58                 ; Memory test - 2 bytes - address of memory
-  TEST_PATRN = $5A              ; Memory test - 1 byte - current test pattern
-  PASSES  = $5B                 ; Memory test - number of passes
-  BPA     = $60                 ; Address of breakpoint (2 bytes * 4 breakpoints)
-  BPD     = $68                 ; Instruction at breakpoint (1 byte * 4 breakpoints)
-  SAVE_A  = $70                 ; Holds saved values of registers
-  SAVE_X  = $71                 ; "
-  SAVE_Y  = $72                 ; "
-  SAVE_S  = $73                 ; "
-  SAVE_P  = $74                 ; "
-  SAVE_PC = $75                 ; Holds PC while in BRK handler (2 bytes)
-  VECTOR  = $77                 ; Holds adddress of IRQ/BREAK entry point
+  T1      = $35                 ; Temp variable 1 (page zero)
+  SL      = $37                 ; Start address low byte (page zero)
+  SH      = $38                 ; Start address high byte (page zero)
+  EL      = $39                 ; End address low byte (page zero)
+  EH      = $3A                 ; End address high byte (page zero)
+  DL      = $40                 ; Destination address low byte (page zero)
+  DH      = $41                 ; Destination address high byte (page zero)
+  ADDR    = $49                 ; Instruction address, 2 bytes (low/high) (page zero)
+  ADDRS   = $58                 ; Memory test - 2 bytes - address of memory (page zero)
+  TEST_PATRN = $5A              ; Memory test - 1 byte - current test pattern (page zero)
+  PASSES  = $5B                 ; Memory test - number of passes (page zero)
+  BPA     = $60                 ; Address of breakpoint (2 bytes * 4 breakpoints) (page zero)
+  VECTOR  = $77                 ; Holds adddress of IRQ/BREAK entry point (page zero)
 
 ; Non page zero locations
   IN      = $0200               ; Buffer from $0200 through $027F (shared with Woz Mon)
@@ -108,9 +86,36 @@
 ; JMON Entry point
   .export JMON
 JMON:
+        JMP Start
+
+; Variables:
+
+T2:       .res 1                ; Temp variable 2
+RET:      .res 1                ; Sets whether <Return> key is accepted in some input routines
+BIN:      .res 1                ; Holds binary value low byte
+BINH:     .res 1                ; Holds binary value high byte
+BCD:      .res 3                ; Holds BCD decimal number (3 bytes)
+LZ:       .res 1                ; Boolean for leading zero suppression
+LAST:     .res 1                ; Boolean for leading zero suppression / indicates last byte
+OPCODE:   .res 1                ; Instruction opcode
+OP:       .res 1                ; Instruction type OP_*
+AM:       .res 1                ; Addressing mode AM_*
+LEN:      .res 1                ; Instruction length
+WDELAY:   .res 1                ; Delay value when writing (defaults to zero)
+REL:      .res 2                ; Relative addressing branch offset (2 bytes)
+DEST:     .res 2                ; Relative address destination address (2 bytes)
+START:    .res 2                ; Memory test- user entered start of memory range. Min is 8 (2 bytes)
+END:      .res 2                ; Memory test - user entered end of memory range (2 bytes)
+BPD:      .res 4                ; Instruction at breakpoint (1 byte * 4 breakpoints)
+SAVE_A:   .res 1                ; Holds saved values of registers
+SAVE_X:   .res 1                ; "
+SAVE_Y:   .res 1                ; "
+SAVE_S:   .res 1                ; "
+SAVE_P:   .res 1                ; "
+SAVE_PC:  .res 2                ; Holds PC while in BRK handler (2 bytes)
 
 ; Save values of registers
-
+Start:
         PHP
         STA SAVE_A
         STX SAVE_X
