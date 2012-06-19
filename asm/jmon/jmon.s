@@ -7,7 +7,12 @@
 ;
 ; TODO:
 ; - support text strings for Fill and Search
-;
+; - incorporate Krusader minimon/trace functions into JMON code?
+; - add support for cassette tape load/save?
+; - support text strings in ":" command?
+; - implement very tiny one line assembler?
+; - move some variables out of page zero?
+
 ; Revision History
 ; Version Date         Comments
 ; 0.0     19-Feb-2012  First version started
@@ -30,6 +35,9 @@
 ;                      Removed reliance on Woz Mon routines.
 ;                      Go command now does a JSR (or equivalent) so called program can return.
 ;                      Added = command for simple hex math calculations (add/subtract).
+; 0.96    21-Jun-2012  Some refactoring to improve common code.
+;                      Improvements to comments.
+;                      Added new L command to clear screen.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -45,42 +53,42 @@
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
 ; Krusader uses $F8, $F9, $FF, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
-  T1      = $35                 ; temp variable 1
-  T2      = $36                 ; temp variable 2
-  SL      = $37                 ; start address low byte
-  SH      = $38                 ; start address high byte
-  EL      = $39                 ; end address low byte
-  EH      = $3A                 ; end address high byte
-  RET     = $3B                 ; sets whether <Return> key is accepted in some input routines
-  DL      = $40                 ; destination address low byte
-  DH      = $41                 ; destination address high byte
-  BIN     = $42                 ; holds binary value low byte
-  BINH    = $43                 ; holds binary value high byte
-  BCD     = $44                 ; holds BCD decimal number (3 bytes)
-  LZ      = $47                 ; boolean for leading zero suppression
-  LAST    = $48                 ; boolean for leading zero suppression / indicates last byte
-  ADDR    = $49                 ; instruction address, 2 bytes (low/high)
-  OPCODE  = $4B                 ; instruction opcode
-  OP      = $4C                 ; instruction type OP_*
-  AM      = $4D                 ; addressing mode AM_*
-  LEN     = $4E                 ; instruction length
-  WDELAY  = $4F                 ; delay value when writing (defaults to zero)
-  REL     = $50                 ; relative addressing branch offset (2 bytes)
-  DEST    = $52                 ; relative address destination address (2 bytes)
-  START   = $54                 ; USER ENTERS START OF MEMORY RANGE min is 8 (2 bytes)
-  END     = $556                ; USER ENTERS END OF MEMORY RANGE (2 bytes)
-  ADDRS   = $58                 ; 2 BYTES - ADDRESS OF MEMORY
-  TEST_PATRN = $5A              ; 1 BYTE - CURRENT TEST PATTERN
-  PASSES  = $5B                 ; NUMBER of PASSES
-  BPA     = $60                 ; address of breakpoint (2 bytes * 4 breakpoints)
-  BPD     = $68                 ; instruction at breakpoint (1 byte * 4 breakpoints)
-  SAVE_A  = $70                 ; holds saved values of registers
+  T1      = $35                 ; Temp variable 1
+  T2      = $36                 ; Temp variable 2
+  SL      = $37                 ; Start address low byte
+  SH      = $38                 ; Start address high byte
+  EL      = $39                 ; End address low byte
+  EH      = $3A                 ; End address high byte
+  RET     = $3B                 ; Sets whether <Return> key is accepted in some input routines
+  DL      = $40                 ; Destination address low byte
+  DH      = $41                 ; Destination address high byte
+  BIN     = $42                 ; Holds binary value low byte
+  BINH    = $43                 ; Holds binary value high byte
+  BCD     = $44                 ; Holds BCD decimal number (3 bytes)
+  LZ      = $47                 ; Boolean for leading zero suppression
+  LAST    = $48                 ; Boolean for leading zero suppression / indicates last byte
+  ADDR    = $49                 ; Instruction address, 2 bytes (low/high)
+  OPCODE  = $4B                 ; Instruction opcode
+  OP      = $4C                 ; Instruction type OP_*
+  AM      = $4D                 ; Addressing mode AM_*
+  LEN     = $4E                 ; Instruction length
+  WDELAY  = $4F                 ; Delay value when writing (defaults to zero)
+  REL     = $50                 ; Relative addressing branch offset (2 bytes)
+  DEST    = $52                 ; Relative address destination address (2 bytes)
+  START   = $54                 ; Memory test- user entered start of memory range. Min is 8 (2 bytes)
+  END     = $556                ; Memory test - user entered end of memory range (2 bytes)
+  ADDRS   = $58                 ; Memory test - 2 bytes - address of memory
+  TEST_PATRN = $5A              ; Memory test - 1 byte - current test pattern
+  PASSES  = $5B                 ; Memory test - number of passes
+  BPA     = $60                 ; Address of breakpoint (2 bytes * 4 breakpoints)
+  BPD     = $68                 ; Instruction at breakpoint (1 byte * 4 breakpoints)
+  SAVE_A  = $70                 ; Holds saved values of registers
   SAVE_X  = $71                 ; "
   SAVE_Y  = $72                 ; "
   SAVE_S  = $73                 ; "
   SAVE_P  = $74                 ; "
-  SAVE_PC = $75                 ; holds PC while in BRK handler (2 bytes)
-  VECTOR  = $77                 ; holds adddress of IRQ/BREAK entry point
+  SAVE_PC = $75                 ; Holds PC while in BRK handler (2 bytes)
+  VECTOR  = $77                 ; Holds adddress of IRQ/BREAK entry point
 
 ; Non page zero locations
   IN      = $0200               ; Buffer from $0200 through $027F (shared with Woz Mon)
@@ -90,10 +98,10 @@
   KRUSADER = $F000              ; Krusader Assembler
   MINIMON = $FE14               ; Mini monitor entry point (valid for Krusader 6502 version 1.3)
   WOZMON  = $FF00               ; Woz monitor entry point
-  BRKVECTOR = $FFFE             ; and $FFFF (2 bytes)   
-  MENU    = $9006               ; CFFA1 menu
+  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)   
+  MENU    = $9006               ; CFFA1 menu entry point
 
-; Use start address of $A000 for Multi I/0 Board EEPROM
+; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
   .org $0280
 
@@ -122,6 +130,8 @@ JMON:
         STA WDELAY              ; initialize write delay to zero
         STA RET                 ; Don't accept <Return> by default
         JSR BPSETUP             ; initialization for breakpoints
+
+        JSR ClearScreen
 
 ; Display Welcome message
         LDX #<WelcomeMessage
@@ -159,6 +169,9 @@ Help:
         JSR PrintString
         LDX #<HelpString2
         LDY #>HelpString2
+        JSR PrintString
+        LDX #<HelpString3
+        LDY #>HelpString3
         JSR PrintString
         RTS
 
@@ -368,7 +381,7 @@ Copy:
 @okayUp:
         LDY #0
 @copyUp:
-        LDA (SL),Y             ; copy from source
+        LDA (SL),Y              ; copy from source
         STA (DL),Y              ; to destination
         JSR DELAY               ; delay after writing to EEPROM
         LDA SH                  ; reached end yet?
@@ -1220,13 +1233,6 @@ DumpLine:
         PLA
         RTS
 
-; Output a character
-; Calls Woz monitor ECHO routine
-; Registers changed: none
-PrintChar:
-        JSR ECHO
-        RTS
-
 ; Get character from keyboard
 ; Returns in A
 ; Clears high bit to be valid ASCII
@@ -1470,17 +1476,17 @@ PRHEX:
        AND #$0F        ; Mask LSD for hex print.
        ORA #'0'+$80    ; Add "0".
        CMP #$BA        ; Digit?
-       BCC ECHO        ; Yes, output it.
+       BCC PrintChar   ; Yes, output it.
        ADC #$06        ; Add offset for letter.
-                       ; Fall througn into ECHO routine
+                       ; Fall through into PrintChar routine
 
-; Send character to display.
-; Taken from Woz Monitor ECHO routine ($FFEF).
+; Output a character
 ; Pass byte in A
+; Based on Woz Monitor ECHO routine ($FFEF).
 ; Registers changed: none
-ECHO:
+PrintChar:
        BIT DSP                  ; bit (B7) cleared yet?
-       BMI ECHO                 ; No, wait for display.
+       BMI PrintChar            ; No, wait for display.
        STA DSP                  ; Output character. Sets DA.
        RTS                      ; Return.
 
@@ -1535,16 +1541,24 @@ PrintRParen:
         PLA
         RTS
 
-; Print number of spaces in X
+; Print several sace characters.
+; X contains number of spaces to print.
 ; Registers changed: X
 PrintSpaces:
-        PHA
-        LDA #SP
-@LOOP:
-        JSR ECHO
+        PHA                     ; save A
+        LDA #' '
+        JSR PrintChars
+        PLA                     ; restore A
+        RTS
+
+; Output a character multiple times
+; A contains character to print.
+; X contains number of times to print.
+; Registers changed: X
+PrintChars:
+        JSR PrintChar
         DEX
-        BNE @LOOP
-        PLA
+        BNE PrintChars
         RTS
 
 ; Ask user whether to continue or not. Returns with carry clear if
@@ -1617,7 +1631,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDFGHIKMRSTUVW:="
+        .byte "$?ABCDFGHIKLMRSTUVW:="
 
 JMPFL:
         .word Invalid-1
@@ -1632,6 +1646,7 @@ JMPFL:
         .word Hex-1
         .word Basic-1
         .word MiniMonitor-1
+        .word ClearScreen-1
         .word CFFA1-1
         .word Registers-1
         .word Search-1
@@ -1754,18 +1769,32 @@ P1:     LDX #7
         RTS
 @3: .byte "CZIDB-VN"
 
+; Clear screen by printing 24 carriage returns.
+; Registers changed: none
+ClearScreen:
+        PHA             ; save A
+        TXA             ; save X
+        PHA
+        LDA #CR
+        LDX #24
+        JSR PrintChars
+        PLA             ; restore X
+        TAX
+        PLA             ; restore A
+        RTS
+
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON MONITOR V0.95 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON MONITOR V0.96 BY JEFF TRANTER",CR,0
 
 PromptString:
         .asciiz "? "
 
 InvalidCommand:
-        .byte "INVALID COMMAND. TYPE '?' FOR HELP",CR,$00
+        .byte "INVALID COMMAND. TYPE '?' FOR HELP",CR,0
 
-; Help string. Split in two because >255 characters
+; Help string. Split into multiple strings that are each < 255 characters
 HelpString1:
         .byte "COMMANDS:",CR
         .byte "ASSEMBLER   A",CR
@@ -1775,20 +1804,25 @@ HelpString1:
         .byte "FILL        F <START> <END> <DATA>...",CR
         .byte "GO          G <ADDRESS>",CR
         .byte "HEX TO DEC  H <ADDRESS>",CR
+        .byte 0
+HelpString2:
         .byte "BASIC       I",CR
-        .byte "CFFA1 MENU  M",CR,0
+        .byte "CLR SCREEN  L",CR
+        .byte "CFFA1 MENU  M",CR
         .byte "MINI MON    K",CR
         .byte "REGISTERS   R",CR
         .byte "SEARCH      S <START> <END> <DATA>...",CR
-HelpString2:
         .byte "TEST        T <START> <END>",CR
         .byte "UNASSEMBLE  U <START>",CR
+        .byte 0
+HelpString3:
         .byte "VERIFY      V <START> <END> <DEST>",CR
         .byte "WRITE DELAY W <DATA>",CR
         .byte "WOZ MON     $",CR
         .byte "WRITE       : <ADDRESS> <DATA>...",CR
         .byte "MATH        = <ADDRESS> +/- <ADDRESS>",CR
-        .byte "HELP        ?",CR,0
+        .byte "HELP        ?",CR
+        .byte 0
 
 ContinueString:
         .asciiz "  <SPACE> TO CONTINUE, <ESC> TO STOP"
