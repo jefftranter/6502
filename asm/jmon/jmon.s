@@ -11,7 +11,6 @@
 ; - add support for cassette tape load/save?
 ; - support text strings in ":" command?
 ; - implement very tiny one line assembler?
-; - move some variables out of page zero?
 
 ; Revision History
 ; Version Date         Comments
@@ -241,7 +240,11 @@ Breakpoint:
 IGN:    JSR GetKey              ; get breakpoint number
         CMP #'?'                ; ? lists breakpoints
         BEQ LISTB
-        CMP #'0'                ; is it 0 through 3?
+        CMP #ESC                ; <Escape> cancels
+        BNE Num
+        JSR PrintCR
+        RTS
+Num:    CMP #'0'                ; is it 0 through 3?
         BMI IGN                 ; Invalid, ignore and try again
         CMP #'3'+1
         BMI VALIDBP
