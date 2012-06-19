@@ -54,19 +54,19 @@
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
 ; Krusader uses $F8, $F9, $FF, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
-  T1      = $35                 ; Temp variable 1 (page zero)
-  SL      = $37                 ; Start address low byte (page zero)
-  SH      = $38                 ; Start address high byte (page zero)
-  EL      = $39                 ; End address low byte (page zero)
-  EH      = $3A                 ; End address high byte (page zero)
-  DL      = $40                 ; Destination address low byte (page zero)
-  DH      = $41                 ; Destination address high byte (page zero)
-  ADDR    = $49                 ; Instruction address, 2 bytes (low/high) (page zero)
-  ADDRS   = $58                 ; Memory test - 2 bytes - address of memory (page zero)
-  TEST_PATRN = $5A              ; Memory test - 1 byte - current test pattern (page zero)
-  PASSES  = $5B                 ; Memory test - number of passes (page zero)
-  BPA     = $60                 ; Address of breakpoint (2 bytes * 4 breakpoints) (page zero)
-  VECTOR  = $77                 ; Holds adddress of IRQ/BREAK entry point (page zero)
+  T1      = $30                 ; Temp variable 1
+  SL      = $31                 ; Start address low byte
+  SH      = $32                 ; Start address high byte
+  EL      = $33                 ; End address low byte
+  EH      = $34                 ; End address high byte
+  DL      = $35                 ; Destination address low byte
+  DH      = $36                 ; Destination address high byte
+  ADDR    = $37                 ; Instruction address, 2 bytes (low/high)
+  ADDRS   = $39                 ; Memory test - 2 bytes - address of memory
+  TEST_PATRN = $3B              ; Memory test - 1 byte - current test pattern
+  PASSES  = $3C                 ; Memory test - number of passes
+  VECTOR  = $3D                 ; Holds adddress of IRQ/BREAK entry point
+  BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
 
 ; Non page zero locations
   IN      = $0200               ; Buffer from $0200 through $027F (shared with Woz Mon)
