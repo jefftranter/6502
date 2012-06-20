@@ -51,7 +51,7 @@
 
 ; Page Zero locations
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
-; Krusader uses $F8, $F9, $FF, $FF.
+; Krusader uses $F8, $F9, $FE, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
   T1      = $30                 ; Temp variable 1
   SL      = $31                 ; Start address low byte
@@ -87,8 +87,7 @@
 JMON:
         JMP Start
 
-; Variables:
-
+; Non-Page Zero Variables
 T2:       .res 1                ; Temp variable 2
 RET:      .res 1                ; Sets whether <Return> key is accepted in some input routines
 BIN:      .res 1                ; Holds binary value low byte
@@ -134,7 +133,6 @@ Start:
         STA WDELAY              ; initialize write delay to zero
         STA RET                 ; Don't accept <Return> by default
         JSR BPSETUP             ; initialization for breakpoints
-
         JSR ClearScreen
 
 ; Display Welcome message
@@ -1474,7 +1472,7 @@ PRBYTE:
        LSR
        JSR PRHEX       ; Output hex digit.
        PLA             ; Restore A.
-                       ; Fall into PRHEX routine
+                       ; Falls through into PRHEX routine
 
 ; Print nybble as one hex digit.
 ; Take from Woz Monitor PRHEX routine ($FFE5).
@@ -1486,7 +1484,7 @@ PRHEX:
        CMP #$BA        ; Digit?
        BCC PrintChar   ; Yes, output it.
        ADC #$06        ; Add offset for letter.
-                       ; Fall through into PrintChar routine
+                       ; Falls through into PrintChar routine
 
 ; Output a character
 ; Pass byte in A
@@ -1549,7 +1547,7 @@ PrintRParen:
         PLA
         RTS
 
-; Print several sace characters.
+; Print several space characters.
 ; X contains number of spaces to print.
 ; Registers changed: X
 PrintSpaces:
@@ -1608,7 +1606,7 @@ DELAY:
         BEQ NODELAY
         JMP WAIT
 NODELAY:
-RTS
+        RTS
 
 ; Option picker. Adapted from "Assembly Cookbook for the Apple II/IIe" by Don Lancaster.
 ; Call with command letter in A.
@@ -1757,7 +1755,6 @@ CNVBIT: ASL BIN+0               ; Shift out one bit
         BNE CNVBIT
         CLD                     ; Back to binary
         RTS                     ; All Done.
-
 
 ; Display processor flags
 ; Based on code at http://6502org.wikidot.com/software-output-flags
