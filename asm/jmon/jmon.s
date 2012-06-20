@@ -7,8 +7,6 @@
 ;
 ; TODO:
 ; - support text strings for Fill and Search
-; - incorporate Krusader minimon/trace functions into JMON code?
-; - add support for cassette tape load/save?
 ; - support text strings in ":" command?
 ; - implement very tiny one line assembler?
 
@@ -38,6 +36,7 @@
 ;                      Improvements to comments.
 ;                      Added new L command to clear screen.
 ;                      Moved most variables out of page zero.
+;                      Added new E command for ACI cassette interface (untested).
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -77,6 +76,7 @@
   WOZMON  = $FF00               ; Woz monitor entry point
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)   
   MENU    = $9006               ; CFFA1 menu entry point
+  ACI     = $C100               ; ACI (Apple Cassette Interface) firmware entry point
 
 ; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
@@ -209,6 +209,23 @@ CFFA1:
 NoCFFA1:
         LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
         LDY #>NoCFFA1String
+        JSR PrintString
+        RTS
+
+; Call ACI (Apple Cassette Interface) firmware
+; First check for the presence of the card by looking for the first two byes of the ROM firmware.
+
+ACIFW:
+        LDA ACI                 ; First firmware byte
+        CMP #$A9                ; Should contain $A9
+        BNE NoACI
+        LDA ACI+1               ; Second firmware byte
+        CMP #$AA                ; Should contain $AA
+        BNE NoACI
+        JMP ACI                 ; Jump to ACI firmware, unfortunately jumps to Woz Mon when done rather than returning here.
+NoACI:
+        LDX #<NoACIString       ; Display error that no ACI is present.
+        LDY #>NoACIString
         JSR PrintString
         RTS
 
@@ -1637,7 +1654,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDFGHIKLMRSTUVW:="
+        .byte "$?ABCDEFGHIKLMRSTUVW:="
 
 JMPFL:
         .word Invalid-1
@@ -1647,6 +1664,7 @@ JMPFL:
         .word Breakpoint-1
         .word Copy-1
         .word Dump-1
+        .word ACIFW-1
         .word Fill-1
         .word Go-1
         .word Hex-1
@@ -1801,20 +1819,20 @@ InvalidCommand:
 
 ; Help string. Split into multiple strings that are each < 255 characters
 HelpString1:
-        .byte "COMMANDS:",CR
         .byte "ASSEMBLER   A",CR
         .byte "BREAKPOINT  B <N OR ?> <ADDRESS>",CR
         .byte "COPY        C <START> <END> <DEST>",CR
         .byte "DUMP        D <START>",CR
+        .byte "ACI MENU    E",CR
         .byte "FILL        F <START> <END> <DATA>...",CR
         .byte "GO          G <ADDRESS>",CR
         .byte "HEX TO DEC  H <ADDRESS>",CR
         .byte 0
 HelpString2:
         .byte "BASIC       I",CR
+        .byte "MINI MON    K",CR
         .byte "CLR SCREEN  L",CR
         .byte "CFFA1 MENU  M",CR
-        .byte "MINI MON    K",CR
         .byte "REGISTERS   R",CR
         .byte "SEARCH      S <START> <END> <DATA>...",CR
         .byte "TEST        T <START> <END>",CR
@@ -1876,6 +1894,9 @@ KnownBPString2:
 
 NoCFFA1String:
   .byte "NO CFFA1 CARD FOUND!",CR,0
+
+NoACIString:
+  .byte "NO ACI CARD FOUND!",CR,0
 
 ReadString:
   .byte " Read: ",0
