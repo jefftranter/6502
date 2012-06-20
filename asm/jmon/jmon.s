@@ -53,18 +53,18 @@
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
 ; Krusader uses $F8, $F9, $FE, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
-  T1      = $30                 ; Temp variable 1
-  SL      = $31                 ; Start address low byte
-  SH      = $32                 ; Start address high byte
-  EL      = $33                 ; End address low byte
-  EH      = $34                 ; End address high byte
-  DL      = $35                 ; Destination address low byte
-  DH      = $36                 ; Destination address high byte
-  ADDR    = $37                 ; Instruction address, 2 bytes (low/high)
-  ADDRS   = $39                 ; Memory test - 2 bytes - address of memory
-  TEST_PATRN = $3B              ; Memory test - 1 byte - current test pattern
-  PASSES  = $3C                 ; Memory test - number of passes
-  VECTOR  = $3D                 ; Holds adddress of IRQ/BREAK entry point
+  T1      = $30                 ; Temp variable 1 (2 bytes)
+  SL      = $32                 ; Start address low byte
+  SH      = $33                 ; Start address high byte
+  EL      = $34                 ; End address low byte
+  EH      = $35                 ; End address high byte
+  DL      = $36                 ; Destination address low byte
+  DH      = $37                 ; Destination address high byte
+  ADDR    = $38                 ; Instruction address, 2 bytes (low/high)
+  ADDRS   = $3A                 ; Memory test - 2 bytes - address of memory
+  TEST_PATRN = $3C              ; Memory test - 1 byte - current test pattern
+  PASSES  = $3D                 ; Memory test - number of passes
+  VECTOR  = $3E                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
   BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
 
 ; Non page zero locations
