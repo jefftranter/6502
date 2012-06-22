@@ -33,6 +33,12 @@ COPY:       C <START> <END> <DEST>
 Copy memory from address START through END to DEST. Range can overlap
 but start address must be less than or equal to the end address.
 
+ACI MENU:    E
+
+Calls the ACI (Apple Cassette Interface) firmware.
+Reports an error if an ACI card is not present.
+Note that the ACI firmware always quits to the Woz Monitor.
+
 DUMP:       D <START>
 
 Dump memory in hex and ASCII a screen at a time. Press <Space> to
@@ -56,6 +62,10 @@ BASIC:      I
 
 Jump to Applesoft BASIC cold start entry point (address $E000). Does
 not perform any check that the ROM-based BASIC is present.
+
+CLR SCREEN:  L
+
+Clear the screen by printing 24 newlines.
 
 CFFA1 MENU: M
 
@@ -133,3 +143,6 @@ Will run out of RAM or ROM.
 
 The breakpoint feature may interfere with any other interrupt handlers
 that might be installed.
+
+The Fill, Search, and ":" commands accept characters as well as hex
+values. Type ' to enter a single character.

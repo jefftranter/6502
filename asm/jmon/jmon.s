@@ -1,4 +1,3 @@
-;
 ; JMON - Simple Monitor Program
 ;
 ; Fills some gaps missing from Woz monitor.
@@ -6,8 +5,6 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - support text strings for Fill and Search
-; - support text strings in ":" command?
 ; - implement very tiny one line assembler?
 
 ; Revision History
@@ -37,6 +34,8 @@
 ;                      Added new L command to clear screen.
 ;                      Moved most variables out of page zero.
 ;                      Added new E command for ACI cassette interface (untested).
+;                      Fill, Search, and ":" commands accept characters as well as hex values.
+;                      Type ' to enter a character.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -89,7 +88,7 @@ JMON:
 
 ; Non-Page Zero Variables
 T2:       .res 1                ; Temp variable 2
-RET:      .res 1                ; Sets whether <Return> key is accepted in some input routines
+RETOK:    .res 1                ; Sets whether <Return> key is accepted in some input routines
 BIN:      .res 1                ; Holds binary value low byte
 BINH:     .res 1                ; Holds binary value high byte
 BCD:      .res 3                ; Holds BCD decimal number (3 bytes)
@@ -111,6 +110,8 @@ SAVE_Y:   .res 1                ; "
 SAVE_S:   .res 1                ; "
 SAVE_P:   .res 1                ; "
 SAVE_PC:  .res 2                ; Holds PC while in BRK handler (2 bytes)
+CHAROK:   .res 1                ; Set to 1 if okay to enter characters prefixed by '
+CHARMODE: .res 1                ; Set if currently entering in character (ASCII) mode
 
 ; Save values of registers
 Start:
@@ -131,7 +132,9 @@ Start:
         TXS                     ; so we are less likely to clobber BRK vector at $0100
         LDA #0
         STA WDELAY              ; initialize write delay to zero
-        STA RET                 ; Don't accept <Return> by default
+        STA RETOK               ; Don't accept <Return> by default
+        STA CHAROK              ; Don't accept character input by default
+        STA CHARMODE            ; Not currently in char input mode
         JSR BPSETUP             ; initialization for breakpoints
         JSR ClearScreen
 
@@ -1030,6 +1033,8 @@ Memory:
         JSR GetAddress          ; Get start address (ESC will exit)
         STX SL
         STY SH
+        LDA #1
+        STA CHAROK              ; Set flag to accept character input
 writeLoop:
         JSR PrintSpace          ; Echo space
         JSR GetByte             ; Get data byte (ESC will exit)
@@ -1269,8 +1274,9 @@ GetKey:
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
 ; ESC key cancels command and goes back to command loop.
-; If RET is zero, ignore Return key.
-; If RET is non-zero, pressing Return will cause it to return with A=0 and carry set.
+; If RETOK is zero, ignore Return key.
+; If RETOK is non-zero, pressing Return will cause it to return with A=0 and carry set.
+; If CHAROK is non-zero, pressing a single quote allows entering a character.
 ; Ignores invalid characters. Returns binary value in A
 ; Registers changed: A
 GetHex:
@@ -1280,16 +1286,35 @@ GetHex:
         JSR PrintCR
         PLA                     ; pop return address on stack
         PLA
+        LDA #0
+        STA CHAROK              ; Clear flag to accept character input
         JMP MainLoop            ; Abort command
 @checkRet:
         CMP #CR                 ; Return key?
         BNE @next
-        LDA RET                 ; Flag set to check for return?
+        LDA RETOK               ; Flag set to check for return?
         BEQ GetHex              ; If not, ignore Return key
         LDA #0
         SEC                     ; Carry set indicates Return pressed
         RTS
 @next:
+        CMP #'''                ; Single quote for character input?
+        BNE @next1
+        LDA CHAROK              ; Are we accepting character input?
+        BEQ GetHex              ; If not, ignore character
+        LDA #'''                ; Echo a quote
+        JSR PrintChar
+        LDA #1                  ; Set flag that we are in character input mode
+        STA CHARMODE
+        JSR GetKey              ; Get a character
+        JSR PrintChar           ; Echo it
+        PHA                     ; Save the character
+        LDA #'''                ; Echo a quote
+        JSR PrintChar
+        PLA                     ; Restore the character
+        CLC                     ; Normal return
+        RTS
+@next1:
         CMP #'0'
         BMI GetHex              ; Invalid, ignore and try again
         CMP #'9'+1
@@ -1316,24 +1341,43 @@ GetHex:
 ; Echoes characters as typed.
 ; Ignores invalid characters
 ; Returns byte in A
-; If RET is zero, ignore Return key.
-; If RET is non-zero, pressing Return as first character will cause it to return with A=0 and carry set.
+; If RETOK is zero, ignore Return key.
+; If RETOK is non-zero, pressing Return as first character will cause it to return with A=0 and carry set.
+; If CHAROK is non-zero, pressing a single quote allows entering a character.
 ; Registers changed: A
 GetByte:
         JSR GetHex
         BCC @NotRet
         RTS                     ; <Return> was pressed, so return
 @NotRet:
+        PHA                     ; Save character
+        LDA CHARMODE            ; Are we in character input mode?
+        BEQ @Normal
+        LDA #0                  ; If so, we got our byte as a character. Clear charmode.
+        STA CHARMODE
+        CLC
+        PLA                     ; Restore character
+        RTS                     ; Normal return
+@Normal:
+        PLA
         ASL
         ASL
         ASL
         ASL
         STA T1                  ; Store first nybble
+        LDA CHAROK              ; Get value of CHAROK
+        STA T2                  ; Save it
+        LDA #0
+        STA CHAROK              ; Disable char input for second nybble of a byte
 @IgnoreRet:
         JSR GetHex
         BCS @IgnoreRet          ; If <Return> pressed, ignore it and try again
         CLC
         ADC T1                  ; Add second nybble
+        STA T1                  ; Save it
+        LDA T2                  ; Restore value of CHAROK
+        STA CHAROK
+        LDA T1                  ; Get value to return
         RTS
 
 ; Get Address as 4 chars 0-9,A-F
@@ -1724,7 +1768,8 @@ EscapePressed:
 
 GetHexBytes:
         LDA #1
-        STA RET                 ; Set flag to accept <Return> key
+        STA RETOK               ; Set flag to accept <Return> key
+        STA CHAROK              ; Set flag to accept character input
         LDX #0                  ; Initialize index into buffer
 @loop:
         JSR GetByte             ; get hex number from keyboard (byte)
@@ -1736,7 +1781,8 @@ GetHexBytes:
 @Return:
         STX IN                  ; Store length of string
         LDA #0
-        STA RET                 ; Clear flag to accept <Return> key
+        STA RETOK               ; Clear flag to accept <Return> key
+        STA CHAROK              ; Clear flag to accept character input
         RTS                     ; Return
 
 ; Below came from
