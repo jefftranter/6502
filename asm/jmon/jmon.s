@@ -5,7 +5,6 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - extend PrintString to support strings > 255 chars
 ; - add support for disassembling 65816 code?
 ; - implement very tiny one line assembler?
 
@@ -171,14 +170,8 @@ Help:
         LDX #<WelcomeMessage
         LDY #>WelcomeMessage
         JSR PrintString
-        LDX #<HelpString1
-        LDY #>HelpString1
-        JSR PrintString
-        LDX #<HelpString2
-        LDY #>HelpString2
-        JSR PrintString
-        LDX #<HelpString3
-        LDY #>HelpString3
+        LDX #<HelpString
+        LDY #>HelpString
         JSR PrintString
         RTS
 
@@ -1508,20 +1501,32 @@ PrintSpace:
 
 ; Print a string
 ; Pass address of string in X (low) and Y (high).
-; String must be terminated in a null.
-; Cannot be longer than 256 characters.
-; Registers changed: A, Y
+; String must be terminated in a null (zero).
+; Registers changed: None
 ;
 PrintString:
+        PHA             ; Save A
+        TYA
+        PHA             ; Save Y
         STX T1          ; Save in page zero so we can use indirect addressing
         STY T1+1
         LDY #0          ; Set offset to zero
 @loop:  LDA (T1),Y      ; Read a character
         BEQ done        ; Done if we get a null (zero)
         JSR PrintChar   ; Print it
-        INY             ; Advance index to string
-        BNE @loop       ; If index wraps around to zero string is too long and we exit.
-done:   RTS
+        CLC             ; Increment address
+        LDA T1          ; Low byte
+        ADC #1
+        STA T1
+        BCC @nocarry
+        INC T1+1        ; High byte
+@nocarry:
+        JMP @loop       ; Go back and print next character
+done:   
+        PLA
+        TAY             ; Restore Y
+        PLA             ; Restore A
+        RTS
 
 ; Print byte as two hex chars.
 ; Taken from Woz Monitor PRBYTE routine ($FFDC).
@@ -1865,8 +1870,8 @@ PromptString:
 InvalidCommand:
         .byte "INVALID COMMAND. TYPE '?' FOR HELP",CR,0
 
-; Help string. Split into multiple strings that are each < 255 characters
-HelpString1:
+; Help string.
+HelpString:
         .byte "ASSEMBLER   A",CR
         .byte "BREAKPOINT  B <N OR ?> <ADDRESS>",CR
         .byte "COPY        C <START> <END> <DEST>",CR
@@ -1875,8 +1880,6 @@ HelpString1:
         .byte "FILL        F <START> <END> <DATA>...",CR
         .byte "GO          G <ADDRESS>",CR
         .byte "HEX TO DEC  H <ADDRESS>",CR
-        .byte 0
-HelpString2:
         .byte "BASIC       I",CR
         .byte "MINI MON    K",CR
         .byte "CLR SCREEN  L",CR
@@ -1885,8 +1888,6 @@ HelpString2:
         .byte "SEARCH      S <START> <END> <DATA>...",CR
         .byte "TEST        T <START> <END>",CR
         .byte "UNASSEMBLE  U <START>",CR
-        .byte 0
-HelpString3:
         .byte "VERIFY      V <START> <END> <DEST>",CR
         .byte "WRITE DELAY W <DATA>",CR
         .byte "WOZ MON     $",CR
