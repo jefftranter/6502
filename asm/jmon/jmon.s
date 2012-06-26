@@ -1261,10 +1261,10 @@ DumpLine:
 ; Clears high bit to be valid ASCII
 ; Registers changed: A
 GetKey:
-        LDA KBDCR               ; Read keyboard  control register
-        BPL GetKey              ; loop until key pressed (bit 7 goes high)
+        LDA KBDCR               ; Read keyboard control register
+        BPL GetKey              ; Loop until key pressed (bit 7 goes high)
         LDA KBD                 ; Get keyboard data
-        AND #%01111111          ; Clear most significant bit to Convert to standard ASCII
+        AND #%01111111          ; Clear most significant bit to convert to standard ASCII
         RTS
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
