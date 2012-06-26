@@ -5,6 +5,8 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
+; - extend PrintString to support strings > 255 chars
+; - add support for disassembling 65816 code?
 ; - implement very tiny one line assembler?
 
 ; Revision History
@@ -1230,46 +1232,46 @@ Math:
 ; Starting address in SL,SH.
 ; Registers changed: None
 DumpLine:
-        PHA
+        PHA                     ; save A
         TXA
-        PHA
+        PHA                     ; Save X
         TYA
-        PHA
-        LDX SL
+        PHA                     ; Save Y
+        LDX SL                  ; Get start address
         LDY SH
         JSR PrintAddress        ; Display address
-        JSR PrintSpace
+        JSR PrintSpace          ; and then a space
         LDY #0
-@loop1: LDA (SL),Y              ; Display hex
-        JSR PrintByte
-        JSR PrintSpace
+@loop1: LDA (SL),Y              ; Get byte of data from memory
+        JSR PrintByte           ; Display it in hex
+        JSR PrintSpace          ; Followed bv space
         INY
-        CPY #8
+        CPY #8                  ; Print 8 bytes per line
         BNE @loop1
         JSR PrintSpace
         LDY #0
-@loop2: LDA (SL),Y              ; Display ASCII
-        JSR PrintAscii
+@loop2: LDA (SL),Y              ; Now get the same data
+        JSR PrintAscii          ; Display it in ASCII
         INY
-        CPY #8
+        CPY #8                  ; 8 characters per line
         BNE @loop2
-        JSR PrintCR
-        PLA
+        JSR PrintCR             ; new line
+        PLA                     ; Restore Y
         TAY
-        PLA
+        PLA                     ; Restore X
         TAX
-        PLA
+        PLA                     ; Restore A
         RTS
 
 ; Get character from keyboard
-; Returns in A
+; Returns character in A
 ; Clears high bit to be valid ASCII
 ; Registers changed: A
 GetKey:
-        LDA KBDCR               ; Keyboard CR
-        BPL GetKey              ; loop until key pressed
-        LDA KBD                 ; Keyboard data
-        AND #%01111111          ; convert to ASCII
+        LDA KBDCR               ; Read keyboard  control register
+        BPL GetKey              ; loop until key pressed (bit 7 goes high)
+        LDA KBD                 ; Get keyboard data
+        AND #%01111111          ; Clear most significant bit to Convert to standard ASCII
         RTS
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
@@ -1386,31 +1388,31 @@ GetByte:
 ; Returns address in X (low), Y (high)
 ; Registers changed: X, Y
 GetAddress:
-        PHA
-        JSR GetByte
-        TAY
-        JSR GetByte
-        TAX
-        PLA
+        PHA                     ; Save A
+        JSR GetByte             ; Get the first (most significant) hex byte
+        TAY                     ; Save in Y
+        JSR GetByte             ; Get the second (least significant) hex byte
+        TAX                     ; Save in X
+        PLA                     ; Restore A
         RTS
 
 ; Print 16-bit address in hex
 ; Pass byte in X (low) and Y (high)
 ; Registers changed: None
 PrintAddress:
-        PHA
-        TYA
-        JSR PRBYTE
-        TXA
-        JSR PRBYTE
-        PLA
+        PHA                     ; Save A
+        TYA                     ; Get low byte
+        JSR PRBYTE              ; Print it
+        TXA                     ; Get high byte
+        JSR PRBYTE              ; Print it
+        PLA                     ; Restore A
         RTS
 
 ; Print byte in hex
 ; Pass byte in A
 ; Registers changed: None
 PrintByte:
-        JSR PRBYTE
+        JSR PRBYTE              ; Just call PRBYTE routine
         RTS
 
 ; Print byte in BCD with leading zero suppression
@@ -1511,14 +1513,14 @@ PrintSpace:
 ; Registers changed: A, Y
 ;
 PrintString:
-        STX T1
+        STX T1          ; Save in page zero so we can use indirect addressing
         STY T1+1
-        LDY #0
-@loop:  LDA (T1),Y
-        BEQ done
-        JSR PrintChar
-        INY
-        BNE @loop               ; if doesn't branch, string is too long
+        LDY #0          ; Set offset to zero
+@loop:  LDA (T1),Y      ; Read a character
+        BEQ done        ; Done if we get a null (zero)
+        JSR PrintChar   ; Print it
+        INY             ; Advance index to string
+        BNE @loop       ; If index wraps around to zero string is too long and we exit.
 done:   RTS
 
 ; Print byte as two hex chars.
