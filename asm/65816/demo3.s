@@ -1,3 +1,5 @@
+; 65816 Programming Example 3
+
 ; Determine CPU type.
 ; Taken from Western Design Center programming manual.
 
@@ -9,21 +11,21 @@
 MAIN:
         LDX #<S1
         LDY #>S1
-        JSR PrintString
-        JSR CHECK
-        BMI T02
-        BCC TC02
-        BCS T816
+        JSR PrintString         ; Display "CPU TYPE IS: " string
+        JSR CHECK               ; Get CPU type
+        BMI T02                 ; N set means 6502
+        BCC TC02                ; C clear means 65C02
+        BCS T816                ; C set mans 65816
 T02:
-        LDX #<S2
+        LDX #<S2                ; Display "6502"
         LDY #>S2
         JMP PRINT
 TC02:
-        LDX #<S3
+        LDX #<S3                ; Display "65C02"
         LDY #>S3
         JMP PRINT
 T816:
-        LDX #<S4
+        LDX #<S4                ; Display "65816"
         LDY #>S4
 PRINT:
         JSR PrintString
@@ -51,7 +53,7 @@ CHECK:
 
   CLC
   XCE           ; OL to execute unimplemented C02 opcodes
-  BCC DONE      ; branch if didn’t do anything:65C02
+  BCC DONE      ; branch if didn’t do anything: 65C02
   XCE           ; switch back to emulation mode
   SEC           ; set carry
 DONE:
@@ -60,14 +62,9 @@ DONE:
 
 ; -------------------------
 
-
   T1      = $30                 ; Temp variable 1 (2 bytes)
-
   CR      = $0D                 ; Carriage Return
-
-
   DSP     = $D012               ;  PIA.B display output register
-
 
 ; Print a string
 ; Pass address of string in X (low) and Y (high).

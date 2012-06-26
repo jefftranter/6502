@@ -13,12 +13,14 @@
 DEMO2:
 
   CLC
-  XCE           ; switch to native mode
+  XCE                   ; switch to native mode
 
 ; Set mode for 16 bit accum (bit 5 M=0) and 16 bit XY regs (bit 4 X=0)
-  REP  #%00110000   ; clear bits 5 and 4
+
+  REP  #%00110000       ; clear bits 5 and 4
 
 ; Use block move to fill memory with zeroes from $6100-$61FF
+
   LDA #$0000
   STA $61FE             ; write the first zero word
   LDA #$00FF            ; move 256 bytes of data (put length-1 here)
