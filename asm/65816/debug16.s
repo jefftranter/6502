@@ -547,7 +547,7 @@ CLRLN:
  .A16
  .I16
 
- LDA #' '
+ LDA #$2020             ; two spaces
  LDX #68
 
 LOOP: STA LINE,X
@@ -558,7 +558,7 @@ LOOP: STA LINE,X
  RTS
 
 LINE:
- .byte "    "
+ .byte "                                                                      "
  .byte $8D, $00
 
 ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
@@ -608,7 +608,7 @@ UPDATE:
  BEQ CHKA
  BIT #$F+2              ; IS LSD+2 ZERO?
  BNE CHKA               ; CHECK ACCUMULATOR OPCODES
- CMP PREG               ; MUST = LDY# OR GREATER
+ CMP #PREG              ; MUST = LDY# OR GREATER
  BLT CHKA               ; NO, MAYBE ACCUMULATOR
  LDA PREG               ; IF IT IS, WHAT IS FLAG SETTING?
  AND #IX
@@ -807,11 +807,11 @@ NBRKIN:                 ; ENTRY FROM NATIVE MODE
 
  PHK                    ; MAKE DATA BANK = PROGRAM BANK
  PLB
- LDX USRBRKN            ; RESTORE BORROWED RAM
- LDA SAVRAM+1
- STA !1,X
- LDA SAVRAM
- STA !0,X
+ LDX a:USRBRKN          ; RESTORE BORROWED RAM
+ LDA a:SAVRAM+1
+ STA a:1,X
+ LDA a:SAVRAM
+ STA a:0,X
  JSR FLIST              ; FORMAT DISASSEMBLY LINE
  JSR FRMOPRND
 
@@ -825,6 +825,7 @@ NBRKIN:                 ; ENTRY FROM NATIVE MODE
  .A16
 
  REP #IX
+ .I16
 
  BIT STEPCNTRL
  BMI DOPAUSE
@@ -832,6 +833,7 @@ NBRKIN:                 ; ENTRY FROM NATIVE MODE
  JSR STEP               ; STEP ONE AT A TIME
  BCC QUIT               ; USER WANTS TO QUIT
  BVC RESUME             ; WANTS TO KEEP STEPPING
+ .A8
  LDA #$80               ; HIT CR; WANTS TO TRACE, NOT
  STA STEPCNTRL          ; STEP SET FLAG
  BRA RESUME
@@ -874,15 +876,15 @@ GO:
  REP #M+IX
  .A16
  .I16
- LDX USRBRKN            ; BORROW THIS RAM FOR A SECOND
- LDA !0,X
- STA SAVRAM
- LDA !1,X
- STA SAVRAM+1
+ LDX a:USRBRKN            ; BORROW THIS RAM FOR A SECOND
+ LDA a:0,X
+ STA a:SAVRAM
+ LDA a:1,X
+ STA a:SAVRAM+1
  LDA #$4C
- STA !0,X
+ STA a:0,X
  LDA #NBRKIN
- STA !1,X
+ STA a:1,X
  LDA STACK              ; RESTORE STACK
  TCS
  PEI (DBREG)            ; GET THIS STUFF ON STACK
@@ -904,10 +906,9 @@ GO:
  PLB
  PLP
 
+; Note: Original code used JMP [ ]. CA65 assembler does not recognize this but JMP ( ) works the same on my hardware.
 ; JMP [DPAGE+OPCREG]    ; ON TO THE NEXT!
-; Above does not assemble due to bug? Below is the equivalent.
-.byte $DC
-.word DPAGE+OPCREG
+ JMP (DPAGE+OPCREG)    ; ON TO THE NEXT!
 
 QUIT:
  SEP #$20
@@ -919,7 +920,7 @@ QUIT:
  REP #$10
  .I16
 
- LDX SAVSTACK           ; GET ORIGINAL STACK POINTER
+ LDX a:SAVSTACK           ; GET ORIGINAL STACK POINTER
  INX
  INX
  TXS
@@ -1037,13 +1038,13 @@ SJMPABSL:
 
 SRTS:                   ; RETURN
  LDX STACK              ; PEEK ON STACK
- CPX SAVSTACK           ; IF ORIGINAL STACK...
+ CPX a:SAVSTACK           ; IF ORIGINAL STACK...
  BNE CONT
  JMP QUIT               ; RETURN TO MONITOR
 CONT: INX
 
  REP #M
- LDA >0,X               ; ALWAYS IN BANK ZERO
+ LDA f:0,X              ; ALWAYS IN BANK ZERO
  INC A                  ; ADD ONE TO GET TRUE RETURN
  STA PCREG              ; VALUE
  SEP #M
@@ -1055,7 +1056,7 @@ SRTL:                   ; RETURN LONG
 
  INX                    ; THEN GET BANK BYTE
  INX
- LDA >0,X               ; A IS NOW SHORT FOR BANK BYTE
+ LDA f:0,X              ; A IS NOW SHORT FOR BANK BYTE
  STA PCREGB
  RTS
 
@@ -1063,7 +1064,7 @@ SJMPIND:                ; INDIRECT
  LDX OPRNDL             ; GET OPERAND
 
  REP #M
- LDA >0,X               ; JMP IND ALWAYS IN BANK ZERO
+ LDA f:0,X              ; JMP IND ALWAYS IN BANK ZERO
  STA PCREG
  SEP #M
  RTS
@@ -1072,7 +1073,7 @@ SJMPINDL:
  JSR SJMPIND            ; SAME AS JMP INDIRECT,
  INX                    ; PLUS BANK BYTE
  INX
- LDA >0,X               ; ACCUM IS SHORT NOW
+ LDA f:0,X              ; ACCUM IS SHORT NOW
  STA PCREGB
  RTS
 
@@ -1533,7 +1534,6 @@ ATRIBL:
  .byte 1,13  ; ADC ABSL,X 7F
 
 ATRIBH:
-
  .byte 57,15 ; BRA 80
  .byte 48,9  ; STA (D, X) 81
  .byte 83,16 ; BRL 82
