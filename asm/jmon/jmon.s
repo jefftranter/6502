@@ -7,6 +7,11 @@
 ; TODO:
 ; - add support for disassembling 65816 code?
 ; - implement very tiny one line assembler?
+; - add "O" command for settings:
+;   - use high or low ASCII
+;   - make all output uppercase
+;   - CPU type for disassembly: 6502, 65C02 (Rockwell), 65C02 (WDC), 65816
+;   - write delay (remove existing W command)
 
 ; Revision History
 ; Version Date         Comments
@@ -37,6 +42,18 @@
 ;                      Added new E command for ACI cassette interface (untested).
 ;                      Fill, Search, and ":" commands accept characters as well as hex values.
 ;                      Type ' to enter a character.
+
+
+; Proposed options interface:
+; O
+; OPTIONS:
+;  SET HIGH BIT IN CHARACTERS (N)?
+;  UPPERCASE ONLY OUTPUT (Y)?
+;  CPU TYPE: 1-6502 2-ROCKWELL 65C02
+;  3-WDC 65C02 4-65816 (1)?
+;  WRITE DELAY (20)?
+
+
 
 ; Constants
   CR      = $0D                 ; Carriage Return
