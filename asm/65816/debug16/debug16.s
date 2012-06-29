@@ -919,9 +919,7 @@ GO:
  PLB
  PLP
 
-; Note: Original code used JMP [ ]. CA65 assembler does not recognize this but JMP ( ) works the same on my hardware.
-; JMP [DPAGE+OPCREG]    ; ON TO THE NEXT!
- JMP (DPAGE+OPCREG)    ; ON TO THE NEXT!
+ JML (DPAGE+OPCREG)    ; ON TO THE NEXT!
 
 QUIT:
  SEP #$20
