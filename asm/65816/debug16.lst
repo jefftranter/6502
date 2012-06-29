@@ -1,0 +1,1680 @@
+ca65 V2.13.3 - (C) Copyright 1998-2012 Ullrich von Bassewitz
+Main file   : debug16.s
+Current file: debug16.s
+
+000000r 1                .p816
+000000r 1                .smart
+000000r 1               
+000000r 1               ; ***********************************************
+000000r 1               ; *                                             *
+000000r 1               ; *                 DEBUG16                     *
+000000r 1               ; *             A 65816 DEBUGGER                *
+000000r 1               ; *                                             *
+000000r 1               ; *                                             *
+000000r 1               ; ***********************************************
+000000r 1               
+000000r 1                .ORG $8000
+008000  1               
+008000  1               MAIN:
+008000  1               
+008000  1                DPAGE = $300 ; LOCATION OF THIS APPLICATION’S
+008000  1                             ; DIRECT PAGE
+008000  1               
+008000  1                ; DIRECT PAGE STORAGE
+008000  1                ; TRACE REGISTERS
+008000  1               
+008000  1                PCREG  = $80           ; PROGRAM COUNTER
+008000  1                PCREGH = PCREG+1
+008000  1                PCREGB = PCREGH+1      ; INCLUDING BANK
+008000  1               
+008000  1                NCODE = PCREGB+1       ; NEXT CODE TO BE TRACED
+008000  1               
+008000  1                OPCREG = NCODE+1       ; OLD PROGRAM COUNTER VALUE
+008000  1                OPCREGH = OPCREG+1
+008000  1                OPCREGB = OPCREGH+1
+008000  1               
+008000  1                CODE = OPCREGB+1       ; CURRENT CODE TO BE TRACED
+008000  1               
+008000  1                OPRNDL = CODE+1        ; OPERANDS OF CURRENT
+008000  1                OPRNDH = OPRNDL+1      ; INSTRUCTION
+008000  1                OPRNDB = OPRNDH+1
+008000  1               
+008000  1                XREG = OPRNDB+1 ; X REGISTER
+008000  1                XREGH = XREG+1
+008000  1               
+008000  1                YREG = XREGH+1 ; Y REGISTER
+008000  1                YREGH = YREG+1
+008000  1               
+008000  1                AREG = YREGH+1 ; ACCUMULATOR
+008000  1                AREGH = AREG+1
+008000  1               
+008000  1                STACK = AREGH+1 ; STACK POINTER
+008000  1                STACKH = STACK+1
+008000  1               
+008000  1                DIRREG = STACKH+1 ; DIRECT PAGE REGISTER
+008000  1                DIRREGH = DIRREG+1
+008000  1               
+008000  1                DBREG = DIRREGH+1 ; DATA BANK REGISTER
+008000  1               
+008000  1                PREG = DBREG+1 ; P STATUS REGISTER
+008000  1               
+008000  1                EBIT = PREG+1 ; E BIT
+008000  1               
+008000  1                TEMP = EBIT+2 ; TEMPORARY
+008000  1                TEMPH = TEMP+1
+008000  1                TEMPB = TEMPH+1
+008000  1               
+008000  1                ADDRMODE = TEMPB+1 ; ADDRESS MODE OF CURRENT OPCODE
+008000  1               
+008000  1                MNX = ADDRMODE+1 ; MNEMONIC INDEX
+008000  1                                 ; FROM ATTRIBUTE TABLE
+008000  1               
+008000  1                OPLEN = MNX+2    ; LENGTH OF OPERATION,
+008000  1                                 ; INCLUDING INSTRUCTION
+008000  1               
+008000  1                CR = $8D ; CARRIAGE RETURN
+008000  1               
+008000  1                M = $20 ; SYBOLIC NAMES FOR
+008000  1                IX = $10 ; STATUS REGISTER BITS
+008000  1                C = $01
+008000  1               
+008000  1  4C 03 80      JMP LIST
+008003  1               
+008003  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+008003  1                ;
+008003  1                ; LIST
+008003  1                ; MAIN LOOP OF DISASSEMBLER FUNCTION
+008003  1                ;
+008003  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+008003  1               
+008003  1               LIST:
+008003  1  08            PHP ; SAVE ORIGINAL FLAGS
+008004  1  18            CLC
+008005  1  FB            XCE ; SET NATIVE MODE
+008006  1  08            PHP ; SAVE PREVIOUS MODE
+008007  1               
+008007  1  0B            PHD ; SAVE CURRENT DP
+008008  1  F4 00 03      PEA DPAGE
+00800B  1  2B            PLD ; SET TO NEW DP
+00800C  1               
+00800C  1               TOP: ; ANOP
+00800C  1               
+00800C  1  C2 20         REP #M
+00800E  1  E2 10         SEP #IX
+008010  1                .A16
+008010  1                .I8
+008010  1               
+008010  1  64 9D         STZ MNX ; CLEAR MNEMONIC INDEX
+008012  1  A5 80         LDA PCREG ; MOVE PROGRAM COUNTER
+008014  1  85 84         STA OPCREG ; TO ‘OLD PROGRAM COUNTER’
+008016  1  A6 82         LDX PCREGB ; INCLUDING BANK
+008018  1  86 86         STX OPCREGB
+00801A  1  A7 80         LDA [PCREG] ; GET NEXT INSTRUCTION
+00801C  1  AA            TAX
+00801D  1  86 87         STX CODE ; SAVE AS ‘CODE’
+00801F  1               
+00801F  1  20 25 82      JSR UPDATE ; UPDATE ATTRIBUTE VARIABLES
+008022  1               
+008022  1  20 37 80      JSR FLIST ; FORM OBJECT CODE, MNEMONIC
+008025  1  20 7F 80      JSR FRMOPRND ; FORM OPERAND FIELD
+008028  1  20 BD 81      JSR PAUSE ; CHECK FOR USER PAUSE
+00802B  1  90 05         BCC @QUIT
+00802D  1  20 81 82      JSR PRINTLN ; PRINT IT
+008030  1               
+008030  1  80 DA         BRA TOP ; LOOP TIL END
+008032  1               
+008032  1  2B           @QUIT: PLD ; RESTORE ENVIRONMENT,
+008033  1  28            PLP ; RETURN TO CALLER
+008034  1  FB            XCE
+008035  1  28            PLP
+008036  1  60            RTS
+008037  1               
+008037  1               ;
+008037  1               ; FLIST – FORM IMAGE OF PROGRAM COUNTER,
+008037  1               ; OBJECT CODE, AND MNEMONIC IN ‘LINE’
+008037  1               ;
+008037  1               ; REQUIRES ATTRIBUTE VARIABLES TO BE PREVIOUSLY INITIALIZED
+008037  1               ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+008037  1               ;
+008037  1               
+008037  1               FLIST:
+008037  1               
+008037  1  20 0D 82      JSR CLRLN ; BLANK ‘LINE’ VARIABLE
+00803A  1               
+00803A  1  E2 30         SEP #M+IX ; SHORT REGISTERS
+00803C  1                .A8
+00803C  1                .I8
+00803C  1               
+00803C  1  A0 00         LDY #0
+00803E  1  A5 86         LDA OPCREGB ; GET BANK BYTE, FORM AS HEX
+008040  1  20 E7 81      JSR PUTHEX ; STRING
+008043  1  A9 3A         LDA #':' ; BANK DELIMITER
+008045  1  99 1F 82      STA LINE,Y
+008048  1  C8            INY
+008049  1  A5 85         LDA OPCREGH ; GET BYTES OF PROGRAM COUNTER
+00804B  1  20 E7 81      JSR PUTHEX ; FORM AS HEX STRING IN
+00804E  1  A5 84         LDA OPCREG ; LINE
+008050  1  20 E7 81      JSR PUTHEX
+008053  1               
+008053  1  A0 0A         LDY #10
+008055  1  A5 87         LDA CODE ; STORE OPCODE AS HEX STRING
+008057  1  20 E7 81      JSR PUTHEX
+00805A  1  A2 01         LDX #1
+00805C  1               
+00805C  1  E4 9F        MORE: CPX OPLEN ; LIST OPERANDS, IF ANY
+00805E  1  F0 08         BEQ DONE
+008060  1  B5 87         LDA OPRNDL-1,X
+008062  1  20 E7 81      JSR PUTHEX
+008065  1  E8            INX
+008066  1  80 F4         BRA MORE
+008068  1               
+008068  1  C2 30        DONE: REP #M+IX
+00806A  1                .A16
+00806A  1                .I16
+00806A  1               
+00806A  1  A5 9D         LDA MNX ; GET MNEMONIC INDEX,
+00806C  1  0A            ASL A ; MULTIPLY BY THREE
+00806D  1  18            CLC ; (TIMES TWO PLUS SELF)
+00806E  1  65 9D         ADC MNX
+008070  1  18            CLC
+008071  1  69 06 85      ADC #MN
+008074  1  AA            TAX ; INDEX INTO MNEMONIC TABLE
+008075  1  A0 33 82      LDY #LINE+20 ; COPY INTO ‘LINE’
+008078  1  A9 02 00      LDA #2
+00807B  1               MOVE:
+00807B  1  54 00 00      MVN 0,0
+00807E  1               
+00807E  1  60            RTS
+00807F  1               
+00807F  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00807F  1                ;
+00807F  1                ; FRMOPRND – –
+00807F  1                ; FORMS OPERAND FIELD OF DISASSEMBLED INSTRUCTION
+00807F  1                ;
+00807F  1                ; OPLEN, ADDRMODE, AND OPRND MUST HAVE BEEN
+00807F  1                ; INITIALIZED BY ‘UPDATE’
+00807F  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00807F  1                ;
+00807F  1               
+00807F  1               FRMOPRND:
+00807F  1  E2 30         SEP #M+IX
+008081  1                .A8
+008081  1                .I8
+008081  1               
+008081  1  A0 1C         LDY #28 ; OFF SET INTO ‘LINE’ FOR OPERAND
+008083  1                ; TO BEGIN
+008083  1  A5 9C         LDA ADDRMODE ; GET ADDRESS MODE, MULTIPLY BY
+008085  1  0A            ASL A ; TWO, JUMP THROUGH ADDRESS
+008086  1  AA            TAX ; MODE JUMP TABLE TO PROPER
+008087  1  7C 1A 86      JMP (MODES,X) ; HANDLER
+00808A  1               
+00808A  1               FIMM: ; IMMEDIATE MODE – –
+00808A  1  A9 23         LDA #'#' ; OUTPUT POUND SIGN,
+00808C  1  99 1F 82      STA LINE,Y ; ONE OR TWO
+00808F  1  C8            INY ; OPERAND BYTES, DEPENDING
+008090  1  A5 9F         LDA OPLEN ; ON OPLEN
+008092  1  C9 02         CMP #2
+008094  1  F0 03         BEQ GOSHORT
+008096  1  4C A3 81      JMP PODB
+008099  1  4C 9F 81     GOSHORT: JMP POB
+00809C  1               
+00809C  1               FABS: ; ABSOLUTE MODE – –
+00809C  1  4C A3 81      JMP PODB ; JUST OUTPUT A DOUBLE BYTE
+00809F  1               
+00809F  1               FABSL: ; ABSOLUTEW LONG – –
+00809F  1  4C A7 81      JMP POTB ; OUTPUT A TRIPLE BYTE
+0080A2  1               
+0080A2  1               FDIR: ; DIRECT MODE – –
+0080A2  1  4C 9F 81      JMP POB ; OUTPUT A SINGLE BYTE
+0080A5  1               
+0080A5  1               FACC: ; ACCUMULATOR – –
+0080A5  1  A9 41         LDA #'A' ; JUST AN A
+0080A7  1  99 1F 82      STA LINE,Y
+0080AA  1  60            RTS
+0080AB  1               
+0080AB  1               FIMP: ; IMPLIED – –
+0080AB  1  60            RTS ; NO OPERAND
+0080AC  1               
+0080AC  1               FINDINX: ; INDIRECT INDEXED – –
+0080AC  1  20 35 81      JSR FIND ; CALL ‘INDIRECT’, THEN FALL
+0080AF  1                ; THROUGH TO INDEXED BY Y
+0080AF  1               
+0080AF  1               FINY: ; INDEXED BY Y MODES – –
+0080AF  1  A9 2C         LDA #',' ; TACK ON A ‘COMMA,Y'
+0080B1  1  99 1F 82      STA LINE,Y
+0080B4  1  C8            INY
+0080B5  1  A9 59         LDA #'Y'
+0080B7  1  99 1F 82      STA LINE,Y
+0080BA  1  60            RTS
+0080BB  1               
+0080BB  1               FINDINXL: ; INDIRECT INDEXED LONG – –
+0080BB  1  20 45 81      JSR FINDL ; CALL ‘INDIRECT LONG', THEN
+0080BE  1  4C AF 80      JMP FINY ; EXIT THROUGH INDEXED BY Y
+0080C1  1               
+0080C1  1               FINXIND: ; INDEX INDIRECT – –
+0080C1  1  A9 28         LDA #'(' ; PARENTHESIS
+0080C3  1  99 1F 82      STA LINE,Y
+0080C6  1  C8            INY
+0080C7  1  20 9F 81      JSR POB ; A SINGLE BYTE – –
+0080CA  1  20 DF 80      JSR FINX ; COMMA, X
+0080CD  1  A9 29         LDA #')' ; CLOSE.
+0080CF  1  99 1F 82      STA LINE,Y
+0080D2  1  60            RTS
+0080D3  1               
+0080D3  1               FDIRINXX: ; DIRECT INDEXED BY X – –
+0080D3  1  20 9F 81      JSR POB ; OUTPUT A BYTE,
+0080D6  1  4C DF 80      JMP FINX ; TACK ON COMMA, X
+0080D9  1               
+0080D9  1               FDIRINXY: ; DIRECT INDEXED BY Y – –
+0080D9  1  20 9F 81      JSR POB ; OUTPUT A BYTE,
+0080DC  1  4C AF 80      JMP FINY ; TACK ON COMMA, Y
+0080DF  1               
+0080DF  1               FINX: ; INDEXED BY X – –
+0080DF  1  A9 2C         LDA #',' ; TACK ON A
+0080E1  1  99 1F 82      STA LINE,Y ; COMMA, X
+0080E4  1  C8            INY ; (USED BY SEVERAL
+0080E5  1  A9 58         LDA #'X' ; MODES)
+0080E7  1  99 1F 82      STA LINE,Y
+0080EA  1  C8            INY
+0080EB  1  60            RTS
+0080EC  1               
+0080EC  1               FABSX: ; ABSOLUTE INDEXED BY X – –
+0080EC  1  20 A3 81      JSR PODB ; OUTPUT A DOUBLE BYTE,
+0080EF  1  4C DF 80      JMP FINX ; TACK ON A COMMA, X
+0080F2  1               
+0080F2  1               FABSLX: ; ABSOLUTE LONG BY X – –
+0080F2  1  20 A7 81      JSR POTB ; OUTPUT A TRIPLE BYTE,
+0080F5  1  4C DF 80      JMP FINX ; TACK ON COMMA, X
+0080F8  1               
+0080F8  1               FABSY: ; ABSOLUTE Y – –
+0080F8  1  20 A3 81      JSR PODB ; OUTPUT A DOUBLE BYTE,
+0080FB  1  4C AF 80      JMP FINY ; TACK ON COMMA,Y
+0080FE  1               
+0080FE  1               FPCRL:
+0080FE  1               FPCR: ; PROGRAM COUNTER RELATIVE – –
+0080FE  1  A9 FF         LDA #$FF ; SIGN EXTEND OPERAND
+008100  1  EB            XBA
+008101  1  A5 88         LDA OPRNDL
+008103  1  C2 21         REP #M+C
+008105  1               .A16 ; LONGA ON
+008105  1  30 03         BMI OK
+008107  1  29 7F 00      AND #$7F
+00810A  1  65 84        OK: ADC OPCREG ; ADD TO PROGRAM COUNTER
+00810C  1  1A            INC A ; ADD TWO, WITHOUT CARRY
+00810D  1  1A            INC A
+00810E  1  85 88         STA OPRNDL ; STORE AS NEW ‘OPERAND'
+008110  1               
+008110  1  E2 20         SEP #M
+008112  1                .A8 ; LONGA OFF
+008112  1               
+008112  1  4C A3 81      JMP PODB ; NOW JUST DISPLAY A DOUBLE BYTE
+008115  1               
+008115  1               FCPRL: ; PROGRAM COUNTER RELATIVE LONG
+008115  1               
+008115  1  C2 21         REP #M+C
+008117  1                .A16 ; LONGA ON
+008117  1               
+008117  1  A5 88         LDA OPRNDL ; JUST ADD THE OPERAND
+008119  1  65 84         ADC OPCREG
+00811B  1  18            CLC ; BUMP BY THREE, PAST INSTRCTION
+00811C  1  69 03 00      ADC #3
+00811F  1  85 88         STA OPRNDL ; STORE AS NEW ‘OPERAND'
+008121  1               
+008121  1  E2 20         SEP #M
+008123  1                .A8 ; LONGA OFF
+008123  1               
+008123  1  4C A3 81      JMP PODB ; PRINT A DOUBLE BYTE
+008126  1               
+008126  1               FABSIND: ; ABSOLUTE INDIRECT
+008126  1  A9 28         LDA #'(' ; SURROUND A DOUBLE BYTE
+008128  1  99 1F 82      STA LINE,Y ; WITH PARENTHESES
+00812B  1  C8            INY
+00812C  1  20 A3 81      JSR PODB
+00812F  1  A9 29         LDA #')'
+008131  1  99 1F 82      STA LINE,Y
+008134  1  60            RTS
+008135  1               
+008135  1               FIND: ; INDIRECT – –
+008135  1  A9 28         LDA #'(' ; SURROUND A SINGLE BYTE
+008137  1  99 1F 82      STA LINE,Y ; WITH PARENTESES
+00813A  1  C8            INY
+00813B  1  20 9F 81      JSR POB
+00813E  1  A9 29         LDA #')'
+008140  1  99 1F 82      STA LINE,Y
+008143  1  C8            INY
+008144  1  60            RTS
+008145  1               
+008145  1               FINDL: ; INDIRECT LONG – –
+008145  1  A9 5B         LDA #'[' ; SURROUND A SINGLE BYTE'
+008147  1  99 1F 82      STA LINE,Y ; WITH SQUARE BRACKTS
+00814A  1  C8            INY
+00814B  1  20 9F 81      JSR POB
+00814E  1  A9 5D         LDA #']'
+008150  1  99 1F 82      STA LINE,Y
+008153  1  C8            INY
+008154  1  60            RTS
+008155  1               
+008155  1               FABSINXIND: ; ABSOLUTE INDIRECT INDEXED
+008155  1  A9 28         LDA #'('
+008157  1  99 1F 82      STA LINE,Y ; SURROUND A CALL TO ‘ABSOLUTE
+00815A  1  C8            INY ; INDEXED' WITH PARENTHESES
+00815B  1  20 EC 80      JSR FABSX
+00815E  1  A9 29         LDA #')'
+008160  1  99 1F 82      STA LINE,Y
+008163  1  60            RTS
+008164  1               
+008164  1               FSTACK: ; STACK – – IMPLIED
+008164  1  60            RTS
+008165  1               
+008165  1               FSTACKREL: ; STACK RELATIVE
+008165  1  20 A2 80      JSR FDIR ; JUST LIKE
+008168  1  A5 2C         LDA ',' ; DIRECT INDEXED, BUT WITH
+00816A  1  99 1F 82      STA LINE,Y ; AN ‘S'
+00816D  1  C8            INY
+00816E  1  A9 53         LDA #'S'
+008170  1  99 1F 82      STA LINE,Y
+008173  1  C8            INY
+008174  1  60            RTS
+008175  1               
+008175  1               FSRINDINX: ; STACK RELATIVE INDIRECT INDEX
+008175  1  A9 28         LDA #'('
+008177  1  99 1F 82      STA LINE,Y ; SURROUND STACK RELATIVE WITH
+00817A  1  C8            INY ; PARENTHESES, THEN
+00817B  1  20 65 81      JSR FSTACKREL
+00817E  1  A9 29         LDA #')'
+008180  1  99 1F 82      STA LINE,Y
+008183  1  C8            INY
+008184  1  4C AF 80      JMP FINY ; TACK ON A COMMA,Y
+008187  1               
+008187  1               FBLOCK: ; BLOCK MOVE
+008187  1               
+008187  1  C2 20         REP #M
+008189  1  A5 88         LDA OPRNDL ; MAKE HUMAN-READABLE:
+00818B  1  EB            XBA ; SWAP SOURCE, DEST
+00818C  1  85 88         STA OPRNDL
+00818E  1  E2 20         SEP #M
+008190  1               
+008190  1  20 9F 81      JSR POB ; OUTPUT THE SOURCE
+008193  1  A9 2C         LDA #',' ; THEN COMMA
+008195  1  99 1F 82      STA LINE,Y
+008198  1  C8            INY
+008199  1  EB            XBA ; SWAP DEST INTO OPRNDL
+00819A  1  85 88         STA OPRNDL ; THEN PRINT ONE BYTE
+00819C  1  4C 9F 81      JMP POB
+00819F  1               
+00819F  1                ;LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00819F  1                ;
+00819F  1                ; POB, PODB, POTB
+00819F  1                ; PUT OPERAND (DOUBLE, TRIPLE) BYTE
+00819F  1                ;
+00819F  1                ; PUTS OPRNDL (OPRNDH, OPRNDB) IN LINE AS HEX VALUE
+00819F  1                ; WITH ‘$' PREFIX
+00819F  1                ;
+00819F  1                ; ASSUMES SHORT ACCUMULATOR AND INSEX REGISTERS
+00819F  1                ; (CALLED BY FOPRND)
+00819F  1                ;LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00819F  1                ;
+00819F  1               
+00819F  1               POB:
+00819F  1                .A8
+00819F  1                .I8
+00819F  1               
+00819F  1                ; PRINT:
+00819F  1  A2 00         LDX #0 ; ONE OPERAND BYTE
+0081A1  1  80 06         BRA IN ; SKIP
+0081A3  1               PODB:
+0081A3  1  A2 01         LDX #1 ; TWO OPERAND BYTES
+0081A5  1  80 02         BRA IN ; SKIP
+0081A7  1               POTB:
+0081A7  1  A2 02         LDX #2 ; THREE OPERAND BYTES
+0081A9  1                ; FALL THROUGH
+0081A9  1  A9 24        IN: LDA #'$' ; PRINT LEAD-IN
+0081AB  1  99 1F 82      STA LINE,Y
+0081AE  1  C8            INY
+0081AF  1               
+0081AF  1  B5 88        @MORE: LDA OPRNDL,X ; LOOP THROUGH OPERAND
+0081B1  1  20 E7 81      JSR PUTHEX ; HIGH TO LOW
+0081B4  1  CA            DEX
+0081B5  1  10 F8         BPL @MORE
+0081B7  1  60            RTS
+0081B8  1               
+0081B8  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0081B8  1                ;
+0081B8  1                ; STEP CHECKS FOR USER PAUSE SIGNAL
+0081B8  1                ; (KEYSTROKE)
+0081B8  1                ;
+0081B8  1                ; CONTAINS MACHINE-DEPENDENT CODE
+0081B8  1                ; FOR APPLE I I
+0081B8  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0081B8  1                ;
+0081B8  1               
+0081B8  1               STEP:
+0081B8  1                KEYBD = $C000
+0081B8  1                KEYSTB = $C010
+0081B8  1                ESC = $9B ; ESCAPE KEY (HIGH BIT SET)
+0081B8  1                V = $40 ; MASK FOR OVERFLOW FLAG
+0081B8  1                .A8
+0081B8  1                .I8
+0081B8  1               
+0081B8  1  08            PHP ; SAVE MODES
+0081B9  1  E2 30         SEP #M+IX
+0081BB  1  80 0B         BRA WAIT
+0081BD  1               
+0081BD  1               PAUSE: ; FOR ‘PAUSE' CALL
+0081BD  1  08            PHP
+0081BE  1  E2 30         SEP #M+IX
+0081C0  1  AD 00 C0      LDA KEYBD ; CHECK FOR KEYPRESS
+0081C3  1  10 1B         BPL RETNCR ; NONE; DON'T PAUSE
+0081C5  1  8D 10 C0      STA KEYSTB ; CLEAR STROBE
+0081C8  1                ; IF KEYSTROKE
+0081C8  1  AD 00 C0     WAIT: LDA KEYBD ; LOOP FOR NEXT KEY
+0081CB  1  10 FB         BPL WAIT
+0081CD  1  8D 10 C0      STA KEYSTB ; CLEAR STROBE
+0081D0  1  C9 9B         CMP #ESC ; IF ESC RETURN WITH
+0081D2  1  D0 04         BNE RETNESC
+0081D4  1               
+0081D4  1  28           RETEQ: PLP ; CARRY CLEAR (QUIT)
+0081D5  1  EA            NOP
+0081D6  1  18            CLC
+0081D7  1  60            RTS
+0081D8  1               
+0081D8  1  C9 8D        RETNESC: CMP #CR
+0081DA  1  D0 04         BNE RETNCR
+0081DC  1  28            PLP
+0081DD  1  E2 41         SEP #C+V
+0081DF  1  60            RTS
+0081E0  1               
+0081E0  1  8D 10 C0     RETNCR: STA KEYSTB
+0081E3  1  28            PLP ; ELSE SET
+0081E4  1  38            SEC
+0081E5  1  B8            CLV
+0081E6  1  60            RTS ; (CONTINUE)
+0081E7  1               
+0081E7  1               
+0081E7  1                ;
+0081E7  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0081E7  1                ; PUTHEX
+0081E7  1                ;
+0081E7  1                ; CONVERTS NUMBER IN ACCUMULATOR TO HEX STRING
+0081E7  1                ; STORED AT LINE,Y
+0081E7  1                ;
+0081E7  1                ; SAVE AND RESTORED MODE FLAGS
+0081E7  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0081E7  1                ;
+0081E7  1               
+0081E7  1               
+0081E7  1               
+0081E7  1               PUTHEX:
+0081E7  1  08            PHP ; SAVE MODE FLAGS
+0081E8  1  20 F4 81      JSR MAKEHEX ; GET ASCII CODES A, B
+0081EB  1  C2 20         REP #M
+0081ED  1                .A16
+0081ED  1  99 1F 82      STA LINE,Y ; PUT TWO BYTES AT LINE
+0081F0  1  C8            INY ; INCREMENT Y PAST THEM
+0081F1  1  C8            INY
+0081F2  1  28            PLP ; RESTORE MODE
+0081F3  1  60            RTS ; RETURN
+0081F4  1               
+0081F4  1  E2 30        MAKEHEX: SEP #M+IX ; ALL EIGHT BIT
+0081F6  1                .A8
+0081F6  1                .I8
+0081F6  1               
+0081F6  1  48            PHA ; SAVE VALUE TO BE CONVERTED
+0081F7  1  29 0F         AND #$0F ; MASK OFF LOW NIBBLE
+0081F9  1  20 02 82      JSR FORMNIB ; CONVERT TO HEX
+0081FC  1  EB            XBA ; STORE IN B
+0081FD  1  68            PLA ; RESTORE VALUE
+0081FE  1  4A            LSR A ; SHIFT HIGH NIBBLE
+0081FF  1  4A            LSR A ; TO LOW NIBBLE
+008200  1  4A            LSR A
+008201  1  4A            LSR A
+008202  1                ; FALL THROUGH TO CONVERT
+008202  1               
+008202  1  C9 0A        FORMNIB: CMP #$A ; IF GREATER THAN OR EQUAL TO
+008204  1  B0 04         BGE HEXDIG ; 10, USE DIGITS A . . F
+008206  1  18            CLC ; ELSE SIMPLY ADD ‘0' TO
+008207  1  69 30         ADC #'0' ; CONVERT TO ASCII
+008209  1  60            RTS
+00820A  1               
+00820A  1  69 36        HEXDIG: ADC #'A'-11 ; SUBTRACT 11, ADD ‘A'
+00820C  1  60            RTS ; (SORT OF)
+00820D  1               
+00820D  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00820D  1                ;
+00820D  1                ; CLRLN
+00820D  1                ;
+00820D  1                ; CLEARS ‘LINE' WITH BLANKS
+00820D  1                ;
+00820D  1                ; SAVES AND RESTORES MODE FLAGS
+00820D  1                ;
+00820D  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00820D  1                ;
+00820D  1               
+00820D  1               
+00820D  1               CLRLN:
+00820D  1  08            PHP
+00820E  1  C2 30         REP #M+IX
+008210  1                .A16
+008210  1                .I16
+008210  1               
+008210  1  A9 20 00      LDA #' '
+008213  1  A2 44 00      LDX #68
+008216  1               
+008216  1  9D 1F 82     LOOP: STA LINE,X
+008219  1  CA            DEX
+00821A  1  CA            DEX
+00821B  1  10 F9         BPL LOOP
+00821D  1  28            PLP
+00821E  1  60            RTS
+00821F  1               
+00821F  1               LINE:
+00821F  1  20 20 20 20   .byte "    " ; A0A0A0A0 DC 70C' ‘
+008223  1  8D 00         .byte $8D, $00
+008225  1               
+008225  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+008225  1                ;
+008225  1                ; UPDATE
+008225  1                ;
+008225  1                ; UPDATES ATTRIBUTE VARIABLES BASED ON OPCODE
+008225  1                ; PASSED IN ACCUMULATOR BY LOOKING IN ATTRIBUTE
+008225  1                ; TABLES
+008225  1                ;
+008225  1                ; SAVES AND RESTORES MODE FLAGS
+008225  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+008225  1                ;
+008225  1               
+008225  1               UPDATE:
+008225  1               
+008225  1                LDYI = $A0+2 ; OPCODE VALUE TIMES TWO
+008225  1                LDXI = $A2+2
+008225  1               
+008225  1  08            PHP ; SAVE STATE
+008226  1  C2 30         REP #M+IX
+008228  1                .A16
+008228  1                .I16
+008228  1               
+008228  1  29 FF 00      AND #$FF ; MASK HIGH BYTE
+00822B  1  0A            ASL A ; TIMES TWO
+00822C  1               
+00822C  1  A8            TAY
+00822D  1  B9 64 86      LDA ATRIBL,Y ; INDEX INTO ATTRIBUTE TABLE
+008230  1  EB            XBA ; SWAP ORDER OF ENTRIES
+008231  1  85 9C         STA ADDRMODE ; SAVE ADDRMODE, MNEMONIC INDEX
+008233  1               
+008233  1  AA            TAX ; ADDRMODE TO X (LOW)
+008234  1  98            TYA ; OPCODE * 2 TO ACCUM
+008235  1  E2 10         SEP #IX
+008237  1                .I8
+008237  1               
+008237  1  BC 4B 86      LDY LENS-1,X ; GET LENGTH OF OPERATION
+00823A  1  84 9F         STY OPLEN
+00823C  1               
+00823C  1  A6 97         LDX EBIT ; EMULATION MODE?
+00823E  1  E0 01         CPX #1 ; TEST BIT ZERO
+008240  1  F0 2D         BEQ SHORT ; YES ALL IMMEDIATE ARE
+008242  1                ; SHORT
+008242  1  89 20 00      BIT #$20 ; IS MSD+2 EVEN?
+008245  1  D0 28         BNE SHORT ; NO, CAN'T BE IMMEDIATE
+008247  1  C9 A4 00      CMP #LDXI ; IS IT LDX #?
+00824A  1  F0 12         BEQ CHKA
+00824C  1  89 11 00      BIT #$F+2 ; IS LSD+2 ZERO?
+00824F  1  D0 0D         BNE CHKA ; CHECK ACCUMULATOR OPCODES
+008251  1  C5 96         CMP PREG ; MUST = LDY# OR GREATER
+008253  1  90 09         BLT CHKA ; NO, MAYBE ACCUMULATOR
+008255  1  A5 96         LDA PREG ; IF IT IS, WHAT IS FLAG SETTING?
+008257  1  29 10 00      AND #IX
+00825A  1  F0 11         BEQ LONG ; CLEAR – 16 BIT MODE
+00825C  1  D0 11         BNE SHORT ; SET – 8 BIT MODE
+00825E  1               
+00825E  1  29 11 00     CHKA: AND #$0F+2 ; MASK OUT MSD
+008261  1  C9 0B 00      CMP #$9+2 ; IS LSD = 9?
+008264  1  D0 09         BNE SHORT
+008266  1  A5 96         LDA PREG ; WHAT IS FLAG SETTING?
+008268  1  29 20 00      AND #M
+00826B  1  D0 02         BNE SHORT ; NO, 8 BIT MODE
+00826D  1               
+00826D  1  E6 9F         LONG: INC OPLEN ; LONG IMMEDIATE LENGTH IS
+00826F  1                ; ONE MORE THEN FOUND IN TABLE
+00826F  1               
+00826F  1  A0 00        SHORT: LDY #0
+008271  1  80 05         BRA LOOPIN
+008273  1               
+008273  1  A7 80        LOOP1: LDA [PCREG] ; LOAD 16 BITS 16 BIT MODE
+008275  1                ; USED TO BUMP PCREG EASILY
+008275  1  AA            TAX ; TRUNCATE TO EIGHT BITS
+008276  1  96 87         STX OPRNDL-1,Y ; SAVE
+008278  1               
+008278  1  E6 80        LOOPIN: INC PCREG ; MOVE PC PAST NEXT INSTRUCTION
+00827A  1  C8            INY ; BYTE
+00827B  1  C4 9F         CPY OPLEN ; MOVED ALL OPERAND BYTES?
+00827D  1  D0 F4         BNE LOOP1 ; NO, CONTINUE
+00827F  1               
+00827F  1               ;DONE:
+00827F  1  28            PLP
+008280  1  60            RTS
+008281  1               
+008281  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+008281  1                ;
+008281  1                ; PRINTLN
+008281  1                ;
+008281  1                ; MACHINE-DEPENDENT CODE TO OUTPUT
+008281  1                ; THE STRING STORED AT ‘LINE'
+008281  1                ;
+008281  1                ; SAVES AND RESTORED MODE FLAGS
+008281  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+008281  1                ;
+008281  1               
+008281  1               PRINTLN:
+008281  1                COUT = $FDED ; APPLE CHARACTER OUTPUT ROUTINE
+008281  1               
+008281  1  08            PHP ; SAVE STATUS
+008282  1  0B            PHD ; SAVE DIRECT PAGE
+008283  1  F4 00 00      PEA 0 ; SWITCH TO PAGE ZERO
+008286  1  2B            PLD ; FOR EMULATION
+008287  1               
+008287  1                .A8
+008287  1                .I8
+008287  1  38            SEC ; SWITCH TO EMULATION
+008288  1  FB            XCE
+008289  1               
+008289  1  A0 00         LDY #0
+00828B  1               
+00828B  1  B9 1F 82     @LOOP: LDA LINE,Y ; LOOP UNTIL STRING TERMINATOR
+00828E  1  F0 06         BEQ @DONE ; REACHED
+008290  1  20 ED FD      JSR COUT
+008293  1  C8            INY
+008294  1  80 F5         BRA @LOOP
+008296  1               
+008296  1  18           @DONE: CLC ; RESTORE NATIVE MODE
+008297  1  FB            XCE
+008298  1  2B            PLD ; RESTORE DIRECT PAGE
+008299  1  28            PLP ; RESTORE MODE FLAGS
+00829A  1  60            RTS
+00829B  1               
+00829B  1                ;
+00829B  1                ; TRACE
+00829B  1                ;
+00829B  1                ; ENTRY POINT FOR TRACER
+00829B  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00829B  1               
+00829B  1               
+00829B  1               TRACE:
+00829B  1                USRBRKV = $3F0 ; USER BRK VECTOR FOR APPLE //
+00829B  1                BRKN = $FFE6 ; NATIVE MODE BRK VECTOR
+00829B  1               
+00829B  1  08            PHP ; SAVE CALLING STATE
+00829C  1  18            CLC
+00829D  1  FB            XCE
+00829E  1  08            PHP
+00829F  1               
+00829F  1  C2 10         REP #$10
+0082A1  1                .I16
+0082A1  1  F4 00 00      PEA 0 ; OLD STACK BOUNDARY
+0082A4  1               
+0082A4  1  BA            TSX
+0082A5  1  8E D8 82      STX SAVSTACK
+0082A8  1               
+0082A8  1  F4 00 03      PEA DPAGE ; INITIALIZE DIRECT PAGE
+0082AB  1  2B            PLD
+0082AC  1               
+0082AC  1  86 91         STX STACK
+0082AE  1               
+0082AE  1  E2 20         SEP #$20
+0082B0  1                .A8
+0082B0  1               
+0082B0  1  A9 01         LDA #1
+0082B2  1  85 97         STA EBIT
+0082B4  1  64 93         STZ DIRREG ; DIRECT PAGE, DATA BANK
+0082B6  1  64 94         STZ DIRREGH ; TO POWER-UP DEFAULTS
+0082B8  1  64 95         STZ DBREG
+0082BA  1  64 9E         STZ MNX+1
+0082BC  1               
+0082BC  1  9C BA 83      STZ STEPCNTRL
+0082BF  1               
+0082BF  1  A2 DE 82      LDX #EBRKIN ; PATCH BRK VECTORS
+0082C2  1  8E F0 03      STX USRBRKV ; TO POINT TO TRACE CODE
+0082C5  1               
+0082C5  1  AE E6 FF      LDX BRKN ; FIND OUT WHERE BRKN POINTS TO
+0082C8  1  E0 00 C0      CPX #$C000 ; MAKE SURE IT'S RAM ON AN APPLE
+0082CB  1  90 03         BLT @OK
+0082CD  1  4C A4 83      JMP QUIT ; MIGHT AS WELL GIVE UP NOW . . .
+0082D0  1  8E DA 82     @OK: STX USRBRKN
+0082D3  1               
+0082D3  1  A7 80         LDA [PCREG] ; GET FIRST OPCODE
+0082D5  1  4C 56 83      JMP TBEGIN ; BEGIN !
+0082D8  1               
+0082D8  1               SAVSTACK:
+0082D8  1  xx xx         .res 2
+0082DA  1               USRBRKN:
+0082DA  1  xx xx         .res 2
+0082DC  1               SAVRAM:
+0082DC  1  xx xx         .res 2
+0082DE  1               
+0082DE  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0082DE  1                ;
+0082DE  1                ; EBRKIN, NBRKIN, TBGIN
+0082DE  1                ;
+0082DE  1                ; ENTRY POINTS FOR TRACER MAIN LOOP
+0082DE  1                ; EBKIN AND NBKIN RECOVER CONTROL AFTER
+0082DE  1                ; ‘BRK' INSTRUCTION EXECUTED
+0082DE  1                ; TBEGIN IS INITIAL ENTRY FROM ‘TRACE'
+0082DE  1                ;
+0082DE  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0082DE  1                ;
+0082DE  1               
+0082DE  1               
+0082DE  1               EBRKIN: ; ENTRY FROM EMULATION MODE
+0082DE  1                ; FOR TRACER
+0082DE  1               
+0082DE  1                .A8
+0082DE  1                .I8
+0082DE  1               
+0082DE  1  F4 00 00      PEA 0
+0082E1  1  48            PHA
+0082E2  1  A5 48         LDA $48 ; APPLE II MONITOR
+0082E4  1  48            PHA ; LOCATIONS
+0082E5  1  A5 45         LDA $45 ; FOR P, AA
+0082E7  1  A6 46         LDX $46 ; AND X
+0082E9  1               
+0082E9  1                ; note that if direct page is relocated
+0082E9  1                ; in emulation mode, these locations
+0082E9  1                ; will be used by monitor brk handler
+0082E9  1               
+0082E9  1  EE 97 03      INC EBIT+DPAGE ; MARK AS EMULATION MODE
+0082EC  1               
+0082EC  1  18            CLC ; GO NATIVE
+0082ED  1  FB            XCE
+0082EE  1               
+0082EE  1               NBRKIN: ; ENTRY FROM NATIVE MODE
+0082EE  1                ; FOR TRACER
+0082EE  1               
+0082EE  1  C2 30         REP #M+IX
+0082F0  1                .A16
+0082F0  1                .I16
+0082F0  1               
+0082F0  1  8B            PHB ; SAVE DATA BANK
+0082F1  1  0B            PHD ; DIRECT PAGE
+0082F2  1  F4 00 03      PEA DPAGE ; SWITCH TO APPLICATION
+0082F5  1  2B            PLD ; DIRECT PAGE
+0082F6  1               
+0082F6  1  85 8F         STA AREG ; STASH USER REGISTERS
+0082F8  1  86 8B         STX XREG
+0082FA  1  84 8D         STY YREG
+0082FC  1               
+0082FC  1  A3 01         LDA 1,S ; GET DIRECT PAGE VALUE
+0082FE  1  85 93         STA DIRREG ; SAVED
+008300  1               
+008300  1  3B            TSC ; CALCULATE TRUE STACK
+008301  1  18            CLC ; (BEFORE BRK)
+008302  1  69 07 00      ADC #7
+008305  1  85 91         STA STACK ; SAVE AS STACK
+008307  1               
+008307  1  A3 03         LDA 3,S ; SAVE DATA BANK, STATUS
+008309  1  85 95         STA DBREG ; STATUS REGISTER
+00830B  1               
+00830B  1  A9 40 01      LDA #$140 ; SET UP SMALL STACK
+00830E  1  1B            TCS
+00830F  1               
+00830F  1  4B            PHK ; MAKE DATA BANK = PROGRAM BANK
+008310  1  AB            PLB
+008311  1  AE DA 82      LDX USRBRKN ; RESTORE BORROWED RAM
+008314  1  AD DD 82      LDA SAVRAM+1
+008317  1  95 00         STA !1,X
+008319  1  AD DC 82      LDA SAVRAM
+00831C  1  95 01         STA !0,X
+00831E  1  20 37 80      JSR FLIST ; FORMAT DISASSEMBLY LINE
+008321  1  20 7F 80      JSR FRMOPRND
+008324  1               
+008324  1  20 81 82      JSR PRINTLN ; PRINT IT
+008327  1               
+008327  1  20 0D 82      JSR CLRLN
+00832A  1  20 5A 84      JSR DUMPREGS ; OUTPUT REGISTER VALUES
+00832D  1  20 81 82      JSR PRINTLN
+008330  1               
+008330  1  E2 20         SEP #M
+008332  1                .A16
+008332  1               
+008332  1  C2 10         REP #IX
+008334  1               ; LONGI DOPAUSE
+008334  1               
+008334  1  2C BA 83      BIT STEPCNTRL
+008337  1  30 0F         BMI DOPAUSE
+008339  1               
+008339  1  20 B8 81      JSR STEP ; STEP ONE AT A TIME
+00833C  1  90 66         BCC QUIT ; USER WANTS TO QUIT
+00833E  1  50 12         BVC RESUME ; WANTS TO KEEP STEPPING
+008340  1  A9 80 00      LDA #$80 ; HIT CR; WANTS TO TRACE, NOT
+008343  1  8D BA 83      STA STEPCNTRL ; STEP SET FLAG
+008346  1  80 0A         BRA RESUME
+008348  1               
+008348  1  20 BD 81     DOPAUSE: JSR PAUSE ; TRACING; ONLY WAIT IF USER
+00834B  1  90 57         BCC QUIT ; HITS KEY
+00834D  1  50 03         BVC RESUME ; WANTS TO KEEP TRACING
+00834F  1  9C BA 83      STZ STEPCNTRL ; HIT CR; WANTS TO STEP, NOT
+008352  1                ; TRACE CLEAR FLAG
+008352  1               
+008352  1  A5 83        RESUME: LDA NCODE ; RESTORE ONLD ‘NEXT'; IT'S ABOUT
+008354  1  87 80         STA [PCREG] ; TO BE EXECUTED
+008356  1               
+008356  1               TBEGIN:
+008356  1  A8            TAY ; SAVE THE CURRENT (ABOUT TO BE
+008357  1                ; EXECUTED) OPCODE
+008357  1               
+008357  1  A6 80         LDX PCREG ; REMEMBER WHERE YOU GOT IT FROM
+008359  1  86 84         STX OPCREG ; PCREG POINTED TO IT AFTER
+00835B  1  A5 82         LDA PCREGB ; PREVIOUS CALL TO UPDATE
+00835D  1  85 86         STA OPCREGB
+00835F  1               
+00835F  1  98            TYA
+008360  1               
+008360  1  85 87         STA CODE ; SAVE CURRENT OPCODE
+008362  1  20 25 82      JSR UPDATE ; UPDATE PC TO POINT PAST THIS
+008365  1                ; INSTRUCTION
+008365  1                ; UPDATE ATTRIBUTE VARIABLES
+008365  1               
+008365  1  20 BB 83      JSR CHKSPCL ; CHECK TO SEE IF THIS CAUSES A
+008368  1                ; TRANSFER
+008368  1  A7 80         LDA [PCREG] ; GET NEXT OPCODE TO BE EXECUTED
+00836A  1                ; (ON NEXT LOOP THROUGH)
+00836A  1  85 83         STA NCODE ; SAVE IT
+00836C  1  A9 00 00      LDA #0 ; PUT A BREAK ($00) THERE TO
+00836F  1                ; REGAIN CONTROL
+00836F  1  87 80         STA [PCREG]
+008371  1               
+008371  1               GO:
+008371  1  C2 30         REP #M+IX
+008373  1                .A16
+008373  1                .I16
+008373  1  AE DA 82      LDX USRBRKN ; BORROW THIS RAM FOT A SECOND
+008376  1  B5 01         LDA !0,X
+008378  1  8D DC 82      STA SAVRAM
+00837B  1  B5 00         LDA !1,X
+00837D  1  8D DD 82      STA SAVRAM+1
+008380  1  A9 4C 00      LDA #$4C
+008383  1  95 01         STA !0,X
+008385  1  A9 EE 82      LDA #NBRKIN
+008388  1  95 00         STA !1,X
+00838A  1  A5 91         LDA STACK ; RESTORE STACK
+00838C  1  1B            TCS
+00838D  1  D4 95         PEI (DBREG) ; GET THIS STUFF ON STACK
+00838F  1  D4 96         PEI (EBIT-1)
+008391  1  D4 93         PEI (DIRREG)
+008393  1               
+008393  1  64 97         STZ EBIT ; ASSUME NATIVE MODE ON RETURN
+008395  1               
+008395  1  A5 8F         LDA AREG ; RESTORE USER REGISTERS
+008397  1  A4 8D         LDY YREG
+008399  1  A6 8B         LDX XREG
+00839B  1               
+00839B  1  2B            PLD ; POP IT AWAY!
+00839C  1               
+00839C  1  28            PLP
+00839D  1  28            PLP
+00839E  1  FB            XCE
+00839F  1               
+00839F  1  AB            PLB
+0083A0  1  28            PLP
+0083A1  1               
+0083A1  1               ; JMP [DPAGE+OPCREG] ; ON TO THE NEXT!
+0083A1  1               ; Above does not assemble due to bug? Below is the equivalent.
+0083A1  1  DC           .byte $DC
+0083A2  1  84 03        .word DPAGE+OPCREG
+0083A4  1               
+0083A4  1               QUIT:
+0083A4  1  E2 20         SEP #$20
+0083A6  1                .A8
+0083A6  1               
+0083A6  1  A5 83         LDA NCODE ; CLEAN UP OLD PATCH
+0083A8  1  87 80         STA [PCREG]
+0083AA  1               
+0083AA  1  C2 10         REP #$10
+0083AC  1                .I16
+0083AC  1               
+0083AC  1  AE D8 82      LDX SAVSTACK ; GET ORIGINAL STACK POINTER
+0083AF  1  E8            INX
+0083B0  1  E8            INX
+0083B1  1  9A            TXS
+0083B2  1               
+0083B2  1  F4 00 00      PEA 0 ; RESTORE ZERO PAGE
+0083B5  1  2B            PLD
+0083B6  1               
+0083B6  1  28            PLP
+0083B7  1  FB            XCE
+0083B8  1  28            PLP
+0083B9  1  60            RTS
+0083BA  1               
+0083BA  1               STEPCNTRL:
+0083BA  1  xx            .res 1
+0083BB  1               
+0083BB  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0083BB  1                ; CHKSPCL
+0083BB  1                ;
+0083BB  1                ; CHECK CURRENT OPCODE (IN CODE) FOR SPECIAL CASES
+0083BB  1                ; INSTRUCTIONS WHICH TRANSFER CONTROL (JMP, BRA, ETC.);
+0083BB  1                ;
+0083BB  1                ; ASSUMES SHORTA, LONGI CALLED BY EBRKIN
+0083BB  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0083BB  1                ;
+0083BB  1               
+0083BB  1               
+0083BB  1               CHKSPCL:
+0083BB  1                .A8
+0083BB  1                .I16
+0083BB  1               
+0083BB  1  A2 16 00      LDX #SCX-SCODES
+0083BE  1  A5 87         LDA CODE
+0083C0  1               
+0083C0  1  DD EF 84     @LOOP: CMP SCODES,X ; CHECK TO SEE IF CURRENT OPCODE
+0083C3  1  F0 04         BEQ HIT ; IS IN EXCEPTION TABLE
+0083C5  1  CA            DEX
+0083C6  1  10 F8         BPL @LOOP
+0083C8  1  60            RTS ; EXIT IF NOT
+0083C9  1               
+0083C9  1               
+0083C9  1  E2 10        HIT: SEP #IX
+0083CB  1                .I8
+0083CB  1               
+0083CB  1  8A            TXA ; IF INDEX WAS LESS THAN 9, IT'S
+0083CC  1  C9 09         CMP #9 ; A BRANCH
+0083CE  1  B0 0F         BGE NOTBR
+0083D0  1               
+0083D0  1  4A            LSR A ; SEE IF ‘ODD OR EVEN'
+0083D1  1  AA            TAX
+0083D2  1  BD EA 84      LDA PMASK,X ; GET MASK TO SELECT CORRECT
+0083D5  1                ; PREG BIT
+0083D5  1  25 96         AND PREG ; IS IT SET?
+0083D7  1               
+0083D7  1  B0 03         BCS BBS ; IF INDEX WAS ODD, BRANCH IF
+0083D9  1                ; PREG BIT IS SET
+0083D9  1  F0 0B         BEQ DOBRANCH ; ELSE IF EVEN, BRANCH IF CLEAR
+0083DB  1  60            RTS
+0083DC  1               
+0083DC  1  D0 08        BBS: BNE DOBRANCH ; "BRANCH IF BIT SET"
+0083DE  1  60            RTS
+0083DF  1               
+0083DF  1  0A           NOTBR: ASL A ; NOT A BRANCH INSTRUCTION;
+0083E0  1                ; MULTIPLY BY TWO
+0083E0  1  AA            TAX ; AND INDEX INTO HANDLER JUMP
+0083E1  1               ; TABLE
+0083E1  1  C2 10         REP #IX
+0083E3  1  7C BC 84      JMP (SPJMP-18,X) ; BIAS JUMP TABLE BY 9
+0083E6  1               
+0083E6  1               DOBRANCH:
+0083E6  1  A9 FF         LDA #$FF ; SET ACCUMULATOR BYTE HIGH
+0083E8  1                ; (ANTICIPATE NEGATIVE)
+0083E8  1  EB            XBA ; AND SIGN EXTEND INTO X
+0083E9  1               
+0083E9  1  A5 88         LDA OPRNDL
+0083EB  1               
+0083EB  1  C2 31         REP #M+IX+C ; MAKE REGS LONG; CLEAR CARRY
+0083ED  1                .A16 ; (ANTICIPATE ADC)
+0083ED  1                .I16
+0083ED  1               
+0083ED  1  30 03         BMI @OK ; NUMBER WAS NEGATIVE; ALL IS OK
+0083EF  1               
+0083EF  1  29 7F 00      AND #$7F ; CLEAR HIGH BYTE OF ACCUM
+0083F2  1                ; (POSITIVE NUMBER)
+0083F2  1  65 80        @OK: ADC PCREG
+0083F4  1  85 80         STA PCREG
+0083F6  1  E2 20         SEP #M ; RETURN WITH ACCUM SHORT
+0083F8  1  60            RTS
+0083F9  1               
+0083F9  1               SBRK: ;THESE ARE NOT IMPLEMENTED!
+0083F9  1               SRTI: ; (AN EXERCISE FOR READER)
+0083F9  1               SCOP:
+0083F9  1  60            RTS
+0083FA  1               
+0083FA  1               SJSRABS: ; ABSOLUTES
+0083FA  1               SJMPABS:
+0083FA  1  A6 88         LDX OPRNDL ; MOVE OPERAND TO PC
+0083FC  1  86 80         STX PCREG
+0083FE  1  60            RTS
+0083FF  1               
+0083FF  1               SBRL: ; LONG BRANCH
+0083FF  1  C2 21         REP #M+C ; LONG ACCUM AND CLEAR CARRY
+008401  1                .A16
+008401  1  A5 88         LDA OPRNDL ; ADD DISPLACMENT TO
+008403  1  65 80         ADC PCREG ; PROGRAM COUNTER
+008405  1  85 80         STA PCREG
+008407  1  E2 20         SEP #M
+008409  1                .A8
+008409  1  60            RTS
+00840A  1               
+00840A  1               SJSRABSL: ; ABSOLUTE LONGS
+00840A  1               SJMPABSL:
+00840A  1  A6 88         LDX OPRNDL ; MOVE OPERAND, INCLUDING BANK,
+00840C  1  86 80         STX PCREG ; TO PROGRAM COUNTER
+00840E  1  A5 8A         LDA OPRNDB
+008410  1  85 82         STA PCREGB
+008412  1  60            RTS
+008413  1               
+008413  1               SRTS: ; RETURN
+008413  1  A6 91         LDX STACK ; PEEK ON STACK
+008415  1  EC D8 82      CPX SAVSTACK ; IF ORIGINAL STACK . . .
+008418  1  D0 03         BNE CONT
+00841A  1  4C A4 83      JMP QUIT ; RETURN TO MONITOR
+00841D  1  E8           CONT: INX
+00841E  1               
+00841E  1  C2 20         REP #M
+008420  1  B5 00         LDA >0,X ; ALWAYS IN BANK ZERO
+008422  1  1A            INC A ; ADD ONE TO GET TRUE RETURN
+008423  1  85 80         STA PCREG ; VALUE
+008425  1  E2 20         SEP #M
+008427  1               
+008427  1  60            RTS
+008428  1               
+008428  1               SRTL: ; RETURN LONG
+008428  1  20 13 84      JSR SRTS ; DO NORMAL RETURN,
+00842B  1               
+00842B  1  E8            INX ; THEN GET BANK BYTE
+00842C  1  E8            INX
+00842D  1  B5 00         LDA >0,X ; A IS NOW SHORT FOR BANK BYTE
+00842F  1  85 82         STA PCREGB
+008431  1  60            RTS
+008432  1               
+008432  1               SJMPIND: ; INDIRECT
+008432  1  A6 88         LDX OPRNDL ; GET OPERAND
+008434  1               
+008434  1  C2 20         REP #M
+008436  1  B5 00         LDA >0,X ; JMP IND ALWAYS IN BANK ZERO
+008438  1  85 80         STA PCREG
+00843A  1  E2 20         SEP #M
+00843C  1  60            RTS
+00843D  1               
+00843D  1               SJMPINDL:
+00843D  1  20 32 84      JSR SJMPIND ; SAME AS JMP INDIRECT,
+008440  1  E8            INX ; PLUS BANK BYTE
+008441  1  E8            INX
+008442  1  B5 00         LDA >0,X ; ACCUM IS SHORT NOW
+008444  1  85 82         STA PCREGB
+008446  1  60            RTS
+008447  1               
+008447  1               SJMPINDX: ; INDEX JUMPS
+008447  1               SJSRINDX:
+008447  1  A4 8B         LDY XREG ; LET CPU DO ADDITION
+008449  1  A6 88         LDX OPRNDL ; GET INSIRECT POINTER
+00844B  1  86 99         STX TEMP
+00844D  1  A5 82         LDA PCREGB ; INDEXED JUMPS ARE IN PROGRAM
+00844F  1  85 9B         STA TEMP+2 ; BANK
+008451  1               
+008451  1  C2 20         REP #M
+008453  1  B7 99         LDA [TEMP],Y ; ‘Y IS X'
+008455  1  85 80         STA PCREG
+008457  1  E2 20         SEP #M
+008459  1               
+008459  1  60            RTS
+00845A  1               
+00845A  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00845A  1                ;
+00845A  1                ; DUMPREGS
+00845A  1                ;
+00845A  1                ; DISPLAYS CONTENTS OF REGISTER VARIABLES IN ‘LINE'
+00845A  1                ;
+00845A  1                ; SAVES AND RESTORES MODE
+00845A  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+00845A  1                ;
+00845A  1               
+00845A  1               DUMPREGS:
+00845A  1  08            PHP
+00845B  1  E2 30         SEP #M+IX
+00845D  1                .A8
+00845D  1                .I8
+00845D  1               
+00845D  1  A0 00         LDY #0
+00845F  1               
+00845F  1  A9 03         LDA #>DPAGE ; STORE DPAGE HIGH IN TEMP HIGH
+008461  1  85 9A         STA TEMPH
+008463  1               
+008463  1  A2 09         LDX #ENDTABLE-TABLE ; LENGTH OF COMMAND TABLE
+008465  1               
+008465  1  BD 9E 84     @LOOP: LDA TABLE,X ; GET ADDRESS OF NEXT REGISTER
+008468  1  85 99         STA TEMP
+00846A  1  CA            DEX
+00846B  1  BD 9E 84      LDA TABLE,X ; GET REGISTER ‘NAME'
+00846E  1  20 B4 84      JSR PUTREG16
+008471  1  CA            DEX
+008472  1  10 F1         BPL @LOOP
+008474  1               
+008474  1  A9 95         LDA #DBREG ; NOW ALL THE 8-BIT REGISTERS
+008476  1  85 99         STA TEMP
+008478  1  A9 42         LDA #'B'
+00847A  1  20 A8 84      JSR PUTREG8
+00847D  1  A9 96         LDA #PREG
+00847F  1  85 99         STA TEMP
+008481  1  A9 50         LDA #'P'
+008483  1  20 A8 84      JSR PUTREG8
+008486  1  A9 45         LDA #'E'
+008488  1  99 1F 82      STA LINE,Y
+00848B  1  C8            INY
+00848C  1  A9 3A         LDA #':'
+00848E  1  99 1F 82      STA LINE,Y
+008491  1  C8            INY
+008492  1               
+008492  1  A9 30         LDA #'0'
+008494  1  A6 97         LDX EBIT
+008496  1  F0 01         BEQ @OK
+008498  1  1A            INC A ; ‘0' BECOMES ‘1'
+008499  1  99 1F 82     @OK: STA LINE,Y
+00849C  1               
+00849C  1  28            PLP
+00849D  1  60            RTS
+00849E  1               
+00849E  1               TABLE:
+00849E  1  44 94         .byte "D", DIRREGH ; DIRECT PAGE
+0084A0  1  53 92         .byte "S", STACKH ; ' ADDRESS OF
+0084A2  1  59 8E         .byte "Y", YREGH ; REGISTER
+0084A4  1  58 8C         .byte "X", XREGH ; VARIABLES
+0084A6  1  41            .byte "A"
+0084A7  1               ENDTABLE:
+0084A7  1  90           .byte AREGH
+0084A8  1               
+0084A8  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0084A8  1                ;
+0084A8  1                ; PUTREGS
+0084A8  1                ;
+0084A8  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0084A8  1                ;
+0084A8  1               
+0084A8  1               
+0084A8  1               PUTREG8:
+0084A8  1  99 1F 82      STA LINE,Y ; A CONTAINS REGISTER ‘NAME'
+0084AB  1  C8            INY
+0084AC  1  A9 3D         LDA #'=' ; EQUALS . .
+0084AE  1  99 1F 82      STA LINE,Y
+0084B1  1  C8            INY
+0084B2  1  80 12         BRA PRIN ; USE PUTREG16 CODE
+0084B4  1               
+0084B4  1               PUTREG16:
+0084B4  1  99 1F 82      STA LINE,Y ; A CONTAINS REGISTER ‘NAME'
+0084B7  1  C8            INY
+0084B8  1  A9 3D         LDA #'=' ; EQUALS . .
+0084BA  1  99 1F 82      STA LINE,Y
+0084BD  1  C8            INY
+0084BE  1  C8            INY
+0084BF  1  B2 99         LDA (TEMP) ; TEMP POINTS TO REGISTER
+0084C1  1  C6 99         DEC TEMP ; VARIABLE HIGH
+0084C3  1  20 E7 81      JSR PUTHEX
+0084C6  1               
+0084C6  1  C8           PRIN: INY
+0084C7  1  B2 99         LDA (TEMP) ; TEMP POINTS TO REGISTER
+0084C9  1  20 E7 81      JSR PUTHEX ; VARIABLE LOW (OR 8 BIT)
+0084CC  1  C8            INY
+0084CD  1  60            RTS
+0084CE  1               
+0084CE  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0084CE  1                ;
+0084CE  1                ; SP JMP
+0084CE  1                ; JUMP TABLE FOR ‘SPECIAL' OPCODE HANDLERS
+0084CE  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0084CE  1                ;
+0084CE  1               
+0084CE  1               SPJMP: ; JUMP TABLE FOR
+0084CE  1  F9 83         .word SBRK ; NON-BRANCH HANDLERS
+0084D0  1  FA 83         .word SJSRABS
+0084D2  1  F9 83         .word SRTI
+0084D4  1  13 84         .word SRTS
+0084D6  1  F9 83         .word SCOP
+0084D8  1  0A 84         .word SJSRABSL
+0084DA  1  FF 83         .word SBRL
+0084DC  1  28 84         .word SRTL
+0084DE  1  FA 83         .word SJMPABS
+0084E0  1  0A 84         .word SJMPABSL
+0084E2  1  32 84         .word SJMPIND
+0084E4  1  47 84         .word SJMPINDX
+0084E6  1  3D 84         .word SJMPINDL
+0084E8  1  47 84         .word SJSRINDX
+0084EA  1               
+0084EA  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0084EA  1                ;
+0084EA  1                ; PMASK
+0084EA  1                ; STATUS REGISTER MASKS FOR BRANCH HANDLING CODE
+0084EA  1                ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+0084EA  1                ;
+0084EA  1               
+0084EA  1               PMASK: ; MASKS FOR STATUS REGISTER
+0084EA  1  80            .byte $80     ; N FLAG
+0084EB  1  40            .byte $40     ; V FLAG
+0084EC  1  01            .byte $01     ; C FLAG
+0084ED  1  02            .byte $02     ; Z FLAG
+0084EE  1  00            .byte $00     ; BRA
+0084EF  1               
+0084EF  1               SCODES: ; SPECIAL OPCODES
+0084EF  1               
+0084EF  1  10            .byte $10     ; BPL
+0084F0  1  30            .byte $30     ; BMI
+0084F1  1  50            .byte $50     ; BVC
+0084F2  1  70            .byte $70     ; BVS
+0084F3  1  90            .byte $90     ; BCC
+0084F4  1  B0            .byte $B0     ; BCS
+0084F5  1  D0            .byte $D0     ; BNE
+0084F6  1  F0            .byte $F0     ; BEQ
+0084F7  1  80            .byte $80     ; BRA
+0084F8  1  00            .byte $00     ; BRK
+0084F9  1  20            .byte $20     ; JSR
+0084FA  1  40            .byte $40     ; RTI
+0084FB  1  60            .byte $60     ; RTS
+0084FC  1  02            .byte $02     ; COP
+0084FD  1  22            .byte $22     ; JSR ABSL
+0084FE  1  82            .byte $82     ; BRL
+0084FF  1  6B            .byte $6B     ; RTL
+008500  1  4C            .byte $4C     ; JMP ABS
+008501  1  5C            .byte $5C     ; JMP ABSL
+008502  1  6C            .byte $6C     ; JMP ()
+008503  1  7C            .byte $7C     ; JMP (,X)
+008504  1  DC            .byte $DC     ; JMP [ ]
+008505  1               SCX:
+008505  1  FC            .byte $FC     ; JSR (,X)
+008506  1               
+008506  1               MN:
+008506  1  00 00 00      .byte $00,$00,$00
+008509  1  41 44 43      .byte "ADC" ; 1
+00850C  1  41 4E 44      .byte "AND" ; 2
+00850F  1  41 53 4C      .byte "ASL" ; 3
+008512  1  42 43 43      .byte "BCC" ; 4
+008515  1  42 43 53      .byte "BCS" ; 5
+008518  1  42 45 51      .byte "BEQ" ; 6
+00851B  1  42 49 54      .byte "BIT" ; 7
+00851E  1  42 4D 49      .byte "BMI" ; 8
+008521  1  42 4E 45      .byte "BNE" ; 9
+008524  1  42 50 4C      .byte "BPL" ; 10
+008527  1  42 52 4B      .byte "BRK" ; 11
+00852A  1  42 56 43      .byte "BVC" ; 12
+00852D  1  42 56 53      .byte "BVS" ; 13
+008530  1  43 4C 43      .byte "CLC" ; 14
+008533  1  43 4C 44      .byte "CLD" ; 15
+008536  1  43 4C 49      .byte "CLI" ; 16
+008539  1  43 4C 56      .byte "CLV" ; 17
+00853C  1  43 4D 50      .byte "CMP" ; 18
+00853F  1  43 50 58      .byte "CPX" ; 19
+008542  1  43 50 59      .byte "CPY" ; 20
+008545  1  44 45 43      .byte "DEC" ; 21
+008548  1  44 45 58      .byte "DEX" ; 22
+00854B  1  44 45 59      .byte "DEY" ; 23
+00854E  1  45 4F 52      .byte "EOR" ; 24
+008551  1  49 4E 43      .byte "INC" ; 25
+008554  1  49 4E 58      .byte "INX" ; 26
+008557  1  49 4E 59      .byte "INY" ; 27
+00855A  1  4A 4D 50      .byte "JMP" ; 28
+00855D  1  4A 53 52      .byte "JSR" ; 29
+008560  1  4C 44 41      .byte "LDA" ; 30
+008563  1  4C 44 58      .byte "LDX" ; 31
+008566  1  4C 44 59      .byte "LDY" ; 32
+008569  1  4C 53 52      .byte "LSR" ; 33
+00856C  1  4E 4F 50      .byte "NOP" ; 34
+00856F  1  4F 52 41      .byte "ORA" ; 35
+008572  1  50 48 41      .byte "PHA" ; 36
+008575  1  50 48 50      .byte "PHP" ; 37
+008578  1  50 4C 41      .byte "PLA" ; 38
+00857B  1  50 4C 50      .byte "PLP" ; 39
+00857E  1  52 4F 4C      .byte "ROL" ; 40
+008581  1  52 4F 52      .byte "ROR" ; 41
+008584  1  52 49 54      .byte "RIT" ; 42
+008587  1  52 54 53      .byte "RTS" ; 43
+00858A  1  53 42 43      .byte "SBC" ; 44
+00858D  1  53 45 43      .byte "SEC" ; 45
+008590  1  53 45 44      .byte "SED" ; 46
+008593  1  53 45 49      .byte "SEI" ; 47
+008596  1  53 54 41      .byte "STA" ; 48
+008599  1  53 54 58      .byte "STX" ; 49
+00859C  1  53 54 59      .byte "STY" ; 50
+00859F  1  54 41 58      .byte "TAX" ; 51
+0085A2  1  54 41 59      .byte "TAY" ; 52
+0085A5  1  54 53 58      .byte "TSX" ; 53
+0085A8  1  54 58 41      .byte "TXA" ; 54
+0085AB  1  54 58 53      .byte "TXS" ; 55
+0085AE  1  54 59 41      .byte "TYA" ; 56
+0085B1  1  42 52 41      .byte "BRA" ; 57
+0085B4  1  50 4C 58      .byte "PLX" ; 58
+0085B7  1  50 4C 59      .byte "PLY" ; 59
+0085BA  1  50 48 58      .byte "PHX" ; 60
+0085BD  1  50 48 59      .byte "PHY" ; 61
+0085C0  1  53 54 5A      .byte "STZ" ; 62
+0085C3  1  54 52 42      .byte "TRB" ; 63
+0085C6  1  54 53 42      .byte "TSB" ; 64
+0085C9  1               
+0085C9  1  50 45 41      .byte "PEA" ; 65
+0085CC  1  50 45 49      .byte "PEI" ; 66
+0085CF  1  50 45 52      .byte "PER" ; 67
+0085D2  1  50 4C 42      .byte "PLB" ; 68
+0085D5  1  50 4C 44      .byte "PLD" ; 69
+0085D8  1  50 48 42      .byte "PHB" ; 70
+0085DB  1  50 48 44      .byte "PHD" ; 71
+0085DE  1  50 48 4B      .byte "PHK" ; 72
+0085E1  1               
+0085E1  1  52 45 50      .byte "REP" ; 73
+0085E4  1  53 45 50      .byte "SEP" ; 74
+0085E7  1               
+0085E7  1  54 43 44      .byte "TCD" ; 75
+0085EA  1  54 44 43      .byte "TDC" ; 76
+0085ED  1  54 43 53      .byte "TCS" ; 77
+0085F0  1  54 53 43      .byte "TSC" ; 78
+0085F3  1  54 58 59      .byte "TXY" ; 79
+0085F6  1  54 59 58      .byte "TYX" ; 80
+0085F9  1  58 42 41      .byte "XBA" ; 81
+0085FC  1  58 43 45      .byte "XCE" ; 82
+0085FF  1               
+0085FF  1  42 52 4C      .byte "BRL" ; 83
+008602  1  4A 53 4C      .byte "JSL" ; 84
+008605  1  52 54 4C      .byte "RTL" ; 85
+008608  1  4D 56 4E      .byte "MVN" ; 86
+00860B  1  4D 56 50      .byte "MVP" ; 87
+00860E  1  43 4F 50      .byte "COP" ; 88
+008611  1  57 41 49      .byte "WAI" ; 89
+008614  1  53 54 50      .byte "STP" ; 100
+008617  1  57 44 4D      .byte "WDM" ; 101
+00861A  1               
+00861A  1               MODES:
+00861A  1  xx xx         .res 2
+00861C  1  8A 80         .word FIMM ; 1
+00861E  1  9C 80         .word FABS ; 2
+008620  1  9F 80         .word FABSL ; 3
+008622  1  A2 80         .word FDIR ; 4
+008624  1  A5 80         .word FACC ; 5
+008626  1  AB 80         .word FIMP ; 6
+008628  1  AC 80         .word FINDINX ; 7
+00862A  1  BB 80         .word FINDINXL ; 8
+00862C  1  C1 80         .word FINXIND ; 9
+00862E  1  D3 80         .word FDIRINXX ; 10
+008630  1  D9 80         .word FDIRINXY ; 11
+008632  1  EC 80         .word FABSX ; 12
+008634  1  F2 80         .word FABSLX ; 13
+008636  1  F8 80         .word FABSY ; 14
+008638  1  FE 80         .word FPCR ; 15
+00863A  1  FE 80         .word FPCRL ; 16
+00863C  1  26 81         .word FABSIND ; 17
+00863E  1  35 81         .word FIND ; 18
+008640  1  45 81         .word FINDL ; 19
+008642  1  55 81         .word FABSINXIND ; 20
+008644  1  64 81         .word FSTACK ; 21
+008646  1  65 81         .word FSTACKREL ; 22
+008648  1  75 81         .word FSRINDINX ; 23
+00864A  1  87 81         .word FBLOCK ; 24
+00864C  1               
+00864C  1               LENS:
+00864C  1  02            .byte $02 ; IMM
+00864D  1  03            .byte $03 ; ABS
+00864E  1  04            .byte $04 ; ABS LONG
+00864F  1  02            .byte $02 ; DIRECT
+008650  1  01            .byte $01 ; ACC
+008651  1  01            .byte $01 ; IMPLIED
+008652  1  02            .byte $02 ; DIR IND INX
+008653  1  02            .byte $02 ; DIR IND INX L
+008654  1  02            .byte $02 ; DIR INX IND
+008655  1  02            .byte $02 ; DIR INX X
+008656  1  02            .byte $02 ; DIR INX Y
+008657  1  03            .byte $03 ; ABS X
+008658  1  04            .byte $04 ; ABS L X
+008659  1  03            .byte $03 ; ABS Y
+00865A  1  02            .byte $02 ; PCR
+00865B  1  03            .byte $03 ; PCR L
+00865C  1  03            .byte $03 ; ABS IND
+00865D  1  02            .byte $02 ; DIR IND
+00865E  1  02            .byte $02 ; DIR IND L
+00865F  1  03            .byte $03 ; ABS INX IND
+008660  1  01            .byte $01 ; STACK
+008661  1  02            .byte $02 ; SR
+008662  1  02            .byte $02 ; SR INX
+008663  1  03            .byte $03 ; MOV
+008664  1               
+008664  1               ATRIBL:
+008664  1  0B 06         .byte 11,6 ; BRK 00
+008666  1  23 09         .byte 35,9 ; ORA D,X 01
+008668  1  58 04         .byte 88,4 ; COP (REALLY 2) 02
+00866A  1  23 16         .byte 35,22 ; ORA-,X 03
+00866C  1  40 04         .byte 64,4 ; TSB D 04
+00866E  1  22 04         .byte 34,4 ; ORA D 05
+008670  1  03 04         .byte 3,4 ; ASL D 06
+008672  1  23 13         .byte 35,19 ; ORA [D] 07
+008674  1  25 15         .byte 37,21 ; PHP 08
+008676  1  23 01         .byte 35,1 ; ORA IMM 09
+008678  1  03 05         .byte 3,5 ; ASL ACC 0A
+00867A  1  47 15         .byte 71,21 ; PHD 0B
+00867C  1  40 02         .byte 64,2 ; TSB ABS 0C
+00867E  1  23 02         .byte 35,2 ; ORA ABS 0D
+008680  1  03 02         .byte 3,2 ; ASL ABS 0E
+008682  1  23 03         .byte 35,3 ; ORA ABS L 0F
+008684  1  0A 0F         .byte 10,15 ; BPL 10
+008686  1  23 07         .byte 35,7 ; ORA (D),Y 11
+008688  1  23 12         .byte 35,18 ; ORA (D) 12
+00868A  1  23 17         .byte 35,23 ; ORA S,Y 13
+00868C  1  3F 04         .byte 63,4 ; TRB D 14
+00868E  1  23 0A         .byte 35,10 ; ORA D,X 15
+008690  1  03 0A         .byte 3,10 ; ASL D,X 16
+008692  1  23 08         .byte 35,8 ; ORA (DL),Y 17
+008694  1  0E 06         .byte 14,6 ; CLC 18
+008696  1  23 0E         .byte 35,14 ; ORA ABS,Y 19
+008698  1  19 05         .byte 25,5 ; NC ACC 1A
+00869A  1  4D 06         .byte 77,6 ; TCS 1B
+00869C  1  3F 02         .byte 63,2 ; TRB ABS,X 1C
+00869E  1  23 0C         .byte 35,12 ; ORA ABS,X 1D
+0086A0  1  03 0C         .byte 3,12 ; ASL ABS,X 1E
+0086A2  1  23 0D         .byte 35,13 ; ORA ABSL,X 1F
+0086A4  1  1D 02         .byte 29,2 ; JSR ABS 20
+0086A6  1  02 07         .byte 2,7 ; AND (D, X) 21
+0086A8  1  1D 03         .byte 29,3 ; JSL ABS L 22
+0086AA  1  02 16         .byte 2,22 ; AND SR 23
+0086AC  1  07 04         .byte 7,4 ; BIT D 24
+0086AE  1  02 04         .byte 2,4 ; AND D 25
+0086B0  1  28 04         .byte 40,4 ; ROL D 26
+0086B2  1  02 13         .byte 2,19 ; AND (DL) 27
+0086B4  1  27 06         .byte 39,6 ; PLP 28
+0086B6  1  02 01         .byte 2,1 ; AND IMM 29
+0086B8  1  28 05         .byte 40,5 ; ROL ACC 2A
+0086BA  1  45 15         .byte 69,21 ; PLD 2B
+0086BC  1  07 02         .byte 7,2 ; BIT ABS 2C
+0086BE  1  02 02         .byte 2,2 ; AND ABS 2D
+0086C0  1  28 05         .byte 40,5 ; ROL A 2E
+0086C2  1  02 03         .byte 2,3 ; AND ABS L 2F
+0086C4  1  08 0F         .byte 8,15 ; BMI 30
+0086C6  1  02 0B         .byte 2,11 ; AND D,Y 31
+0086C8  1  02 12         .byte 2,18 ; AND (D) 32
+0086CA  1  02 17         .byte 2,23 ; AND (SR),Y 33
+0086CC  1  07 0A         .byte 7,10 ; BIT D,X 34
+0086CE  1  02 0A         .byte 2,10 ; AND D,X 35
+0086D0  1  28 0A         .byte 40,10 ; ROL D,X 36
+0086D2  1  02 08         .byte 2,8 ; AND (DL),Y 37
+0086D4  1  2D 06         .byte 45,6 ; SEC 38
+0086D6  1  19 0E         .byte 25,14 ; AND ABS,Y 39
+0086D8  1  15 05         .byte 21,5 ; DEC 3A
+0086DA  1  4E 06         .byte 78,6 ; TSC 3B
+0086DC  1  07 0C         .byte 7,12 ; BIT A,X 3C
+0086DE  1  02 0C         .byte 2,12 ; AND ABS,X 3D
+0086E0  1  28 0C         .byte 40,12 ; ROL A,X 3E
+0086E2  1  02 0D         .byte 2,13 ; AND AL,X 3F
+0086E4  1  2A 06         .byte 42,6 ; RTI 40
+0086E6  1  18 09         .byte 24,9 ; EOR (D,X) 41
+0086E8  1  65 06         .byte 101,6 ; WDM 42
+0086EA  1  18 16         .byte 24,22 ; EOR (D,X) 43
+0086EC  1  57 18         .byte 87,24 ; MVP 44
+0086EE  1  18 04         .byte 24,4 ; EOR D 45
+0086F0  1  21 04         .byte 33,4 ; LSR D 46
+0086F2  1  18 13         .byte 24,19 ; EOR (DL) 47
+0086F4  1  24 06         .byte 36,6 ; PHA 48
+0086F6  1  18 01         .byte 24,1 ; EOR IMM 49
+0086F8  1  21 05         .byte 33,5 ; LSR ABS L 4A
+0086FA  1  48 06         .byte 72,6 ; PHK 4B
+0086FC  1  1C 02         .byte 28,2 ; JMP ABS 4C
+0086FE  1  18 02         .byte 24,2 ; EOR ABS 4D
+008700  1  21 02         .byte 33,2 ; LSR ABS 4E
+008702  1  18 05         .byte 24,5 ; EOR ABS L 4F
+008704  1  0C 0F         .byte 12,15 ; BVC 50
+008706  1  18 07         .byte 24,7 ; EOR (D),Y 51
+008708  1  18 12         .byte 24,18 ; EOR (D) 52
+00870A  1  18 17         .byte 24,23 ; EOR (SR),Y 53
+00870C  1  56 18         .byte 86,24 ; MVN 54
+00870E  1  18 0A         .byte 24,10 ; EOR D,X 55
+008710  1  21 0A         .byte 33,10 ; LSR D,X 56
+008712  1  18 08         .byte 24,8 ; EOR (DL),Y 57
+008714  1  10 06         .byte 16,6 ; CLI 58
+008716  1  18 0E         .byte 24,14 ; EOR 59
+008718  1  3D 15         .byte 61,21 ; PHY 5A
+00871A  1  4B 06         .byte 75,6 ; TCD 5B
+00871C  1  1C 03         .byte 28,3 ; JMP ABSL 5C
+00871E  1  18 0C         .byte 24,12 ; EOR ABS,X 5D
+008720  1  21 0C         .byte 33,12 ; LSR ABS,X 5E
+008722  1  18 0D         .byte 24,13 ; EOR ABSL,X 5F
+008724  1  2B 06         .byte 43,6 ; RTS 60
+008726  1  01 09         .byte 1,9 ; ADC (D, X) 61
+008728  1  43 10         .byte 67,16 ; PER 62
+00872A  1  01 16         .byte 1,22 ; ADC SR 63
+00872C  1  3E 04         .byte 62,4 ; STZ D 64
+00872E  1  01 04         .byte 1,4 ; ADC D 65
+008730  1  29 04         .byte 41,4 ; ROR D 66
+008732  1  01 13         .byte 1,19 ; ADC (DL) 67
+008734  1  26 15         .byte 38,21 ; PLA 68
+008736  1  01 01         .byte 1,1 ; ADC 69
+008738  1  29 05         .byte 41,5 ; ROR ABSL 6A
+00873A  1  55 06         .byte 85,6 ; RTL 6B
+00873C  1  1C 11         .byte 28,17 ; JMP (A) 6C
+00873E  1  01 02         .byte 1,2 ; ADC ABS 6D
+008740  1  29 02         .byte 41,2 ; ROR ABS 6E
+008742  1  01 03         .byte 1,3 ; ADC ABSL 6F
+008744  1  0D 0F         .byte 13,15 ; BVS 70
+008746  1  01 08         .byte 1,8 ; ADC (D),Y 71
+008748  1  01 12         .byte 1,18 ; ADC (D) 72
+00874A  1  01 17         .byte 1,23 ; ADC (SR),Y 73
+00874C  1  3E 0A         .byte 62,10 ; STZ D,X 74
+00874E  1  01 0A         .byte 1,10 ; ADC D,X 75
+008750  1  29 0A         .byte 41,10 ; ROR D,X 76
+008752  1  01 08         .byte 1,8 ; ADC (DL),Y 77
+008754  1  2F 06         .byte 47,6 ; SEI 78
+008756  1  01 0E         .byte 1,14 ; ADC ABS,Y 79
+008758  1  3B 15         .byte 59,21 ; PLY 7A
+00875A  1  4C 06         .byte 76,6 ; TDC 7B
+00875C  1  1C 14         .byte 28,20 ; JMP (A, X) 7C
+00875E  1  01 0C         .byte 1,12 ; ADC ABS,X 7D
+008760  1  29 0C         .byte 41,12 ; ROR ABS,X 7E
+008762  1  01 0D         .byte 1,13 ; ADC ABSL,X 7F
+008764  1               
+008764  1               ATRIBH:
+008764  1               
+008764  1  39 0F         .byte 57,15 ; BRA 80
+008766  1               
+008766  1  30 09         .byte 48,9 ; STA (D, X) 81
+008768  1  53 10         .byte 83,16 ; BRL 82
+00876A  1  30 16         .byte 48,22 ; STA-,S 83
+00876C  1  32 04         .byte 50,4 ; STY D 84
+00876E  1  30 04         .byte 48,4 ; STA D 85
+008770  1  31 04         .byte 49,4 ; STX D 86
+008772  1  30 13         .byte 48,19 ; STA [ D ] 87
+008774  1  17 06         .byte 23,6 ; DEY 88
+008776  1  07 01         .byte 7,1 ; BIT IMM 89
+008778  1  36 06         .byte 54,6 ; TXA 8A
+00877A  1  46 15         .byte 70,21 ; PHB 8B
+00877C  1  32 02         .byte 50,2 ; STY ABS 8C
+00877E  1  30 02         .byte 48,2 ; STA ABS 8D
+008780  1  31 02         .byte 49,2 ; STX ABS 8E
+008782  1  30 03         .byte 48,3 ; STA ABS L 8F
+008784  1  04 0F         .byte 4,15 ; BC 90
+008786  1  30 07         .byte 48,7 ; STA (D),Y 91
+008788  1  30 12         .byte 48,18 ; STA (D) 92
+00878A  1  30 17         .byte 48,23 ; STA (SR),Y 93
+00878C  1  32 0A         .byte 50,10 ; STY D,X 94
+00878E  1  30 0A         .byte 48,10 ; STA D,X 95
+008790  1  31 0B         .byte 49,11 ; STX D,Y 96
+008792  1  30 08         .byte 48,8 ; STA (DL),Y 97
+008794  1  38 06         .byte 56,6 ; TYA 98
+008796  1  30 0E         .byte 48,14 ; STA ABS,Y 99
+008798  1  37 06         .byte 55,6 ; TXS D 9A
+00879A  1  4F 06         .byte 79,6 ; TXY 9B
+00879C  1  3E 02         .byte 62,2 ; STZ ABS 9C
+00879E  1  30 0C         .byte 48,12 ; STA ABS,X 9D
+0087A0  1  3E 0C         .byte 62,12 ; STZ ABS,X 9E
+0087A2  1  30 0D         .byte 48,13 ; STA ABSL,X 9F
+0087A4  1  20 01         .byte 32,1 ; LDY IMM A0
+0087A6  1  1E 09         .byte 30,9 ; LDA (D,X) A1
+0087A8  1  1F 01         .byte 31,1 ; LDX IMM A2
+0087AA  1  1E 16         .byte 30,22 ; LDA SR A3
+0087AC  1  20 04         .byte 32,4 ; LDY D A4
+0087AE  1  1E 04         .byte 30,4 ; LDA D A5
+0087B0  1  1F 04         .byte 31,4 ; LDX D A6
+0087B2  1  1E 13         .byte 30,19 ; LDA (DL) A7
+0087B4  1  34 06         .byte 52,6 ; TAY A8
+0087B6  1  1F 01         .byte 31,1 ; LDA IMM A9
+0087B8  1  33 06         .byte 51,6 ; TAX AA
+0087BA  1  44 15         .byte 68,21 ; PLB AB
+0087BC  1  20 02         .byte 32,2 ; LDY ABS AC
+0087BE  1  1E 02         .byte 30,2 ; LDA ABS AD
+0087C0  1  1F 02         .byte 31,2 ; LDX ABS AE
+0087C2  1  1E 03         .byte 30,3 ; LDA ABS L AF
+0087C4  1  05 0F         .byte 5,15 ; BCS B0
+0087C6  1  1E 07         .byte 30,7 ; LDA (D),Y B1
+0087C8  1  1E 12         .byte 30,18 ; LDA (D) B2
+0087CA  1  1E 17         .byte 30,23 ; LDA (SR),Y B3
+0087CC  1  20 0A         .byte 32,10 ; LDY D,X B4
+0087CE  1  1E 0A         .byte 30,10 ; LDA D,X B5
+0087D0  1  1E 0B         .byte 30,11 ; LDX D,Y B6
+0087D2  1  1E 08         .byte 30,8 ; LDA (DL),Y B7
+0087D4  1  11 06         .byte 17,6 ; CLV B8
+0087D6  1  1E 0E         .byte 30,14 ; LDA ABS,Y B9
+0087D8  1  35 06         .byte 53,6 ; TSX BA
+0087DA  1  50 06         .byte 80,6 ; TYX BB
+0087DC  1  20 0C         .byte 32,12 ; LDY ABS,X BC
+0087DE  1  1E 0C         .byte 30,12 ; LDA ABS,X BD
+0087E0  1  1F 0E         .byte 31,14 ; LDX ABS,Y BE
+0087E2  1  1E 0D         .byte 30,13 ; LDA ABSL,X BF
+0087E4  1  1E 0D         .byte 30,13 ; CPY C0
+0087E6  1  12 09         .byte 18,9 ; CMP (D,X) C1
+0087E8  1  49 01         .byte 73,1 ; REP C2
+0087EA  1  12 16         .byte 18,22 ; CMP C3
+0087EC  1  14 04         .byte 20,4 ; CPY D C4
+0087EE  1  12 04         .byte 18,4 ; CMP D C5
+0087F0  1  15 04         .byte 21,4 ; DEC D C6
+0087F2  1  12 13         .byte 18,19 ; CMP (DL) C7
+0087F4  1  1B 06         .byte 27,6 ; INY C8
+0087F6  1  12 01         .byte 18,1 ; CMP IMM C9
+0087F8  1  16 06         .byte 22,6 ; DEX CA
+0087FA  1  59 06         .byte 89,6 ; WAI CB
+0087FC  1  14 02         .byte 20,2 ; CPY ABS CC
+0087FE  1  12 02         .byte 18,2 ; CMP ABS CD
+008800  1  15 02         .byte 21,2 ; DEC ABS CE
+008802  1  12 03         .byte 18,3 ; CMP ABSL CF
+008804  1  09 0F         .byte 9,15 ; BNE D0
+008806  1  12 07         .byte 18,7 ; CMP (D0,Y D1
+008808  1  12 12         .byte 18,18 ; CMP (D) D2
+00880A  1  12 17         .byte 18,23 ; CMP D3
+00880C  1  42 04         .byte 66,4 ; PEI D D4
+00880E  1  12 0A         .byte 18,10 ; CMP D,X D5
+008810  1  15 0A         .byte 21,10 ; DEC D,X D6
+008812  1  12 08         .byte 18,8 ; CMP (DL),Y D7
+008814  1  0F 06         .byte 15,6 ; CLD D8
+008816  1  12 0E         .byte 18,14 ; CMP ABS,Y D9
+008818  1  3C 15         .byte 60,21 ; PHX DA
+00881A  1  64 06         .byte 100,6 ; STP DB
+00881C  1  1C 11         .byte 28,17 ; JMP (A) DC
+00881E  1  12 0C         .byte 18,12 ; CMP ABS,X DD
+008820  1  15 0C         .byte 21,12 ; DEC ABS,X DE
+008822  1  12 0D         .byte 18,13 ; CMP ABSL,X DF
+008824  1  13 01         .byte 19,1 ; CPX IMM E0
+008826  1  2C 09         .byte 44,9 ; SBC (D,X) E1
+008828  1  4A 01         .byte 74,1 ; SEP IMM E2
+00882A  1  2C 16         .byte 44,22 ; SBC SR E3
+00882C  1  1F 04         .byte 31,4 ; LDX D E4
+00882E  1  2C 04         .byte 44,4 ; SBC D E5
+008830  1  19 04         .byte 25,4 ; INC D E6
+008832  1  2C 13         .byte 44,19 ; SBD (DL) E7
+008834  1  1A 06         .byte 26,6 ; INX D E8
+008836  1  2C 01         .byte 44,1 ; SBC IMM E9
+008838  1  22 06         .byte 34,6 ; NOP EA
+00883A  1  51 06         .byte 81,6 ; XBA EB
+00883C  1  13 02         .byte 19,2 ; CPX ABS EC
+00883E  1  2C 02         .byte 44,2 ; SBC ABS ED
+008840  1  19 02         .byte 25,2 ; INC ABS EE
+008842  1  2C 03         .byte 44,3 ; SBC ABSL EF
+008844  1  06 0F         .byte 6,15 ; BEQ F0
+008846  1  2C 07         .byte 44,7 ; SBC (D),Y F1
+008848  1  2C 12         .byte 44,18 ; SBC (D) F2
+00884A  1  2C 17         .byte 44,23 ; SBC (SR),Y F3
+00884C  1  41 02         .byte 65,2 ; PEA F4
+00884E  1  2C 0A         .byte 44,10 ; SBC D,X F5
+008850  1  19 0A         .byte 25,10 ; INC D,X F6
+008852  1  2C 08         .byte 44,8 ; SBC (DL),Y F7
+008854  1  2E 06         .byte 46,6 ; SED F8
+008856  1  2C 0E         .byte 44,14 ; SBC ABS,Y F9
+008858  1  3A 15         .byte 58,21 ; PLX FA
+00885A  1  52 06         .byte 82,6 ; XCE FB
+00885C  1  1D 14         .byte 29,20 ; JSR (A,X) FC
+00885E  1  2C 0C         .byte 44,12 ; SBC ABS,X FD
+008860  1  19 0C         .byte 25,12 ; INC ABS,X FE
+008862  1  2C 0D         .byte 44,13 ; SBC ABSL,X FF
+008863  1               
