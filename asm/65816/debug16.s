@@ -9,7 +9,7 @@
 ; *                                             *
 ; ***********************************************
 
- .ORG $8000
+ .ORG $6000
 
 MAIN:
 
@@ -74,7 +74,16 @@ MAIN:
  IX = $10               ; STATUS REGISTER BITS
  C = $01
 
- JMP LIST
+; Default entry point.
+; Set address to dissemble as this program, the call LIST to disassemble.
+
+ LDA #<MAIN
+ STA PCREG+1
+ LDA #>MAIN
+ STA PCREG+1
+ JSR LIST
+ RTS
+ BRK
 
 ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 ;
@@ -445,8 +454,12 @@ IN: LDA #'$'            ; PRINT LEAD-IN
 ;
 
 STEP:
- KEYBD = $C000          ; FIXME (APPLE SPECIFIC)
- KEYSTB = $C010         ; FIXME (APPLE SPECIFIC)
+; KEYBD = $C000         ; Apple II keyboard
+; KEYSTB = $C010        ; Apple II keyboard
+
+ KEYBD = $D011          ; Apple 1/Replica 1 keyboard
+ KEYSTB = $D010         ; Apple 1/Replica 1 keyboard
+
  ESC = $9B ; ESCAPE KEY (HIGH BIT SET)
  V = $40 ; MASK FOR OVERFLOW FLAG
  .A8
@@ -461,11 +474,11 @@ PAUSE:                  ; FOR ‘PAUSE' CALL
  SEP #M+IX
  LDA KEYBD              ; CHECK FOR KEYPRESS
  BPL RETNCR             ; NONE; DON'T PAUSE
- STA KEYSTB             ; CLEAR STROBE
+ LDA KEYSTB             ; CLEAR STROBE
                         ; IF KEYSTROKE
 WAIT: LDA KEYBD         ; LOOP FOR NEXT KEY
  BPL WAIT
- STA KEYSTB             ; CLEAR STROBE
+ LDA KEYSTB             ; CLEAR STROBE
  CMP #ESC               ; IF ESC RETURN WITH
  BNE RETNESC
 
@@ -480,7 +493,7 @@ RETNESC: CMP #CR
  SEP #C+V
  RTS
 
-RETNCR: STA KEYSTB
+RETNCR: LDA KEYSTB
  PLP                    ; ELSE SET
  SEC
  CLV
@@ -654,8 +667,8 @@ LOOPIN: INC PCREG       ; MOVE PC PAST NEXT INSTRUCTION
 ;
 
 PRINTLN:
- COUT = $FDED           ; APPLE CHARACTER OUTPUT ROUTINE
-                        ; FIXME (APPLE SPECIFIC)
+; COUT = $FDED          ; APPLE II CHARACTER OUTPUT ROUTINE
+COUT = $FFEF            ; APPLE 1/Replica 1 CHARACTER OUTPUT ROUTINE
 
  PHP                    ; SAVE STATUS
  PHD                    ; SAVE DIRECT PAGE
