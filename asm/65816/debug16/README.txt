@@ -20,5 +20,7 @@ https://groups.google.com/group/comp.sys.apple2/tree/browse_frm/month/1991-12/49
 
 Current status:
 
-Disassembly is working but needs further testing.
+Disassembly (LIST) is working. It has not been tested exhaustively for
+all instructions.
+
 The trace function has not yet been tested or debugged.

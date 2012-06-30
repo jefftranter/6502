@@ -462,12 +462,12 @@ STEP:
  KEYBD = $D011          ; Apple 1/Replica 1 keyboard
  KEYSTB = $D010         ; Apple 1/Replica 1 keyboard
 
- ESC = $9B ; ESCAPE KEY (HIGH BIT SET)
- V = $40 ; MASK FOR OVERFLOW FLAG
+ ESC = $9B              ; ESCAPE KEY (HIGH BIT SET)
+ V = $40                ; MASK FOR OVERFLOW FLAG
  .A8
  .I8
 
- PHP ; SAVE MODES
+ PHP                    ; SAVE MODES
  SEP #M+IX
  BRA WAIT
 
@@ -670,7 +670,7 @@ LOOPIN: INC PCREG       ; MOVE PC PAST NEXT INSTRUCTION
 
 PRINTLN:
 ; COUT = $FDED          ; APPLE II CHARACTER OUTPUT ROUTINE
-COUT = $FFEF            ; APPLE 1/Replica 1 CHARACTER OUTPUT ROUTINE
+COUT = $FFEF            ; APPLE 1/Replica 1 ROM CHARACTER OUTPUT ROUTINE
 
  PHP                    ; SAVE STATUS
  PHD                    ; SAVE DIRECT PAGE
@@ -703,9 +703,11 @@ COUT = $FFEF            ; APPLE 1/Replica 1 CHARACTER OUTPUT ROUTINE
 ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
 TRACE:
- USRBRKV = $3F0         ; USER BRK VECTOR FOR APPLE II
-                        ; FIXME (APPLE SPECIFIC)
- BRKN = $FFE6           ; NATIVE MODE BRK VECTOR
+; USRBRKV = $3F0         ; USER BRK VECTOR FOR APPLE II
+ USRBRKV = $0100         ; USER BRK VECTOR FOR APPLE 1/REPLICA 1
+
+; BRKN = $FFE6           ; NATIVE MODE BRK VECTOR FOR APPLE II
+ BRKN = $0100           ; NATIVE MODE BRK VECTOR FOR APPLE 1/REPLICA 1
 
  PHP                    ; SAVE CALLING STATE
  CLC
@@ -776,10 +778,13 @@ EBRKIN:                 ; ENTRY FROM EMULATION MODE
  PEA 0
  PHA
                         ; FIXME (APPLE SPECIFIC)
- LDA $48                ; APPLE II MONITOR
- PHA                    ; LOCATIONS
- LDA $45                ; FOR P, AA
- LDX $46                ; AND X
+; LDA $48                ; APPLE II MONITOR
+; PHA                    ; LOCATIONS
+; LDA $45                ; FOR P, AA
+; LDX $46                ; AND X
+
+; For Apple 1/Replica 1, use values already in registers
+PHP
 
 ; Note that if direct page is relocated
 ; in emulation mode, these locations
