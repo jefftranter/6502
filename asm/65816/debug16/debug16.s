@@ -82,8 +82,9 @@ MAIN:
  LDA #<MAIN             ; Start disassembly at this program
  STA PCREG
  LDA #>MAIN
- STA PCREG+1
- JSR LIST               ; Call LIST ti disassemble
+ STA PCREGH
+ STZ PCREGB             ; Set bank to zero
+ JSR LIST               ; Call LIST to disassemble
  RTS                    ; Return to caller
 
 ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL

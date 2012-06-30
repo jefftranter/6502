@@ -1,5 +1,8 @@
 This directory a port of the DEBUG16 program to the Replica 1.
 
+It requires a Replica 1 with a 65816 processor (as far as I know I
+have the only one in existence).
+
 It came from the manual "Programming the 65816 Including the 6502,
 65C02 and 65802" available from The Western Design Center, Inc.
 
@@ -17,5 +20,5 @@ https://groups.google.com/group/comp.sys.apple2/tree/browse_frm/month/1991-12/49
 
 Current status:
 
-Disassembly is working but has some bugs.
+Disassembly is working but needs further testing.
 The trace function has not yet been tested or debugged.
