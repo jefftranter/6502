@@ -13,7 +13,7 @@
 
 MAIN:
 
- DPAGE = $300           ; LOCATION OF THIS APPLICATION’S
+ DPAGE = $0000          ; LOCATION OF THIS APPLICATION’S
                         ; DIRECT PAGE
 
 ; DIRECT PAGE STORAGE
@@ -77,13 +77,14 @@ MAIN:
 ; Default entry point.
 ; Set address to dissemble as this program, the call LIST to disassemble.
 
- LDA #<MAIN
- STA PCREG+1
+ LDA #CR                ; Print a newline so we start on a new line
+ JSR COUT
+ LDA #<MAIN             ; Start disassembly at this program
+ STA PCREG
  LDA #>MAIN
  STA PCREG+1
- JSR LIST
- RTS
- BRK
+ JSR LIST               ; Call LIST ti disassemble
+ RTS                    ; Return to caller
 
 ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 ;
@@ -1586,7 +1587,7 @@ ATRIBH:
  .byte 31,4  ; LDX D A6
  .byte 30,19 ; LDA (DL) A7
  .byte 52,6  ; TAY A8
- .byte 31,1  ; LDA IMM A9
+ .byte 30,1  ; LDA IMM A9
  .byte 51,6  ; TAX AA
  .byte 68,21 ; PLB AB
  .byte 32,2  ; LDY ABS AC
