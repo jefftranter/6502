@@ -5,13 +5,9 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - add support for disassembling 65816 code?
-; - implement very tiny one line assembler?
-; - add "O" command for settings:
-;   - use high or low ASCII
-;   - make all output uppercase
-;   - CPU type for disassembly: 6502, 65C02 (Rockwell), 65C02 (WDC), 65816
-;   - write delay (remove existing W command)
+; - use CPU type for dissasembly
+; - add support for 65816 disassembly
+; - implement mini assembler?
 
 ; Revision History
 ; Version Date         Comments
@@ -42,18 +38,7 @@
 ;                      Added new E command for ACI cassette interface (untested).
 ;                      Fill, Search, and ":" commands accept characters as well as hex values.
 ;                      Type ' to enter a character.
-
-
-; Proposed options interface:
-; O
-; OPTIONS:
-;  SET HIGH BIT IN CHARACTERS (N)?
-;  UPPERCASE ONLY OUTPUT (Y)?
-;  CPU TYPE: 1-6502 2-ROCKWELL 65C02
-;  3-WDC 65C02 4-65816 (1)?
-;  WRITE DELAY (20)?
-
-
+; 0.97   01-Jul-2012   Implemented new options command.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -116,7 +101,6 @@ OPCODE:   .res 1                ; Instruction opcode
 OP:       .res 1                ; Instruction type OP_*
 AM:       .res 1                ; Addressing mode AM_*
 LEN:      .res 1                ; Instruction length
-WDELAY:   .res 1                ; Delay value when writing (defaults to zero)
 REL:      .res 2                ; Relative addressing branch offset (2 bytes)
 DEST:     .res 2                ; Relative address destination address (2 bytes)
 START:    .res 2                ; Memory test- user entered start of memory range. Min is 8 (2 bytes)
@@ -130,6 +114,10 @@ SAVE_P:   .res 1                ; "
 SAVE_PC:  .res 2                ; Holds PC while in BRK handler (2 bytes)
 CHAROK:   .res 1                ; Set to 1 if okay to enter characters prefixed by '
 CHARMODE: .res 1                ; Set if currently entering in character (ASCII) mode
+OWDELAY:   .res 1               ; Delay value when writing (defaults to zero)
+OUPPER:   .res 1                ; Set to $FF when only uppercase output is is desired.
+OHIGHASCII: .res 1              ; Set to $FF when characters should have high bit set
+OCPU:      .res 1               ; CPU type for disassembly
 
 ; Save values of registers
 Start:
@@ -149,10 +137,13 @@ Start:
         LDX #$80                ; initialize stack pointer to $0180
         TXS                     ; so we are less likely to clobber BRK vector at $0100
         LDA #0
-        STA WDELAY              ; initialize write delay to zero
+        STA OWDELAY             ; initialize write delay to zero
         STA RETOK               ; Don't accept <Return> by default
         STA CHAROK              ; Don't accept character input by default
         STA CHARMODE            ; Not currently in char input mode
+        STA OHIGHASCII          ; Characters should not have high bit set
+        LDA #$FF                ; Default to uppercase only mode
+        STA OUPPER
         JSR BPSETUP             ; initialization for breakpoints
         JSR ClearScreen
 
@@ -190,19 +181,6 @@ Help:
         LDX #<HelpString
         LDY #>HelpString
         JSR PrintString
-        RTS
-
-; Add a delay after all writes to accomodate slow EEPROMs.
-; Applies to COPY, FILL, and TEST commands.
-; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
-; Value of $20 works well for me (approx 1.5ms delay with 2MHz clock).
-; See routine WAIT for details.
-WriteDelay:
-        JSR PrintChar           ; echo command
-        JSR PrintSpace
-        JSR GetByte             ; get delay value
-        STA WDELAY
-        JSR PrintCR
         RTS
 
 ; Call CFFA1 flash interface menu
@@ -1176,6 +1154,97 @@ Registers:
         JSR PrintCR
         RTS
 
+; Prompt user to change program options
+Options:
+        LDX #<OptionsString
+        LDY #>OptionsString
+        JSR PrintString
+        LDX #<UppercaseString
+        LDY #>UppercaseString
+        JSR PrintString
+@Retry:
+        JSR GetKey
+        CMP #ESC
+        BEQ @Return
+        CMP #'Y'
+        BEQ @Yes
+        CMP #'N'
+        BEQ @No
+        BNE @Retry
+@Return:
+        JSR PrintCR             ; new line
+        RTS
+@Yes:
+        JSR PrintChar           ; echo command
+        LDA #$FF
+        STA OUPPER
+        BNE @Next
+@No:
+        JSR PrintChar           ; echo command
+        LDA #0
+        STA OUPPER
+@Next:
+        JSR PrintCR             ; new line
+
+; Add a delay after all writes to accomodate slow EEPROMs.
+; Applies to COPY, FILL, and TEST commands.
+; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
+; Value of $20 works well for me (approx 1.5ms delay with 2MHz clock).
+; See routine WAIT for details.
+        LDX #<WriteDelayString
+        LDY #>WriteDelayString
+        JSR PrintString
+        JSR GetByte
+        STA OWDELAY
+        JSR PrintCR             ; new line
+
+        LDX #<HighBitString
+        LDY #>HighBitString
+        JSR PrintString
+@Retry1:
+        JSR GetKey
+        CMP #ESC
+        BEQ @Return
+        CMP #'Y'
+        BEQ @Yes1
+        CMP #'N'
+        BEQ @No1
+        BNE @Retry
+@Yes1:
+        JSR PrintChar           ; echo command
+        LDA #$FF
+        STA OHIGHASCII
+        BNE @Next1
+@No1:
+        JSR PrintChar           ; echo command
+        LDA #0
+        STA OHIGHASCII
+@Next1:
+        JSR PrintCR             ; new line
+
+        LDX #<CPUTypeString
+        LDY #>CPUTypeString
+        JSR PrintString
+@Retry2:
+        JSR GetKey
+        CMP #ESC
+        BEQ @Return
+        CMP #'1'
+        BEQ @Okay
+        CMP #'2'
+        BEQ @Okay
+        CMP #'3'
+        BEQ @Okay
+        CMP #'4'
+        BEQ @Okay
+        BNE @Retry2
+@Okay:
+        JSR PrintChar           ; echo command
+        AND #%00000011          ; Convert ASCII number to binary number
+        STA OCPU
+        JSR PrintCR             ; new line
+        RTS
+
 ; Math command. Add or substract two 16-bit hex numbers.
 ; Format: = <ADDRESS> +/- <ADDRESS>
 ; e.g.
@@ -1319,6 +1388,11 @@ GetHex:
         LDA #1                  ; Set flag that we are in character input mode
         STA CHARMODE
         JSR GetKey              ; Get a character
+
+        BIT OHIGHASCII          ; If OHIGHASCII option is on, set high bit of character
+        BPL @NoConv
+        ORA #%10000000
+@NoConv:
         JSR PrintChar           ; Echo it
         PHA                     ; Save the character
         LDA #'''                ; Echo a quote
@@ -1550,36 +1624,53 @@ done:
 ; Pass byte in A
 ; Registers changed: A
 PRBYTE:
-       PHA             ; Save A for LSD.
-       LSR
-       LSR
-       LSR             ; MSD to LSD position.
-       LSR
-       JSR PRHEX       ; Output hex digit.
-       PLA             ; Restore A.
-                       ; Falls through into PRHEX routine
+        PHA             ; Save A for LSD.
+        LSR
+        LSR
+        LSR             ; MSD to LSD position.
+        LSR
+        JSR PRHEX       ; Output hex digit.
+        PLA             ; Restore A.
+                        ; Falls through into PRHEX routine
 
 ; Print nybble as one hex digit.
 ; Take from Woz Monitor PRHEX routine ($FFE5).
 ; Pass byte in A
 ; Registers changed: A
 PRHEX:
-       AND #$0F        ; Mask LSD for hex print.
-       ORA #'0'+$80    ; Add "0".
-       CMP #$BA        ; Digit?
-       BCC PrintChar   ; Yes, output it.
-       ADC #$06        ; Add offset for letter.
-                       ; Falls through into PrintChar routine
+        AND #$0F        ; Mask LSD for hex print.
+        ORA #'0'+$80    ; Add "0".
+        CMP #$BA        ; Digit?
+        BCC PrintChar   ; Yes, output it.
+        ADC #$06        ; Add offset for letter.
+                        ; Falls through into PrintChar routine
 
 ; Output a character
 ; Pass byte in A
 ; Based on Woz Monitor ECHO routine ($FFEF).
 ; Registers changed: none
 PrintChar:
-       BIT DSP                  ; bit (B7) cleared yet?
-       BMI PrintChar            ; No, wait for display.
-       STA DSP                  ; Output character. Sets DA.
-       RTS                      ; Return.
+        PHP             ; Save status
+        PHA             ; Save A as it may be changed
+@Loop:
+        BIT DSP         ; bit (B7) cleared yet?
+        BMI @Loop       ; No, wait for display.
+
+; If option is set, convert lower case character to upper case
+
+        BIT OUPPER      ; Check value of option
+        BPL @NotLower   ; Skip conversion if not set
+
+        CMP #'a'        ; Is it 'a' or higher?
+	BMI @NotLower
+	CMP #'z'+1      ; Is is 'x' or lower?
+	BPL @NotLower
+	AND #%11011111  ; Convert to upper case by clearing bit 5
+@NotLower:
+        STA DSP         ; Output character. Sets DA.
+        PLA             ; Restore A
+        PLP             ; Restore status
+        RTS             ; Return.
 
 ; Print a dollar sign
 ; Registers changed: None
@@ -1685,9 +1776,9 @@ PromptToContinue:
         PLA        
         RTS
         
-; Delay. Calls routine WAIT using delay constant in WDELAY.
+; Delay. Calls routine WAIT using delay constant in OWDELAY.
 DELAY:
-        LDA WDELAY
+        LDA OWDELAY
         BEQ NODELAY
         JMP WAIT
 NODELAY:
@@ -1722,7 +1813,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDEFGHIKLMRSTUVW:="
+        .byte "$?ABCDEFGHIKLMORSTUV:="
 
 JMPFL:
         .word Invalid-1
@@ -1740,13 +1831,12 @@ JMPFL:
         .word MiniMonitor-1
         .word ClearScreen-1
         .word CFFA1-1
+        .word Options-1
         .word Registers-1
         .word Search-1
         .word Test-1
         .word Unassemble-1
         .word Verify-1
-        .word WriteDelay-1
-        .word Memory-1
         .word Math-1
 
 ; String input routine.
@@ -1879,93 +1969,108 @@ ClearScreen:
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON MONITOR V0.96 BY JEFF TRANTER",CR,0
+        .byte CR,"JMON monitor 0.97 by Jeff Tranter",CR,0
 
 PromptString:
         .asciiz "? "
 
 InvalidCommand:
-        .byte "INVALID COMMAND. TYPE '?' FOR HELP",CR,0
+        .byte "Invalid command. Type '?' for help",CR,0
 
 ; Help string.
 HelpString:
-        .byte "ASSEMBLER   A",CR
-        .byte "BREAKPOINT  B <N OR ?> <ADDRESS>",CR
-        .byte "COPY        C <START> <END> <DEST>",CR
-        .byte "DUMP        D <START>",CR
-        .byte "ACI MENU    E",CR
-        .byte "FILL        F <START> <END> <DATA>...",CR
-        .byte "GO          G <ADDRESS>",CR
-        .byte "HEX TO DEC  H <ADDRESS>",CR
+        .byte "Assembler   A",CR
+        .byte "Breakpoint  B <n OR ?> <address>",CR
+        .byte "Copy        C <start> <end> <dest>",CR
+        .byte "Dump        D <start>",CR
+        .byte "ACI menu    E",CR
+        .byte "Fill        F <start> <end> <data>...",CR
+        .byte "Go          G <address>",CR
+        .byte "Hex to dec  H <address>",CR
         .byte "BASIC       I",CR
-        .byte "MINI MON    K",CR
-        .byte "CLR SCREEN  L",CR
-        .byte "CFFA1 MENU  M",CR
-        .byte "REGISTERS   R",CR
-        .byte "SEARCH      S <START> <END> <DATA>...",CR
-        .byte "TEST        T <START> <END>",CR
-        .byte "UNASSEMBLE  U <START>",CR
-        .byte "VERIFY      V <START> <END> <DEST>",CR
-        .byte "WRITE DELAY W <DATA>",CR
-        .byte "WOZ MON     $",CR
-        .byte "WRITE       : <ADDRESS> <DATA>...",CR
-        .byte "MATH        = <ADDRESS> +/- <ADDRESS>",CR
-        .byte "HELP        ?",CR
+        .byte "Mini mon    K",CR
+        .byte "Clr screen  L",CR
+        .byte "CFFA1 menu  M",CR
+        .byte "Options     O",CR
+        .byte "Registers   R",CR
+        .byte "Search      S <start> <end> <data>...",CR
+        .byte "Test        T <start> <end>",CR
+        .byte "Unassemble  U <start>",CR
+        .byte "Verify      V <start> <end> <dest>",CR
+        .byte "Woz mon     $",CR
+        .byte "Write       : <address> <data>...",CR
+        .byte "Math        = <address> +/- <address>",CR
+        .byte "Help        ?",CR
         .byte 0
 
 ContinueString:
-        .asciiz "  <SPACE> TO CONTINUE, <ESC> TO STOP"
+        .asciiz "  <Space> to continue, <ESC> to stop"
 
 InvalidRange:
-        .byte "ERROR: START MUST BE <= END",CR,0
+        .byte "Error: start must be <= end",CR,0
 
 NotFound:
-        .byte "NOT FOUND",CR,0
+        .byte "Not found",CR,0
 
 Found:
-        .asciiz "FOUND AT: "
+        .asciiz "Found at: "
 
 MismatchString:
-        .asciiz "MISMATCH: "
+        .asciiz "Mismatch: "
 
 TestString1:
-        .asciiz "TESTING MEMORY FROM $"
+        .asciiz "Testing memory from $"
 
 TestString2:
-        .asciiz " TO $"
+        .asciiz " to $"
 
 TestString3:
-        .byte CR,"PRESS ANY KEY TO STOP",CR,0
+        .byte CR,"Press any key to stop",CR,0
 
 VNotRAMString:
-  .byte "BRK VECTOR NOT IN RAM!",CR,0
+  .byte "BRK vector not in RAM!",CR,0
 
 BNotRAMString:
-  .byte "BREAKPOINT NOT IN RAM!",CR,0
+  .byte "Breakpoint not in RAM!",CR,0
 
 NOBPString:
-  .byte "BREAKPOINT NOT SET!",CR,0
+  .byte "Breakpoint not set!",CR,0
 
 IntString:
-  .byte "INTERRUPT ?",CR,0
+  .byte "Interrupt ?",CR,0
 
 UnknownBPString:
-  .asciiz "BREAKPOINT ? AT $"
+  .asciiz "Breakpoint ? at $"
 
 KnownBPString1:
-  .asciiz "BREAKPOINT "
+  .asciiz "Breakpoint "
 
 KnownBPString2:
-  .asciiz " AT $"
+  .asciiz " at $"
 
 NoCFFA1String:
-  .byte "NO CFFA1 CARD FOUND!",CR,0
+  .byte "No CFFA1 card found!",CR,0
 
 NoACIString:
-  .byte "NO ACI CARD FOUND!",CR,0
+  .byte "No ACI card found!",CR,0
 
 ReadString:
   .byte " Read: ",0
+
+OptionsString:
+  .byte "Options",CR,0
+
+UppercaseString:
+  .byte "All uppercase output (Y/N)?",0
+
+WriteDelayString:
+  .byte "Write delay (00-FF)?",0
+
+HighBitString:
+  .byte "Set high bit in characters (Y/N)?",0
+
+CPUTypeString:
+  .byte "CPU type (1-6502 2-Rockwell 65C02",CR,"3-WDC 65C02 4-65816)?",0
 
   .include "disasm.s"
   .include "memtest4.s"
