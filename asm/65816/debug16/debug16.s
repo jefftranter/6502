@@ -84,7 +84,8 @@ MAIN:
  LDA #>MAIN
  STA PCREGH
  STZ PCREGB             ; Set bank to zero
- JSR LIST               ; Call LIST to disassemble
+ JSR LIST              ; Call LIST to disassemble
+; JSR TRACE              ; Call TRACE to trace
  RTS                    ; Return to caller
 
 ; LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
@@ -738,10 +739,12 @@ TRACE:
 
  STZ STEPCNTRL
 
+ LDA #$4C               ; JMP instruction
+ STA USRBRKV            ; Put JMP to vector there
  LDX #EBRKIN            ; PATCH BRK VECTORS
- STX USRBRKV            ; TO POINT TO TRACE CODE
+ STX USRBRKV+1          ; TO POINT TO TRACE CODE
 
- LDX BRKN               ; FIND OUT WHERE BRKN POINTS TO
+ LDX BRKN+1             ; FIND OUT WHERE BRKN POINTS TO
  CPX #$C000             ; MAKE SURE IT'S RAM ON AN APPLE
  BLT @OK
  JMP QUIT               ; MIGHT AS WELL GIVE UP NOW...
