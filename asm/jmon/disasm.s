@@ -151,15 +151,16 @@
  AM_INDIRECT_INDEXED = 13          ; LDA ($12),Y
  AM_INDIRECT_ZEROPAGE = 14         ; LDA ($12) [65C02 only]
  AM_ABSOLUTE_INDEXED_INDIRECT = 15 ; JMP ($1234,X) [65C02 only]
- AM_PROGRAM_COUNTER_RELATIVE_LONG = 16 ; BRL JMPLABEL [65816 only]
- AM_STACK_RELATIVE = 17            ; LDA 3,S [65816 only]
- AM_STACK_RELATIVE_INDIRECT_INDEXED_WITH_Y = 18 ; LDA (5,S),Y [65816 only]
- AM_BLOCK_MOVE = 19                ; MVP 0,0 [65816 only]
- AM_ABSOLUTE_LONG =20              ; LDA $02F000 [65816 only]
- AM_ABSOLUTE_LONG_INDEXED_WITH_X = 21 ; LDA $12D080, X [65816 only]
- AM_ABSOLUTE_INDIRECT_LONG = 22    ; JMP [$2000] [65816 only]
- AM_DIRECT_PAGE_INDIRECT_LONG= 23  ; LDA [$55] [65816 only]
- AM_DIRECT_PAGE_INDIRECT_LONG_INDEXED_WITH_Y = 24 ; LDA [$55], Y [65816 only]
+ AM_STACK_RELATIVE = 16            ; LDA 3,S [65816 only]
+ AM_DIRECT_PAGE_INDIRECT_LONG = 17 ; LDA [$55] [65816 only]
+ AM_ABSOLUTE_LONG = 18             ; LDA $02F000 [65816 only]
+
+; AM_PROGRAM_COUNTER_RELATIVE_LONG =  ; BRL JMPLABEL [65816 only]
+; AM_STACK_RELATIVE_INDIRECT_INDEXED_WITH_Y =  ; LDA (5,S),Y [65816 only]
+; AM_BLOCK_MOVE =                 ; MVP 0,0 [65816 only]
+; AM_ABSOLUTE_LONG_INDEXED_WITH_X =  ; LDA $12D080, X [65816 only]
+; AM_ABSOLUTE_INDIRECT_LONG =     ; JMP [$2000] [65816 only]
+; AM_DIRECT_PAGE_INDIRECT_LONG_INDEXED_WITH_Y =  ; LDA [$55], Y [65816 only]
 
 ; *** CODE ***
 
@@ -479,7 +480,7 @@ TRYINDZ:
   JMP DONEOPS
 TRYABINDIND:
   CMP #AM_ABSOLUTE_INDEXED_INDIRECT ; [65C02 only]
-  BNE DONEOPS
+  BNE TRYSTACKREL
   JSR PrintLParenDollar
   LDY #2
   LDA (ADDR),Y          ; get 2nd operand byte (high address)
@@ -490,6 +491,42 @@ TRYABINDIND:
   JSR PrintCommaX
   JSR PrintRParen
   JMP DONEOPS
+
+TRYSTACKREL:
+  CMP #AM_STACK_RELATIVE ; [WDC 65816 only]
+  BNE TRYDPIL
+  LDY #1
+  LDA (ADDR),Y          ; get 1st operand byte (address)
+  JSR PrintDollar
+  JSR PrintByte         ; display it
+  JSR PrintCommaS
+  JMP DONEOPS       
+
+TRYDPIL:
+  CMP #AM_DIRECT_PAGE_INDIRECT_LONG ; [WDC 65816 only]
+  BNE TRYABSLONG
+  JSR PrintLBraceDollar
+  LDY #1
+  LDA (ADDR),Y          ; get 1st operand byte (low address)
+  JSR PrintByte         ; display it
+  JSR PrintRBrace
+  JMP DONEOPS
+
+TRYABSLONG:
+  CMP #AM_ABSOLUTE_LONG ; [WDC 65816 only]
+  BNE DONEOPS
+  JSR PrintDollar
+  LDY #3
+  LDA (ADDR),Y          ; get 3nd operand byte (bank address)
+  JSR PrintByte         ; display it
+  LDY #2
+  LDA (ADDR),Y          ; get 2nd operand byte (high address)
+  JSR PrintByte         ; display it
+  LDY #1
+  LDA (ADDR),Y          ; get 1st operand byte (low address)
+  JSR PrintByte         ; display it
+  JMP DONEOPS
+
 DONEOPS:
   JSR PrintCR           ; print a final CR
   LDA ADDR              ; update address to next instruction
@@ -579,7 +616,7 @@ MNEMONICS:
  .byte "WAI" ; $46 [WDC 65C02 and 65816 only]
  .byte "BRL" ; $47 [WDC 65816 only]
  .byte "COP" ; $48 [WDC 65816 only]
- .byte "JML" ; $49 [WDC 65816 only]
+ .byte "JMP" ; $49 [WDC 65816 only]
  .byte "JSL" ; $4A [WDC 65816 only]
  .byte "MVN" ; $4B [WDC 65816 only]
  .byte "MVP" ; $4C [WDC 65816 only]
@@ -606,7 +643,7 @@ MNEMONICS:
 
 ; Lengths of instructions given an addressing mode. Matches values of AM_*
 LENGTHS: 
- .byte 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3
+ .byte 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 4
 
 ; Opcodes. Listed in order. Defines the mnemonic and addressing mode.
 ; 2 bytes per table entry
@@ -614,13 +651,13 @@ LENGTHS:
 OPCODES1:
  .byte OP_BRK, AM_IMPLICIT           ; $00
  .byte OP_ORA, AM_INDEXED_INDIRECT   ; $01
- .byte OP_COP, AM_IMPLICIT           ; $02 [WDC 65816 only]
- .byte OP_ORA, AM_IMPLICIT           ; $03 [WDC 65816 only]
+ .byte OP_COP, AM_ZEROPAGE           ; $02 [WDC 65816 only]
+ .byte OP_ORA, AM_STACK_RELATIVE     ; $03 [WDC 65816 only]
  .byte OP_TSB, AM_ZEROPAGE           ; $04 [65C02 only]
  .byte OP_ORA, AM_ZEROPAGE           ; $05
  .byte OP_ASL, AM_ZEROPAGE           ; $06
 ;.byte OP_RMB, AM_ZEROPAGE           ; $07 [65C02 only]
- .byte OP_ORA, AM_IMPLICIT           ; $07 [WDC 65816 only]
+ .byte OP_ORA, AM_DIRECT_PAGE_INDIRECT_LONG ; $07 [WDC 65816 only]
 
  .byte OP_PHP, AM_IMPLICIT           ; $08
  .byte OP_ORA, AM_IMMEDIATE          ; $09
@@ -630,7 +667,7 @@ OPCODES1:
  .byte OP_ORA, AM_ABSOLUTE           ; $0D
  .byte OP_ASL, AM_ABSOLUTE           ; $0E
 ;.byte OP_BBR, AM_ABSOLUTE           ; $0F [65C02 only]
- .byte OP_ORA, AM_IMPLICIT           ; $0F [WDC 65816 only]
+ .byte OP_ORA, AM_ABSOLUTE_LONG      ; $0F [WDC 65816 only]
 
  .byte OP_BPL, AM_RELATIVE           ; $10
  .byte OP_ORA, AM_INDIRECT_INDEXED   ; $11
@@ -653,13 +690,13 @@ OPCODES1:
 
  .byte OP_JSR, AM_ABSOLUTE           ; $20
  .byte OP_AND, AM_INDEXED_INDIRECT   ; $21
- .byte OP_JSR, AM_IMPLICIT           ; $22
- .byte OP_AND, AM_IMPLICIT           ; $23
+ .byte OP_JSR, AM_ABSOLUTE_LONG      ; $22
+ .byte OP_AND, AM_STACK_RELATIVE     ; $23
  .byte OP_BIT, AM_ZEROPAGE           ; $24
  .byte OP_AND, AM_ZEROPAGE           ; $25
  .byte OP_ROL, AM_ZEROPAGE           ; $26
 ;.byte OP_RMB, AM_ZEROPAGE           ; $27 [65C02 only]
- .byte OP_AND, AM_IMPLICIT           ; $27 [WDC 65816 only]
+ .byte OP_AND, AM_DIRECT_PAGE_INDIRECT_LONG ; $27 [WDC 65816 only]
  .byte OP_PLP, AM_IMPLICIT           ; $28
  .byte OP_AND, AM_IMMEDIATE          ; $29
  .byte OP_ROL, AM_ACCUMULATOR        ; $2A
@@ -668,7 +705,7 @@ OPCODES1:
  .byte OP_AND, AM_ABSOLUTE           ; $2D
  .byte OP_ROL, AM_ABSOLUTE           ; $2E
 ;.byte OP_BBR, AM_ABSOLUTE           ; $2F [65C02 only]
- .byte OP_AND, AM_IMPLICIT           ; $2F [WDC 65816 only]
+ .byte OP_AND, AM_ABSOLUTE_LONG      ; $2F [WDC 65816 only]
 
  .byte OP_BMI, AM_RELATIVE           ; $30
  .byte OP_AND, AM_INDIRECT_INDEXED   ; $31 [65C02 only]
@@ -692,12 +729,12 @@ OPCODES1:
  .byte OP_RTI, AM_IMPLICIT           ; $40
  .byte OP_EOR, AM_INDEXED_INDIRECT   ; $41
  .byte OP_WDM, AM_IMPLICIT           ; $42 [WDC 65816 only]
- .byte OP_EOR, AM_IMPLICIT           ; $43 [WDC 65816 only]
+ .byte OP_EOR, AM_STACK_RELATIVE     ; $43 [WDC 65816 only]
  .byte OP_MVP, AM_IMPLICIT           ; $44 [WDC 65816 only]
  .byte OP_EOR, AM_ZEROPAGE           ; $45
  .byte OP_LSR, AM_ZEROPAGE           ; $46
 ;.byte OP_RMB, AM_ZEROPAGE           ; $47 [65C02 only]
- .byte OP_EOR, AM_IMPLICIT           ; $47 [WDC 65816 only]
+ .byte OP_EOR, AM_DIRECT_PAGE_INDIRECT_LONG ; $47 [WDC 65816 only]
  .byte OP_PHA, AM_IMPLICIT           ; $48
  .byte OP_EOR, AM_IMMEDIATE          ; $49
  .byte OP_LSR, AM_ACCUMULATOR        ; $4A
@@ -706,7 +743,7 @@ OPCODES1:
  .byte OP_EOR, AM_ABSOLUTE           ; $4D
  .byte OP_LSR, AM_ABSOLUTE           ; $4E
 ;.byte OP_BBR, AM_ABSOLUTE           ; $4F [65C02 only]
- .byte OP_EOR, AM_IMPLICIT           ; $4F [WDC 65816 only]
+ .byte OP_EOR, AM_ABSOLUTE_LONG      ; $4F [WDC 65816 only]
 
  .byte OP_BVC, AM_RELATIVE           ; $50
  .byte OP_EOR, AM_INDIRECT_INDEXED   ; $51
@@ -721,7 +758,7 @@ OPCODES1:
  .byte OP_EOR, AM_ABSOLUTE_Y         ; $59
  .byte OP_PHY, AM_IMPLICIT           ; $5A [65C02 only]
  .byte OP_TCD, AM_IMPLICIT           ; $5B [WDC 65816 only]
- .byte OP_JML, AM_IMPLICIT           ; $5C [WDC 65816 only]
+ .byte OP_JML, AM_ABSOLUTE_LONG      ; $5C [WDC 65816 only]
  .byte OP_EOR, AM_ABSOLUTE_X         ; $5D
  .byte OP_LSR, AM_ABSOLUTE_X         ; $5E
 ;.byte OP_BBR, AM_ABSOLUTE           ; $5F [65C02 only]
@@ -730,12 +767,12 @@ OPCODES1:
  .byte OP_RTS, AM_IMPLICIT           ; $60
  .byte OP_ADC, AM_INDEXED_INDIRECT   ; $61
  .byte OP_PER, AM_IMPLICIT           ; $62 [WDC 65816 only]
- .byte OP_ADC, AM_IMPLICIT           ; $63 [WDC 65816 only]
+ .byte OP_ADC, AM_STACK_RELATIVE     ; $63 [WDC 65816 only]
  .byte OP_STZ, AM_ZEROPAGE           ; $64 [65C02 only]
  .byte OP_ADC, AM_ZEROPAGE           ; $65
  .byte OP_ROR, AM_ZEROPAGE           ; $66
 ;.byte OP_RMB, AM_ZEROPAGE           ; $67 [65C02 only]
- .byte OP_ADC, AM_IMPLICIT           ; $67 [WDC 65816 only]
+ .byte OP_ADC, AM_DIRECT_PAGE_INDIRECT_LONG ; $67 [WDC 65816 only]
  .byte OP_PLA, AM_IMPLICIT           ; $68
  .byte OP_ADC, AM_IMMEDIATE          ; $69
  .byte OP_ROR, AM_ACCUMULATOR        ; $6A
@@ -744,7 +781,7 @@ OPCODES1:
  .byte OP_ADC, AM_ABSOLUTE           ; $6D
  .byte OP_ROR, AM_ABSOLUTE           ; $6E
 ;.byte OP_BBR, AM_ABSOLUTE           ; $6F [65C02 only]
- .byte OP_ADC, AM_IMPLICIT           ; $6F [WDC 65816 only]
+ .byte OP_ADC, AM_ABSOLUTE_LONG      ; $6F [WDC 65816 only]
 
  .byte OP_BVS, AM_RELATIVE           ; $70
  .byte OP_ADC, AM_INDIRECT_INDEXED   ; $71
@@ -770,12 +807,12 @@ OPCODES2:
  .byte OP_BRA, AM_RELATIVE           ; $80 [65C02 only]
  .byte OP_STA, AM_INDEXED_INDIRECT   ; $81
  .byte OP_BRL, AM_IMPLICIT           ; $82 [WDC 65816 only]
- .byte OP_STA, AM_IMPLICIT           ; $83 [WDC 65816 only]
+ .byte OP_STA, AM_STACK_RELATIVE     ; $83 [WDC 65816 only]
  .byte OP_STY, AM_ZEROPAGE           ; $84
  .byte OP_STA, AM_ZEROPAGE           ; $85
  .byte OP_STX, AM_ZEROPAGE           ; $86
 ;.byte OP_SMB, AM_ZEROPAGE           ; $87 [65C02 only]
- .byte OP_STA, AM_IMPLICIT           ; $87 [WDC 65816 only]
+ .byte OP_STA, AM_DIRECT_PAGE_INDIRECT_LONG ; $87 [WDC 65816 only]
  .byte OP_DEY, AM_IMPLICIT           ; $88
  .byte OP_BIT, AM_IMMEDIATE          ; $89 [65C02 only]
  .byte OP_TXA, AM_IMPLICIT           ; $8A
@@ -784,7 +821,7 @@ OPCODES2:
  .byte OP_STA, AM_ABSOLUTE           ; $8D
  .byte OP_STX, AM_ABSOLUTE           ; $8E
 ;.byte OP_BBS, AM_ABSOLUTE           ; $8F [65C02 only]
- .byte OP_STA, AM_IMPLICIT           ; $8F [WDC 65816 only]
+ .byte OP_STA, AM_ABSOLUTE_LONG      ; $8F [WDC 65816 only]
 
  .byte OP_BCC, AM_RELATIVE           ; $90
  .byte OP_STA, AM_INDIRECT_INDEXED   ; $91
@@ -808,12 +845,12 @@ OPCODES2:
  .byte OP_LDY, AM_IMMEDIATE          ; $A0
  .byte OP_LDA, AM_INDEXED_INDIRECT   ; $A1
  .byte OP_LDX, AM_IMMEDIATE          ; $A2
- .byte OP_LDA, AM_IMPLICIT           ; $A3 [WDC 65816 only]
+ .byte OP_LDA, AM_STACK_RELATIVE     ; $A3 [WDC 65816 only]
  .byte OP_LDY, AM_ZEROPAGE           ; $A4
  .byte OP_LDA, AM_ZEROPAGE           ; $A5
  .byte OP_LDX, AM_ZEROPAGE           ; $A6
 ;.byte OP_SMB, AM_ZEROPAGE           ; $A7 [65C02 only]
- .byte OP_LDA, AM_IMPLICIT           ; $A7 [WDC 65816 only]
+ .byte OP_LDA, AM_DIRECT_PAGE_INDIRECT_LONG ; $A7 [WDC 65816 only]
  .byte OP_TAY, AM_IMPLICIT           ; $A8
  .byte OP_LDA, AM_IMMEDIATE          ; $A9
  .byte OP_TAX, AM_IMPLICIT           ; $AA
@@ -822,7 +859,7 @@ OPCODES2:
  .byte OP_LDA, AM_ABSOLUTE           ; $AD
  .byte OP_LDX, AM_ABSOLUTE           ; $AE
 ;.byte OP_BBS, AM_ABSOLUTE           ; $AF [65C02 only]
- .byte OP_LDA, AM_IMPLICIT           ; $AF [WDC 65816 only]
+ .byte OP_LDA, AM_ABSOLUTE_LONG      ; $AF [WDC 65816 only]
 
  .byte OP_BCS, AM_RELATIVE           ; $B0
  .byte OP_LDA, AM_INDIRECT_INDEXED   ; $B1
@@ -846,12 +883,12 @@ OPCODES2:
  .byte OP_CPY, AM_IMMEDIATE          ; $C0
  .byte OP_CMP, AM_INDEXED_INDIRECT   ; $C1
  .byte OP_REP, AM_IMMEDIATE          ; $C2 [WDC 65816 only]
- .byte OP_CMP, AM_IMPLICIT           ; $C3 [WDC 65816 only]
+ .byte OP_CMP, AM_STACK_RELATIVE     ; $C3 [WDC 65816 only]
  .byte OP_CPY, AM_ZEROPAGE           ; $C4
  .byte OP_CMP, AM_ZEROPAGE           ; $C5
  .byte OP_DEC, AM_ZEROPAGE           ; $C6
 ;.byte OP_SMB, AM_ZEROPAGE           ; $C7 [65C02 only]
- .byte OP_CMP, AM_IMPLICIT           ; $C7 [WDC 65816 only]
+ .byte OP_CMP, AM_DIRECT_PAGE_INDIRECT_LONG ; $C7 [WDC 65816 only]
  .byte OP_INY, AM_IMPLICIT           ; $C8
  .byte OP_CMP, AM_IMMEDIATE          ; $C9
  .byte OP_DEX, AM_IMPLICIT           ; $CA
@@ -860,7 +897,7 @@ OPCODES2:
  .byte OP_CMP, AM_ABSOLUTE           ; $CD
  .byte OP_DEC, AM_ABSOLUTE           ; $CE
 ;.byte OP_BBS, AM_ABSOLUTE           ; $CF [65C02 only]
- .byte OP_CMP, AM_IMPLICIT           ; $CF [WDC 65816 only]
+ .byte OP_CMP, AM_ABSOLUTE_LONG      ; $CF [WDC 65816 only]
 
  .byte OP_BNE, AM_RELATIVE           ; $D0
  .byte OP_CMP, AM_INDIRECT_INDEXED   ; $D1
@@ -884,11 +921,11 @@ OPCODES2:
  .byte OP_CPX, AM_IMMEDIATE          ; $E0
  .byte OP_SBC, AM_INDEXED_INDIRECT   ; $E1
  .byte OP_CPX, AM_IMMEDIATE          ; $E2 [WDC 65816 only]
- .byte OP_SBC, AM_IMPLICIT           ; $E3 [WDC 65816 only]
+ .byte OP_SBC, AM_STACK_RELATIVE     ; $E3 [WDC 65816 only]
  .byte OP_CPX, AM_ZEROPAGE           ; $E4
  .byte OP_SBC, AM_ZEROPAGE           ; $E5
  .byte OP_INC, AM_ZEROPAGE           ; $E6
- .byte OP_SMB, AM_ZEROPAGE           ; $E7 [65C02 only]
+ .byte OP_SMB, AM_DIRECT_PAGE_INDIRECT_LONG ; $E7 [65C02 only]
  .byte OP_INX, AM_IMPLICIT           ; $E8
  .byte OP_SBC, AM_IMMEDIATE          ; $E9
  .byte OP_NOP, AM_IMPLICIT           ; $EA
@@ -897,7 +934,7 @@ OPCODES2:
  .byte OP_SBC, AM_ABSOLUTE           ; $ED
  .byte OP_INC, AM_ABSOLUTE           ; $EE
 ;.byte OP_BBS, AM_ABSOLUTE           ; $EF [65C02 only]
- .byte OP_SBC, AM_IMPLICIT           ; $EF [WDC 65816 only]
+ .byte OP_SBC, AM_ABSOLUTE_LONG      ; $EF [WDC 65816 only]
 
  .byte OP_BEQ, AM_RELATIVE           ; $F0
  .byte OP_SBC, AM_INDIRECT_INDEXED   ; $F1

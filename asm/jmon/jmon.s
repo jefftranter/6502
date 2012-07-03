@@ -1703,6 +1703,17 @@ PrintCommaY:
         PLA
         RTS
 
+; Print ",S"
+; Registers changed: None
+PrintCommaS:
+        PHA
+        LDA #','
+        JSR PrintChar
+        LDA #'S'
+        JSR PrintChar
+        PLA
+        RTS
+
 ; Print "($"
 ; Registers changed: None
 PrintLParenDollar:
@@ -1714,11 +1725,31 @@ PrintLParenDollar:
         PLA
         RTS
 
+; Print "[$"
+; Registers changed: None
+PrintLBraceDollar:
+        PHA
+        LDA #'['
+        JSR PrintChar
+        LDA #'$'
+        JSR PrintChar
+        PLA
+        RTS
+
 ; Print a right parenthesis
 ; Registers changed: None
 PrintRParen:
         PHA
         LDA #')'
+        JSR PrintChar
+        PLA
+        RTS
+
+; Print a right brace
+; Registers changed: None
+PrintRBrace:
+        PHA
+        LDA #']'
         JSR PrintChar
         PLA
         RTS
@@ -1980,7 +2011,7 @@ InvalidCommand:
 ; Help string.
 HelpString:
         .byte "Assembler   A",CR
-        .byte "Breakpoint  B <n OR ?> <address>",CR
+        .byte "Breakpoint  B <n or ?> <address>",CR
         .byte "Copy        C <start> <end> <dest>",CR
         .byte "Dump        D <start>",CR
         .byte "ACI menu    E",CR
