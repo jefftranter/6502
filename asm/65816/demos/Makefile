@@ -1,4 +1,4 @@
-all:	demo1.mon demo2.mon demo3.mon
+all:	demo1.mon demo2.mon demo3.mon demo4.mon
 
 demo1.mon: demo1.bin
 	bintomon -l 0x6000 -r - demo1.bin >demo1.mon
@@ -26,6 +26,15 @@ demo3.bin: demo3.o
 
 demo3.o: demo3.s
 	ca65 -g -l demo3.s
+
+demo4.mon: demo4.bin
+	bintomon -l 0x6000 -r - demo4.bin >demo4.mon
+
+demo4.bin: demo4.o
+	ld65 -t replica1 -vm -m demo4.map -o demo4.bin demo4.o
+
+demo4.o: demo4.s
+	ca65 -g -l demo4.s
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin
