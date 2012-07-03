@@ -19,6 +19,7 @@
 ; Version Date         Comments
 ; 0.0     25-Mar-2012  First version started
 ; 0.9     28-Mar-2012  First public beta version
+; 1.0     03-Jul-2012  Added 65816 support
 
 ; *** ASSEMBLY TIME OPTIONS ***
 
@@ -104,8 +105,34 @@
  OP_STZ = $42 ; [65C02 only]
  OP_TRB = $43 ; [65C02 only]
  OP_TSB = $44 ; [65C02 only]
- OP_STP = $45 ; [WDC 65C02 only]
- OP_WAI = $46 ; [WDC 65C02 only]
+ OP_STP = $45 ; [WDC 65C02 and 65816 only]
+ OP_WAI = $46 ; [WDC 65C02 and 65816 only]
+ OP_BRL = $47 ; [WDC 65816 only]
+ OP_COP = $48 ; [WDC 65816 only]
+ OP_JML = $49 ; [WDC 65816 only]
+ OP_JSL = $4A ; [WDC 65816 only]
+ OP_MVN = $4B ; [WDC 65816 only]
+ OP_MVP = $4C ; [WDC 65816 only]
+ OP_PEA = $4D ; [WDC 65816 only]
+ OP_PEI = $4E ; [WDC 65816 only]
+ OP_PER = $4F ; [WDC 65816 only]
+ OP_PHB = $50 ; [WDC 65816 only]
+ OP_PHD = $51 ; [WDC 65816 only]
+ OP_PHK = $52 ; [WDC 65816 only]
+ OP_PLB = $53 ; [WDC 65816 only]
+ OP_PLD = $54 ; [WDC 65816 only]
+ OP_REP = $55 ; [WDC 65816 only]
+ OP_RTL = $56 ; [WDC 65816 only]
+ OP_SEP = $57 ; [WDC 65816 only]
+ OP_TCD = $58 ; [WDC 65816 only]
+ OP_TCS = $59 ; [WDC 65816 only]
+ OP_TDC = $5A ; [WDC 65816 only]
+ OP_TSC = $5B ; [WDC 65816 only]
+ OP_TXY = $5C ; [WDC 65816 only]
+ OP_TYX = $5D ; [WDC 65816 only]
+ OP_WDM = $5E ; [WDC 65816 only]
+ OP_XBA = $5F ; [WDC 65816 only]
+ OP_XCE = $60 ; [WDC 65816 only]
 
 ; Addressing Modes. OPCODES1/OPCODES2 tables list these for each instruction. LENGTHS lists the instruction length for each addressing mode.
  AM_INVALID = 0                    ; example:
@@ -124,6 +151,15 @@
  AM_INDIRECT_INDEXED = 13          ; LDA ($12),Y
  AM_INDIRECT_ZEROPAGE = 14         ; LDA ($12) [65C02 only]
  AM_ABSOLUTE_INDEXED_INDIRECT = 15 ; JMP ($1234,X) [65C02 only]
+ AM_PROGRAM_COUNTER_RELATIVE_LONG = 16 ; BRL JMPLABEL [65816 only]
+ AM_STACK_RELATIVE = 17            ; LDA 3,S [65816 only]
+ AM_STACK_RELATIVE_INDIRECT_INDEXED_WITH_Y = 18 ; LDA (5,S),Y [65816 only]
+ AM_BLOCK_MOVE = 19                ; MVP 0,0 [65816 only]
+ AM_ABSOLUTE_LONG =20              ; LDA $02F000 [65816 only]
+ AM_ABSOLUTE_LONG_INDEXED_WITH_X = 21 ; LDA $12D080, X [65816 only]
+ AM_ABSOLUTE_INDIRECT_LONG = 22    ; JMP [$2000] [65816 only]
+ AM_DIRECT_PAGE_INDIRECT_LONG= 23  ; LDA [$55] [65816 only]
+ AM_DIRECT_PAGE_INDIRECT_LONG_INDEXED_WITH_Y = 24 ; LDA [$55], Y [65816 only]
 
 ; *** CODE ***
 
@@ -539,8 +575,34 @@ MNEMONICS:
  .byte "STZ" ; $42 [65C02 only]
  .byte "TRB" ; $43 [65C02 only]
  .byte "TSB" ; $44 [65C02 only]
- .byte "STP" ; $45 [WDC 65C02 only]
- .byte "WAI" ; $46 [WDC 65C02 only]
+ .byte "STP" ; $45 [WDC 65C02 and 65816 only]
+ .byte "WAI" ; $46 [WDC 65C02 and 65816 only]
+ .byte "BRL" ; $47 [WDC 65816 only]
+ .byte "COP" ; $48 [WDC 65816 only]
+ .byte "JML" ; $49 [WDC 65816 only]
+ .byte "JSL" ; $4A [WDC 65816 only]
+ .byte "MVN" ; $4B [WDC 65816 only]
+ .byte "MVP" ; $4C [WDC 65816 only]
+ .byte "PEA" ; $4D [WDC 65816 only]
+ .byte "PEI" ; $4E [WDC 65816 only]
+ .byte "PER" ; $4F [WDC 65816 only]
+ .byte "PHB" ; $50 [WDC 65816 only]
+ .byte "PHD" ; $51 [WDC 65816 only]
+ .byte "PHK" ; $52 [WDC 65816 only]
+ .byte "PLB" ; $53 [WDC 65816 only]
+ .byte "PLD" ; $54 [WDC 65816 only]
+ .byte "REP" ; $55 [WDC 65816 only]
+ .byte "RTL" ; $56 [WDC 65816 only]
+ .byte "SEP" ; $57 [WDC 65816 only]
+ .byte "TCD" ; $58 [WDC 65816 only]
+ .byte "TCS" ; $59 [WDC 65816 only]
+ .byte "TDC" ; $5A [WDC 65816 only]
+ .byte "TSC" ; $5B [WDC 65816 only]
+ .byte "TXY" ; $5C [WDC 65816 only]
+ .byte "TYX" ; $5D [WDC 65816 only]
+ .byte "WDM" ; $5E [WDC 65816 only]
+ .byte "XBA" ; $5F [WDC 65816 only]
+ .byte "XCE" ; $60 [WDC 65816 only]
 
 ; Lengths of instructions given an addressing mode. Matches values of AM_*
 LENGTHS: 
@@ -552,247 +614,277 @@ LENGTHS:
 OPCODES1:
  .byte OP_BRK, AM_IMPLICIT           ; $00
  .byte OP_ORA, AM_INDEXED_INDIRECT   ; $01
- .byte OP_INV, AM_INVALID            ; $02
- .byte OP_INV, AM_INVALID            ; $03
+ .byte OP_COP, AM_IMPLICIT           ; $02 [WDC 65816 only]
+ .byte OP_ORA, AM_IMPLICIT           ; $03 [WDC 65816 only]
  .byte OP_TSB, AM_ZEROPAGE           ; $04 [65C02 only]
  .byte OP_ORA, AM_ZEROPAGE           ; $05
  .byte OP_ASL, AM_ZEROPAGE           ; $06
- .byte OP_RMB, AM_ZEROPAGE           ; $07 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $07 [65C02 only]
+ .byte OP_ORA, AM_IMPLICIT           ; $07 [WDC 65816 only]
+
  .byte OP_PHP, AM_IMPLICIT           ; $08
  .byte OP_ORA, AM_IMMEDIATE          ; $09
  .byte OP_ASL, AM_ACCUMULATOR        ; $0A
- .byte OP_INV, AM_INVALID            ; $0B
+ .byte OP_PHD, AM_IMPLICIT           ; $0B [WDC 65816 only]
  .byte OP_TSB, AM_ABSOLUTE           ; $0C [65C02 only]
  .byte OP_ORA, AM_ABSOLUTE           ; $0D
  .byte OP_ASL, AM_ABSOLUTE           ; $0E
- .byte OP_BBR, AM_ABSOLUTE           ; $0F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $0F [65C02 only]
+ .byte OP_ORA, AM_IMPLICIT           ; $0F [WDC 65816 only]
 
  .byte OP_BPL, AM_RELATIVE           ; $10
  .byte OP_ORA, AM_INDIRECT_INDEXED   ; $11
  .byte OP_ORA, AM_INDIRECT_ZEROPAGE  ; $12 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $13
+ .byte OP_ORA, AM_IMPLICIT           ; $13 [WDC 65816 only]
  .byte OP_TRB, AM_ZEROPAGE           ; $14 [65C02 only]
  .byte OP_ORA, AM_ZEROPAGE_X         ; $15
  .byte OP_ASL, AM_ZEROPAGE_X         ; $16
- .byte OP_RMB, AM_ZEROPAGE           ; $17 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $17 [65C02 only]
+ .byte OP_ORA, AM_IMPLICIT           ; $17 [WDC 65816 only]
  .byte OP_CLC, AM_IMPLICIT           ; $18
  .byte OP_ORA, AM_ABSOLUTE_Y         ; $19
  .byte OP_INC, AM_ACCUMULATOR        ; $1A [65C02 only]
- .byte OP_INV, AM_INVALID            ; $1B
+ .byte OP_TCS, AM_IMPLICIT           ; $1B [WDC 65816 only]
  .byte OP_TRB, AM_ABSOLUTE           ; $1C [65C02 only]
  .byte OP_ORA, AM_ABSOLUTE_X         ; $1D
  .byte OP_ASL, AM_ABSOLUTE_X         ; $1E
- .byte OP_BBR, AM_ABSOLUTE           ; $1F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $1F [65C02 only]
+ .byte OP_ORA, AM_IMPLICIT           ; $1F [WDC 65816 only]
 
  .byte OP_JSR, AM_ABSOLUTE           ; $20
  .byte OP_AND, AM_INDEXED_INDIRECT   ; $21
- .byte OP_INV, AM_INVALID            ; $22
- .byte OP_INV, AM_INVALID            ; $23
+ .byte OP_JSR, AM_IMPLICIT           ; $22
+ .byte OP_AND, AM_IMPLICIT           ; $23
  .byte OP_BIT, AM_ZEROPAGE           ; $24
  .byte OP_AND, AM_ZEROPAGE           ; $25
  .byte OP_ROL, AM_ZEROPAGE           ; $26
- .byte OP_RMB, AM_ZEROPAGE           ; $27 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $27 [65C02 only]
+ .byte OP_AND, AM_IMPLICIT           ; $27 [WDC 65816 only]
  .byte OP_PLP, AM_IMPLICIT           ; $28
  .byte OP_AND, AM_IMMEDIATE          ; $29
  .byte OP_ROL, AM_ACCUMULATOR        ; $2A
- .byte OP_INV, AM_INVALID            ; $2B
+ .byte OP_PLD, AM_IMPLICIT           ; $2B [WDC 65816 only]
  .byte OP_BIT, AM_ABSOLUTE           ; $2C
  .byte OP_AND, AM_ABSOLUTE           ; $2D
  .byte OP_ROL, AM_ABSOLUTE           ; $2E
- .byte OP_BBR, AM_ABSOLUTE           ; $2F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $2F [65C02 only]
+ .byte OP_AND, AM_IMPLICIT           ; $2F [WDC 65816 only]
 
  .byte OP_BMI, AM_RELATIVE           ; $30
  .byte OP_AND, AM_INDIRECT_INDEXED   ; $31 [65C02 only]
  .byte OP_AND, AM_INDIRECT_ZEROPAGE  ; $32 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $33
+ .byte OP_AND, AM_IMPLICIT           ; $33 [WDC 65816 only]
  .byte OP_BIT, AM_ZEROPAGE_X         ; $34 [65C02 only]
  .byte OP_AND, AM_ZEROPAGE_X         ; $35
  .byte OP_ROL, AM_ZEROPAGE_X         ; $36
- .byte OP_RMB, AM_ZEROPAGE           ; $37 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $37 [65C02 only]
+ .byte OP_AND, AM_IMPLICIT           ; $37 [WDC 65816 only]
  .byte OP_SEC, AM_IMPLICIT           ; $38
  .byte OP_AND, AM_ABSOLUTE_Y         ; $39
  .byte OP_DEC, AM_ACCUMULATOR        ; $3A [65C02 only]
- .byte OP_INV, AM_INVALID            ; $3B
+ .byte OP_TSC, AM_IMPLICIT           ; $3B [WDC 65816 only]
  .byte OP_BIT, AM_ABSOLUTE_X         ; $3C [65C02 only]
  .byte OP_AND, AM_ABSOLUTE_X         ; $3D
  .byte OP_ROL, AM_ABSOLUTE_X         ; $3E
- .byte OP_BBR, AM_ABSOLUTE           ; $3F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $3F [65C02 only]
+ .byte OP_AND, AM_IMPLICIT           ; $3F [WDC 65816 only]
 
  .byte OP_RTI, AM_IMPLICIT           ; $40
  .byte OP_EOR, AM_INDEXED_INDIRECT   ; $41
- .byte OP_INV, AM_INVALID            ; $42
- .byte OP_INV, AM_INVALID            ; $43
- .byte OP_INV, AM_INVALID            ; $44
+ .byte OP_WDM, AM_IMPLICIT           ; $42 [WDC 65816 only]
+ .byte OP_EOR, AM_IMPLICIT           ; $43 [WDC 65816 only]
+ .byte OP_MVP, AM_IMPLICIT           ; $44 [WDC 65816 only]
  .byte OP_EOR, AM_ZEROPAGE           ; $45
  .byte OP_LSR, AM_ZEROPAGE           ; $46
- .byte OP_RMB, AM_ZEROPAGE           ; $47 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $47 [65C02 only]
+ .byte OP_EOR, AM_IMPLICIT           ; $47 [WDC 65816 only]
  .byte OP_PHA, AM_IMPLICIT           ; $48
  .byte OP_EOR, AM_IMMEDIATE          ; $49
  .byte OP_LSR, AM_ACCUMULATOR        ; $4A
- .byte OP_INV, AM_INVALID            ; $4B
+ .byte OP_PHK, AM_IMPLICIT           ; $4B [WDC 65816 only]
  .byte OP_JMP, AM_ABSOLUTE           ; $4C
  .byte OP_EOR, AM_ABSOLUTE           ; $4D
  .byte OP_LSR, AM_ABSOLUTE           ; $4E
- .byte OP_BBR, AM_ABSOLUTE           ; $4F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $4F [65C02 only]
+ .byte OP_EOR, AM_IMPLICIT           ; $4F [WDC 65816 only]
 
  .byte OP_BVC, AM_RELATIVE           ; $50
  .byte OP_EOR, AM_INDIRECT_INDEXED   ; $51
  .byte OP_EOR, AM_INDIRECT_ZEROPAGE  ; $52 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $53
- .byte OP_INV, AM_INVALID            ; $54
+ .byte OP_EOR, AM_IMPLICIT           ; $53 [WDC 65816 only]
+ .byte OP_MVN, AM_IMPLICIT           ; $54 [WDC 65816 only]
  .byte OP_EOR, AM_ZEROPAGE_X         ; $55
  .byte OP_LSR, AM_ZEROPAGE_X         ; $56
- .byte OP_RMB, AM_ZEROPAGE           ; $57 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $57 [65C02 only]
+ .byte OP_EOR, AM_IMPLICIT           ; $57 [WDC 65816 only]
  .byte OP_CLI, AM_IMPLICIT           ; $58
  .byte OP_EOR, AM_ABSOLUTE_Y         ; $59
  .byte OP_PHY, AM_IMPLICIT           ; $5A [65C02 only]
- .byte OP_INV, AM_INVALID            ; $5B
- .byte OP_INV, AM_INVALID            ; $5C
+ .byte OP_TCD, AM_IMPLICIT           ; $5B [WDC 65816 only]
+ .byte OP_JML, AM_IMPLICIT           ; $5C [WDC 65816 only]
  .byte OP_EOR, AM_ABSOLUTE_X         ; $5D
  .byte OP_LSR, AM_ABSOLUTE_X         ; $5E
- .byte OP_BBR, AM_ABSOLUTE           ; $5F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $5F [65C02 only]
+ .byte OP_EOR, AM_IMPLICIT           ; $5F [WDC 65816 only]
 
  .byte OP_RTS, AM_IMPLICIT           ; $60
  .byte OP_ADC, AM_INDEXED_INDIRECT   ; $61
- .byte OP_INV, AM_INVALID            ; $62
- .byte OP_INV, AM_INVALID            ; $63
+ .byte OP_PER, AM_IMPLICIT           ; $62 [WDC 65816 only]
+ .byte OP_ADC, AM_IMPLICIT           ; $63 [WDC 65816 only]
  .byte OP_STZ, AM_ZEROPAGE           ; $64 [65C02 only]
  .byte OP_ADC, AM_ZEROPAGE           ; $65
  .byte OP_ROR, AM_ZEROPAGE           ; $66
- .byte OP_RMB, AM_ZEROPAGE           ; $67 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $67 [65C02 only]
+ .byte OP_ADC, AM_IMPLICIT           ; $67 [WDC 65816 only]
  .byte OP_PLA, AM_IMPLICIT           ; $68
  .byte OP_ADC, AM_IMMEDIATE          ; $69
  .byte OP_ROR, AM_ACCUMULATOR        ; $6A
- .byte OP_INV, AM_INVALID            ; $6B
+ .byte OP_RTL, AM_IMPLICIT           ; $6B [WDC 65816 only]
  .byte OP_JMP, AM_INDIRECT           ; $6C
  .byte OP_ADC, AM_ABSOLUTE           ; $6D
  .byte OP_ROR, AM_ABSOLUTE           ; $6E
- .byte OP_BBR, AM_ABSOLUTE           ; $6F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $6F [65C02 only]
+ .byte OP_ADC, AM_IMPLICIT           ; $6F [WDC 65816 only]
 
  .byte OP_BVS, AM_RELATIVE           ; $70
  .byte OP_ADC, AM_INDIRECT_INDEXED   ; $71
  .byte OP_ADC, AM_INDIRECT_ZEROPAGE  ; $72 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $73
+ .byte OP_ADC, AM_IMPLICIT           ; $73 [WDC 65816 only]
  .byte OP_STZ, AM_ZEROPAGE_X         ; $74 [65C02 only]
  .byte OP_ADC, AM_ZEROPAGE_X         ; $75
  .byte OP_ROR, AM_ZEROPAGE_X         ; $76
- .byte OP_RMB, AM_ZEROPAGE           ; $77 [65C02 only]
+;.byte OP_RMB, AM_ZEROPAGE           ; $77 [65C02 only]
+ .byte OP_ADC, AM_IMPLICIT           ; $77 [WDC 65816 only]
  .byte OP_SEI, AM_IMPLICIT           ; $78
  .byte OP_ADC, AM_ABSOLUTE_Y         ; $79
  .byte OP_PLY, AM_IMPLICIT           ; $7A [65C02 only]
- .byte OP_INV, AM_INVALID            ; $7B
+ .byte OP_TDC, AM_IMPLICIT           ; $7B [WDC 65816 only]
  .byte OP_JMP, AM_ABSOLUTE_INDEXED_INDIRECT ; $7C [65C02 only]
  .byte OP_ADC, AM_ABSOLUTE_X         ; $7D
  .byte OP_ROR, AM_ABSOLUTE_X         ; $7E
- .byte OP_BBR, AM_ABSOLUTE           ; $7F [65C02 only]
+;.byte OP_BBR, AM_ABSOLUTE           ; $7F [65C02 only]
+ .byte OP_ADC, AM_IMPLICIT           ; $7F [WDC 65816 only]
+
  .export OPCODES2
 OPCODES2:
  .byte OP_BRA, AM_RELATIVE           ; $80 [65C02 only]
  .byte OP_STA, AM_INDEXED_INDIRECT   ; $81
- .byte OP_INV, AM_INVALID            ; $82
- .byte OP_INV, AM_INVALID            ; $83
+ .byte OP_BRL, AM_IMPLICIT           ; $82 [WDC 65816 only]
+ .byte OP_STA, AM_IMPLICIT           ; $83 [WDC 65816 only]
  .byte OP_STY, AM_ZEROPAGE           ; $84
  .byte OP_STA, AM_ZEROPAGE           ; $85
  .byte OP_STX, AM_ZEROPAGE           ; $86
- .byte OP_SMB, AM_ZEROPAGE           ; $87 [65C02 only]
+;.byte OP_SMB, AM_ZEROPAGE           ; $87 [65C02 only]
+ .byte OP_STA, AM_IMPLICIT           ; $87 [WDC 65816 only]
  .byte OP_DEY, AM_IMPLICIT           ; $88
  .byte OP_BIT, AM_IMMEDIATE          ; $89 [65C02 only]
  .byte OP_TXA, AM_IMPLICIT           ; $8A
- .byte OP_INV, AM_INVALID            ; $8B
+ .byte OP_PHB, AM_IMPLICIT           ; $8B [WDC 65816 only]
  .byte OP_STY, AM_ABSOLUTE           ; $8C
  .byte OP_STA, AM_ABSOLUTE           ; $8D
  .byte OP_STX, AM_ABSOLUTE           ; $8E
- .byte OP_BBS, AM_ABSOLUTE           ; $8F [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $8F [65C02 only]
+ .byte OP_STA, AM_IMPLICIT           ; $8F [WDC 65816 only]
 
  .byte OP_BCC, AM_RELATIVE           ; $90
  .byte OP_STA, AM_INDIRECT_INDEXED   ; $91
  .byte OP_STA, AM_INDIRECT_ZEROPAGE  ; $92 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $93
+ .byte OP_STA, AM_IMPLICIT           ; $93 [WDC 65816 only]
  .byte OP_STY, AM_ZEROPAGE_X         ; $94
  .byte OP_STA, AM_ZEROPAGE_X         ; $95
  .byte OP_STX, AM_ZEROPAGE_Y         ; $96
- .byte OP_SMB, AM_ZEROPAGE           ; $97 [65C02 only]
+;.byte OP_SMB, AM_ZEROPAGE           ; $97 [65C02 only]
+ .byte OP_STA, AM_IMPLICIT           ; $97 [WDC 65816 only]
  .byte OP_TYA, AM_IMPLICIT           ; $98
  .byte OP_STA, AM_ABSOLUTE_Y         ; $99
  .byte OP_TXS, AM_IMPLICIT           ; $9A
- .byte OP_INV, AM_INVALID            ; $9B
+ .byte OP_TXY, AM_IMPLICIT           ; $9B [WDC 65816 only]
  .byte OP_STZ, AM_ABSOLUTE           ; $9C [65C02 only]
  .byte OP_STA, AM_ABSOLUTE_X         ; $9D
  .byte OP_STZ, AM_ABSOLUTE_X         ; $9E [65C02 only]
- .byte OP_BBS, AM_ABSOLUTE           ; $9F [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $9F [65C02 only]
+ .byte OP_STA, AM_IMPLICIT           ; $9F [WDC 65816 only]
 
  .byte OP_LDY, AM_IMMEDIATE          ; $A0
  .byte OP_LDA, AM_INDEXED_INDIRECT   ; $A1
  .byte OP_LDX, AM_IMMEDIATE          ; $A2
- .byte OP_INV, AM_INVALID            ; $A3
+ .byte OP_LDA, AM_IMPLICIT           ; $A3 [WDC 65816 only]
  .byte OP_LDY, AM_ZEROPAGE           ; $A4
  .byte OP_LDA, AM_ZEROPAGE           ; $A5
  .byte OP_LDX, AM_ZEROPAGE           ; $A6
- .byte OP_SMB, AM_ZEROPAGE           ; $A7 [65C02 only]
+;.byte OP_SMB, AM_ZEROPAGE           ; $A7 [65C02 only]
+ .byte OP_LDA, AM_IMPLICIT           ; $A7 [WDC 65816 only]
  .byte OP_TAY, AM_IMPLICIT           ; $A8
  .byte OP_LDA, AM_IMMEDIATE          ; $A9
  .byte OP_TAX, AM_IMPLICIT           ; $AA
- .byte OP_INV, AM_INVALID            ; $AB
+ .byte OP_PLB, AM_IMPLICIT           ; $AB [WDC 65816 only]
  .byte OP_LDY, AM_ABSOLUTE           ; $AC
  .byte OP_LDA, AM_ABSOLUTE           ; $AD
  .byte OP_LDX, AM_ABSOLUTE           ; $AE
- .byte OP_BBS, AM_ABSOLUTE           ; $AF [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $AF [65C02 only]
+ .byte OP_LDA, AM_IMPLICIT           ; $AF [WDC 65816 only]
 
  .byte OP_BCS, AM_RELATIVE           ; $B0
  .byte OP_LDA, AM_INDIRECT_INDEXED   ; $B1
  .byte OP_LDA, AM_INDIRECT_ZEROPAGE  ; $B2 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $B3
+ .byte OP_LDA, AM_IMPLICIT           ; $B3 [WDC 65816 only]
  .byte OP_LDY, AM_ZEROPAGE_X         ; $B4
  .byte OP_LDA, AM_ZEROPAGE_X         ; $B5
  .byte OP_LDX, AM_ZEROPAGE_Y         ; $B6
- .byte OP_SMB, AM_ZEROPAGE           ; $B7 [65C02 only]
+;.byte OP_SMB, AM_ZEROPAGE           ; $B7 [65C02 only]
+ .byte OP_LDA, AM_IMPLICIT           ; $B7 [WDC 65816 only]
  .byte OP_CLV, AM_IMPLICIT           ; $B8
  .byte OP_LDA, AM_ABSOLUTE_Y         ; $B9
  .byte OP_TSX, AM_IMPLICIT           ; $BA
- .byte OP_INV, AM_INVALID            ; $BB
+ .byte OP_TYX, AM_IMPLICIT           ; $BB [WDC 65816 only]
  .byte OP_LDY, AM_ABSOLUTE_X         ; $BC
  .byte OP_LDA, AM_ABSOLUTE_X         ; $BD
  .byte OP_LDX, AM_ABSOLUTE_Y         ; $BE
- .byte OP_BBS, AM_ABSOLUTE           ; $BF [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $BF [65C02 only]
+ .byte OP_LDA, AM_IMPLICIT           ; $BF [WDC 65816 only]
 
  .byte OP_CPY, AM_IMMEDIATE          ; $C0
  .byte OP_CMP, AM_INDEXED_INDIRECT   ; $C1
- .byte OP_INV, AM_INVALID            ; $C2
- .byte OP_INV, AM_INVALID            ; $C3
+ .byte OP_REP, AM_IMMEDIATE          ; $C2 [WDC 65816 only]
+ .byte OP_CMP, AM_IMPLICIT           ; $C3 [WDC 65816 only]
  .byte OP_CPY, AM_ZEROPAGE           ; $C4
  .byte OP_CMP, AM_ZEROPAGE           ; $C5
  .byte OP_DEC, AM_ZEROPAGE           ; $C6
- .byte OP_SMB, AM_ZEROPAGE           ; $C7 [65C02 only]
+;.byte OP_SMB, AM_ZEROPAGE           ; $C7 [65C02 only]
+ .byte OP_CMP, AM_IMPLICIT           ; $C7 [WDC 65816 only]
  .byte OP_INY, AM_IMPLICIT           ; $C8
  .byte OP_CMP, AM_IMMEDIATE          ; $C9
  .byte OP_DEX, AM_IMPLICIT           ; $CA
- .byte OP_WAI, AM_IMPLICIT           ; $CB [WDC 65C02 only]
+ .byte OP_WAI, AM_IMPLICIT           ; $CB [WDC 65C02 and 65816 only]
  .byte OP_CPY, AM_ABSOLUTE           ; $CC
  .byte OP_CMP, AM_ABSOLUTE           ; $CD
  .byte OP_DEC, AM_ABSOLUTE           ; $CE
- .byte OP_BBS, AM_ABSOLUTE           ; $CF [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $CF [65C02 only]
+ .byte OP_CMP, AM_IMPLICIT           ; $CF [WDC 65816 only]
 
  .byte OP_BNE, AM_RELATIVE           ; $D0
  .byte OP_CMP, AM_INDIRECT_INDEXED   ; $D1
  .byte OP_CMP, AM_INDIRECT_ZEROPAGE  ; $D2 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $D3
- .byte OP_INV, AM_INVALID            ; $D4
+ .byte OP_CMP, AM_IMPLICIT           ; $D3 [WDC 65816 only]
+ .byte OP_PEI, AM_IMPLICIT           ; $D4 [WDC 65816 only]
  .byte OP_CMP, AM_ZEROPAGE_X         ; $D5
  .byte OP_DEC, AM_ZEROPAGE_X         ; $D6
- .byte OP_SMB, AM_ZEROPAGE           ; $D7 [65C02 only]
+;.byte OP_SMB, AM_ZEROPAGE           ; $D7 [65C02 only]
+ .byte OP_CMP, AM_IMPLICIT           ; $D7 [WDC 65816 only]
  .byte OP_CLD, AM_IMPLICIT           ; $D8
  .byte OP_CMP, AM_ABSOLUTE_Y         ; $D9
  .byte OP_PHX, AM_IMPLICIT           ; $DA [65C02 only]
- .byte OP_STP, AM_IMPLICIT           ; $DB [WDC 65C02 only]
- .byte OP_INV, AM_INVALID            ; $DC
+ .byte OP_STP, AM_IMPLICIT           ; $DB [WDC 65C02 and 65816 only]
+ .byte OP_JML, AM_IMPLICIT           ; $DC [WDC 65816 only]
  .byte OP_CMP, AM_ABSOLUTE_X         ; $DD
  .byte OP_DEC, AM_ABSOLUTE_X         ; $DE
- .byte OP_BBS, AM_ABSOLUTE           ; $DF [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $DF [65C02 only]
+ .byte OP_CMP, AM_IMPLICIT           ; $DF [WDC 65816 only]
 
  .byte OP_CPX, AM_IMMEDIATE          ; $E0
  .byte OP_SBC, AM_INDEXED_INDIRECT   ; $E1
- .byte OP_INV, AM_INVALID            ; $E2
- .byte OP_INV, AM_INVALID            ; $E3
+ .byte OP_CPX, AM_IMMEDIATE          ; $E2 [WDC 65816 only]
+ .byte OP_SBC, AM_IMPLICIT           ; $E3 [WDC 65816 only]
  .byte OP_CPX, AM_ZEROPAGE           ; $E4
  .byte OP_SBC, AM_ZEROPAGE           ; $E5
  .byte OP_INC, AM_ZEROPAGE           ; $E6
@@ -800,25 +892,28 @@ OPCODES2:
  .byte OP_INX, AM_IMPLICIT           ; $E8
  .byte OP_SBC, AM_IMMEDIATE          ; $E9
  .byte OP_NOP, AM_IMPLICIT           ; $EA
- .byte OP_INV, AM_INVALID            ; $EB
+ .byte OP_XBA, AM_IMPLICIT           ; $EB [WDC 65816 only]
  .byte OP_CPX, AM_ABSOLUTE           ; $EC
  .byte OP_SBC, AM_ABSOLUTE           ; $ED
  .byte OP_INC, AM_ABSOLUTE           ; $EE
- .byte OP_BBS, AM_ABSOLUTE           ; $EF [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $EF [65C02 only]
+ .byte OP_SBC, AM_IMPLICIT           ; $EF [WDC 65816 only]
 
  .byte OP_BEQ, AM_RELATIVE           ; $F0
  .byte OP_SBC, AM_INDIRECT_INDEXED   ; $F1
  .byte OP_SBC, AM_INDIRECT_ZEROPAGE  ; $F2 [65C02 only]
- .byte OP_INV, AM_INVALID            ; $F3
- .byte OP_INV, AM_INVALID            ; $F4
+ .byte OP_SBC, AM_IMPLICIT           ; $F3 [WDC 65816 only]
+ .byte OP_PEA, AM_IMPLICIT           ; $F4 [WDC 65816 only]
  .byte OP_SBC, AM_ZEROPAGE_X         ; $F5
  .byte OP_INC, AM_ZEROPAGE_X         ; $F6
- .byte OP_SMB, AM_ZEROPAGE           ; $F7 [65C02 only]
+;.byte OP_SMB, AM_ZEROPAGE           ; $F7 [65C02 only]
+ .byte OP_SBC, AM_IMPLICIT           ; $F7 [WDC 65816 only]
  .byte OP_SED, AM_IMPLICIT           ; $F8
  .byte OP_SBC, AM_ABSOLUTE_Y         ; $F9
  .byte OP_PLX, AM_IMPLICIT           ; $FA [65C02 only]
- .byte OP_INV, AM_INVALID            ; $FB
- .byte OP_INV, AM_INVALID            ; $FC
+ .byte OP_XCE, AM_IMPLICIT           ; $FB [WDC 65816 only]
+ .byte OP_JSR, AM_IMPLICIT           ; $FC [WDC 65816 only]
  .byte OP_SBC, AM_ABSOLUTE_X         ; $FD
  .byte OP_INC, AM_ABSOLUTE_X         ; $FE
- .byte OP_BBS, AM_ABSOLUTE           ; $FF [65C02 only]
+;.byte OP_BBS, AM_ABSOLUTE           ; $FF [65C02 only]
+ .byte OP_SBC, AM_IMPLICIT           ; $FD [WDC 65816 only]
