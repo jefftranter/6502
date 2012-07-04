@@ -201,6 +201,8 @@ AROUND:
   JSR PrintByte         ; display the opcode byte
   JSR PrintSpace
   LDA LEN               ; how many bytes in the instruction?
+  CMP #4
+  BEQ FOUR
   CMP #3
   BEQ THREE
   CMP #2
@@ -223,9 +225,25 @@ THREE:
   LDY #2
   LDA (ADDR),Y          ; get 2nd operand byte
   JSR PrintByte         ; display it
+  JMP ONE
+FOUR:
+  LDY #1
+  LDA (ADDR),Y          ; get 1st operand byte
+  JSR PrintByte         ; display it
+  JSR PrintSpace
+  LDY #2
+  LDA (ADDR),Y          ; get 2nd operand byte
+  JSR PrintByte         ; display it
+  JSR PrintSpace
+  LDY #3
+  LDA (ADDR),Y          ; get 3nd operand byte
+  JSR PrintByte         ; display it
+  LDX #1
+  BNE SPC
 ONE:
   .endif                ; .ifndef SOURCEONLY
   LDX #4
+SPC:
   JSR PrintSpaces
   LDA OP                ; get the op code
   CMP #$55              ; Is it in the first half of the table?
