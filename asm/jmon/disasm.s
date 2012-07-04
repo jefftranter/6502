@@ -229,18 +229,37 @@ ONE:
   LDX #4
   JSR PrintSpaces
   LDA OP                ; get the op code
+  CMP #$55              ; Is it in the first half of the table?
+  BMI LOWERM
+
   ASL A                 ; multiply by 2
   CLC
   ADC OP                ; add one more to multiply by 3 since table is three bytes per entry
-  TAX
-  LDY #3
-MNEM:
-  LDA MNEMONICS,X       ; print three chars of mnemonic
+  LDY #3                ; going to loop 3 times
+  TAX                   ; save index into table
+MNEM2:
+  LDA MNEMONICS2+1,X    ; print three chars of mnemonic
   JSR PrintChar
   INX
   DEY
-  BNE MNEM
+  BNE MNEM2
+  BEQ AMODE
+
+LOWERM:
+  ASL A                 ; multiply by 2
+  CLC
+  ADC OP                ; add one more to multiply by 3 since table is three bytes per entry
+  LDY #3                ; going to loop 3 times
+  TAX                   ; save index into table
+MNEM1:
+  LDA MNEMONICS1,X      ; print three chars of mnemonic
+  JSR PrintChar
+  INX
+  DEY
+  BNE MNEM1
+
 ; Display any operands based on addressing mode
+AMODE:
   LDA OP                ; is it RMB or SMB?
   CMP #OP_RMB
   BEQ DOMB
@@ -564,8 +583,8 @@ DONEOPS:
 ; DATA
 
 ; Table of instruction strings. 3 bytes per table entry
- .export MNEMONICS
-MNEMONICS:
+ .export MNEMONICS1
+MNEMONICS1:
  .byte "???" ; $00
  .byte "ADC" ; $01
  .byte "AND" ; $02
@@ -650,7 +669,8 @@ MNEMONICS:
  .byte "PHD" ; $51 [WDC 65816 only]
  .byte "PHK" ; $52 [WDC 65816 only]
  .byte "PLB" ; $53 [WDC 65816 only]
- .byte "PLD" ; $54 [WDC 65816 only]
+ .byte "PLD" ; $54 [WDC 65816 only] 
+MNEMONICS2:
  .byte "REP" ; $55 [WDC 65816 only]
  .byte "RTL" ; $56 [WDC 65816 only]
  .byte "SEP" ; $57 [WDC 65816 only]
