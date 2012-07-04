@@ -6,7 +6,6 @@
 ;
 ; TODO:
 ; - use CPU type for dissasembly
-; - add support for 65816 disassembly
 ; - implement mini assembler?
 
 ; Revision History
@@ -38,7 +37,8 @@
 ;                      Added new E command for ACI cassette interface (untested).
 ;                      Fill, Search, and ":" commands accept characters as well as hex values.
 ;                      Type ' to enter a character.
-; 0.97   01-Jul-2012   Implemented new options command.
+; 0.97   03-Jul-2012   Implemented new options command.
+;                      Added support for 65816 to disassembler.
 
 ; Constants
   CR      = $0D                 ; Carriage Return

@@ -121,18 +121,18 @@
  OP_PHK = $52 ; [WDC 65816 only]
  OP_PLB = $53 ; [WDC 65816 only]
  OP_PLD = $54 ; [WDC 65816 only]
- OP_REP = $55 ; [WDC 65816 only]
- OP_RTL = $56 ; [WDC 65816 only]
- OP_SEP = $57 ; [WDC 65816 only]
- OP_TCD = $58 ; [WDC 65816 only]
- OP_TCS = $59 ; [WDC 65816 only]
- OP_TDC = $5A ; [WDC 65816 only]
- OP_TSC = $5B ; [WDC 65816 only]
- OP_TXY = $5C ; [WDC 65816 only]
- OP_TYX = $5D ; [WDC 65816 only]
- OP_WDM = $5E ; [WDC 65816 only]
- OP_XBA = $5F ; [WDC 65816 only]
- OP_XCE = $60 ; [WDC 65816 only]
+ OP_REP = $56 ; [WDC 65816 only]
+ OP_RTL = $57 ; [WDC 65816 only]
+ OP_SEP = $58 ; [WDC 65816 only]
+ OP_TCD = $59 ; [WDC 65816 only]
+ OP_TCS = $5A ; [WDC 65816 only]
+ OP_TDC = $5B ; [WDC 65816 only]
+ OP_TSC = $5C ; [WDC 65816 only]
+ OP_TXY = $5D ; [WDC 65816 only]
+ OP_TYX = $5E ; [WDC 65816 only]
+ OP_WDM = $5F ; [WDC 65816 only]
+ OP_XBA = $60 ; [WDC 65816 only]
+ OP_XCE = $61 ; [WDC 65816 only]
 
 ; Addressing Modes. OPCODES1/OPCODES2 tables list these for each instruction. LENGTHS lists the instruction length for each addressing mode.
  AM_INVALID = 0                    ; example:
@@ -746,18 +746,19 @@ MNEMONICS1:
  .byte "PLB" ; $53 [WDC 65816 only]
  .byte "PLD" ; $54 [WDC 65816 only]
 MNEMONICS2:
- .byte "REP" ; $55 [WDC 65816 only]
- .byte "RTL" ; $56 [WDC 65816 only]
- .byte "SEP" ; $57 [WDC 65816 only]
- .byte "TCD" ; $58 [WDC 65816 only]
- .byte "TCS" ; $59 [WDC 65816 only]
- .byte "TDC" ; $5A [WDC 65816 only]
- .byte "TSC" ; $5B [WDC 65816 only]
- .byte "TXY" ; $5C [WDC 65816 only]
- .byte "TYX" ; $5D [WDC 65816 only]
- .byte "WDM" ; $5E [WDC 65816 only]
- .byte "XBA" ; $5F [WDC 65816 only]
- .byte "XCE" ; $60 [WDC 65816 only]
+ .byte "???" ; $55 Unused because index is $FF
+ .byte "REP" ; $56 [WDC 65816 only]
+ .byte "RTL" ; $57 [WDC 65816 only]
+ .byte "SEP" ; $58 [WDC 65816 only]
+ .byte "TCD" ; $59 [WDC 65816 only]
+ .byte "TCS" ; $5A [WDC 65816 only]
+ .byte "TDC" ; $5B [WDC 65816 only]
+ .byte "TSC" ; $5C [WDC 65816 only]
+ .byte "TXY" ; $5D [WDC 65816 only]
+ .byte "TYX" ; $5E [WDC 65816 only]
+ .byte "WDM" ; $5F [WDC 65816 only]
+ .byte "XBA" ; $60 [WDC 65816 only]
+ .byte "XCE" ; $61 [WDC 65816 only]
 
 ; Lengths of instructions given an addressing mode. Matches values of AM_*
 LENGTHS: 
@@ -845,7 +846,7 @@ OPCODES1:
 
  .byte OP_RTI, AM_IMPLICIT           ; $40
  .byte OP_EOR, AM_INDEXED_INDIRECT   ; $41
- .byte OP_WDM, AM_IMPLICIT           ; $42 [WDC 65816 only]
+ .byte OP_WDM, AM_ZEROPAGE           ; $42 [WDC 65816 only]
  .byte OP_EOR, AM_STACK_RELATIVE     ; $43 [WDC 65816 only]
  .byte OP_MVP, AM_BLOCK_MOVE         ; $44 [WDC 65816 only]
  .byte OP_EOR, AM_ZEROPAGE           ; $45
