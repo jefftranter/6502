@@ -34,14 +34,14 @@ DEMO3:
   AND [$55],Y
   TSC
   AND $123456,X
-;  WDM $12              ; Not supported by the assenbler
+;  WDM $12              ; Not supported by the assembler
   EOR 7,S
   MVP $12,$34
   EOR [$99]
   PHK
   EOR $123456
   EOR (4,S),Y
-  MVN $34,12
+  MVN $34,$12
   EOR [$55],Y
   TCD
   JMP $123456
@@ -86,7 +86,7 @@ DEMO3:
   STP
   JML ($1234)
   CMP $123456,X
-  CPX #12
+  CPX #$12
   SBC 5,S
   SBC [$55]
   XBA
