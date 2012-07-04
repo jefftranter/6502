@@ -28,13 +28,12 @@ DEMO3:
   AND 7,S
   AND [$99]
   PLD
-
   AND $123456
   AND (4,S),Y
   AND [$55],Y
   TSC
   AND $123456,X
-;  WDM $12              ; Not supported by the assembler
+  .byte $42, $AA        ;  WDM $AA (Not supported by the assembler)
   EOR 7,S
   MVP $12,$34
   EOR [$99]
@@ -46,7 +45,6 @@ DEMO3:
   TCD
   JMP $123456
   EOR $123456,X
-
   PER $1234
   ADC 5,X
   ADC [$55]
@@ -61,7 +59,6 @@ DEMO3:
   STA [$55]
   PHB
   STA $123456
-
   STA (5,S),Y
   STA [$55],Y
   TXY
@@ -74,9 +71,9 @@ DEMO3:
   LDA [$55],Y
   TYX
   LDA $123456,X
-  REP #%01010101
+  REP #%00110000
+  SEP #%00110000
   CMP 5,S
-
   CMP [$12]
   WAI
   CMP $123456
@@ -93,7 +90,6 @@ DEMO3:
   SBC $123456
   SBC (5,S),Y
   PEA $1234
-
   SBC [$44],Y
   XCE
   JSR ($1234,X)
