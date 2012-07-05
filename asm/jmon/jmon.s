@@ -39,6 +39,7 @@
 ;                      Type ' to enter a character.
 ; 0.97   03-Jul-2012   Implemented new options command.
 ;                      Added support for 65816 to disassembler.
+;                      Disassembler can be conditionally assembled for different CPU support.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
