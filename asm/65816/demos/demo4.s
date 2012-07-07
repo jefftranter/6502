@@ -98,7 +98,7 @@ DEMO3:
 ; Test instruction lengths
 
 ; All 8-bit mode
-  SEp #%00110000
+  SEP #%00110000
   ORA #$12
   AND #$12
   EOR #$12
@@ -129,6 +129,7 @@ DEMO3:
 
 ; 16-bit memory and 8-bit index registers
   REP #%00100000
+  SEP #%00010000
   ORA #$1234
   AND #$1234
   EOR #$1234
@@ -143,7 +144,8 @@ DEMO3:
   CPX #$12
 
 ; 8-bit memory and 16-bit index registers
-  SEP #%0100000
+  SEP #%00100000
+  REP #%00010000
   ORA #$12
   AND #$12
   EOR #$12
