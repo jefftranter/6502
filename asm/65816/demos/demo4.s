@@ -94,3 +94,65 @@ DEMO3:
   XCE
   JSR ($1234,X)
   SBC $123456,X
+
+; Test instruction lengths
+
+; All 8-bit mode
+  SEp #%00110000
+  ORA #$12
+  AND #$12
+  EOR #$12
+  ADC #$12
+  BIT #$12
+  LDA #$12
+  CMP #$12
+  SBC #$12
+  LDY #$12
+  LDX #$12
+  CPY #$12
+  CPX #$12
+
+; All 16-bit mode
+  REP #%00110000
+  ORA #$1234
+  AND #$1234
+  EOR #$1234
+  ADC #$1234
+  BIT #$1234
+  LDA #$1234
+  CMP #$1234
+  SBC #$1234
+  LDY #$1234
+  LDX #$1234
+  CPY #$1234
+  CPX #$1234
+
+; 16-bit memory and 8-bit index registers
+  REP #%00100000
+  ORA #$1234
+  AND #$1234
+  EOR #$1234
+  ADC #$1234
+  BIT #$1234
+  LDA #$1234
+  CMP #$1234
+  SBC #$1234
+  LDY #$12
+  LDX #$12
+  CPY #$12
+  CPX #$12
+
+; 8-bit memory and 16-bit index registers
+  SEP #%0100000
+  ORA #$12
+  AND #$12
+  EOR #$12
+  ADC #$12
+  BIT #$12
+  LDA #$12
+  CMP #$12
+  SBC #$12
+  LDY #$1234
+  LDX #$1234
+  CPY #$1234
+  CPX #$1234
