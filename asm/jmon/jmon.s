@@ -5,8 +5,9 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - use CPU type for dissasembly
-; - implement mini assembler?
+; - use CPU type option for dissasembly
+; - implement mini assembler
+; - implement step and trace commands (remove dependency on Krusader's minimon)
 
 ; Revision History
 ; Version Date         Comments
@@ -40,6 +41,8 @@
 ; 0.97   03-Jul-2012   Implemented new options command.
 ;                      Added support for 65816 to disassembler.
 ;                      Disassembler can be conditionally assembled for different CPU support.
+;        07-Jul-2012   Now adjusts disassembly of 65816 instructions for 8/16-bit modes.
+;                      Also fixed missing SEP opcode (error in WDC manual).
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -119,6 +122,8 @@ OWDELAY:   .res 1               ; Delay value when writing (defaults to zero)
 OUPPER:   .res 1                ; Set to $FF when only uppercase output is is desired.
 OHIGHASCII: .res 1              ; Set to $FF when characters should have high bit set
 OCPU:      .res 1               ; CPU type for disassembly
+MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit in P
+XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
 
 ; Save values of registers
 Start:
@@ -145,6 +150,9 @@ Start:
         STA OHIGHASCII          ; Characters should not have high bit set
         LDA #$FF                ; Default to uppercase only mode
         STA OUPPER
+        LDA #1
+        STA XBIT                ; Default 65816 to 8-bit modes
+        STA MBIT
         JSR BPSETUP             ; initialization for breakpoints
         JSR ClearScreen
 

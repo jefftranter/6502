@@ -208,6 +208,98 @@ AROUND:
   TAX                   ; put addressing mode in X
   LDA LENGTHS,X         ; get instruction length given addressing mode
   STA LEN               ; store it
+
+; Handle 16-bit modes of 65816
+; When M=0 (16-bit accumulator) the following instructions take an extra byte:
+; 09 29 49 69 89 A9 C9 E9
+; When X=0 (16-bit index) the following instructions take an extra byte:
+; A0 A2 C0 E0
+
+  LDA MBIT              ; Is M bit zero?
+  BNE TRYX              ; If not, skip adjustment.
+  LDA OPCODE            ; See if the opcode is one that needs to be adjusted
+  CMP #$09
+  BEQ ADJUST
+  CMP #$29
+  BEQ ADJUST
+  CMP #$49
+  BEQ ADJUST
+  CMP #$69
+  BEQ ADJUST
+  CMP #$89
+  BEQ ADJUST
+  CMP #$A9
+  BEQ ADJUST
+  CMP #$C9
+  BEQ ADJUST
+  CMP #$E9
+  BEQ ADJUST
+  BNE TRYX
+ADJUST:
+  INC LEN               ; Increment length by one
+  JMP REPSEP
+
+TRYX:
+  LDA XBIT              ; Is M bit zero?
+  BNE REPSEP            ; If not, skip adjustment.
+  LDA OPCODE            ; See if the opcode is one that needs to be adjusted
+  CMP #$A0
+  BEQ ADJUST
+  CMP #$A2
+  BEQ ADJUST
+  CMP #$C0
+  BEQ ADJUST
+  CMP #$E0
+  BEQ ADJUST
+
+; Special check for REP and SEP instructions.
+; These set or clear the M and X bits which change the length of some instructions.
+
+REPSEP:
+  LDA OPCODE
+  CMP #$C2              ; Is it REP?
+  BNE TRYSEP
+  LDY #1
+  LDA (ADDR),Y          ; get operand
+  EOR #$FF              ; Complement the bits
+  AND #%00100000        ; Mask out M bit
+  LSR                   ; Shift into bit 0
+  LSR
+  LSR
+  LSR
+  LSR
+  STA MBIT              ; Store it
+  LDA (ADDR),Y          ; get operand again
+  EOR #$FF              ; Complement the bits
+  AND #%00010000        ; Mask out X bit
+  LSR                   ; Shift into bit 0
+  LSR
+  LSR
+  LSR
+  STA XBIT              ; Store it
+  JMP PRADDR
+
+TRYSEP:
+  CMP #$E2              ; Is it SEP?
+  BNE PRADDR
+  LDY #1
+  LDA (ADDR),Y          ; get operand
+  AND #%00100000        ; Mask out M bit
+  LSR                   ; Shift into bit 0
+  LSR
+  LSR
+  LSR
+  LSR
+  STA MBIT              ; Store it
+  LDA (ADDR),Y          ; get operand again
+  AND #%00010000        ; Mask out X bit
+  LSR                   ; Shift into bit 0
+  LSR
+  LSR
+  LSR
+  STA XBIT              ; Store it
+
+PRADDR:
   LDX ADDR
   LDY ADDR+1
   .ifndef SOURCEONLY
@@ -392,10 +484,22 @@ TRYIMM:
   LDA #'#'
   JSR PrintChar
   JSR PrintDollar
+  LDA LEN               ; Operand could be 8 or 16-bits
+  CMP #3                ; 16-bit?
+  BEQ IM16              ; Branch if so, otherwise it is 8-bit
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte (low address)
   JSR PrintByte         ; display it
   JMP DONEOPS
+IM16:
+  LDY #2
+  LDA (ADDR),Y          ; get 2nd operand byte (high address)
+  JSR PrintByte         ; display it
+  LDY #1
+  LDA (ADDR),Y          ; get 1st operand byte (low address)
+  JSR PrintByte         ; display it
+  JMP DONEOPS
+
 TRYZP:
   CMP #AM_ZEROPAGE
   BNE TRYZPX
@@ -796,6 +900,7 @@ MNEMONICS2:
  .byte "XCE" ; $61 [WDC 65816 only]
 
 ; Lengths of instructions given an addressing mode. Matches values of AM_*
+; Assumes 65816 is in 8-bit mode.
 LENGTHS: 
  .byte 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 4, 2, 2, 4, 3, 3, 3
 
@@ -1680,7 +1785,7 @@ OPCODES2:
  .byte OP_SBC, AM_INDEXED_INDIRECT   ; $E1
 
 .ifdef D65816
- .byte OP_CPX, AM_IMMEDIATE          ; $E2 [WDC 65816 only]
+ .byte OP_SEP, AM_IMMEDIATE          ; $E2 [WDC 65816 only]
 .else
  .byte OP_INV, AM_IMPLICIT           ; $4F
 .endif
