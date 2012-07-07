@@ -33,16 +33,16 @@ COPY:       C <START> <END> <DEST>
 Copy memory from address START through END to DEST. Range can overlap
 but start address must be less than or equal to the end address.
 
+DUMP:       D <START>
+
+Dump memory in hex and ASCII a screen at a time. Press <Space> to
+continue or <Esc> to cancel when prompted.
+
 ACI MENU:    E
 
 Calls the ACI (Apple Cassette Interface) firmware.
 Reports an error if an ACI card is not present.
 Note that the ACI firmware always quits to the Woz Monitor.
-
-DUMP:       D <START>
-
-Dump memory in hex and ASCII a screen at a time. Press <Space> to
-continue or <Esc> to cancel when prompted.
 
 FILL:       F <START> <END> <DATA>...
 
@@ -52,7 +52,8 @@ any length up to 127 bytes. Press <Enter> after entering the pattern.
 GO:        G <ADDRESS>
 
 Run from an address. Before execution, restores the values of the
-registers set by the R command.
+registers set by the R command. Uses JSR to the called routine can
+return to JMON.
 
 HEX TO DEC  H <ADDRESS>
 
@@ -62,6 +63,10 @@ BASIC:      I
 
 Jump to Applesoft BASIC cold start entry point (address $E000). Does
 not perform any check that the ROM-based BASIC is present.
+
+MINI MON:   K
+
+Jump to mini-monitor. Only valid for Krusader 6502 version 1.3.
 
 CLR SCREEN:  L
 
@@ -73,9 +78,28 @@ Calls the menu for the CFFA1 flash interface (address $9006). First
 performs a check that a CFFA1 card is present and reports an error if
 not. Quitting from the CFFA1 menu returns to JMON.
 
-MINI MON:   K
+OPTION: O
 
-Jump to mini-monitor. Only valid for Krusader 6502 version 1.3.
+Sets a number of program options. Prompts the user for the value of
+each opion.
+
+You can specify whether output is all uppercase or a mixture of upper
+and lower (the Replica 1 supports lowercase, the original Apple 1 and
+clones cannot display lowercase).
+
+You specify the value for the delay after all writes to accommodate
+slow EEPROMs. Applies to COPY, FILL, and TEST commands. Depending on
+the manufacturer, anywhere from 0.5ms to 10ms may be needed. Value of
+$20 works well for me (approx 1.5ms delay with 2MHz clock). See
+routine WAIT for details on delay values versus delay time.
+
+You can specify whether characters entered for the Fill, Search, and
+":" commands have the high bit set (common for Apple 1 / Apple II
+systems) or cleared (standard ASCII).
+
+You can also specify the CPU type, either 6502, Rockwell 65C02, WDC
+65C02, or 65816. This value is not currently used but may be used in
+the future to control disassembly.
 
 REGISTERS:  R
 
@@ -105,14 +129,6 @@ VERIFY:     V <START> <END> <DEST>
 Verify that memory from start to end matches memory at destination.
 Displays any mismatch. Prompts after each mismatch whether to
 continue.
-
-WRITE DELAY:   W <DATA>
-
-Add a delay after all writes to accommodate slow EEPROMs. Applies to
-COPY, FILL, and TEST commands. Depending on the manufacturer, anywhere
-from 0.5ms to 10ms may be needed. Value of $20 works well for me
-(approx 1.5ms delay with 2MHz clock). See routine WAIT for details on
-delay values versus delay time.
 
 WOZ MON:    $
 
