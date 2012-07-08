@@ -6,7 +6,6 @@
 ;
 ; TODO:
 ; - use CPU type option for dissasembly
-; - implement mini assembler
 ; - implement step and trace commands (remove dependency on Krusader's minimon)
 
 ; Revision History
@@ -43,6 +42,7 @@
 ;                      Disassembler can be conditionally assembled for different CPU support.
 ;        07-Jul-2012   Now adjusts disassembly of 65816 instructions for 8/16-bit modes.
 ;                      Also fixed missing SEP opcode (error in WDC manual).
+; 0.98   08-Jul-2012   Added mini assembler (replaces call to Krusader)
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -77,7 +77,7 @@
 
 ; External Routines
   BASIC   = $E000               ; BASIC
-  KRUSADER = $F000              ; Krusader Assembler
+  KRUSADER = $F000              ; Krusader Assembler (unused)
   MINIMON = $FE14               ; Mini monitor entry point (valid for Krusader 6502 version 1.3)
   WOZMON  = $FF00               ; Woz monitor entry point
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)   
@@ -124,6 +124,7 @@ OHIGHASCII: .res 1              ; Set to $FF when characters should have high bi
 OCPU:      .res 1               ; CPU type for disassembly
 MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit in P
 XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
+MNEM:      .res 3               ; Hold three letter mnemonic string used by assembler
 
 ; Save values of registers
 Start:
@@ -239,9 +240,16 @@ Monitor:
 MiniMonitor:
         JMP MINIMON
 
-; Go to Krusader Assembler
-Assembler:
-        JMP KRUSADER
+; Go to Mini Assembler
+Assemble:
+        JSR PrintChar           ; echo command
+        JSR PrintSpace          ; print a space
+        JSR GetAddress          ; Get start address
+        STX ADDR                ; Save it
+        JSR PrintCR             ; Start new line
+        STY ADDR+1
+        JSR AssembleLine        ; Call asssembler
+        RTS
 
 ; Go to BASIC
 Basic:  JMP BASIC
@@ -1859,7 +1867,7 @@ JMPFL:
         .word Invalid-1
         .word Monitor-1
         .word Help-1
-        .word Assembler-1
+        .word Assemble-1
         .word Breakpoint-1
         .word Copy-1
         .word Dump-1
@@ -2019,7 +2027,7 @@ InvalidCommand:
 
 ; Help string.
 HelpString:
-        .byte "Assembler   A",CR
+        .byte "Assemble    A",CR
         .byte "Breakpoint  B <n or ?> <address>",CR
         .byte "Copy        C <start> <end> <dest>",CR
         .byte "Dump        D <start>",CR
@@ -2113,5 +2121,6 @@ CPUTypeString:
   .byte "CPU type (1-6502 2-Rockwell 65C02",CR,"3-WDC 65C02 4-65816)?",0
 
   .include "disasm.s"
+  .include "miniasm.s"
   .include "memtest4.s"
   .include "delay.s"

@@ -52,7 +52,7 @@
 .endif
 .endif
 
-; Instructions. Matches entries in table of MNEMONICS
+; Instructions. Match indexes into entries in table MNEMONICS1/MENMONICS2.
  OP_INV = $00
  OP_ADC = $01
  OP_AND = $02
@@ -798,6 +798,7 @@ DONEOPS:
 
 ; Table of instruction strings. 3 bytes per table entry
  .export MNEMONICS1
+MNEMONICS:
 MNEMONICS1:
  .byte "???" ; $00
  .byte "ADC" ; $01
@@ -898,6 +899,7 @@ MNEMONICS2:
  .byte "WDM" ; $5F [WDC 65816 only]
  .byte "XBA" ; $60 [WDC 65816 only]
  .byte "XCE" ; $61 [WDC 65816 only]
+MNEMONICSEND: ; address of the end of the table
 
 ; Lengths of instructions given an addressing mode. Matches values of AM_*
 ; Assumes 65816 is in 8-bit mode.
