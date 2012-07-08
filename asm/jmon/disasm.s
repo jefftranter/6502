@@ -909,6 +909,7 @@ LENGTHS:
 ; Opcodes. Listed in order. Defines the mnemonic and addressing mode.
 ; 2 bytes per table entry
  .export OPCODES1
+OPCODES:
 OPCODES1:
  .byte OP_BRK, AM_IMPLICIT           ; $00
 

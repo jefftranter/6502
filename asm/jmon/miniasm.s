@@ -16,7 +16,6 @@
 ; limitations under the License.
 ;
 
-
 ; Mini assembler syntax format:
 ; 
 ; A <address>
@@ -80,18 +79,12 @@
 ; 
 ; Routines:
 ; 
-; Assemble:
-; - called from JMON command loop
-; - get and store ADDRESS
-; - output return
-; - call AssembleLine
-; - return
-; 
+
 ; AssembleLine:
 ; - output ADDRESS
 ; - output colon and space
 ; - input three letter for mnemonic (filter for valid alphabetic characters). Esc will terminate.
-; - lookup up 3 letter opcode
+; - lookup up 3 letter opcode (LookupMnemonic)
 ; - if not valid mnemonic:
 ;     output "Invalid instruction"
 ;     return
@@ -248,4 +241,49 @@ NextOp:
 
                                 ; End of table reached
         LDA #OP_INV             ; Return OP_INV (0)
+        RTS
+
+; Given an instruction and addressing mode, return if it is valid.
+; When called OP should contain instruction (e.g. OP_NOP) and
+; AM contain the addressing mode (e.g. AM_IMPLICIT).
+; If valid, sets OPCODE to the opcode (eg. $EA for NOP) and returns 1
+; in A. If not valid, returns 0 in A.
+; Registers changed: A, X, Y.
+
+CheckOperandValid:
+        LDX #0                  ; Holds current table index
+        LDA #<OPCODES           ; Store address of start of table in T1 (L/H)
+        STA T1
+        LDA #>OPCODES
+        STA T1+1
+OpLoop:
+        LDY #0                  ; Holds offset into table entry
+        LDA (T1),Y              ; Get a table entry (instruction)
+        CMP OP                  ; Is it the instruction we are looking for?
+        BNE NextInst            ; If different, try next opcode
+                                ; Instruction matched. Does the addressing mode match?
+        INY                     ; Want second byte of table entry (address mode)
+        LDA (T1),Y              ; Get a table entry (address mode
+        CMP AM                  ; Is it the address mode we are looking for?
+        BNE NextInst            ; If different, try next opcode
+                                ; We found a match
+        TXA                     ; Get index in table (X), the opcode
+        STA OPCODE              ; Store it
+        LDA #1                  ; Set true return value
+        RTS                     ; And return
+
+NextInst:
+        INX                     ; Increment table index
+        BEQ OpNotFound          ; If wrapped past $FF, we did not find what we were looking for
+        CLC
+        LDA T1                  ; Increment pointer to table entry (T1) as 16-bit value
+        ADC #2                  ; Add two because each entry is 2 bytes
+        STA T1
+        LDA T1+1                ; Add possible carry to high byte
+        ADC #0
+        STA T1+1
+        JMP OpLoop
+
+OpNotFound:                     ; End of table reached
+        LDA #0                  ; Set false return value
         RTS
