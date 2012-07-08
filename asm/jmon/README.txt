@@ -7,8 +7,21 @@ Commands:
 
 ASSEMBLER:  A
 
-Jumps to Krusader assembler (address $F000). Does not perform any
-check that the ROM-based assembler is present.
+Call a mini assembler which can assemble lines of 6502 code. Prompts
+for the start address and then prompts for instructions. Does not
+support symbols or labels, all values must be in hex with 2 or 4
+digits and there is no backspace or other editing features. Press
+<Enter> to terminate and assemble a line. Pressing <Esc> will cancel.
+
+Sample session:
+
+A 6000
+6000: NOP
+6001: LDX #0A
+6003: JSR FFEF
+6006: DEX
+6007: BNE 6003
+6009: <Esc>
 
 BREAKPOINT: B <N> <ADDRESS>
 
