@@ -1885,6 +1885,7 @@ JMPFL:
         .word Test-1
         .word Unassemble-1
         .word Verify-1
+        .word Memory-1
         .word Math-1
 
 ; String input routine.
