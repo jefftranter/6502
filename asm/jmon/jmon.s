@@ -107,7 +107,7 @@ AM:       .res 1                ; Addressing mode AM_*
 LEN:      .res 1                ; Instruction length
 REL:      .res 2                ; Relative addressing branch offset (2 bytes)
 DEST:     .res 2                ; Relative address destination address (2 bytes)
-START:    .res 2                ; Memory test- user entered start of memory range. Min is 8 (2 bytes)
+START:    .res 2                ; Memory test - user entered start of memory range. Min is 8 (2 bytes)
 END:      .res 2                ; Memory test - user entered end of memory range (2 bytes)
 BPD:      .res 4                ; Instruction at breakpoint (1 byte * 4 breakpoints)
 SAVE_A:   .res 1                ; Holds saved values of registers
