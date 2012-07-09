@@ -460,6 +460,7 @@ TryIndirect:
 ; If not any of the above, report "Invalid operand" and return.
 
 InvalidOp:
+        JSR PrintCR
         LDX #<InvalidOperandString
         LDY #>InvalidOperandString
         JSR PrintString
@@ -557,13 +558,12 @@ OneOperand:
         JMP ZeroOperands             ; done
 
 TwoOperands:
-        LDA OPERAND+1                ; Get operand low byte
+        LDA OPERAND                  ; Get operand low byte
         LDY #1                       ; Offset from instruction
         STA (ADDR),Y                 ; write it
         INY
         LDA OPERAND+1                ; Get operand high byte
         STA (ADDR),Y                 ; write it
-        JMP ZeroOperands             ; done
 
 ZeroOperands:           ; nothing to do
 
