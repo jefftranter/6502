@@ -125,6 +125,7 @@ OCPU:      .res 1               ; CPU type for disassembly
 MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit in P
 XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
 MNEM:      .res 3               ; Hold three letter mnemonic string used by assembler
+OPERAND:   .res 2               ; Holds any operands for assembled instruction
 
 ; Save values of registers
 Start:
@@ -246,8 +247,8 @@ Assemble:
         JSR PrintSpace          ; print a space
         JSR GetAddress          ; Get start address
         STX ADDR                ; Save it
+        STY ADDR+1              ; Save it
         JSR PrintCR             ; Start new line
-        STY ADDR+1
         JSR AssembleLine        ; Call asssembler
         RTS
 
@@ -1340,7 +1341,7 @@ DumpLine:
         LDY #0
 @loop1: LDA (SL),Y              ; Get byte of data from memory
         JSR PrintByte           ; Display it in hex
-        JSR PrintSpace          ; Followed bv space
+        JSR PrintSpace          ; Followed by space
         INY
         CPY #8                  ; Print 8 bytes per line
         BNE @loop1
@@ -1898,6 +1899,11 @@ JMPFL:
 ;   String is terminated in a 0 byte.
 ;   Carry set if user hit <Esc>, clear if used <Enter> or max string length reached.
 ; Registers changed: A, X
+
+; List of characters to accept. First byte is the length of the list.
+FilterChars:
+        .byte 22, "0123456789ABCDEF#(),XY"
+
 GetLine:
         LDX #0                  ; Initialize index into buffer
 loop:
@@ -1906,6 +1912,19 @@ loop:
         BEQ EnterPressed        ; If so, handle it
         CMP #ESC                ; <Esc> key pressed?
         BEQ EscapePressed       ; If so, handle it
+
+; Make sure character is included in the set of filter characters,
+; otherwise ignore it.
+
+        LDY FilterChars         ; Get length of filter chars list
+Filter:
+        CMP FilterChars,Y       ; Compare character from filter list with entered character
+        BEQ CharOkay            ; If it matched, accept character
+        DEY                     ; Move to next character in filter list
+        BNE Filter              ; Try next filter char until done
+        BEQ loop                ; End reached, ignore the character
+
+CharOkay:
         JSR PrintChar           ; Echo the key pressed
         STA IN+1,X              ; Store character in buffer (skip first length byte)
         INX                     ; Advance index into buffer
@@ -2018,13 +2037,13 @@ ClearScreen:
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON monitor 0.97 by Jeff Tranter",CR,0
+        .byte CR,"JMON monitor 0.97 by Jeff Tranter", CR, 0
 
 PromptString:
         .asciiz "? "
 
 InvalidCommand:
-        .byte "Invalid command. Type '?' for help",CR,0
+        .byte "Invalid command. Type '?' for help", CR, 0
 
 ; Help string.
 HelpString:
@@ -2056,10 +2075,10 @@ ContinueString:
         .asciiz "  <Space> to continue, <ESC> to stop"
 
 InvalidRange:
-        .byte "Error: start must be <= end",CR,0
+        .byte "Error: start must be <= end", CR, 0
 
 NotFound:
-        .byte "Not found",CR,0
+        .byte "Not found", CR, 0
 
 Found:
         .asciiz "Found at: "
@@ -2074,19 +2093,19 @@ TestString2:
         .asciiz " to $"
 
 TestString3:
-        .byte CR,"Press any key to stop",CR,0
+        .byte CR,"Press any key to stop", CR, 0
 
 VNotRAMString:
-  .byte "BRK vector not in RAM!",CR,0
+  .byte "BRK vector not in RAM!", CR, 0
 
 BNotRAMString:
-  .byte "Breakpoint not in RAM!",CR,0
+  .byte "Breakpoint not in RAM!", CR, 0
 
 NOBPString:
-  .byte "Breakpoint not set!",CR,0
+  .byte "Breakpoint not set!", CR, 0
 
 IntString:
-  .byte "Interrupt ?",CR,0
+  .byte "Interrupt ?", CR, 0
 
 UnknownBPString:
   .asciiz "Breakpoint ? at $"
@@ -2098,28 +2117,40 @@ KnownBPString2:
   .asciiz " at $"
 
 NoCFFA1String:
-  .byte "No CFFA1 card found!",CR,0
+  .byte "No CFFA1 card found!", CR, 0
 
 NoACIString:
-  .byte "No ACI card found!",CR,0
+  .byte "No ACI card found!", CR, 0
 
 ReadString:
-  .byte " Read: ",0
+  .byte " Read: ", 0
 
 OptionsString:
-  .byte "Options",CR,0
+  .byte "Options", CR, 0
 
 UppercaseString:
-  .byte "All uppercase output (Y/N)?",0
+  .byte "All uppercase output (Y/N)?", 0
 
 WriteDelayString:
-  .byte "Write delay (00-FF)?",0
+  .byte "Write delay (00-FF)?", 0
 
 HighBitString:
-  .byte "Set high bit in characters (Y/N)?",0
+  .byte "Set high bit in characters (Y/N)?", 0
 
 CPUTypeString:
-  .byte "CPU type (1-6502 2-Rockwell 65C02",CR,"3-WDC 65C02 4-65816)?",0
+  .byte "CPU type (1-6502 2-Rockwell 65C02",CR,"3-WDC 65C02 4-65816)?", 0
+
+InvalidInstructionString:
+  .byte "Invalid instruction", 0
+
+InvalidOperandString:
+  .byte "Invalid operand", 0
+
+InvalidAddressingModeString:
+  .byte "Invalid addressing mode", 0
+
+UnableToWriteString:
+  .byte "Unable to write to $", 0
 
   .include "disasm.s"
   .include "miniasm.s"

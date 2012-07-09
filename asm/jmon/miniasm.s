@@ -61,59 +61,121 @@
 ; JMP (nnnn)      Indirect            AM_INDIRECT
 ; NOP             Implicit            AM_IMPLICIT
 ;
-; Errors:
-; 
-; Invalid instruction
-; Invalid operand
-; Invalid addressing mode
-; Unable to write to $XXXX
-; 
+
 ; Variables:
-; 
 ; ADDR - instruction address
 ; OPCODE - instruction op code
 ; OP - instruction type (OP_*)
 ; LEN -length of instruction
 ; IN - input buffer holding operands
 ; AM - addressing mode (AM_*)
-; 
-; Routines:
-; 
+; MNEM - hold three letter mnemonic string used by assembler
+; OPERAND - Holds any operands for assembled instruction (2 bytes)
 
-; AssembleLine:
-; - output ADDRESS
-; - output colon and space
-; - input three letter for mnemonic (filter for valid alphabetic characters). Esc will terminate.
-; - lookup up 3 letter opcode (LookupMnemonic)
-; - if not valid mnemonic:
-;     output "Invalid instruction"
-;     return
-; - mnemonic is valid. Save lookup value in a variable.
-; - does instruction only support implicit addressing mode (i.e. no operand)?
-; - if so
-;   we are done
-;   Go to Code to generate code
-; - if not, need operand so continue
-; - output a space
-; - input characters up to newline, filter on only these characters: # 0-9 A-F ( ) , X Y. Support Esc to terminate. Use modified GetLine.
-; - save in buffer
-; - check if was terminated in Esc
-; - if so, return
-; - Check for addressing mode. Have already checked for implicit.
-; 
-; LSR A           Accumulator
-; Is operand just "A"? Set to AM_ACCUMULATOR
-; If so, go to CheckOperandValid
-; 
-; LDA #nn         Immediate
-; Is operand # followed by2 hex digits?
-; If so, set to immediate and go to CheckOperandValid
-; 
-; LDA nn          Zero page
-; 2 hex digits?
+; Assemble code entered a line at a time.
+; On entry ADDR contains start address of code.
+; Registers changed: A, X, Y.
+
+AssembleLine:
+        LDX ADDR                ; output address
+        LDY ADDR+1
+        JSR PrintAddress
+        LDA #':'                ; Output colon
+        JSR PrintChar
+        JSR PrintSpace          ; And space
+
+; Input three letter for mnemonic (filter for valid alphabetic characters). Esc will terminate.
+
+        LDX #0                  ; Index into MNEM
+GetMnem:
+        JSR GetKey              ; Get a character
+        CMP #ESC                ; <Esc> key?
+        BEQ EscPressed          ; If so, handle it
+
+        CMP #'A'
+        BMI GetMnem             ; Ignore if less than 'A'
+        CMP #'Z'+1
+        BPL GetMnem             ; or greater than 'Z'
+        STA MNEM,X              ; Valid, so store it.
+        JSR PrintChar           ; Echo it
+        INX                     ; Advance index
+        CPX #3                  ; Done?
+        BNE GetMnem             ; If not, continue until we get 3 chars
+
+        JSR LookupMnemonic      ; Look up mnemonic to see if it is valid
+        LDA OP                  ; Get the returned opcode
+        CMP #OP_INV             ; Not valid?
+        BNE OpOk                ; Branch if okay
+
+        JSR PrintCR
+        LDX #<InvalidInstructionString  ; Not a valid mnemonic
+        LDY #>InvalidInstructionString
+        JSR PrintString         ; Print error message
+EscPressed:
+        JSR PrintCR
+        RTS                     ; and return
+
+; Mnemonic is valid. Does instruction use implicit addressing mode (i.e. no operand needed)?
+
+OpOk:
+        LDA #AM_IMPLICIT
+        STA AM
+        JSR CheckAddressingModeValid
+        BNE GenerateCode                ; It is implicit, so we can jump to generating the code
+
+; Not implicit addressing mode. Need to get operand from user.
+
+        JSR PrintSpace          ; Output a space
+        JSR GetLine             ; Get line of input for operand(s)
+        BCS EscPressed          ; Check if cancelled by Esc key
+
+; Check for addressing mode. Have already checked for implicit.
+
+; AM_ACCUMULATOR, e.g. LSR A
+; Operand is just "A"
+  LDA IN                        ; Get length
+  CMP #1                        ; Is it 1?
+  BNE TryImm
+  LDA IN+1                      ; Get first char of operand
+  CMP #'A'                      ; Is is 'A'?
+  BNE TryImm
+  LDA #AM_ACCUMULATOR           ; Yes, is is accumulator mode
+  STA AM                        ; Save it
+  JMP GenerateCode
+
+; AM_IMMEDIATE, e.g. LDA #nn
+; Operand is '#' followed by 2 hex digits.
+TryImm:
+  LDA IN                        ; Get length
+  CMP #3                        ; Is it 3?
+  BNE TryZeroPage
+  LDA IN+1                      ; Get first char of operand
+  CMP #'#'                      ; is it '#'?
+  BNE TryZeroPage
+  LDA IN+2                      ; Get second char of operand
+  JSR IsHexDigit                ; Is is a hex digit?
+  BEQ TryZeroPage
+  LDA IN+3                      ; Get third char of operand
+  JSR IsHexDigit                ; Is is a hex digit?
+  BEQ TryZeroPage
+  LDA #AM_IMMEDIATE             ; Yes, this is immediate mode
+  STA AM                        ; Save it
+  LDX IN+2                      ; Get operand characters
+  LDY IN+3
+  JSR TwoCharsToBin             ; Convert to binary
+  STA OPERAND                   ; Save it as the operand
+  JMP GenerateCode
+
+; AM_ZEROPAGE e.g. LDA nn
+; Operand is 2 hex digits.
+TryZeroPage:
+
+
 ; 
 ; LDA nnnn        Absolute
 ; BEQ nnnn        Relative
+
+
 ; 
 ; 4 hex digits?
 ; check if it is absolute or relative
@@ -140,63 +202,118 @@
 ; If not any of the above
 ;   report "Invalid operand"
 ;   return
-; 
-; IsHexDigit:
-;   return true if A is 0-A or A-F
-; 
-; CheckOperandValid:
-; Search table to determine if addressing mode is valid for opcode.
-; If not
-;   report "Invalid addressing mode"
-;   return
-; 
-; Look up op code
-; Look up instruction length
-; 
-; Write opcode
-; Check that code written can be read back.
-; If not
-;   Report "Unable to write to $XXXX"
-;   return
-; 
-; Generate code starting at address
-;   
-; NOP             Implicit
-; LSR A           Accumulator
-; 
-; Only needed to write op code, so done.
-; 
-; LDA #nn         Immediate
-; LDA nn          Zero page
-; LDA nn,X        Zero page X
-; LDX nn,Y        Zero page Y
-; LDA (nn,X)      Indexed indirect
-; LDA (nn),Y      Indirect indexed
-; 
-; Write 1 byte from operand
-; 
-; LDA nnnn        Absolute
-; LDA nnnn,X      Absolute X
-; LDA nnnn,Y      Absolute X
-; JMP (nnnn)      Indirect
-; 
-; Write 2 bytes from operand (switch order)
-; 
+
+GenerateCode:
+        JSR PrintCR             ; Output newline
+
+        JSR CheckAddressingModeValid   ; See if addressing mode is valid
+        BNE OperandOkay
+
+        LDX #<InvalidAddressingModeString ; Not a valid addressing mode
+        LDY #>InvalidAddressingModeString
+        JSR PrintString         ; Print error message
+        JSR PrintCR
+        RTS                     ; and return
+
+OperandOkay:
+
+; Look up instruction length based on addressing mode and save it
+
+        LDX AM                   ; Addressing mode
+        LDA LENGTHS,X            ; Get instruction length for this addressing mode
+        STA LEN                  ; Save it
+ 
+; Write the opcode to memory
+
+        LDA OPCODE               ; get opcode
+        LDY #0
+        STA (ADDR),Y             ; store it
+
+; Check that we can write it back (in case destination memory is not writable).
+
+        CMP (ADDR),Y             ; Do we read back what we wrote?
+        BEQ WriteOperands        ; Yes, okay
+
+; Memory is not writable for some reason, Report error and quit.
+
+        LDX #<UnableToWriteString
+        LDY #>UnableToWriteString
+        JSR PrintString         ; Print error message
+        JSR PrintCR
+        RTS                     ; and return
+
+; Generate code for operands
+
+WriteOperands:
+        LDA AM                  ; get addressing mode
+        CMP #AM_IMPLICIT
+        BEQ ZeroOperands
+        CMP #AM_ACCUMULATOR
+        BEQ ZeroOperands
+
+        CMP #AM_IMMEDIATE
+        BEQ OneOperand
+        CMP #AM_ZEROPAGE
+        BEQ OneOperand
+        CMP #AM_ZEROPAGE_X
+        BEQ OneOperand
+        CMP #AM_ZEROPAGE_Y
+        BEQ OneOperand
+        CMP #AM_INDEXED_INDIRECT
+        BEQ OneOperand
+        CMP #AM_INDIRECT_INDEXED
+        BEQ OneOperand
+
+        CMP #AM_ABSOLUTE
+        BEQ TwoOperands
+        CMP #AM_ABSOLUTE_X
+        BEQ TwoOperands
+        CMP #AM_ABSOLUTE_Y
+        BEQ TwoOperands
+        CMP #AM_INDIRECT
+        BEQ TwoOperands
+
+        CMP #AM_RELATIVE
+        BEQ Relative
+
+Relative:
+
 ; BEQ nnnn        Relative
-; 
 ; Write 1 byte calculated as destination (nnnn) - current address - instruction length (2)
-; 
+
+
+        JMP ZeroOperands             ; done
+
+OneOperand:
+        LDA OPERAND                  ; Get operand
+        LDY #1                       ; Offset from instruction
+        STA (ADDR),Y                 ; write it
+        JMP ZeroOperands             ; done
+
+TwoOperands:
+        LDA OPERAND+1                ; Get operand low byte
+        LDY #1                       ; Offset from instruction
+        STA (ADDR),Y                 ; write it
+        INY
+        LDA OPERAND+1                ; Get operand high byte
+        STA (ADDR),Y                 ; write it
+        JMP ZeroOperands             ; done
+
+ZeroOperands:           ; nothing to do
+
 ; Update current address with instruction length
-; 
-; go to AssembleLine
 
-AssembleLine:
+       CLC
+       LDA ADDR                      ; Low byte
+       ADC LEN                       ; Add length
+       STA ADDR                      ; Store it
+       LDA ADDR+1                    ; High byte
+       ADC #0                        ; Add any carry
+       STA ADDR+1                    ; Store it
+       JMP AssembleLine              ; loop back to start of AssembleLine
 
-        RTS                     ; Return
-
-
-; Look up three letter mnemonic, e.g. "NOP". Mnemonic is stored in MNEM.
-; Return index value, e.g. OP_NOP, in A. Returns OP_INV if not found.
+; Look up three letter mnemonic, e.g. "NOP". In entry mnemonic is stored in MNEM.
+; Write index value, e.g. OP_NOP, to OP. Set sit to OP_INV if not found.
 ; Registers changed: A, X, Y.
 LookupMnemonic:
         LDX #0                  ; Holds current table index
@@ -219,7 +336,7 @@ Loop:
         BNE NextOp              ; If different, try next opcode
 
                                 ; We found a match
-        TXA                     ; Return index in table (X) in A
+        STX OP                  ; Store index in table (X) in OP
         RTS                     ; And return
 
 NextOp:
@@ -240,7 +357,8 @@ NextOp:
         BNE Loop
 
                                 ; End of table reached
-        LDA #OP_INV             ; Return OP_INV (0)
+        LDA #OP_INV             ; Value is not valid
+        STA OP
         RTS
 
 ; Given an instruction and addressing mode, return if it is valid.
@@ -250,7 +368,7 @@ NextOp:
 ; in A. If not valid, returns 0 in A.
 ; Registers changed: A, X, Y.
 
-CheckOperandValid:
+CheckAddressingModeValid:
         LDX #0                  ; Holds current table index
         LDA #<OPCODES           ; Store address of start of table in T1 (L/H)
         STA T1
@@ -286,4 +404,58 @@ NextInst:
 
 OpNotFound:                     ; End of table reached
         LDA #0                  ; Set false return value
+        RTS
+
+; Return if a character is a valid hex digit (0-9 or A-F).
+; Pass character in A.
+; Returns 1 in A if valid, 0 if not valid.
+; Registers affected: A
+IsHexDigit:
+        CMP #'0'
+        BMI @Invalid
+        CMP #'9'+1
+        BMI @Okay
+        CMP #'A'
+        BMI @Invalid
+        CMP #'F'+1
+        BMI @Okay
+@Invalid:
+        LDA #0
+        RTS
+@Okay:
+        LDA #1
+        RTS
+
+; Convert two characters containing hex digits to binary
+; Chars passed in X (first char) and Y (second char).
+; Returns value in A.
+; e.g. X='1' Y='A' Returns A = $1A
+; Does not check that characters are valid hex digits
+TwoCharsToBin:
+        TXA                     ; get first digit
+        JSR CharToBin           ; convert to binary
+        ASL A                   ; shift to upper nibble
+        ASL A                
+        ASL A                
+        ASL A
+        STA T1                  ; Save it
+        TYA                     ; get second digit
+        JSR CharToBin           ; convert to binary
+        CLC
+        ADC T1                  ; Add the upper nibble
+        RTS        
+
+; Convert character containing a hex digit to binary.
+; Char passed in A. Returns value in A.
+; e.g. A='A' Returns A=$0A
+; Does not check that character is valid hex digit.
+CharToBin:
+        CMP #'9'+1              ; Is is '0'-'9'?
+        BMI @Digit              ; Branch if so
+        SEC                     ; Otherwise must be 'A'-'F'
+        SBC #'A'-10             ; convert to value
+        RTS
+@Digit:
+        SEC
+        SBC #'0'                ; convert to value
         RTS
