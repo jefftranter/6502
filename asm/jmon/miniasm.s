@@ -311,7 +311,7 @@ TryAbsoluteX:
   LDA IN+6
   CMP #'X'
   BNE TryAbsoluteY
-  LDA AM_ABSOLUTE_X
+  LDA #AM_ABSOLUTE_X
   STA AM
   LDX IN+1                      ; Get operand characters
   LDY IN+2
@@ -343,11 +343,11 @@ TryAbsoluteY:
   BEQ TryIndexedIndirect
   LDA IN+5
   CMP #','
-  BEQ TryIndexedIndirect
+  BNE TryIndexedIndirect
   LDA IN+6
   CMP #'Y'
   BNE TryIndexedIndirect
-  LDA AM_ABSOLUTE_Y
+  LDA #AM_ABSOLUTE_Y
   STA AM
   LDX IN+1                      ; Get operand characters
   LDY IN+2
