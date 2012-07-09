@@ -169,17 +169,32 @@ TryImm:
 ; AM_ZEROPAGE e.g. LDA nn
 ; Operand is 2 hex digits.
 TryZeroPage:
-
+  LDA IN                        ; Get length
+  CMP #2                        ; Is it 2?
+  BNE TryAbsRel
+  LDA IN+1                      ; Get first char of operand
+  JSR IsHexDigit                ; Is is a hex digit?
+  BEQ TryAbsRel
+  LDA IN+2                      ; Get second char of operand
+  JSR IsHexDigit                ; Is is a hex digit?
+  BEQ TryAbsRel
+  LDA #AM_ZEROPAGE              ; Yes, this is zero page
+  STA AM                        ; Save it
+  LDX IN+1                      ; Get operand characters
+  LDY IN+2
+  JSR TwoCharsToBin             ; Convert to binary
+  STA OPERAND                   ; Save it as the operand
+  JMP GenerateCode
 
 ; 
 ; LDA nnnn        Absolute
 ; BEQ nnnn        Relative
-
-
-; 
 ; 4 hex digits?
 ; check if it is absolute or relative
 ; Then call CheckOperandValid
+
+TryAbsRel:
+
 ; 
 ; LDA nn,X        Zero page X
 ; 2 hex digits followed by ,X
