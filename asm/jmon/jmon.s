@@ -2037,7 +2037,7 @@ ClearScreen:
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON monitor 0.97 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 0.98 by Jeff Tranter", CR, 0
 
 PromptString:
         .asciiz "? "
@@ -2148,6 +2148,9 @@ InvalidOperandString:
 
 InvalidAddressingModeString:
   .byte "Invalid addressing mode", 0
+
+BranchOutOfRangeString:
+  .byte "Relative branch out of range", 0
 
 UnableToWriteString:
   .byte "Unable to write to $", 0
