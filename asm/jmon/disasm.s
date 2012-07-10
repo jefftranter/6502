@@ -1,5 +1,5 @@
 ;
-; 6502/65C02 Disassembler
+; 6502/65C02/65816 Disassembler
 ;
 ; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
 ;

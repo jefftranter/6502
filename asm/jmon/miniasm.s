@@ -1,5 +1,5 @@
 ;
-; 6502 Mini Assembler
+; 6502/65C02 Mini Assembler
 ;
 ; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
 ;
@@ -37,15 +37,13 @@
 ; - no symbols or labels
 ; - all values in hex, 2 or 4 digits
 ; - no backspace or other editing features
-; - 6502 only (initially)
 ; 
 ; Future enhancements:
-; - optional $ in front of values (to accept back disassembled code)
-; - support for 65C02 instructions
-; - support for 65816 instructions
+; - support for Rockwell 65C02 BBS/BBR instructions
+; - support for 65816 addressing modes
 ; - binary, character, decimal constants
 
-; Variables:
+; Variables used (defined in jmon.s)
 ; ADDR - instruction address
 ; OPCODE - instruction op code
 ; OP - instruction type (OP_*)
@@ -410,6 +408,68 @@ TryIndirectIndexed:
 TryIndirect:
         LDA IN                        ; Get length
         CMP #6                        ; Is it 6?
+        BNE TryIndirectZP
+        LDA IN+1                      ; Get first char of operand
+        CMP #'('
+        BNE TryIndirectZP
+        LDA IN+2                      ; Get second char of operand
+        JSR IsHexDigit                ; Is is a hex digit?
+        BEQ TryIndirectZP
+        LDA IN+3                      ; Get third char of operand
+        JSR IsHexDigit                ; Is is a hex digit?
+        BEQ TryIndirectZP
+        LDA IN+4                      ; Get fourth char of operand
+        JSR IsHexDigit                ; Is is a hex digit?
+        BEQ TryIndirectZP
+        LDA IN+5                      ; Get fifth char of operand
+        JSR IsHexDigit                ; Is is a hex digit?
+        BEQ TryIndirectZP
+        LDA IN+6                      ; Get fourth char of operand
+        CMP #')'                      ; Is is a )?
+        BNE TryIndirectZP
+        LDA #AM_INDIRECT              ; Yes, this is indirect
+        STA AM                        ; Save it
+
+        LDX IN+2                      ; Get operand characters
+        LDY IN+3
+        JSR TwoCharsToBin             ; Convert to binary
+        STA OPERAND+1                 ; Save it as the operand
+        LDX IN+4                      ; Get operand characters
+        LDY IN+5
+        JSR TwoCharsToBin             ; Convert to binary
+        STA OPERAND                   ; Save it as the operand
+        JMP GenerateCode
+
+; AM_INDIRECT_ZEROPAGE, e.g. LDA (nn) [65C02 only]
+TryIndirectZP:
+        LDA IN                        ; Get length
+        CMP #4                        ; Is it 4?
+        BNE TryAbsIndInd
+        LDA IN+1                      ; Get first char of operand
+        CMP #'('
+        BNE TryAbsIndInd
+        LDA IN+2                      ; Get second char of operand
+        JSR IsHexDigit                ; Is is a hex digit?
+        BEQ TryAbsIndInd
+        LDA IN+3                      ; Get third char of operand
+        JSR IsHexDigit                ; Is is a hex digit?
+        BEQ TryAbsIndInd
+        LDA IN+4                      ; Get fourth char of operand
+        CMP #')'                      ; Is is a )?
+        BNE TryAbsIndInd
+        LDA #AM_INDIRECT_ZEROPAGE     ; Yes, this is indirect zeropage
+        STA AM                        ; Save it
+
+        LDX IN+2                      ; Get operand characters
+        LDY IN+3
+        JSR TwoCharsToBin             ; Convert to binary
+        STA OPERAND                   ; Save it as the operand
+        JMP GenerateCode
+
+; AM_ABSOLUTE_INDEXED_INDIRECT, e.g. JMP (nnnn,X) [65C02 only]
+TryAbsIndInd:
+        LDA IN                        ; Get length
+        CMP #8                        ; Is it 8?
         BNE InvalidOp
         LDA IN+1                      ; Get first char of operand
         CMP #'('
@@ -426,10 +486,16 @@ TryIndirect:
         LDA IN+5                      ; Get fifth char of operand
         JSR IsHexDigit                ; Is is a hex digit?
         BEQ InvalidOp
-        LDA IN+6                      ; Get fourth char of operand
+        LDA IN+6                      ; Get sixth char of operand
+        CMP #','                      ; Is is a ,?
+        BNE InvalidOp
+        LDA IN+7                      ; Get 7th char of operand
+        CMP #'X'                      ; Is is a X?
+        BNE InvalidOp
+        LDA IN+8                      ; Get 8th char of operand
         CMP #')'                      ; Is is a )?
         BNE InvalidOp
-        LDA #AM_INDIRECT              ; Yes, this is indirect
+        LDA #AM_ABSOLUTE_INDEXED_INDIRECT ; Yes, this is abolue indexed indirect
         STA AM                        ; Save it
 
         LDX IN+2                      ; Get operand characters
@@ -441,7 +507,7 @@ TryIndirect:
         JSR TwoCharsToBin             ; Convert to binary
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
- 
+
 ; If not any of the above, report "Invalid operand" and return.
 
 InvalidOp:
@@ -505,6 +571,7 @@ TryAcc:
         CMP #AM_ACCUMULATOR
         BNE TryImmed
         JMP ZeroOperands
+
 TryImmed:
         CMP #AM_IMMEDIATE       ; These modes take one operand
         BEQ OneOperand
@@ -518,6 +585,8 @@ TryImmed:
         BEQ OneOperand
         CMP #AM_INDIRECT_INDEXED
         BEQ OneOperand
+        CMP #AM_INDIRECT_ZEROPAGE ; [65C02 only]
+        BEQ OneOperand
 
         CMP #AM_ABSOLUTE       ; These modes take two operands
         BEQ TwoOperands
@@ -527,17 +596,18 @@ TryImmed:
         BEQ TwoOperands
         CMP #AM_INDIRECT
         BEQ TwoOperands
+        CMP #AM_ABSOLUTE_INDEXED_INDIRECT
+        BEQ TwoOperands
 
         CMP #AM_RELATIVE       ; Relative is special case
         BNE ZeroOperands
-
-Relative:
 
 ; BEQ nnnn        Relative
 ; Write 1 byte calculated as destination - current address - instruction length
 ; i.e. (OPERAND,OPERAND+1) - ADDR,ADDR+1 - 2
 ; Report error if branch is out of 8-bit offset range.
 
+Relative:
          LDA OPERAND                 ; destination low byte
          SEC
          SBC ADDR                    ; subtract address low byte
