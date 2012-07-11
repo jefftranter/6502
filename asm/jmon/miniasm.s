@@ -39,7 +39,7 @@
 ; - no backspace or other editing features
 ; 
 ; Future enhancements:
-; - support for Rockwell 65C02 BBS/BBR instructions
+; - support for Rockwell 65C02 RMB, SMB, BBS, BBR instructions
 ; - support for 65816 addressing modes
 ; - binary, character, decimal constants
 
