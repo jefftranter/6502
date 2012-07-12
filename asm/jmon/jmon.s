@@ -6,7 +6,6 @@
 ;
 ; TODO:
 ; - use CPU type option for dissasembly
-; - implement step and trace commands (remove dependency on Krusader's minimon)
 
 ; Revision History
 ; Version Date         Comments
@@ -43,6 +42,7 @@
 ;        07-Jul-2012   Now adjusts disassembly of 65816 instructions for 8/16-bit modes.
 ;                      Also fixed missing SEP opcode (error in WDC manual).
 ; 0.98   08-Jul-2012   Added mini assembler (replaces call to Krusader)
+; 0.99   11-Jul-2012   Added trace feature (replaces call to Krusader mini monitor).
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -115,7 +115,9 @@ SAVE_X:   .res 1                ; "
 SAVE_Y:   .res 1                ; "
 SAVE_S:   .res 1                ; "
 SAVE_P:   .res 1                ; "
-SAVE_PC:  .res 2                ; Holds PC while in BRK handler (2 bytes)
+SAVE_PC:  .res 2                ; "
+NEXT_PC:  .res 2                ; Value of PC after next instruction
+THIS_S:   .res 1                ; Saved value of JMON's stack pointer
 CHAROK:   .res 1                ; Set to 1 if okay to enter characters prefixed by '
 CHARMODE: .res 1                ; Set if currently entering in character (ASCII) mode
 OWDELAY:   .res 1               ; Delay value when writing (defaults to zero)
@@ -126,20 +128,12 @@ MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit i
 XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
 MNEM:      .res 3               ; Hold three letter mnemonic string used by assembler
 OPERAND:   .res 2               ; Holds any operands for assembled instruction
+TRACEINST: .res 3               ; buffer holding traced instruction followed by a JMP (6 bytes)
 
 ; Save values of registers
 Start:
-        PHP
-        STA SAVE_A
-        STX SAVE_X
-        STY SAVE_Y
-        PLA
-        STA SAVE_P
-        TSX
-        STX SAVE_S
 
-; Initialize some things just in case
-
+; Initialization
         CLD                     ; clear decimal mode
         CLI                     ; clear interrupt disable
         LDX #$80                ; initialize stack pointer to $0180
@@ -1089,47 +1083,10 @@ nocarry:
 Registers:
         JSR PrintChar           ; Echo command
         JSR PrintSpace
-        LDA #'A'
-        JSR PrintChar
-        LDA #'-'
-        JSR PrintChar
-        LDA SAVE_A
-        JSR PrintByte
-        JSR PrintSpace
-        LDA #'X'
-        JSR PrintChar
-        LDA #'-'
-        JSR PrintChar
-        LDA SAVE_X
-        JSR PrintByte
-        JSR PrintSpace
-        LDA #'Y'
-        JSR PrintChar
-        LDA #'-'
-        JSR PrintChar
-        LDA SAVE_Y
-        JSR PrintByte
-        JSR PrintSpace
-        LDA #'S'
-        JSR PrintChar
-        LDA #'-'
-        JSR PrintChar
-        LDA #01
-        JSR PrintByte
-        LDA SAVE_S
-        JSR PrintByte
-        JSR PrintSpace
-        LDA #'P'
-        JSR PrintChar
-        LDA #'-'
-        JSR PrintChar
-        LDA SAVE_P
-        JSR PrintByte
-        JSR PrintSpace
-        JSR OUTP
-        JSR PrintCR
 
-        LDX #4
+        JSR PrintRegisters      ; Print current values
+
+        LDX #4                  ; Now print and prompt for new values
         JSR PrintSpaces
         LDA #'A'
         JSR PrintChar
@@ -1167,6 +1124,49 @@ Registers:
         JSR PrintChar
         JSR GetByte
         STA SAVE_P
+        JSR PrintSpace
+        JSR OUTP
+        JSR PrintCR
+        RTS
+
+; Print saved values of registers
+PrintRegisters:
+        LDA #'A'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_A
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'X'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_X
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'Y'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_Y
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'S'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA #01
+        JSR PrintByte
+        LDA SAVE_S
+        JSR PrintByte
+        JSR PrintSpace
+        LDA #'P'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        LDA SAVE_P
+        JSR PrintByte
         JSR PrintSpace
         JSR OUTP
         JSR PrintCR
@@ -1862,7 +1862,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDEFGHIKLMORSTUV:="
+        .byte "$?ABCDEFGHIKLMORSTUV:=."
 
 JMPFL:
         .word Invalid-1
@@ -1888,6 +1888,7 @@ JMPFL:
         .word Verify-1
         .word Memory-1
         .word Math-1
+        .word Trace-1
 
 ; String input routine.
 ; Enter characters from the keyboard terminated in <Return> or <ESC>.
@@ -2037,7 +2038,7 @@ ClearScreen:
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON monitor 0.98 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 0.99 by Jeff Tranter", CR, 0
 
 PromptString:
         .asciiz "? "
@@ -2047,28 +2048,29 @@ InvalidCommand:
 
 ; Help string.
 HelpString:
-        .byte "Assemble    A",CR
-        .byte "Breakpoint  B <n or ?> <address>",CR
-        .byte "Copy        C <start> <end> <dest>",CR
-        .byte "Dump        D <start>",CR
-        .byte "ACI menu    E",CR
-        .byte "Fill        F <start> <end> <data>...",CR
-        .byte "Go          G <address>",CR
-        .byte "Hex to dec  H <address>",CR
-        .byte "BASIC       I",CR
-        .byte "Mini mon    K",CR
-        .byte "Clr screen  L",CR
-        .byte "CFFA1 menu  M",CR
-        .byte "Options     O",CR
-        .byte "Registers   R",CR
-        .byte "Search      S <start> <end> <data>...",CR
-        .byte "Test        T <start> <end>",CR
-        .byte "Unassemble  U <start>",CR
-        .byte "Verify      V <start> <end> <dest>",CR
-        .byte "Woz mon     $",CR
-        .byte "Write       : <address> <data>...",CR
-        .byte "Math        = <address> +/- <address>",CR
-        .byte "Help        ?",CR
+        .byte "Assemble    A", CR
+        .byte "Breakpoint  B <n or ?> <address>", CR
+        .byte "Copy        C <start> <end> <dest>", CR
+        .byte "Dump        D <start>", CR
+        .byte "ACI menu    E", CR
+        .byte "Fill        F <start> <end> <data>...", CR
+        .byte "Go          G <address>", CR
+        .byte "Hex to dec  H <address>", CR
+        .byte "BASIC       I", CR
+        .byte "Mini mon    K", CR
+        .byte "Clr screen  L", CR
+        .byte "CFFA1 menu  M", CR
+        .byte "Options     O", CR
+        .byte "Registers   R", CR
+        .byte "Search      S <start> <end> <data>...", CR
+        .byte "Test        T <start> <end>", CR
+        .byte "Unassemble  U <start>", CR
+        .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Woz mon     $", CR
+        .byte "Write       : <address> <data>...", CR
+        .byte "Math        = <address> +/- <address>", CR
+        .byte "Trace       .", CR
+        .byte "Help        ?", CR
         .byte 0
 
 ContinueString:
@@ -2157,5 +2159,6 @@ UnableToWriteString:
 
   .include "disasm.s"
   .include "miniasm.s"
+  .include "trace.s"
   .include "memtest4.s"
   .include "delay.s"

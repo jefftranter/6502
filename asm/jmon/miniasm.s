@@ -676,7 +676,7 @@ ZeroOperands:           ; nothing to do
        STA ADDR+1                    ; Store it
        JMP AssembleLine              ; loop back to start of AssembleLine
 
-; Look up three letter mnemonic, e.g. "NOP". In entry mnemonic is stored in MNEM.
+; Look up three letter mnemonic, e.g. "NOP". On entry mnemonic is stored in MNEM.
 ; Write index value, e.g. OP_NOP, to OP. Set sit to OP_INV if not found.
 ; Registers changed: A, X, Y.
 LookupMnemonic:
