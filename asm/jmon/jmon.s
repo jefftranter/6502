@@ -1093,25 +1093,46 @@ Registers:
         STA ADDR+1
         JSR DISASM
 
+        LDA #1
+        STA RETOK
         LDA #'A'                ; Now print and prompt for new values
         JSR PrintChar
         LDA #'-'
         JSR PrintChar
         JSR GetByte
+        BCS RetPressed1
         STA SAVE_A
+        JMP EnterX
+RetPressed1:
+        LDA SAVE_A
+        JSR PrintByte
+EnterX:
         JSR PrintSpace
         LDA #'X'
         JSR PrintChar
         LDA #'-'
         JSR PrintChar
         JSR GetByte
+        BCS RetPressed2
         STA SAVE_X
+        JMP EnterY
+RetPressed2:
+        LDA SAVE_X
+        JSR PrintByte
+EnterY:
         JSR PrintSpace
         LDA #'Y'
         JSR PrintChar
         LDA #'-'
         JSR PrintChar
         JSR GetByte
+        BCS RetPressed3
+        STA SAVE_Y
+        JMP EnterS
+RetPressed3:
+        LDA SAVE_Y
+        JSR PrintByte
+EnterS:
         STA SAVE_Y
         JSR PrintSpace
         LDA #'S'
@@ -1121,14 +1142,26 @@ Registers:
         LDA #$01
         JSR PrintByte
         JSR GetByte
+        BCS RetPressed4
         STA SAVE_S
+        JMP EnterP
+RetPressed4:
+        LDA SAVE_S
+        JSR PrintByte
+EnterP:
         JSR PrintSpace
         LDA #'P'
         JSR PrintChar
         LDA #'-'
         JSR PrintChar
         JSR GetByte
+        BCS RetPressed5
         STA SAVE_P
+        JMP PrintP
+RetPressed5:
+        LDA SAVE_P
+        JSR PrintByte
+PrintP:
         JSR PrintSpace
         JSR OUTP
         JSR PrintCR
@@ -1139,9 +1172,18 @@ Registers:
         LDA #'-'
         JSR PrintChar
         JSR GetAddress
+        BCS RetPressed6
         STX SAVE_PC
         STY SAVE_PC+1
+        JMP Eol
+RetPressed6:
+        LDX SAVE_PC
+        LDY SAVE_PC+1
+        JSR PrintAddress
+Eol:
         JSR PrintCR
+        LDA #0
+        STA RETOK
         RTS
 
 ; Print saved values of registers

@@ -23,8 +23,8 @@
 ; CPU registers. Starts with the register values listed by the R
 ; command. Updates them after single stepping.
 ; 
-; The R(egister) command will be updated to show the current PC and
-; disassemble the current instruction. Also allow user to change the PC.
+; The R(egister) shows the current PC and
+; disassembles the current instruction. Also allow user to change the PC.
 ; Pressing <Enter> when prompted for a new register value will keep the
 ; current value and advance to the next register.
 ; 
@@ -34,7 +34,7 @@
 ; A breakpoint (BRK instruction) will go to the trace handler, whether
 ; set using the B command or not.
 ; 
-; The command will support tracing/stepping through ROM as well as RAM.
+; The command supports tracing/stepping through ROM as well as RAM.
 ; 
 ; e.g.
 ; 
