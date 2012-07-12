@@ -129,24 +129,65 @@ Trace:
 ; Special handling for instructions that change flow of control.
 ; These are not actually executed, they are emulated
 
+         LDA OPCODE            ; Get the opcode
+
 ;   Bxx - branch instructions (8) - test (saved) flags for condition to determine next PC.
-; 
-;   BRK - set B=1. Push return address-1. Push P. Next PC is contents of IRQ vector.
-; 
-;   JMP (2) - Next PC is operand effective address (possibly indirect).
-; 
-;   JSR - push return address-1. Next PC is operand effective address.
-; 
-;   RTI - Pop P. Pop PC. Increment PC to get next PC.
-; 
-;   RTS - Pop PC. Increment PC to get next PC.
-; 
-;   go to AfterStep
  
+;   BRK - set B=1. Push return address-1. Push P. Next PC is contents of IRQ vector.
+ 
+;   JMP (2) - Next PC is operand effective address (possibly indirect).
 
-; Not a special instruction. we execute it from the buffer.
+         CMP #$4C              ; JMP nnnn ?
+         BNE TryJmpI
+         LDY #1
+         LDA (ADDR),Y          ; Destination address low byte
+         STA NEXT_PC
+         INY
+         LDA (ADDR),Y          ; Destination address high byte
+         STA NEXT_PC+1
+         JMP AfterStep         ; We're done
 
-; Save this program'ss stack pointer so we can restore it later.
+TryJmpI:
+         CMP #$6C              ; JMP (nnnn) ?
+         BNE TryJSR
+         LDY #1
+         LDA (ADDR),Y          ; Indirect destination address low byte
+         STA T1
+         INY
+         LDA (ADDR),Y          ; Indirect destination address high byte
+         STA T1+1
+         LDY #0
+         LDA (T1),Y            ; Get actual address low byte
+         STA NEXT_PC
+         INY
+         LDA (T1),Y            ; Get actual address high byte
+         STA NEXT_PC+1
+         JMP AfterStep         ; We're done
+
+;   JSR - push return address-1. Next PC is operand effective address.
+
+TryJSR:
+         CMP #$20              ; JSR nnnn ?
+         BNE TryRTI
+;PUSH...
+         LDY #1
+         LDA (ADDR),Y          ; Destination address low byte
+         STA NEXT_PC
+         INY
+         LDA (ADDR),Y          ; Destination address high byte
+         STA NEXT_PC+1
+         JMP AfterStep         ; We're done
+ 
+;   RTI - Pop P. Pop PC. Increment PC to get next PC.
+ 
+TryRTI:
+
+;   RTS - Pop PC. Increment PC to get next PC.
+
+
+; Not a special instruction. We execute it from the buffer.
+
+; Save this program's stack pointer so we can restore it later.
 
         TSX
         STX THIS_S
