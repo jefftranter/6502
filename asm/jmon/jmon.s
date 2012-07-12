@@ -130,7 +130,6 @@ MNEM:      .res 3               ; Hold three letter mnemonic string used by asse
 OPERAND:   .res 2               ; Holds any operands for assembled instruction
 TRACEINST: .res 3               ; buffer holding traced instruction followed by a JMP (6 bytes)
 
-; Save values of registers
 Start:
 
 ; Initialization
@@ -1074,7 +1073,9 @@ nocarry:
 ; Uses values with Go command.
 ;
 ; R A-D2 X-00 Y-04 S-01FE P-FF NVBDIZC
-;   A-?? X-00 Y-00 S-0180 P-01
+; FF02   A0 7F       LDY   #$7F
+;   A-00 X-00 Y-00 S-0180 P-01
+; PC-FF02
 ;
 ; Displays saved value of registers
 ; Prompts for new value for each register.
@@ -1082,13 +1083,17 @@ nocarry:
 
 Registers:
         JSR PrintChar           ; Echo command
-        JSR PrintSpace
+        JSR PrintCR
 
         JSR PrintRegisters      ; Print current values
 
-        LDX #4                  ; Now print and prompt for new values
-        JSR PrintSpaces
-        LDA #'A'
+        LDA SAVE_PC             ; Disassemble current instruction
+        STA ADDR
+        LDA SAVE_PC+1
+        STA ADDR+1
+        JSR DISASM
+
+        LDA #'A'                ; Now print and prompt for new values
         JSR PrintChar
         LDA #'-'
         JSR PrintChar
@@ -1126,6 +1131,16 @@ Registers:
         STA SAVE_P
         JSR PrintSpace
         JSR OUTP
+        JSR PrintCR
+        LDA #'P'
+        JSR PrintChar
+        LDA #'C'
+        JSR PrintChar
+        LDA #'-'
+        JSR PrintChar
+        JSR GetAddress
+        STX SAVE_PC
+        STY SAVE_PC+1
         JSR PrintCR
         RTS
 

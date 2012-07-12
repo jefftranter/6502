@@ -97,24 +97,24 @@ Trace:
 
 ; Copy next instruction and operands to RAM buffer (can be up to 3 bytes)
 
-        LDX #0
+        LDY #0
 @Copy:
-        LDA (ADDR,X)          ; Get the instruction operand from memory
-        STA TRACEINST,X       ; Write it to the buffer where we will execute it
-        INX                   ; Increment index
-        CPX LEN               ; Did we reach the instruction length?
+        LDA (ADDR),Y          ; Get the instruction operand from memory
+        STA TRACEINST,Y       ; Write it to the buffer where we will execute it
+        INY                   ; Increment index
+        CPY LEN               ; Did we reach the instruction length?
         BNE @Copy             ; Continue for instruction length
 
 ; Now add a jump after the instruction to where we want to go after it is executed
 
         LDA #$4C              ; JMP ReturnFromTrace
-        STA TRACEINST,X
-        INX
+        STA TRACEINST,Y
+        INY
         LDA #<ReturnFromTrace
-        STA TRACEINST,X
-        INX
+        STA TRACEINST,Y
+        INY
         LDA #>ReturnFromTrace
-        STA TRACEINST,X
+        STA TRACEINST,Y
         
 ; Calculate new PC value.
 
@@ -125,7 +125,6 @@ Trace:
          LDA SAVE_PC+1        ; High byte
          ADC #0               ; Add any carry
          STA NEXT_PC+1        ; Save as next PC (high byte)
-
 
 ; Special handling for instructions that change flow of control.
 ; These are not actually executed, they are emulated
