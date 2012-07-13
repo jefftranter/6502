@@ -1555,9 +1555,13 @@ GetByte:
 GetAddress:
         PHA                     ; Save A
         JSR GetByte             ; Get the first (most significant) hex byte
+        BCS @RetPressed         ; Quit if Return pressed
         TAY                     ; Save in Y
+        LDA #0
+        STA RETOK               ; One byte already entered so can't hit return now for default.
         JSR GetByte             ; Get the second (least significant) hex byte
         TAX                     ; Save in X
+@RetPressed:
         PLA                     ; Restore A
         RTS
 
