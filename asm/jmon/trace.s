@@ -14,7 +14,14 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
-;
+
+; TO DO:
+; - implement support for remaining special instructions
+; - add support for pressing <Enter> in Go command
+; - implement changes to break handler
+; - fix behavior when pressing Enter for PC in Register command
+; - exhaustive testing (e.g. run BASIC?)
+
 
 ; Trace Feature
 ; --------------
@@ -132,6 +139,7 @@ Trace:
          LDA OPCODE            ; Get the opcode
 
 ;   Bxx - branch instructions (8) - test (saved) flags for condition to determine next PC.
+; Do this in a more elegant way... Execute but change the destination of the branch?
  
 ;   BRK - set B=1. Push return address-1. Push P. Next PC is contents of IRQ vector.
  

@@ -7,9 +7,9 @@ Commands:
 
 ASSEMBLER:  A
 
-Call a mini assembler which can assemble lines of 6502 code. Prompts
-for the start address and then prompts for instructions. Does not
-support symbols or labels, all values must be in hex with 2 or 4
+Call a mini assembler which can assemble lines of 6502 or 65C02 code.
+Prompts for the start address and then prompts for instructions. Does
+not support symbols or labels, all values must be in hex with 2 or 4
 digits and there is no backspace or other editing features. Press
 <Enter> to terminate and assemble a line. Pressing <Esc> will cancel.
 
@@ -31,11 +31,11 @@ Set up to 4 breakpoints, numbered 0 through 3.
 "B <n> 0000" removes breakpoint <n>.
 Breakpoint number <n> is 0 through 3.
 
-Set a breakpoint on an address where you want to go into the debugger
-(mini-monitor). Puts a BRK there and saved original instruction. When
+Set a breakpoint on an address where you want to go into the trace
+routine. Puts a BRK there and saved original instruction. When
 BRK is hit, puts original instruction back and jumps into the
-mini-monitor at the address of the breakpoint. From there you can
-continue, single step, etc. Once hit, a breakpoint is cleared and
+trace code at the address of the breakpoint. From there you can
+single step, change regsiters, etc. Once hit, a breakpoint is cleared and
 needs to be set again. Breakpoints must be in RAM. IRQ/BRK vector must
 be in RAM. Error is displayed if not. If the break handler is called
 from an interrupt rather than a BRK instruction, a message is
@@ -65,8 +65,9 @@ any length up to 127 bytes. Press <Enter> after entering the pattern.
 GO:        G <ADDRESS>
 
 Run from an address. Before execution, restores the values of the
-registers set by the R command. Uses JSR to the called routine can
-return to JMON.
+registers set by the R command. Uses JSR so the called routine can
+return to JMON. Uses the PC value set by the Registers comand if
+you hit <Enter> when promptee for the address.
 
 HEX TO DEC  H <ADDRESS>
 
@@ -76,10 +77,6 @@ BASIC:      I
 
 Jump to Applesoft BASIC cold start entry point (address $E000). Does
 not perform any check that the ROM-based BASIC is present.
-
-MINI MON:   K
-
-Jump to mini-monitor. Only valid for Krusader 6502 version 1.3.
 
 CLR SCREEN:  L
 
@@ -117,9 +114,11 @@ the future to control disassembly.
 REGISTERS:  R
 
 Displays the current value of the CPU registers A, X, Y, S, and P.
-Then prompts to enter new values. Initial values are set from those
-when JMON is entered. Uses any saved values when executing the Go
-command. <Esc> cancels at any time.
+Also disassembles the instruction at the current PC. Then prompts to
+enter new values. Uses any saved values when executing the Go command.
+<Esc> cancels at any time. Pressing <Enter> when prompted for a new
+register value will keep the current value and advance to the next
+register. The trace function uses the values of the registers.
 
 SEARCH:     S <START> <END> <DATA>...
 
@@ -135,7 +134,8 @@ limited number of write cycles.
 
 UNASSEMBLE: U <START>
 
-Disassemble memory a page at a time. Supports 65C02 op codes.
+Disassemble memory a page at a time. Supports 65C02 and 65816 op
+codes.
 
 VERIFY:     V <START> <END> <DEST>
 
@@ -159,6 +159,13 @@ Math command. Add or substract two 16-bit hex numbers.
 Examples:
 = 1234 + 0077 = 12AB
 = FF00 - 0002 = FEFE
+
+TRACE:      .
+
+The "." command single steps one instruction at a time showing the CPU
+registers. Starts with the register values listed by the R command.
+Updates them after single stepping. The command supports
+tracing/stepping through ROM as well as RAM.
 
 HELP:       ?
 

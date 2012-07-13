@@ -78,7 +78,6 @@
 ; External Routines
   BASIC   = $E000               ; BASIC
   KRUSADER = $F000              ; Krusader Assembler (unused)
-  MINIMON = $FE14               ; Mini monitor entry point (valid for Krusader 6502 version 1.3)
   WOZMON  = $FF00               ; Woz monitor entry point
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)   
   MENU    = $9006               ; CFFA1 menu entry point
@@ -230,10 +229,6 @@ NoACI:
 Monitor:
         JMP WOZMON
 
-; Go to Krusader Mini Monitor
-MiniMonitor:
-        JMP MINIMON
-
 ; Go to Mini Assembler
 Assemble:
         JSR PrintChar           ; echo command
@@ -333,12 +328,23 @@ Hex:
 Go:
         JSR PrintChar   ; echo command
         JSR PrintSpace  ; print space
+        LDA #1
+        STA RETOK
         JSR GetAddress  ; prompt for address
-        STX SL          ; store address
-        STY SH
+        BCS RetPressed  ; Branch if user pressed <Enter>
+        STX SAVE_PC     ; store address
+        STY SAVE_PC+1
+
+RetPressed:
+        LDA SAVE_PC
+        STA SL
+        LDA SAVE_PC+1
+        STA SL+1
+
+        LDA #0
+        STA RETOK
 
 ; Restore saved values of registers
-
         LDX SAVE_S      ; Restore stack pointer
         TXS
         LDA #>(@Return-1) ; Push return address-1 on the stack so an RTS in the called code will return here.
@@ -1021,7 +1027,7 @@ RESTORE:
         LDX SAVE_X
         LDY SAVE_Y
         PLP
-        JMP MINIMON             ; go to the mini monitor
+;        JMP MINIMON             ; go to the mini monitor
 
 ; Memory write command.
 ; Format:
@@ -1919,7 +1925,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDEFGHIKLMORSTUV:=."
+        .byte "$?ABCDEFGHILMORSTUV:=."
 
 JMPFL:
         .word Invalid-1
@@ -1934,7 +1940,6 @@ JMPFL:
         .word Go-1
         .word Hex-1
         .word Basic-1
-        .word MiniMonitor-1
         .word ClearScreen-1
         .word CFFA1-1
         .word Options-1
@@ -2114,7 +2119,6 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
-        .byte "Mini mon    K", CR
         .byte "Clr screen  L", CR
         .byte "CFFA1 menu  M", CR
         .byte "Options     O", CR
