@@ -17,9 +17,7 @@
 
 ; TO DO:
 ; - implement support for remaining special instructions
-; - add support for pressing <Enter> in Go command
 ; - implement changes to break handler
-; - fix behavior when pressing Enter for PC in Register command
 ; - exhaustive testing (e.g. run BASIC?)
 
 
@@ -172,18 +170,43 @@ TryJmpI:
          STA NEXT_PC+1
          JMP AfterStep         ; We're done
 
-;   JSR - push return address-1. Next PC is operand effective address.
+;   JSR - Next PC is operand effective address. Push return address-1 (Current address + 2) on stack.
 
 TryJSR:
          CMP #$20              ; JSR nnnn ?
          BNE TryRTI
-;PUSH...
+
          LDY #1
          LDA (ADDR),Y          ; Destination address low byte
          STA NEXT_PC
          INY
          LDA (ADDR),Y          ; Destination address high byte
          STA NEXT_PC+1
+
+         LDA ADDR              ; Add 2 to current address
+         CLC
+         ADC #2
+         STA ADDR
+         LDA ADDR+1
+         ADC #0                 ; Add any carry
+         STA ADDR+1
+
+         TSX                    ; Save our stack pointer
+         STX THIS_S
+         LDX SAVE_S             ; Get program's stack pointer
+         TXS
+
+         LDA ADDR+1             ; Push return address on program's stack
+         PHA
+         LDA ADDR
+         PHA
+
+         TSX                    ; Put program's stack pointer back
+         STX SAVE_S
+
+         LDX THIS_S             ; Restore our stack pointer
+         TXS
+
          JMP AfterStep         ; We're done
  
 ;   RTI - Pop P. Pop PC. Increment PC to get next PC.
@@ -192,9 +215,33 @@ TryRTI:
 
 ;   RTS - Pop PC. Increment PC to get next PC.
 
+TryRTS:
+         CMP #$60               ; RTS
+         BNE @Execute
+         TSX                    ; Save our stack pointer
+         STX THIS_S
+         LDX SAVE_S             ; Get program's stack pointer
+         TXS
+         PLA                    ; Pop return address low
+         STA ADDR
+         PLA                    ; Pop return address high
+         STA ADDR+1
+         TSX                    ; Put program's stack pointer back
+         STX SAVE_S
+         LDX THIS_S             ; Restore our stack pointer
+         TXS
+         LDA ADDR
+         CLC
+         ADC #1                ; Add 1 to get new PC
+         STA NEXT_PC
+         LDA ADDR+1
+         ADC #0                ; Add any carry
+         STA NEXT_PC+1
+         JMP AfterStep         ; We're done
 
 ; Not a special instruction. We execute it from the buffer.
 
+@Execute:
 ; Save this program's stack pointer so we can restore it later.
 
         TSX
