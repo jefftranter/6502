@@ -104,7 +104,7 @@ Trace:
 
         LDY #0
 @Copy:
-        LDA (ADDR),Y          ; Get the instruction operand from memory
+        LDA (ADDR),Y          ; Get the instruction / operand from memory
         STA TRACEINST,Y       ; Write it to the buffer where we will execute it
         INY                   ; Increment index
         CPY LEN               ; Did we reach the instruction length?
@@ -135,15 +135,46 @@ Trace:
 ; These are not actually executed, they are emulate
 ; TODO: Factor out common code for handling instructions which change flow of control.
 
-         LDA OPCODE            ; Get the opcode
+; Bxx - branch instructions. These are executed but we change the
+; destination of the branch so we catch whether they are taken or not.
 
-;   Bxx - branch instructions (8) - test (saved) flags for condition to determine next PC.
-; Do this in a more elegant way... Execute but change the destination of the branch?
-; Check for AM = AM_RELATIVE 
+         LDA AM                ; Get addressing
+         CMP #AM_RELATIVE      ; Relative addressing means a branch instruction
+         BNE TryBRK
 
+; The code in the TRACEINST buffer will look like this:
+;
+;        JMP TRACEINST
+;        ...
+;        Bxx $03 (Taken)       ; Instruction being traced
+;        JMP ReturnFromTrace
+;Taken:  JMP BranchTaken
+;        ...
+;ReturnFromTrace:
+
+         LDY #1                ; Points to branch destination
+         LDA #$03              ; Want to set it to $03 (Taken)
+         STA TRACEINST,Y
+         LDY #5
+         LDA #$4C              ; JMP BranchTaken
+         STA TRACEINST,Y
+         INY
+         LDA #<BranchTaken
+         STA TRACEINST,Y
+         INY
+         LDA #>BranchTaken
+         STA TRACEINST,Y
+
+         LDA #0
+         STA TAKEN             ; Clear branch taken flag.
+
+; Next PC in the case where the branch is not taken was already set earlier.
+
+         JMP Execute
 
 ;   BRK - set B=1. Next PC is contents of IRQ vector at $FFFE,$FFFF. Push return address-1 (Current address + 1). Push P. 
-
+TryBRK:
+         LDA OPCODE            ; Get the opcode
          CMP #$00              ; BRK ?
          BNE TryJmp
 
@@ -286,7 +317,7 @@ TryRTI:
 
 TryRTS:
          CMP #$60               ; RTS
-         BNE @Execute
+         BNE Execute
          TSX                    ; Save our stack pointer
          STX THIS_S
          LDX SAVE_S             ; Get program's stack pointer
@@ -310,7 +341,7 @@ TryRTS:
 
 ; Not a special instruction. We execute it from the buffer.
 
-@Execute:
+Execute:
 ; Save this program's stack pointer so we can restore it later.
 
         TSX
@@ -331,8 +362,16 @@ TryRTS:
 ; Call instruction in buffer.
 ; It is followed by a JMP ReturnFromTrace so we get back
 
-         JMP TRACEINST
+        JMP TRACEINST
 
+; We get here if a relative branch being traced was taken.
+BranchTaken:
+        PHP             ; Save value of P because INC will change it
+        INC TAKEN       ; Set flag that branch was taken
+        PLP             ; Restore P
+                        ; Fall through to same code as normal return from trace
+
+; We get here after the traced instruction was executed.
 ReturnFromTrace:
 
 ; Save new register values. Opposite order as was restored above.
@@ -357,8 +396,32 @@ ReturnFromTrace:
 
 AfterStep:
 
-; Set new PC to next PC
+; Special case: If branch was taken, need to set next PC accordingly
 
+        LDA TAKEN
+        BEQ NewPC
+
+; Next PC is Current address (ADDR) + operand (branch offset) + 2
+        
+        LDY #1
+        LDA ADDR                        ; Get current address low byte
+        CLC
+        ADC (ADDR),Y                    ; Add branch offset
+        STA NEXT_PC
+        LDA ADDR+1                      ; Get current address low byte
+        ADC #0                          ; Add any carry
+        STA NEXT_PC+1
+        LDA NEXT_PC                     ; Get low byte of intermediate result
+        CLC
+        ADC #2                          ; Add 2
+        STA NEXT_PC
+        LDA NEXT_PC+1                   ; Get low byte of intermediate result
+        ADC #0                          ; Add any borrow
+        STA NEXT_PC+1
+                                        ; Now fall through to code below
+
+; Set new PC to next PC
+NewPC:
         LDA NEXT_PC
         STA SAVE_PC
         LDA NEXT_PC+1
@@ -376,7 +439,7 @@ AfterStep:
         STA ADDR+1
         JSR DISASM
 
-        RTS                   ; return
+        RTS                   ; Return
 
 ; Given an instruction opcode, return the instruction's length.
 ; On entry opcode is in OPCODE. Length is returned in LEN.

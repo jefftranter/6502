@@ -127,7 +127,8 @@ MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit i
 XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
 MNEM:      .res 3               ; Hold three letter mnemonic string used by assembler
 OPERAND:   .res 2               ; Holds any operands for assembled instruction
-TRACEINST: .res 3               ; buffer holding traced instruction followed by a JMP (6 bytes)
+TRACEINST: .res 8               ; buffer holding traced instruction followed by a JMP and optionally another jump (Up to 8 bytes)
+TAKEN:     .res 1               ; Flag indicating if a traced branch instruction was taken
 
 Start:
 
