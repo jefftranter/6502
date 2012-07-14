@@ -148,6 +148,8 @@ Start:
         LDA #1
         STA XBIT                ; Default 65816 to 8-bit modes
         STA MBIT
+        LDA #$40                ; Default stack pointer for running program
+        STA SAVE_S              ; ($00 is bad choice since BRK vector is at $0100)
         JSR BPSETUP             ; initialization for breakpoints
         JSR ClearScreen
 
@@ -1022,13 +1024,14 @@ MATCHES:
         LSR A
         JSR BPREMOVE
 RESTORE:
-        LDA SAVE_P              ; restore registers
-        PHA
-        LDA SAVE_A
-        LDX SAVE_X
-        LDY SAVE_Y
-        PLP
-;        JMP MINIMON             ; go to the mini monitor
+        JSR PrintCR
+        JSR PrintRegisters      ; Print current values
+        LDA SAVE_PC             ; Disassemble current instruction
+        STA ADDR
+        LDA SAVE_PC+1
+        STA ADDR+1
+        JSR DISASM
+        JMP MainLoop           ; Continue with JMon main command loop
 
 ; Memory write command.
 ; Format:
