@@ -16,7 +16,6 @@
 ; limitations under the License.
 
 ; TO DO:
-; - implement support for remaining special instructions
 ; - implement changes to break handler
 ; - exhaustive testing (e.g. run BASIC?)
 
@@ -131,6 +130,9 @@ Trace:
          ADC #0               ; Add any carry
          STA NEXT_PC+1        ; Save as next PC (high byte)
 
+         LDA #0
+         STA TAKEN             ; Clear branch taken flag.
+
 ; Special handling for instructions that change flow of control.
 ; These are not actually executed, they are emulate
 ; TODO: Factor out common code for handling instructions which change flow of control.
@@ -164,9 +166,6 @@ Trace:
          INY
          LDA #>BranchTaken
          STA TRACEINST,Y
-
-         LDA #0
-         STA TAKEN             ; Clear branch taken flag.
 
 ; Next PC in the case where the branch is not taken was already set earlier.
 
