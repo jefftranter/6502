@@ -402,21 +402,32 @@ AfterStep:
 ; Next PC is Current address (ADDR) + operand (branch offset) + 2
         
         LDY #1
-        LDA ADDR                        ; Get current address low byte
+        LDA (ADDR),Y           ; Branch offset low
+        STA REL
+        BMI Min                ; If minus, high byte is sign extended to be $FF
+        LDA #0                 ; high byte is zero
+        STA REL+1
+        BEQ Add
+Min:
+        LDA #$FF               ; Negative offset, high byte is $FF
+        STA REL+1
+Add:
+        LDA ADDR               ; Get current address low byte
         CLC
-        ADC (ADDR),Y                    ; Add branch offset
+        ADC REL                ; Add relative offset
         STA NEXT_PC
-        LDA ADDR+1                      ; Get current address low byte
-        ADC #0                          ; Add any carry
+        LDA ADDR+1             ; Get current address low byte
+        ADC REL+1              ; Add offset with any carry
         STA NEXT_PC+1
-        LDA NEXT_PC                     ; Get low byte of intermediate result
+
+        LDA NEXT_PC            ; Get low byte of intermediate result
         CLC
-        ADC #2                          ; Add 2
+        ADC #2                 ; Add 2
         STA NEXT_PC
-        LDA NEXT_PC+1                   ; Get low byte of intermediate result
-        ADC #0                          ; Add any borrow
+        LDA NEXT_PC+1          ; Get low byte of intermediate result
+        ADC #0                 ; Add any carry
         STA NEXT_PC+1
-                                        ; Now fall through to code below
+                               ; Now fall through to code below
 
 ; Set new PC to next PC
 NewPC:
