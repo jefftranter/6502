@@ -132,17 +132,62 @@ Trace:
          STA NEXT_PC+1        ; Save as next PC (high byte)
 
 ; Special handling for instructions that change flow of control.
-; These are not actually executed, they are emulated
+; These are not actually executed, they are emulate
+; TODO: Factor out common code for handling instructions which change flow of control.
 
          LDA OPCODE            ; Get the opcode
 
 ;   Bxx - branch instructions (8) - test (saved) flags for condition to determine next PC.
 ; Do this in a more elegant way... Execute but change the destination of the branch?
- 
-;   BRK - set B=1. Push return address-1. Push P. Next PC is contents of IRQ vector.
+; Check for AM = AM_RELATIVE 
+
+
+;   BRK - set B=1. Next PC is contents of IRQ vector at $FFFE,$FFFF. Push return address-1 (Current address + 1). Push P. 
+
+         CMP #$00              ; BRK ?
+         BNE TryJmp
+
+         LDA SAVE_P            ; Get P
+         ORA #%00010000        ; Set B bit
+         STA SAVE_P
+
+         LDA $FFFE             ; IRQ vector low
+         STA NEXT_PC
+         LDA $FFFF             ; IRQ vector high
+         STA NEXT_PC+1
+
+         LDA ADDR              ; Add 1 to current address
+         CLC
+         ADC #1
+         STA ADDR
+         LDA ADDR+1
+         ADC #0                 ; Add any carry
+         STA ADDR+1
+
+         TSX                    ; Save our stack pointer
+         STX THIS_S
+         LDX SAVE_S             ; Get program's stack pointer
+         TXS
+
+         LDA ADDR+1             ; Push return address on program's stack (high byte first)
+         PHA
+         LDA ADDR
+         PHA
+
+         LDA SAVE_P             ; Push P
+         PHA
+
+         TSX                    ; Put program's stack pointer back
+         STX SAVE_S
+
+         LDX THIS_S             ; Restore our stack pointer
+         TXS
+
+         JMP AfterStep         ; We're done
  
 ;   JMP (2) - Next PC is operand effective address (possibly indirect).
 
+TryJmp:
          CMP #$4C              ; JMP nnnn ?
          BNE TryJmpI
          LDY #1
@@ -212,6 +257,30 @@ TryJSR:
 ;   RTI - Pop P. Pop PC. Increment PC to get next PC.
  
 TryRTI:
+         CMP #$40               ; RTI
+         BNE TryRTS
+         TSX                    ; Save our stack pointer
+         STX THIS_S
+         LDX SAVE_S             ; Get program's stack pointer
+         TXS
+         PLA                    ; Pop P
+         STA SAVE_P
+         PLA                    ; Pop return address low
+         STA ADDR
+         PLA                    ; Pop return address high
+         STA ADDR+1
+         TSX                    ; Put program's stack pointer back
+         STX SAVE_S
+         LDX THIS_S             ; Restore our stack pointer
+         TXS
+         LDA ADDR
+         CLC
+         ADC #1                ; Add 1 to get new PC
+         STA NEXT_PC
+         LDA ADDR+1
+         ADC #0                ; Add any carry
+         STA NEXT_PC+1
+         JMP AfterStep         ; We're done
 
 ;   RTS - Pop PC. Increment PC to get next PC.
 
