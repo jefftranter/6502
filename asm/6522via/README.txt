@@ -1,6 +1,4 @@
-These directories have various pieces of code for the 6502 microprocessor. Most are intended to run on the Replica 1 computer.
-
-Files written by me are released under the following license:
+This directory contains some sample programs for using the 6522 VIA.
 
 Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
 
