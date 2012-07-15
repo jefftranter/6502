@@ -54,7 +54,7 @@
 ; FF04   8C 12 D0    STY   $D012
 
 ; Future enhancements:
-; - support for 65C02 instructions
+; - support for 65C02 instructions (only need to implement BBR and BBS)
 ; - support for 65816 instruction
 
 ; Variables used (defined in jmon.s):
