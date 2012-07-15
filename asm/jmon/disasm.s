@@ -33,15 +33,15 @@
 ; SOURCEONLY = 1
 
 ; Define this if you want 65816 instructions to be disassembled.
-  D65816 = 1
+; D65816 = 1
 
 ; Define this if you want 65C02 instructions to be disassembled.
   D65C02 = 1
 
-; Define this if you want the Rockwell-specific bit instructions to be
-;  disassembled (BBR, BBS, RMB, SMB). This is mutually exclusive with
-;  the 65816 option.
-;  ROCKWELL = 1
+; Define this if you want the WDC and Rockwell-specific bit instructions
+; to be disassembled (BBR, BBS, RMB, SMB). This is mutually exclusive
+; with the 65816 option.
+  ROCKWELL = 1
         
 ; Uncomment next line to link with start address of $A000 for Multi I/0 Board EEPROM.
 ; .org $A000

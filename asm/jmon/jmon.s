@@ -5,7 +5,7 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; TODO:
-; - use CPU type option for dissasembly
+; - use CPU type option for dissasembly/assembly/trace
 
 ; Revision History
 ; Version Date         Comments
