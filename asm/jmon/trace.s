@@ -115,7 +115,7 @@ Trace:
         INY
         LDA #>ReturnFromTrace
         STA TRACEINST,Y
-        
+
 ; Calculate new PC value.
 
         LDA SAVE_PC             ; Existing PC (low byte)
@@ -210,7 +210,7 @@ TryBRK:
         TXS
 
         JMP AfterStep           ; We're done
- 
+
 ; JMP (2) - Next PC is operand effective address (possibly indirect).
 
 TryJmp:
@@ -279,9 +279,9 @@ TryJSR:
         TXS
 
         JMP AfterStep           ; We're done
- 
+
 ; RTI - Pop P. Pop PC. Increment PC to get next PC.
- 
+
 TryRTI:
         CMP #$40                ; RTI
         BNE TryRTS
@@ -397,7 +397,7 @@ AfterStep:
         BEQ NewPC
 
 ; Next PC is Current address (ADDR) + operand (branch offset) + 2
-        
+
         LDY #1
         LDA (ADDR),Y            ; Branch offset low
         STA REL

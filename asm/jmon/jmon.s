@@ -55,6 +55,10 @@
 ;                      Also fixed missing SEP opcode (error in WDC manual).
 ; 0.98   08-Jul-2012   Added mini assembler (replaces call to Krusader)
 ; 0.99   11-Jul-2012   Added trace feature (replaces call to Krusader mini monitor).
+;        16-Jul-2012   Add check that BASIC is present before jumping to it.
+;                      Restore stack pointer after returning from Go command so we don't
+;                      need to restart JMON.
+
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -62,9 +66,9 @@
   ESC     = $1B                 ; Escape
 
 ; Hardware addresses
-  KBD     = $D010               ;  PIA.A keyboard input
-  KBDCR   = $D011               ;  PIA.A keyboard control register
-  DSP     = $D012               ;  PIA.B display output register
+  KBD     = $D010               ; PIA.A keyboard input
+  KBDCR   = $D011               ; PIA.A keyboard control register
+  DSP     = $D012               ; PIA.B display output register
 
 ; Page Zero locations
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
@@ -89,9 +93,8 @@
 
 ; External Routines
   BASIC   = $E000               ; BASIC
-  KRUSADER = $F000              ; Krusader Assembler (unused)
   WOZMON  = $FF00               ; Woz monitor entry point
-  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)   
+  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
   MENU    = $9006               ; CFFA1 menu entry point
   ACI     = $C100               ; ACI (Apple Cassette Interface) firmware entry point
 
@@ -241,6 +244,7 @@ NoACI:
         RTS
 
 ; Go to Woz Monitor
+; We don't check that it is present as that should be extremely unlikely.
 Monitor:
         JMP WOZMON
 
@@ -256,7 +260,24 @@ Assemble:
         RTS
 
 ; Go to BASIC
-Basic:  JMP BASIC
+; First check for the presence of BASIC looking for the first three bytes of ROM.
+; It is unlikely but it could possibly not be present (e.g. when running in an Emulator)
+Basic:
+        LDA BASIC               ; First firmware byte
+        CMP #$4C                ; Should contain $4C
+        BNE NoBasic
+        LDA BASIC+1             ; Second firmware byte
+        CMP #$B0                ; Should contain $B0
+        BNE NoBasic
+        LDA BASIC+2             ; Third firmware byte
+        CMP #$E2                ; Should contain $E2
+        BNE NoBasic
+        JMP BASIC               ; Jump to BASIC (no facility to return).
+NoBasic:
+        LDX #<NoBASICString     ; Display error that no BASIC is present.
+        LDY #>NoBASICString
+        JSR PrintString
+        RTS
 
 ; Handle breakpoint
 ; B ?                    <- list status of all breakpoints
@@ -359,6 +380,11 @@ RetPressed:
         LDA #0
         STA RETOK
 
+; Save our current stack pointer value
+
+        TSX
+        STX THIS_S
+
 ; Restore saved values of registers
         LDX SAVE_S      ; Restore stack pointer
         TXS
@@ -375,11 +401,12 @@ RetPressed:
         JMP (SL)        ; jump to address
 @Return:
 
-; The stack pointer was changed above and who knows what else, so we
-; can't RTS from the caller of this routine. Instead we jump directly
-; to the start of JMON.
+; Restore our original stack pointer so that RTS will work. Hopefully
+;  the called program did not corrupt the stack.
 
-        JMP JMON
+        LDX THIS_S
+        TXS
+        RTS
 
 ; Copy Memory
 Copy:
@@ -823,7 +850,7 @@ Fill:
         BNE @dofill             ; if not, go back
         LDX #0                  ; Otherwise go back to start of pattern
         JMP @dofill
-        
+
 ; Do setup so we can support breakpoints
 BPSETUP:
         LDA BRKVECTOR           ; get address of BRK vector
@@ -1907,7 +1934,7 @@ PromptToContinue:
         TAX
         PLA        
         RTS
-        
+
 ; Delay. Calls routine WAIT using delay constant in OWDELAY.
 DELAY:
         LDA OWDELAY
@@ -2237,6 +2264,9 @@ BranchOutOfRangeString:
 
 UnableToWriteString:
   .byte "Unable to write to $", 0
+
+NoBASICString:
+  .byte "BASIC not found!", CR, 0
 
   .include "disasm.s"
   .include "miniasm.s"

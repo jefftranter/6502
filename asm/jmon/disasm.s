@@ -42,7 +42,7 @@
 ; to be disassembled (BBR, BBS, RMB, SMB). This is mutually exclusive
 ; with the 65816 option.
   ROCKWELL = 1
-        
+
 ; Uncomment next line to link with start address of $A000 for Multi I/0 Board EEPROM.
 ; .org $A000
 

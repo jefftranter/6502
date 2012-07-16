@@ -86,11 +86,11 @@ CK_PATRN:
         INI_ADDRS         ; INITIALISE ADDRS
 
 LOOP2:
-        SET_PATRN                ; sets up TEST_PATRN for address in address test
-        LDA         (ADDRS, X)         ; READ  (save result of read in case of error)
-        CMP        TEST_PATRN        ; CHECK
+        SET_PATRN                       ; sets up TEST_PATRN for address in address test
+        LDA         (ADDRS, X)          ; READ (save result of read in case of error)
+        CMP        TEST_PATRN           ; CHECK
 LOOP_ERR2:
-        BNE         LOOP_ERR        ; branch if error
+        BNE         LOOP_ERR            ; branch if error
         INC_ADDRSC
         BNE LOOP2
 ;

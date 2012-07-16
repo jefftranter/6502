@@ -242,7 +242,7 @@ TryZeroPageX:
         JSR TwoCharsToBin             ; Convert to binary
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
- 
+
 ; AM_ZEROPAGE_Y e.g. LDA nn,Y
 ; 2 hex digits followed by ,Y
 TryZeroPageY:
@@ -268,7 +268,7 @@ TryZeroPageY:
         JSR TwoCharsToBin             ; Convert to binary
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
- 
+
 ; AM_ABSOLUTE_X, e.g. LDA nnnn,X
 ; 4 hex digits followed by ,X
 TryAbsoluteX:
@@ -304,7 +304,7 @@ TryAbsoluteX:
         JSR TwoCharsToBin             ; Convert to binary
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
- 
+
 ; AM_ABSOLUTE_Y, e.g. LDA nnnn,Y
 ; 4 hex digits followed by ,Y
 TryAbsoluteY:
@@ -340,7 +340,7 @@ TryAbsoluteY:
         JSR TwoCharsToBin             ; Convert to binary
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
- 
+
 ; AM_INDEXED_INDIRECT, e.g. LDA (nn,X)
 TryIndexedIndirect:
         LDA IN                        ; Get length
@@ -371,7 +371,7 @@ TryIndexedIndirect:
         JSR TwoCharsToBin             ; Convert to binary
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
- 
+
 ; AM_INDIRECT_INDEXED, e.g. LDA (nn),Y      
 TryIndirectIndexed:
         LDA IN                        ; Get length
@@ -402,7 +402,7 @@ TryIndirectIndexed:
         JSR TwoCharsToBin             ; Convert to binary
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
- 
+
 ; AM_INDIRECT, e.g. JMP (nnnn)
 ; l paren, 4 hex digits, r paren
 TryIndirect:
@@ -537,7 +537,7 @@ OperandOkay:
         LDX AM                   ; Addressing mode
         LDA LENGTHS,X            ; Get instruction length for this addressing mode
         STA LEN                  ; Save it
- 
+
 ; Write the opcode to memory
 
         LDA OPCODE               ; get opcode
@@ -663,7 +663,7 @@ TwoOperands:
         LDA OPERAND+1                ; Get operand high byte
         STA (ADDR),Y                 ; write it
 
-ZeroOperands:           ; nothing to do
+ZeroOperands:                        ; Nothing to do
 
 ; Update current address with instruction length
 
