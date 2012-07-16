@@ -58,6 +58,7 @@
 ;        16-Jul-2012   Add check that BASIC is present before jumping to it.
 ;                      Restore stack pointer after returning from Go command so we don't
 ;                      need to restart JMON.
+;                      Processor status bits are shown in lower case if supported.
 
 
 ; Constants
@@ -2122,7 +2123,16 @@ P1:     LDX #7
         PHA
         LDA @3,X
         BCS @2
-        LDA #'.'
+
+; Check if lowercase support is enabled or not. If enabled we show
+; unset bits as lowercase. If no lowercase support, show as a dot.
+
+        BIT OUPPER
+        BMI @Dot
+        ORA #%00100000              ; Toggle letter case
+        JMP @2
+@Dot:   LDA #'.'
+
 @2:     JSR PrintChar
         PLA
         DEX
