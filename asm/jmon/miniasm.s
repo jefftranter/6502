@@ -121,7 +121,7 @@ GetOperands:
         CMP #1                        ; Is it 1?
         BNE TryImm
         LDA IN+1                      ; Get first char of operand
-        CMP #'A'                      ; Is is 'A'?
+        CMP #'A'                      ; Is it 'A'?
         BNE TryImm
         LDA #AM_ACCUMULATOR           ; Yes, is is accumulator mode
         STA AM                        ; Save it
@@ -137,10 +137,10 @@ TryImm:
         CMP #'#'                      ; is it '#'?
         BNE TryZeroPage
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPage
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPage
         LDA #AM_IMMEDIATE             ; Yes, this is immediate mode
         STA AM                        ; Save it
@@ -157,10 +157,10 @@ TryZeroPage:
         CMP #2                        ; Is it 2?
         BNE TryAbsRel
         LDA IN+1                      ; Get first char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsRel
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsRel
         LDA #AM_ZEROPAGE              ; Yes, this is zero page
         STA AM                        ; Save it
@@ -178,16 +178,16 @@ TryAbsRel:
         CMP #4                        ; Is it 4?
         BNE TryZeroPageX
         LDA IN+1                      ; Get first char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPageX
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPageX
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPageX
         LDA IN+4                      ; Get fourth char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPageX
 
 ; It could be absolute or relative, depending on the instruction.
@@ -224,16 +224,16 @@ TryZeroPageX:
         CMP #4                        ; Is it 4?
         BNE TryZeroPageY
         LDA IN+1                      ; Get first char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPageY
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryZeroPageY
         LDA IN+3                      ; Get third char of operand
-        CMP #','                      ; Is is a comma?
+        CMP #','                      ; Is it a comma?
         BNE TryZeroPageY
         LDA IN+4                      ; Get fourth char of operand
-        CMP #'X'                      ; Is is an X?
+        CMP #'X'                      ; Is it an X?
         BNE TryZeroPageY
         LDA #AM_ZEROPAGE_X            ; Yes, this is zero page X
         STA AM                        ; Save it
@@ -250,16 +250,16 @@ TryZeroPageY:
         CMP #4                        ; Is it 4?
         BNE TryAbsoluteX
         LDA IN+1                      ; Get first char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsoluteX
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsoluteX
         LDA IN+3                      ; Get third char of operand
-        CMP #','                      ; Is is a comma?
+        CMP #','                      ; Is it a comma?
         BNE TryAbsoluteX
         LDA IN+4                      ; Get fourth char of operand
-        CMP #'Y'                      ; Is is an Y?
+        CMP #'Y'                      ; Is it an Y?
         BNE TryAbsoluteX
         LDA #AM_ZEROPAGE_Y            ; Yes, this is zero page Y
         STA AM                        ; Save it
@@ -276,16 +276,16 @@ TryAbsoluteX:
         CMP #6                        ; Is it 6?
         BNE TryAbsoluteY
         LDA IN+1                      ; Get first char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsoluteY
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsoluteY
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsoluteY
         LDA IN+4                      ; Get fourth char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsoluteY
         LDA IN+5
         CMP #','
@@ -312,16 +312,16 @@ TryAbsoluteY:
         CMP #6                        ; Is it 6?
         BNE TryIndexedIndirect
         LDA IN+1                      ; Get first char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndexedIndirect
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndexedIndirect
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndexedIndirect
         LDA IN+4                      ; Get fourth char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndexedIndirect
         LDA IN+5
         CMP #','
@@ -350,19 +350,19 @@ TryIndexedIndirect:
         CMP #'('
         BNE TryIndirectIndexed
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirectIndexed
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirectIndexed
         LDA IN+4                      ; Get fourth char of operand
-        CMP #','                      ; Is is a comma?
+        CMP #','                      ; Is it a comma?
         BNE TryIndirectIndexed
         LDA IN+5                      ; Get fifth char of operand
-        CMP #'X'                      ; Is is an X?
+        CMP #'X'                      ; Is it an X?
         BNE TryIndirectIndexed
         LDA IN+6                      ; Get sixth char of operand
-        CMP #')'                      ; Is is an )?
+        CMP #')'                      ; Is it an )?
         BNE TryIndirectIndexed
         LDA #AM_INDEXED_INDIRECT      ; Yes, this is indexed indirect
         STA AM                        ; Save it
@@ -381,19 +381,19 @@ TryIndirectIndexed:
         CMP #'('
         BNE TryIndirect
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirect
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirect
         LDA IN+4                      ; Get fourth char of operand
-        CMP #')'                      ; Is is a )?
+        CMP #')'                      ; Is it a )?
         BNE TryIndirect
         LDA IN+5                      ; Get fifth char of operand
-        CMP #','                      ; Is is a comma?
+        CMP #','                      ; Is it a comma?
         BNE TryIndirect
         LDA IN+6                      ; Get sixth char of operand
-        CMP #'Y'                      ; Is is a Y?
+        CMP #'Y'                      ; Is it a Y?
         BNE TryIndirect
         LDA #AM_INDIRECT_INDEXED      ; Yes, this is indirect indexed
         STA AM                        ; Save it
@@ -413,19 +413,19 @@ TryIndirect:
         CMP #'('
         BNE TryIndirectZP
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirectZP
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirectZP
         LDA IN+4                      ; Get fourth char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirectZP
         LDA IN+5                      ; Get fifth char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryIndirectZP
         LDA IN+6                      ; Get fourth char of operand
-        CMP #')'                      ; Is is a )?
+        CMP #')'                      ; Is it a )?
         BNE TryIndirectZP
         LDA #AM_INDIRECT              ; Yes, this is indirect
         STA AM                        ; Save it
@@ -449,13 +449,13 @@ TryIndirectZP:
         CMP #'('
         BNE TryAbsIndInd
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsIndInd
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ TryAbsIndInd
         LDA IN+4                      ; Get fourth char of operand
-        CMP #')'                      ; Is is a )?
+        CMP #')'                      ; Is it a )?
         BNE TryAbsIndInd
         LDA #AM_INDIRECT_ZEROPAGE     ; Yes, this is indirect zeropage
         STA AM                        ; Save it
@@ -475,25 +475,25 @@ TryAbsIndInd:
         CMP #'('
         BNE InvalidOp
         LDA IN+2                      ; Get second char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ InvalidOp
         LDA IN+3                      ; Get third char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ InvalidOp
         LDA IN+4                      ; Get fourth char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ InvalidOp
         LDA IN+5                      ; Get fifth char of operand
-        JSR IsHexDigit                ; Is is a hex digit?
+        JSR IsHexDigit                ; Is it a hex digit?
         BEQ InvalidOp
         LDA IN+6                      ; Get sixth char of operand
-        CMP #','                      ; Is is a ,?
+        CMP #','                      ; Is it a ,?
         BNE InvalidOp
         LDA IN+7                      ; Get 7th char of operand
-        CMP #'X'                      ; Is is a X?
+        CMP #'X'                      ; Is it a X?
         BNE InvalidOp
         LDA IN+8                      ; Get 8th char of operand
-        CMP #')'                      ; Is is a )?
+        CMP #')'                      ; Is it a )?
         BNE InvalidOp
         LDA #AM_ABSOLUTE_INDEXED_INDIRECT ; Yes, this is abolue indexed indirect
         STA AM                        ; Save it
@@ -814,7 +814,7 @@ TwoCharsToBin:
 ; e.g. A='A' Returns A=$0A
 ; Does not check that character is valid hex digit.
 CharToBin:
-        CMP #'9'+1              ; Is is '0'-'9'?
+        CMP #'9'+1              ; Is it '0'-'9'?
         BMI @Digit              ; Branch if so
         SEC                     ; Otherwise must be 'A'-'F'
         SBC #'A'-10             ; convert to value

@@ -102,6 +102,7 @@
 
 ; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
+  .org $0280
 
 ; JMON Entry point
   .export JMON
@@ -155,7 +156,7 @@ Invalid:
 
 ; Display help
 Help:
-        JSR PrintChar ; echo command
+        JSR PrintChar           ; echo command
         LDX #<WelcomeMessage
         LDY #>WelcomeMessage
         JSR PrintString
@@ -1751,7 +1752,7 @@ PrintChar:
 
         CMP #'a'        ; Is it 'a' or higher?
 	BMI @NotLower
-	CMP #'z'+1      ; Is is 'x' or lower?
+	CMP #'z'+1      ; Is it 'x' or lower?
 	BPL @NotLower
 	AND #%11011111  ; Convert to upper case by clearing bit 5
 @NotLower:
