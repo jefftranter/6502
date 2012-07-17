@@ -16,7 +16,9 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 ;
-; TODO:
+; Possible Future Enhancements:
+; - new status command to display information such as: detected CPU type, clock speed,
+;   range of RAM and ROM, detected peripheral cards. etc.
 ; - use CPU type option for disassembly/assembly/trace
 ; - trace: support for 65C02 instructions (only need to implement BBR and BBS)
 ; - trace: support for 65816 instructions, including variable length
@@ -25,6 +27,7 @@
 ; - assembler: binary, character, decimal constants
 ; - disassembler: comment out more 65816 and 65C02-specific code when support is not enabled
 ; - refactor some common code to reduce size
+; - option to use other device for I/O, e.g. ACIA on Multi I/O card
 ; - make some modules configurable to enable/disable to reduce code size
 ; - try to get down to fit in 8K (possibly with some features disabled)
 ; - bump version to 1.0
