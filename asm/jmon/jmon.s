@@ -59,6 +59,7 @@
 ;                      Restore stack pointer after returning from Go command so we don't
 ;                      need to restart JMON.
 ;                      Processor status bits are shown in lower case if supported.
+;                      Moved variables to allow program to run in ROM.
 
 
 ; Constants
@@ -101,52 +102,10 @@
 
 ; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
-  .org $0280
 
 ; JMON Entry point
   .export JMON
 JMON:
-        JMP Start
-
-; Non-Page Zero Variables
-T2:       .res 1                ; Temp variable 2
-RETOK:    .res 1                ; Sets whether <Return> key is accepted in some input routines
-BIN:      .res 1                ; Holds binary value low byte
-BINH:     .res 1                ; Holds binary value high byte
-BCD:      .res 3                ; Holds BCD decimal number (3 bytes)
-LZ:       .res 1                ; Boolean for leading zero suppression
-LAST:     .res 1                ; Boolean for leading zero suppression / indicates last byte
-OPCODE:   .res 1                ; Instruction opcode
-OP:       .res 1                ; Instruction type OP_*
-AM:       .res 1                ; Addressing mode AM_*
-LEN:      .res 1                ; Instruction length
-REL:      .res 2                ; Relative addressing branch offset (2 bytes)
-DEST:     .res 2                ; Relative address destination address (2 bytes)
-START:    .res 2                ; Memory test - user entered start of memory range. Min is 8 (2 bytes)
-END:      .res 2                ; Memory test - user entered end of memory range (2 bytes)
-BPD:      .res 4                ; Instruction at breakpoint (1 byte * 4 breakpoints)
-SAVE_A:   .res 1                ; Holds saved values of registers
-SAVE_X:   .res 1                ; "
-SAVE_Y:   .res 1                ; "
-SAVE_S:   .res 1                ; "
-SAVE_P:   .res 1                ; "
-SAVE_PC:  .res 2                ; "
-NEXT_PC:  .res 2                ; Value of PC after next instruction
-THIS_S:   .res 1                ; Saved value of JMON's stack pointer
-CHAROK:   .res 1                ; Set to 1 if okay to enter characters prefixed by '
-CHARMODE: .res 1                ; Set if currently entering in character (ASCII) mode
-OWDELAY:   .res 1               ; Delay value when writing (defaults to zero)
-OUPPER:   .res 1                ; Set to $FF when only uppercase output is is desired.
-OHIGHASCII: .res 1              ; Set to $FF when characters should have high bit set
-OCPU:      .res 1               ; CPU type for disassembly
-MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit in P
-XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
-MNEM:      .res 3               ; Hold three letter mnemonic string used by assembler
-OPERAND:   .res 2               ; Holds any operands for assembled instruction
-TRACEINST: .res 8               ; buffer holding traced instruction followed by a JMP and optionally another jump (Up to 8 bytes)
-TAKEN:     .res 1               ; Flag indicating if a traced branch instruction was taken
-
-Start:
 
 ; Initialization
         CLD                     ; clear decimal mode
@@ -2283,3 +2242,44 @@ NoBASICString:
   .include "trace.s"
   .include "memtest4.s"
   .include "delay.s"
+
+; Non-Page Zero Variables. Note: These must be in RAM. Use a .org
+; below corresponding to RAM if the program is linked into ROM.
+; .org $1000
+
+T2:       .res 1                ; Temp variable 2
+RETOK:    .res 1                ; Sets whether <Return> key is accepted in some input routines
+BIN:      .res 1                ; Holds binary value low byte
+BINH:     .res 1                ; Holds binary value high byte
+BCD:      .res 3                ; Holds BCD decimal number (3 bytes)
+LZ:       .res 1                ; Boolean for leading zero suppression
+LAST:     .res 1                ; Boolean for leading zero suppression / indicates last byte
+OPCODE:   .res 1                ; Instruction opcode
+OP:       .res 1                ; Instruction type OP_*
+AM:       .res 1                ; Addressing mode AM_*
+LEN:      .res 1                ; Instruction length
+REL:      .res 2                ; Relative addressing branch offset (2 bytes)
+DEST:     .res 2                ; Relative address destination address (2 bytes)
+START:    .res 2                ; Memory test - user entered start of memory range. Min is 8 (2 bytes)
+END:      .res 2                ; Memory test - user entered end of memory range (2 bytes)
+BPD:      .res 4                ; Instruction at breakpoint (1 byte * 4 breakpoints)
+SAVE_A:   .res 1                ; Holds saved values of registers
+SAVE_X:   .res 1                ; "
+SAVE_Y:   .res 1                ; "
+SAVE_S:   .res 1                ; "
+SAVE_P:   .res 1                ; "
+SAVE_PC:  .res 2                ; "
+NEXT_PC:  .res 2                ; Value of PC after next instruction
+THIS_S:   .res 1                ; Saved value of JMON's stack pointer
+CHAROK:   .res 1                ; Set to 1 if okay to enter characters prefixed by '
+CHARMODE: .res 1                ; Set if currently entering in character (ASCII) mode
+OWDELAY:   .res 1               ; Delay value when writing (defaults to zero)
+OUPPER:   .res 1                ; Set to $FF when only uppercase output is is desired.
+OHIGHASCII: .res 1              ; Set to $FF when characters should have high bit set
+OCPU:      .res 1               ; CPU type for disassembly
+MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit in P
+XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
+MNEM:      .res 3               ; Hold three letter mnemonic string used by assembler
+OPERAND:   .res 2               ; Holds any operands for assembled instruction
+TRACEINST: .res 8               ; buffer holding traced instruction followed by a JMP and optionally another jump (Up to 8 bytes)
+TAKEN:     .res 1               ; Flag indicating if a traced branch instruction was taken
