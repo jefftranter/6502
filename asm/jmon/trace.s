@@ -53,10 +53,6 @@
 ; A-D2 X-00 Y-7F S-017B P-33 ..-B...C
 ; FF04   8C 12 D0    STY   $D012
 
-; Future enhancements:
-; - support for 65C02 instructions (only need to implement BBR and BBS)
-; - support for 65816 instruction
-
 ; Variables used (defined in jmon.s):
 ;
 ; SAVE_A  - Holds saved values of registers

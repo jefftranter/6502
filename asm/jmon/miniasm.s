@@ -38,10 +38,6 @@
 ; - all values in hex, 2 or 4 digits
 ; - no backspace or other editing features
 ; 
-; Future enhancements:
-; - support for Rockwell 65C02 RMB, SMB, BBS, BBR instructions
-; - support for 65816 addressing modes
-; - binary, character, decimal constants
 
 ; Variables used (defined in jmon.s)
 ; ADDR - instruction address
