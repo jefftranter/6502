@@ -38,7 +38,7 @@
 ;-------------------------------------------------------------------------
 
 .export WOZACI
-WOZACI: LDA #$AA                ; Print the Tape prompt “*”
+WOZACI: LDA #$AA                ; Print the Tape prompt '*'
         JSR ECHO
         LDA #CR                 ; And drop the cursor one line
         JSR ECHO
@@ -70,20 +70,20 @@ NEXTCMD: LDA #0                 ; Clear begin and end values
 
 NEXTCHR: INX                    ; Increment input pointer
         LDA IN,X                ; Get next char from input line
-        CMP #$D2                ; Read command? “R”
+        CMP #$D2                ; Read command? 'R'
         BEQ READ                ; Yes!
-        CMP #$D7                ; Write command? “W”
+        CMP #$D7                ; Write command? 'W'
         BEQ WRITE               ; Yes! (note: CY=1)
-        CMP #$AE                ; Separator?”.”
+        CMP #$AE                ; Separator?'.'
         BEQ SEP                 ; Yes!
         CMP #CR                 ; End of line?
         BEQ GOESC               ; Escape to monitor! We’re done
-        CMP #$A0                ; Ignore spaces: ” “
+        CMP #$A0                ; Ignore spaces: ' '
         BEQ NEXTCHR
-        EOR #$B0                ; Map digits to 0-9 “0”
+        EOR #$B0                ; Map digits to 0-9 '0'
         CMP #9+1                ; Is it a decimal digit?
         BCC DIG                 ; Yes!
-        ADC #$88                ; Map letter “A”-”F” to $FA-$FF
+        ADC #$88                ; Map letter 'A'-'F' to $FA-$FF
         CMP #$FA                ; Hex letter?
         BCC WOZACI              ; No! Character not hex!
 
@@ -187,8 +187,8 @@ CMPLEVEL: DEY                   ; Decrement time counter
 ; approximately (66+47)x5=565us, followed by a second phase of
 ; approximately (44+47)x5=455us.
 ; Total cycle duration is approximately 1020us ~ 1kHz. The actual
-; frequencywill be a bit lower because of the additional workload between
-; the twoloops.
+; frequency will be a bit lower because of the additional workload between
+; the two loops.
 ; The header ends with a short phase of (30+47)x5=385us and a normal
 ; phase of (44+47)x5=455us. This start bit must be detected by the read
 ; routine to trigger the reading of the actual data.
