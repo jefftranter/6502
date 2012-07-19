@@ -110,6 +110,13 @@ Info:
         JSR PrintPresent
         JSR PrintCR
 
+        LDX #<MultiIOCardString
+        LDY #>MultiIOCardString
+        JSR PrintString
+        JSR MultiIOPresent
+        JSR PrintPresent
+        JSR PrintCR
+
         LDX #<BASICString
         LDY #>BASICString
         JSR PrintString
@@ -165,6 +172,9 @@ ACICardString:
 
 CFFA1CardString:
         .asciiz "       CFFA1 card: "
+
+MultiIOCardString:
+        .asciiz "   Multi I/O Card: "
 
 BASICString:
         .asciiz "        BASIC ROM: "

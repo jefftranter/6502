@@ -2144,6 +2144,43 @@ CFFA1Present:
         LDA #0
         RTS
 
+; Determines if a Replica 1 Multi I/O card is present.
+; Returns in A 1 if present, 0 if not.
+; Method is to check the first few 6551 and 6522 registers.
+; This may need some tweaking to work reliably.
+; Will probably only work after a hardware reset.
+
+MultiIOPresent:
+        LDA $C300               ; 6551 register
+        AND #%00011111
+        CMP #$1F
+        BNE @NoMultiIO
+        LDA $C301               ; 6551 register
+        CMP #$10
+        BNE @NoMultiIO
+        LDA $C302               ; 6551 register
+        CMP #$00
+        BNE @NoMultiIO
+        LDA $C303               ; 6551 register
+        CMP #$00
+        BNE @NoMultiIO
+        LDA $C200               ; 6522 register
+        CMP #$FF
+        BNE @NoMultiIO
+        LDA $C201               ; 6522 register
+        CMP #$FF
+        BNE @NoMultiIO
+        LDA $C202               ; 6522 register
+        CMP #$00
+        BNE @NoMultiIO
+        LDA $C203               ; 6522 register
+        CMP #$00
+        BNE @NoMultiIO
+        LDA #1
+        RTS
+@NoMultiIO:
+        LDA #0
+        RTS
 
 ; Determines if BASIC ROM is present.
 ; Returns in A 1 if present, 0 if not.
