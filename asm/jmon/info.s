@@ -35,7 +35,6 @@
 ;         ACI card: not present
 ;   Multi I/O Card: not present
 
-
 Info:
         JSR PrintChar           ; Echo command
         JSR PrintCR
@@ -65,6 +64,14 @@ Info:
         JSR PrintCR
 
 @Invalid:
+        LDX #<RAMString       ; Print range of RAM
+        LDY #>RAMString
+        JSR PrintString
+        JSR PrintDollar
+        JSR FindTopOfRAM
+        JSR PrintAddress
+        JSR PrintCR
+
         LDX #<NMIVectorString ; Print NMI vector address
         LDY #>NMIVectorString
         JSR PrintString
@@ -139,13 +146,13 @@ Type65816String:
         .asciiz "65816"
 
 ResetVectorString:
-        .asciiz "     RESET vector: "
+        .asciiz "     RESET vector: $"
 
 IRQVectorString:
-        .asciiz "   IRQ/BRK vector: "
+        .asciiz "   IRQ/BRK vector: $"
 
 NMIVectorString:
-        .asciiz "       NMI vector: "
+        .asciiz "       NMI vector: $"
 
 PresentString:
         .asciiz "present"
@@ -167,6 +174,10 @@ KrusaderString:
 
 WozMonString:
         .asciiz "       WozMon ROM: "
+
+RAMString:
+        .asciiz "RAM detected from: $0000 to "
+
 
 ; Determine type of CPU. Returns result in A.
 ; 1 - 6502, 2 - 65C02, 3 - 65816.
@@ -212,3 +223,83 @@ PrintPresent:
         LDY #>PresentString
         JSR PrintString
         RTS
+
+; Determines top of installed RAM whle trying not to corrupt any other program including this one.
+; We assume RAM starts at 0. Returns top RAM address in X (low), Y (high).
+
+ LIMIT = $FFFF        ; Highest address we want to test
+ TOP   = $00          ; Holds current highest addresse of RAM (two bytes)
+
+FindTopOfRAM:
+
+  LDA #<$0002         ; Store $0002 in TOP (don't want to change TOP)
+  STA TOP
+  LDA #>$0002
+  STA TOP+1
+
+@Loop:
+  LDY #0
+  LDA (TOP),Y         ; Read current contents of (TOP)
+  TAX                 ; Save in register so we can later restore it
+  LDA #0              ; Write all zeroes to (TOP)
+  STA (TOP),Y
+  CMP (TOP),Y         ; Does it read back?
+  BNE @TopFound       ; If not, top of memory found
+  LDA #$FF            ; Write all ones to (TOP)
+  STA (TOP),Y
+  CMP (TOP),Y         ; Does it read back?
+  BNE @TopFound       ; If not, top of memory found
+  LDA #$AA            ; Write alternating bits to (TOP)
+  STA (TOP),Y
+  CMP (TOP),Y         ; Does it read back?
+  BNE @TopFound       ; If not, top of memory found
+  LDA #$55            ; Write alternating bits to (TOP)
+  STA (TOP),Y
+  CMP (TOP),Y         ; Does it read back?
+  BNE @TopFound       ; If not, top of memory found
+
+  TXA                 ; Write original data back to (TOP)
+  STA (TOP),Y
+
+  LDA TOP             ; Increment TOP (low,high)
+  CLC
+  ADC #1
+  STA TOP
+  LDA TOP+1
+  ADC #0              ; Add any carry
+  STA TOP+1
+
+;  Are we testing in the range of this code (i.e. the same 256 byte
+;  page)? If so, need to skip over it because otherwise the memory
+;  test will collide with the code being executed when writing to it.
+
+  LDA TOP+1           ; High byte or page
+  CMP #>FindTopOfRAM  ; Same page as this code?
+  BNE @NotUs
+  INC TOP+1           ; Skip over this page when testing
+
+@NotUs:
+
+  LDA TOP+1           ; Did we reach LIMIT? (high byte)
+  CMP #>LIMIT
+  BNE @Loop           ; If not, keep looping
+  LDA TOP             ; Did we reach LIMIT? (low byte)
+  CMP #<LIMIT
+  BNE @Loop;          If not, keep looping
+
+@TopFound:
+  TXA                 ; Write original data back to (TOP) just in case it is important
+  STA (TOP),Y
+
+  LDA TOP             ; Decrement TOP by 1 to get last RAM address
+  SEC
+  SBC #1
+  STA TOP
+  LDA TOP+1
+  SBC #0              ; Subtract any borrow
+  STA TOP+1
+  
+  LDX TOP             ; Set top of RAM as TOP (X-low Y-high)
+  LDY TOP+1
+
+  RTS                 ; Return
