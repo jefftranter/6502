@@ -15,7 +15,7 @@ MAIN:
         JSR CHECK               ; Get CPU type
         BMI T02                 ; N set means 6502
         BCC TC02                ; C clear means 65C02
-        BCS T816                ; C set mans 65816
+        BCS T816                ; C set means 65816
 T02:
         LDX #<S2                ; Display "6502"
         LDY #>S2

@@ -73,6 +73,7 @@
 ;                      need to restart JMON.
 ;                      Processor status bits are shown in lower case if supported.
 ;                      Moved variables to allow program to run in ROM.
+;        18-Jul-2012   Added new iNfo command.
 
 
 ; Constants
@@ -1333,8 +1334,6 @@ Options:
         BEQ @Okay
         CMP #'3'
         BEQ @Okay
-        CMP #'4'
-        BEQ @Okay
         BNE @Retry2
 @Okay:
         JSR PrintChar           ; echo command
@@ -1946,7 +1945,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDEFGHILMORSTUV:=."
+        .byte "$?ABCDEFGHILMNORSTUV:=."
 
 JMPFL:
         .word Invalid-1
@@ -1963,6 +1962,7 @@ JMPFL:
         .word Basic-1
         .word ClearScreen-1
         .word CFFA1-1
+        .word Info-1
         .word Options-1
         .word Registers-1
         .word Search-1
@@ -2151,6 +2151,7 @@ HelpString:
         .byte "BASIC       I", CR
         .byte "Clr screen  L", CR
         .byte "CFFA1 menu  M", CR
+        .byte "Info        N", CR
         .byte "Options     O", CR
         .byte "Registers   R", CR
         .byte "Search      S <start> <end> <data>...", CR
@@ -2231,7 +2232,7 @@ HighBitString:
   .byte "Set high bit in characters (Y/N)?", 0
 
 CPUTypeString:
-  .byte "CPU type (1-6502 2-Rockwell 65C02",CR,"3-WDC 65C02 4-65816)?", 0
+  .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
 
 InvalidInstructionString:
   .byte "Invalid instruction", 0
@@ -2254,6 +2255,7 @@ NoBASICString:
   .include "disasm.s"
   .include "miniasm.s"
   .include "trace.s"
+  .include "info.s"
   .include "memtest4.s"
   .include "delay.s"
 
