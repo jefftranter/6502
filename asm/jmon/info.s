@@ -32,7 +32,8 @@
 ;        BASIC ROM: present
 ;     Krusader ROM: not present
 ;       CFFA1 card: present
-;         AC1 card: not present
+;         ACI card: not present
+;   Multi I/O Card: not present
 
 
 Info:
@@ -64,6 +65,65 @@ Info:
         JSR PrintCR
 
 @Invalid:
+        LDX #<NMIVectorString ; Print NMI vector address
+        LDY #>NMIVectorString
+        JSR PrintString
+        LDX $FFFA
+        LDY $FFFB
+        JSR PrintAddress
+        JSR PrintCR
+
+        LDX #<ResetVectorString ; Print reset vector address
+        LDY #>ResetVectorString
+        JSR PrintString
+        LDX $FFFC
+        LDY $FFFD
+        JSR PrintAddress
+        JSR PrintCR
+
+        LDX #<IRQVectorString ; Print IRQ/BRK vector address
+        LDY #>IRQVectorString
+        JSR PrintString
+        LDX $FFFE
+        LDY $FFFF
+        JSR PrintAddress
+        JSR PrintCR
+
+        LDX #<ACICardString
+        LDY #>ACICardString
+        JSR PrintString
+        JSR ACIPresent
+        JSR PrintPresent
+        JSR PrintCR
+       
+        LDX #<CFFA1CardString
+        LDY #>CFFA1CardString
+        JSR PrintString
+        JSR CFFA1Present
+        JSR PrintPresent
+        JSR PrintCR
+
+        LDX #<BASICString
+        LDY #>BASICString
+        JSR PrintString
+        JSR BASICPresent
+        JSR PrintPresent
+        JSR PrintCR
+       
+        LDX #<KrusaderString
+        LDY #>KrusaderString
+        JSR PrintString
+        JSR KrusaderPresent
+        JSR PrintPresent
+        JSR PrintCR
+       
+        LDX #<WozMonString
+        LDY #>WozMonString
+        JSR PrintString
+        JSR WozMonPresent
+        JSR PrintPresent
+        JSR PrintCR
+       
         RTS
 
 CPUString:
@@ -78,6 +138,35 @@ Type65C02String:
 Type65816String:
         .asciiz "65816"
 
+ResetVectorString:
+        .asciiz "     RESET vector: "
+
+IRQVectorString:
+        .asciiz "   IRQ/BRK vector: "
+
+NMIVectorString:
+        .asciiz "       NMI vector: "
+
+PresentString:
+        .asciiz "present"
+
+NotString:
+        .asciiz "not "
+
+ACICardString:
+        .asciiz "         ACI card: "
+
+CFFA1CardString:
+        .asciiz "       CFFA1 card: "
+
+BASICString:
+        .asciiz "        BASIC ROM: "
+
+KrusaderString:
+        .asciiz "     Krusader ROM: "
+
+WozMonString:
+        .asciiz "       WozMon ROM: "
 
 ; Determine type of CPU. Returns result in A.
 ; 1 - 6502, 2 - 65C02, 3 - 65816.
@@ -108,4 +197,18 @@ C02:
 O2:
         CLD
         LDA #1        ; 6502
+        RTS
+
+; Based on the value in A, displays "present" (1) or "not present" (0).
+
+PrintPresent:
+        CMP #0
+        BNE @Present
+        LDX #<NotString
+        LDY #>NotString
+        JSR PrintString
+@Present:
+        LDX #<PresentString
+        LDY #>PresentString
+        JSR PrintString
         RTS

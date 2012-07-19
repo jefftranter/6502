@@ -180,22 +180,13 @@ Help:
         RTS
 
 ; Call CFFA1 flash interface menu
-; The documented way to check for a CFFA1 is to check for two ID bytes.
-; The documentation says it is addresses $AFFC and $AFFD but the firmware
-; actually uses addresses $AFDC and $AFDD. Further, my CFFA1 board did
-; not have these locations programmed even though firmware on CD-ROM did.
-; I manually wrote these bytes to my EEPROM.
 
 CFFA1:
-        LDA $AFDC               ; First CFFA1 ID byte
-        CMP #$CF                ; Should contain $CF
-        BNE NoCFFA1
-        LDA $AFDD               ; First CFFA1 ID byte
-        CMP #$FA                ; Should contain $FA
-        BNE NoCFFA1
+        JSR CFFA1Present        ; Is the card present?
+        BEQ @NoCFFA1
         JSR MENU                ; Jump to CFFA1 menu, will return when done.
         RTS
-NoCFFA1:
+@NoCFFA1:
         LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
         LDY #>NoCFFA1String
         JSR PrintString
@@ -205,12 +196,8 @@ NoCFFA1:
 ; First check for the presence of the card by looking for the first two byes of the ROM firmware.
 
 ACIFW:
-        LDA ACI                 ; First firmware byte
-        CMP #$A9                ; Should contain $A9
-        BNE NoACI
-        LDA ACI+1               ; Second firmware byte
-        CMP #$AA                ; Should contain $AA
-        BNE NoACI
+        JSR ACIPresent
+        BEQ NoACI
         JMP ACI                 ; Jump to ACI firmware, unfortunately jumps to Woz Mon when done rather than returning here.
 NoACI:
         LDX #<NoACIString       ; Display error that no ACI is present.
@@ -235,17 +222,9 @@ Assemble:
         RTS
 
 ; Go to BASIC
-; First check for the presence of BASIC looking for the first three bytes of ROM.
-; It is unlikely but it could possibly not be present (e.g. when running in an Emulator)
+
 Basic:
-        LDA BASIC               ; First firmware byte
-        CMP #$4C                ; Should contain $4C
-        BNE NoBasic
-        LDA BASIC+1             ; Second firmware byte
-        CMP #$B0                ; Should contain $B0
-        BNE NoBasic
-        LDA BASIC+2             ; Third firmware byte
-        CMP #$E2                ; Should contain $E2
+        JSR BASICPresent       ; Is BASIC ROM present?
         BNE NoBasic
         JMP BASIC               ; Jump to BASIC (no facility to return).
 NoBasic:
@@ -2125,6 +2104,97 @@ ClearScreen:
         PLA             ; restore X
         TAX
         PLA             ; restore A
+        RTS
+
+; Determines if an ACI (Apple Cassette Interface) card is present.
+; Reads the first two bytes of the ROM.
+; Returns in A 1 if present, 0 if not.
+ACIPresent:
+        LDA ACI                 ; First firmware byte
+        CMP #$A9                ; Should contain $A9
+        BNE @NoACI
+        LDA ACI+1               ; Second firmware byte
+        CMP #$AA                ; Should contain $AA
+        BNE @NoACI
+        LDA #1
+        RTS
+@NoACI:
+        LDA #0
+        RTS
+
+
+; Determines if an ACI (Apple Cassette Interface) card is present.
+; Returns in A 1 if present, 0 if not.
+; The documented way to check for a CFFA1 is to check for two ID bytes.
+; The documentation says it is addresses $AFFC and $AFFD but the firmware
+; actually uses addresses $AFDC and $AFDD. Further, my CFFA1 board did
+; not have these locations programmed even though firmware on CD-ROM did.
+; I manually wrote these bytes to my EEPROM.
+
+CFFA1Present:
+        LDA $AFDC               ; First CFFA1 ID byte
+        CMP #$CF                ; Should contain $CF
+        BNE @NoCFFA1
+        LDA $AFDD               ; First CFFA1 ID byte
+        CMP #$FA                ; Should contain $FA
+        BNE @NoCFFA1
+        LDA #1
+        RTS
+@NoCFFA1:
+        LDA #0
+        RTS
+
+
+; Determines if BASIC ROM is present.
+; Returns in A 1 if present, 0 if not.
+; Looks for the first three bytes of ROM.
+; It is unlikely but it could possibly not be present (e.g. when running in an Emulator)
+BASICPresent:
+        LDA BASIC               ; First firmware byte
+        CMP #$4C                ; Should contain $4C
+        BNE @NoBasic
+        LDA BASIC+1             ; Second firmware byte
+        CMP #$B0                ; Should contain $B0
+        BNE @NoBasic
+        LDA BASIC+2             ; Third firmware byte
+        CMP #$E2                ; Should contain $E2
+        BNE @NoBasic
+        LDA #1
+        RTS
+@NoBasic:
+        LDA #0
+        RTS
+
+; Determines if Krusader ROM present.
+; Returns in A 1 if present, 0 if not.
+; Looks for the first two bytes of ROM.
+KrusaderPresent:
+        LDA $F000
+        CMP #$A9
+        BNE @NoKrusader
+        LDA $F01
+        CMP #$03
+        BNE @NoKrusader
+        LDA #1
+        RTS
+@NoKrusader:
+        LDA #1
+        RTS
+
+; Determines if Woz Mon is present.
+; Returns in A 1 if present, 0 if not.
+; Looks for the first two bytes of ROM.
+WozMonPresent:
+        LDA WOZMON
+        CMP #$D8
+        BNE @NoWozMon
+        LDA WOZMON+1
+        CMP #$58
+        BNE @NoWozMon
+        LDA #1
+        RTS
+@NoWozMon:
+        LDA #1
         RTS
 
 ; Strings
