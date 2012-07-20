@@ -137,6 +137,36 @@ Info:
         JSR WozMonPresent
         JSR PrintPresent
         JSR PrintCR
+
+        JSR MultiIOPresent      ; Can only measure clock speed if we have a Multi I/O card 
+        BEQ @SkipSpeed
+        
+        LDX #<CPUSpeedString
+        LDY #>CPUSpeedString
+        JSR PrintString
+        JSR MeasureCPUSpeed
+        STA BIN+0
+        LDA #0
+        STA BIN+1
+        JSR BINBCD16
+        LDA BCD+0               ; Will contain BCD number like $20 for 2.0 MHz
+        TAX
+        LSR A
+        LSR A
+        LSR A
+        LSR A
+        JSR PRHEX
+        LDA #'.'
+        JSR PrintChar
+        TXA
+        AND #$0F
+        JSR PRHEX
+        LDX #<MHzString
+        LDY #>MHzString
+        JSR PrintString
+        JSR PrintCR
+
+@SkipSpeed:
        
         RTS
 
@@ -188,6 +218,11 @@ WozMonString:
 RAMString:
         .asciiz "RAM detected from: $0000 to "
 
+CPUSpeedString:
+        .asciiz "        CPU speed: "
+
+MHzString:
+        .asciiz " MHz"
 
 ; Determine type of CPU. Returns result in A.
 ; 1 - 6502, 2 - 65C02, 3 - 65816.
@@ -283,7 +318,7 @@ FindTopOfRAM:
 ;  page)? If so, need to skip over it because otherwise the memory
 ;  test will collide with the code being executed when writing to it.
 
-  LDA TOP+1           ; High byte or page
+  LDA TOP             ; High byte of page
   CMP #>FindTopOfRAM  ; Same page as this code?
   BNE @NotUs
   INC TOP+1           ; Skip over this page when testing
@@ -313,3 +348,66 @@ FindTopOfRAM:
   LDY TOP+1
 
   RTS                 ; Return
+
+; Measure CPU clock speed/
+; Does this by sending characters our the serial port of a Multi I/O board
+; and counting how many CPU cycles it takes.
+; Returns value in A that is approximately CPU speed in MHz * 10.
+MeasureCPUSpeed:
+
+; 6551 Chip registers
+        TXDATA = $C300
+        RXDATA = $C300
+        STATUSREG = $C301
+        CMDREG = $C302
+        CTLREG = $C303
+
+; Set 1 stop bit, 8 bit data, internal clock, 19200bps
+       LDA #%00011111
+       STA CTLREG
+
+; Set no parity, no echo, no TX interrupts, RTS low, no RX interrupts, DTR low  
+      LDA #%00001011
+      STA CMDREG
+
+      LDA #'A'  ; Character to send
+      LDX #0    ; Counter
+      JSR ECHO
+      JSR ECHO
+      JSR ECHO
+      TXA
+      RTS
+
+; Send character in A out serial port
+ECHO:
+        PHA
+        LDA #$10
+TXFULL: INX
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        BIT STATUSREG ; wait for TDRE bit = 1
+        BEQ TXFULL
+        PLA
+        STA TXDATA
+        RTS

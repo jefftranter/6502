@@ -2215,7 +2215,7 @@ KrusaderPresent:
         LDA #1
         RTS
 @NoKrusader:
-        LDA #1
+        LDA #0
         RTS
 
 ; Determines if Woz Mon is present.
