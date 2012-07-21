@@ -170,60 +170,6 @@ Info:
 
         RTS
 
-CPUString:
-        .asciiz "         CPU type: "
-
-Type6502String:
-        .asciiz "6502"
-
-Type65C02String:
-        .asciiz "65C02"
-
-Type65816String:
-        .asciiz "65816"
-
-ResetVectorString:
-        .asciiz "     RESET vector: $"
-
-IRQVectorString:
-        .asciiz "   IRQ/BRK vector: $"
-
-NMIVectorString:
-        .asciiz "       NMI vector: $"
-
-PresentString:
-        .asciiz "present"
-
-NotString:
-        .asciiz "not "
-
-ACICardString:
-        .asciiz "         ACI card: "
-
-CFFA1CardString:
-        .asciiz "       CFFA1 card: "
-
-MultiIOCardString:
-        .asciiz "   Multi I/O Card: "
-
-BASICString:
-        .asciiz "        BASIC ROM: "
-
-KrusaderString:
-        .asciiz "     Krusader ROM: "
-
-WozMonString:
-        .asciiz "       WozMon ROM: "
-
-RAMString:
-        .asciiz "RAM detected from: $0000 to "
-
-CPUSpeedString:
-        .asciiz "        CPU speed: "
-
-MHzString:
-        .asciiz " MHz"
-
 ; Determine type of CPU. Returns result in A.
 ; 1 - 6502, 2 - 65C02, 3 - 65816.
 ; Algorithm taken from Western Design Center programming manual.
