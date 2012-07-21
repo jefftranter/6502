@@ -2146,13 +2146,22 @@ CFFA1Present:
 ; This may need some tweaking to work reliably.
 ; 6522 checks may only work after a hardware reset.
 ;
-; Write $00 to $C302, should back
-; Write $FF to $C302, should back
-; Write $00 to $C303, should back
-; Write $FF to $C303, should back
+; To test for the 6551:
+; Write $00 to $C302, should read back
+; Write $FF to $C302, should read back
+; Write $00 to $C303, should read back
+; Write $FF to $C303, should read back
 ; Write $XX to $C301 for programmed reset
 ; $C301 should read XXXXX0XX
 ; $C302 should read XXX00000
+; To test for the 6522:
+; Write $FF to $C202, should read back
+; Write $00 to $C202, should read back
+; Write $FF to $C203, should read back
+; Write $00 to $C203, should read back
+; Write $AA to $C201, should read back different
+; Write $AA to $C200, should read back different
+; Read $C204 (timer). Read again and data should be different.
 
 MultiIOPresent:
         LDA #$00
@@ -2180,18 +2189,34 @@ MultiIOPresent:
         AND #%00011111
         CMP #$00
         BNE @NoMultiIO
-        LDA $C200               ; 6522 register
-        CMP #$FF
+
+        LDA #$FF
+        STA $C202
+        CMP $C202
         BNE @NoMultiIO
-        LDA $C201               ; 6522 register
-        CMP #$FF
+        LDA #$00
+        STA $C202
+        CMP $C202
         BNE @NoMultiIO
-        LDA $C202               ; 6522 register
-        CMP #$00
+        LDA #$FF
+        STA $C203
+        CMP $C203
         BNE @NoMultiIO
-        LDA $C203               ; 6522 register
-        CMP #$00
+        LDA #$00
+        STA $C203
+        CMP $C203
         BNE @NoMultiIO
+        LDA #$AA
+        STA $C201
+        CMP $C201
+        BEQ @NoMultiIO
+        LDA #$AA
+        STA $C200
+        CMP $C200
+        BEQ @NoMultiIO
+        LDA $C204
+        CMP $C204
+        BEQ @NoMultiIO
         LDA #1
         RTS
 @NoMultiIO:

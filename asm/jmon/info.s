@@ -269,7 +269,7 @@ PrintPresent:
         JSR PrintString
         RTS
 
-; Determines top of installed RAM whle trying not to corrupt any other
+; Determines top of installed RAM while trying not to corrupt any other
 ; program including this one. We assume RAM starts at 0. Returns top
 ; RAM address in X (low), Y (high).
 
