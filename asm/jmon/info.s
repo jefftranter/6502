@@ -171,7 +171,7 @@ Info:
         RTS
 
 CPUString:
-        .asciiz "         CPU Type: "
+        .asciiz "         CPU type: "
 
 Type6502String:
         .asciiz "6502"

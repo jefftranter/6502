@@ -202,9 +202,15 @@ NoACI:
         RTS
 
 ; Go to Woz Monitor
-; We don't check that it is present as that should be extremely unlikely.
 Monitor:
+        JSR WozMonPresent
+        BEQ @NoWozMon
         JMP WOZMON
+@NoWozMon:
+        LDX #<NoWozMonString    ; Display error that no Woz Monitor is present.
+        LDY #>NoWozMonString
+        JSR PrintString
+        RTS
 
 ; Go to Mini Assembler
 Assemble:
@@ -221,7 +227,7 @@ Assemble:
 
 Basic:
         JSR BASICPresent       ; Is BASIC ROM present?
-        BNE NoBasic
+        BEQ NoBasic
         JMP BASIC               ; Jump to BASIC (no facility to return).
 NoBasic:
         LDX #<NoBASICString     ; Display error that no BASIC is present.
@@ -2402,6 +2408,9 @@ UnableToWriteString:
 
 NoBASICString:
   .byte "BASIC not found!", CR, 0
+
+NoWozMonString:
+  .byte "Woz Mon not found!", CR, 0
 
   .include "disasm.s"
   .include "miniasm.s"

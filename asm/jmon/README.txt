@@ -104,6 +104,23 @@ Calls the menu for the CFFA1 flash interface (address $9006). First
 performs a check that a CFFA1 card is present and reports an error if
 not. Quitting from the CFFA1 menu returns to JMON.
 
+INFO: N
+
+Display information about the system. Sample output:
+
+         CPU type: 65C02
+      Clock speed: 2.0 MHz
+RAM detected from: $0000 to $8FFF
+       NMI vector: $0F00
+     RESET vector: $FF00
+   IRQ/BRK vector: $0100
+         ACI card: not present
+       CFFA1 card: present
+   Multi I/O Card: not present
+        BASIC ROM: present
+     Krusader ROM: present
+       WozMon ROM: present
+
 OPTION: O
 
 Sets a number of program options. Prompts the user for the value of
