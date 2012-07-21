@@ -1,6 +1,4 @@
-; JMON - Simple Monitor Program
-;
-; Fills some gaps missing from Woz monitor.
+; JMON - 6502 Monitor Program
 ;
 ; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
 ;
@@ -17,8 +15,6 @@
 ; limitations under the License.
 ;
 ; Possible Future Enhancements:
-; - new status command to display information such as: detected CPU type, clock speed,
-;   range of RAM and ROM, detected peripheral cards. etc.
 ; - use CPU type option for disassembly/assembly/trace
 ; - trace: support for 65C02 instructions (only need to implement BBR and BBS)
 ; - trace: support for 65816 instructions, including variable length
@@ -30,7 +26,6 @@
 ; - option to use other device for I/O, e.g. ACIA on Multi I/O card
 ; - make some modules configurable to enable/disable to reduce code size
 ; - try to get down to fit in 8K (possibly with some features disabled)
-; - bump version to 1.0
 
 ; Revision History
 ; Version Date         Comments
@@ -74,6 +69,7 @@
 ;                      Processor status bits are shown in lower case if supported.
 ;                      Moved variables to allow program to run in ROM.
 ;        18-Jul-2012   Added new iNfo command.
+; 1.0    20-Jul-2012   Bump verson to 1.00.
 
 
 ; Constants
@@ -2148,20 +2144,40 @@ CFFA1Present:
 ; Returns in A 1 if present, 0 if not.
 ; Method is to check the first few 6551 and 6522 registers.
 ; This may need some tweaking to work reliably.
-; Will probably only work after a hardware reset.
+; 6522 checks may only work after a hardware reset.
+;
+; Write $00 to $C302, should back
+; Write $FF to $C302, should back
+; Write $00 to $C303, should back
+; Write $FF to $C303, should back
+; Write $XX to $C301 for programmed reset
+; $C301 should read XXXXX0XX
+; $C302 should read XXX00000
 
 MultiIOPresent:
-        LDA $C300               ; 6551 register
-        AND #%00011111
-        CMP #$1F
+        LDA #$00
+        STA $C302
+        CMP $C302
         BNE @NoMultiIO
-        LDA $C301               ; 6551 register
-        CMP #$10
+        LDA #$FF
+        STA $C302
+        CMP $C302
         BNE @NoMultiIO
-        LDA $C302               ; 6551 register
+        LDA #$00
+        STA $C303
+        CMP $C303
+        BNE @NoMultiIO
+        LDA #$FF
+        STA $C303
+        CMP $C303
+        BNE @NoMultiIO
+        STA $C301
+        LDA $C301
+        AND #%00000100
         CMP #$00
         BNE @NoMultiIO
-        LDA $C303               ; 6551 register
+        LDA $C302
+        AND #%00011111
         CMP #$00
         BNE @NoMultiIO
         LDA $C200               ; 6522 register
@@ -2204,15 +2220,18 @@ BASICPresent:
 
 ; Determines if Krusader ROM present.
 ; Returns in A 1 if present, 0 if not.
-; Looks for the first two bytes of ROM.
+; Looks for the first thee bytes of ROM.
 KrusaderPresent:
         LDA $F000
         CMP #$A9
         BNE @NoKrusader
-        LDA $F01
+        LDA $F001
         CMP #$03
         BNE @NoKrusader
-        LDA #1
+        LDA $F002
+        CMP #$85
+        BNE @NoKrusader
+   LDA #1
         RTS
 @NoKrusader:
         LDA #0
@@ -2237,7 +2256,7 @@ WozMonPresent:
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON monitor 0.99 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 1.00 by Jeff Tranter", CR, 0
 
 PromptString:
         .asciiz "? "

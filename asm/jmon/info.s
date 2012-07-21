@@ -22,18 +22,18 @@
 ;
 ; Sample Output:
 ;
-;         CPU type: 65C02
-;      Clock speed: 1 MHz
-;RAM detected from: $0000 to $7FFF
-;     RESET vector: $FF00
-;   IRQ/BRK vector: $0100
-;       NMI vector: $0000
-;       WOZMON ROM: present
-;        BASIC ROM: present
-;     Krusader ROM: not present
-;       CFFA1 card: present
-;         ACI card: not present
-;   Multi I/O Card: not present
+;         CPU TYPE: 65C02
+;        CPU SPEED: 2.0 MHZ
+;RAM DETECTED FROM: $0000 TO $7FFF
+;       NMI VECTOR: $0F00
+;     RESET VECTOR: $FF00
+;   IRQ/BRK VECTOR: $0100
+;         ACI CARD: NOT PRESENT
+;       CFFA1 CARD: NOT PRESENT
+;   MULTI I/O CARD: PRESENT
+;        BASIC ROM: PRESENT
+;     KRUSADER ROM: PRESENT
+;       WOZMON ROM: PRESENT
 
 Info:
         JSR PrintChar           ; Echo command
@@ -64,6 +64,36 @@ Info:
         JSR PrintCR
 
 @Invalid:
+
+        JSR MultiIOPresent      ; Can only measure clock speed if we have a Multi I/O card 
+        BEQ @SkipSpeed
+        
+        LDX #<CPUSpeedString
+        LDY #>CPUSpeedString
+        JSR PrintString
+        JSR MeasureCPUSpeed
+        STA BIN+0
+        LDA #0
+        STA BIN+1
+        JSR BINBCD16
+        LDA BCD+0               ; Will contain BCD number like $20 for 2.0 MHz
+        TAX
+        LSR A
+        LSR A
+        LSR A
+        LSR A
+        JSR PRHEX
+        LDA #'.'
+        JSR PrintChar
+        TXA
+        AND #$0F
+        JSR PRHEX
+        LDX #<MHzString
+        LDY #>MHzString
+        JSR PrintString
+        JSR PrintCR
+
+@SkipSpeed:
         LDX #<RAMString       ; Print range of RAM
         LDY #>RAMString
         JSR PrintString
@@ -138,36 +168,6 @@ Info:
         JSR PrintPresent
         JSR PrintCR
 
-        JSR MultiIOPresent      ; Can only measure clock speed if we have a Multi I/O card 
-        BEQ @SkipSpeed
-        
-        LDX #<CPUSpeedString
-        LDY #>CPUSpeedString
-        JSR PrintString
-        JSR MeasureCPUSpeed
-        STA BIN+0
-        LDA #0
-        STA BIN+1
-        JSR BINBCD16
-        LDA BCD+0               ; Will contain BCD number like $20 for 2.0 MHz
-        TAX
-        LSR A
-        LSR A
-        LSR A
-        LSR A
-        JSR PRHEX
-        LDA #'.'
-        JSR PrintChar
-        TXA
-        AND #$0F
-        JSR PRHEX
-        LDX #<MHzString
-        LDY #>MHzString
-        JSR PrintString
-        JSR PrintCR
-
-@SkipSpeed:
-       
         RTS
 
 CPUString:
@@ -269,90 +269,90 @@ PrintPresent:
         JSR PrintString
         RTS
 
-; Determines top of installed RAM whle trying not to corrupt any other program including this one.
-; We assume RAM starts at 0. Returns top RAM address in X (low), Y (high).
+; Determines top of installed RAM whle trying not to corrupt any other
+; program including this one. We assume RAM starts at 0. Returns top
+; RAM address in X (low), Y (high).
 
  LIMIT = $FFFF        ; Highest address we want to test
  TOP   = $00          ; Holds current highest addresse of RAM (two bytes)
 
 FindTopOfRAM:
 
-  LDA #<$0002         ; Store $0002 in TOP (don't want to change TOP)
-  STA TOP
-  LDA #>$0002
-  STA TOP+1
+        LDA #<$0002         ; Store $0002 in TOP (don't want to change TOP)
+        STA TOP
+        LDA #>$0002
+        STA TOP+1
 
 @Loop:
-  LDY #0
-  LDA (TOP),Y         ; Read current contents of (TOP)
-  TAX                 ; Save in register so we can later restore it
-  LDA #0              ; Write all zeroes to (TOP)
-  STA (TOP),Y
-  CMP (TOP),Y         ; Does it read back?
-  BNE @TopFound       ; If not, top of memory found
-  LDA #$FF            ; Write all ones to (TOP)
-  STA (TOP),Y
-  CMP (TOP),Y         ; Does it read back?
-  BNE @TopFound       ; If not, top of memory found
-  LDA #$AA            ; Write alternating bits to (TOP)
-  STA (TOP),Y
-  CMP (TOP),Y         ; Does it read back?
-  BNE @TopFound       ; If not, top of memory found
-  LDA #$55            ; Write alternating bits to (TOP)
-  STA (TOP),Y
-  CMP (TOP),Y         ; Does it read back?
-  BNE @TopFound       ; If not, top of memory found
+        LDY #0
+        LDA (TOP),Y         ; Read current contents of (TOP)
+        TAX                 ; Save in register so we can later restore it
+        LDA #0              ; Write all zeroes to (TOP)
+        STA (TOP),Y
+        CMP (TOP),Y         ; Does it read back?
+        BNE @TopFound       ; If not, top of memory found
+        LDA #$FF            ; Write all ones to (TOP)
+        STA (TOP),Y
+        CMP (TOP),Y         ; Does it read back?
+        BNE @TopFound       ; If not, top of memory found
+        LDA #$AA            ; Write alternating bits to (TOP)
+        STA (TOP),Y
+        CMP (TOP),Y         ; Does it read back?
+        BNE @TopFound       ; If not, top of memory found
+        LDA #$55            ; Write alternating bits to (TOP)
+        STA (TOP),Y
+        CMP (TOP),Y         ; Does it read back?
+        BNE @TopFound       ; If not, top of memory found
 
-  TXA                 ; Write original data back to (TOP)
-  STA (TOP),Y
+        TXA                 ; Write original data back to (TOP)
+        STA (TOP),Y
 
-  LDA TOP             ; Increment TOP (low,high)
-  CLC
-  ADC #1
-  STA TOP
-  LDA TOP+1
-  ADC #0              ; Add any carry
-  STA TOP+1
+        LDA TOP             ; Increment TOP (low,high)
+        CLC
+        ADC #1
+        STA TOP
+        LDA TOP+1
+        ADC #0              ; Add any carry
+        STA TOP+1
 
 ;  Are we testing in the range of this code (i.e. the same 256 byte
 ;  page)? If so, need to skip over it because otherwise the memory
 ;  test will collide with the code being executed when writing to it.
 
-  LDA TOP             ; High byte of page
-  CMP #>FindTopOfRAM  ; Same page as this code?
-  BNE @NotUs
-  INC TOP+1           ; Skip over this page when testing
+        LDA TOP             ; High byte of page
+        CMP #>FindTopOfRAM  ; Same page as this code?
+        BNE @NotUs
+        INC TOP+1           ; Skip over this page when testing
 
 @NotUs:
 
-  LDA TOP+1           ; Did we reach LIMIT? (high byte)
-  CMP #>LIMIT
-  BNE @Loop           ; If not, keep looping
-  LDA TOP             ; Did we reach LIMIT? (low byte)
-  CMP #<LIMIT
-  BNE @Loop;          If not, keep looping
+        LDA TOP+1           ; Did we reach LIMIT? (high byte)
+        CMP #>LIMIT
+        BNE @Loop           ; If not, keep looping
+        LDA TOP             ; Did we reach LIMIT? (low byte)
+        CMP #<LIMIT
+        BNE @Loop           ; If not, keep looping
 
 @TopFound:
-  TXA                 ; Write original data back to (TOP) just in case it is important
-  STA (TOP),Y
+        TXA                 ; Write original data back to (TOP) just in case it is important
+        STA (TOP),Y
 
-  LDA TOP             ; Decrement TOP by 1 to get last RAM address
-  SEC
-  SBC #1
-  STA TOP
-  LDA TOP+1
-  SBC #0              ; Subtract any borrow
-  STA TOP+1
+        LDA TOP             ; Decrement TOP by 1 to get last RAM address
+        SEC
+        SBC #1
+        STA TOP
+        LDA TOP+1
+        SBC #0              ; Subtract any borrow
+        STA TOP+1
   
-  LDX TOP             ; Set top of RAM as TOP (X-low Y-high)
-  LDY TOP+1
+        LDX TOP             ; Set top of RAM as TOP (X-low Y-high)
+        LDY TOP+1
 
-  RTS                 ; Return
+        RTS                 ; Return
 
-; Measure CPU clock speed/
-; Does this by sending characters our the serial port of a Multi I/O board
-; and counting how many CPU cycles it takes.
-; Returns value in A that is approximately CPU speed in MHz * 10.
+; Measure CPU clock speed by sending characters out the serial port of
+; a Multi I/O board and counting how many CPU cycles it takes. Returns
+; value in A that is approximately CPU speed in MHz * 10.
 MeasureCPUSpeed:
 
 ; 6551 Chip registers
@@ -363,47 +363,29 @@ MeasureCPUSpeed:
         CTLREG = $C303
 
 ; Set 1 stop bit, 8 bit data, internal clock, 19200bps
-       LDA #%00011111
-       STA CTLREG
+        LDA #%00011111
+        STA CTLREG
 
 ; Set no parity, no echo, no TX interrupts, RTS low, no RX interrupts, DTR low  
-      LDA #%00001011
-      STA CMDREG
+       LDA #%00001011
+       STA CMDREG
 
-      LDA #'A'  ; Character to send
-      LDX #0    ; Counter
-      JSR ECHO
-      JSR ECHO
-      JSR ECHO
-      TXA
-      RTS
+        LDA #'A'  ; Character to send
+        LDX #0    ; Counter
+        JSR ECHO
+        JSR ECHO
+        JSR ECHO
+        TXA
+        RTS
 
 ; Send character in A out serial port
 ECHO:
         PHA
         LDA #$10
 TXFULL: INX
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
+        LDY #8          ; Add additional delay
+@Delay: DEY
+        BNE @Delay
         NOP
         NOP
         BIT STATUSREG ; wait for TDRE bit = 1
