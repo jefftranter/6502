@@ -211,7 +211,7 @@ Other notes:
 JMON will run out of RAM or ROM.
 
 The breakpoint feature may interfere with any other interrupt handlers
-that might be installed. It will fail if code write over the break
+that might be installed. It will fail if code writes over the break
 handler code (three bytes starting at $0100).
 
 The Fill, Search, and ":" commands accept characters as well as hex
