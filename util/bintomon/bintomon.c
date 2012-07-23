@@ -120,14 +120,6 @@ int main(int argc, char *argv[])
     if (runAddress == -2)
         runAddress = loadAddress;
 
-    if (verbose) {
-        fprintf(stderr, "Load address: $%04X\n", loadAddress);
-        if (runAddress != -1)
-            fprintf(stderr, "Run address: $%04X\n", runAddress);
-        if (length != -1)
-            fprintf(stderr, "Length: $%04X (%d bytes)\n", length, length);
-    }
-  
     address = loadAddress;
     printf("%04X:", address);
 
@@ -145,7 +137,18 @@ int main(int argc, char *argv[])
         printf("%04XR\n", runAddress);
     }
 
-    fprintf(stderr, "Last address: $%04X\n", address);
+    if (verbose) {
+        fprintf(stderr, "Load address: $%04X\n", loadAddress);
+        if (runAddress != -1)
+            fprintf(stderr, "Run address: $%04X\n", runAddress);
+        else
+            fprintf(stderr, "Run address: none \n");
+        fprintf(stderr, "Last address: $%04X\n", address -1 );
+        if (length != -1)
+            fprintf(stderr, "Length (from file): $%04X (%d bytes)\n", length, length);
+        fprintf(stderr, "Length (calculated): $%04X (%d bytes)\n", address - loadAddress, address - loadAddress);
+
+    }
 
     if (length != -1 && address != loadAddress + length) {
         fprintf(stderr, "Note: Last address does not match load address + length: $%04X\n", loadAddress + length);
