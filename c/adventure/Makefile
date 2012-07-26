@@ -1,5 +1,5 @@
-# "native" will build for local machine (e.g. Linux desktop).
-# "adventure.com" will build for Replica 1 using CC65.
+# "make native" will build for local machine (e.g. Linux desktop).
+# "make adventure.mon" will build for Replica 1 using CC65.
 
 #default: native
 default: adventure.mon

@@ -1,0 +1,28 @@
+# "make native" will build for local machine (e.g. Linux desktop).
+# "make yum.mon" will build for Replica 1 using CC65.
+
+#default: native
+default: yum.mon
+
+# Below may only work with my modified version of bintomon
+yum.mon: yum
+	bintomon -v -f yum >yum.mon
+
+yum: yum.c
+	cl65 -O -l -vm -m yum.map -t replica1 yum.c
+
+# SEND is a script I wrote.
+upload: yum.mon
+	SEND yum.mon
+
+native: yum.c
+	gcc -Wall -o yum yum.c
+
+release: yum.mon
+	zip yum-1.0.zip yum.c Makefile yum.mon README.txt LICENSE-2.0.txt
+
+clean:
+	$(RM) yum.o yum.lst yum.map yum
+
+distclean: clean
+	$(RM) yum.mon
