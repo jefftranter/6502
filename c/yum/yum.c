@@ -29,11 +29,10 @@
  *
  */
 
-//#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <string.h> 
+#include <string.h> 
 
 /*
 
@@ -124,59 +123,127 @@ The winner was Veronica with 178 points.
 Would you like to play again (Y/N) ? Y
 Same players as last time (Y/N)? Y
 
-------------------------------------------------------------------------
-
-Routines:
-
-Display board.
-Display help.
-Ask number and names of players.
-Display a string and prompt for Y or N.
-Display what dice user has (sorted)
-Ask what what dice to keep.
-Roll dice being kept.
-Roll 1 die.
-Roll n dice.
-Ask what category to claim (only show possible ones).
-Display winner.
-Generate random number between i and j. Calls rand(). Randomize using _randomize().
-Make move for computer.
-Initialized data structures.
-
----
-
-Data Structures
-
-
-int numPlayers - number of players
-bool isComputerPlayer[3] - returns true if a given player is a computer.
-char *playerNames[3] - names of players
-int scoreSheet[playerNum 3][category 12] 2d array of values given player number and category.
-int dice[playerNum][6] Current dice for player.
-
 */
 
 /* CONSTANTS */
 
+/* Sentinel value indicating that a category has not been played yet. */
+#define UNSET -1
+
 /* Maximum number of players */
-#define PLAYERS 3
+#define MAXPLAYERS 3
+
+/* Number of categories in score. */
+#define MAXCATEGORY 12
+
+/* Number of dice. */
+#define MAXDICE 5
 
 /* TYPES */
 
 /* DATA */
 
+/* Number of players. */
+int numPlayers;
 
+/* Returns true if a given player is a computer. */
+bool isComputerPlayer[MAXPLAYERS];
+
+/* Names of each player. */
+char *playerName[MAXPLAYERS];
+
+/* 2d array of values given player number and category. */
+int scoreSheet[MAXPLAYERS][MAXCATEGORY];
+
+/* Current dice for player. */
+int dice[MAXPLAYERS][MAXDICE];
+
+/* Functions*/
+
+/*
+ * Initialize score table to initial values for start of a game. Don't
+ * clear player names since we may be starting a new game with the
+ * same players.
+ */
+
+void initialize()
+{
+    int p, c;
+
+    for (p = 0; p < MAXPLAYERS; p++) {
+        for (c = 0; c < MAXCATEGORY; c++) {
+            scoreSheet[p][c] = UNSET;
+        }
+    }
+}
+
+/* Display the current score card. Displays final results if all categories are played. */
+void displayScore();
+
+/* Display help information. */
+void displayHelp();
+
+/*
+ * Ask number and names of players. Sets values of numPlayers,
+ *  isComputerPlayer, and playerName.
+ */
+
+void setPlayers();
+
+/* Display a string and prompt for Y or N. Return boolean value.
+TODO: Remove  need to hit <Enter>?
+*/
+
+bool promptYesNo(char *string);
+
+/* Display what dice user has (sorted) */
+void displayDice(int playerNum);
+
+/* Ask what what dice to keep. With checking of values. */
+void askPlayerDiceToKeep(int playerNum);
+
+/* Roll dice being kept. */
+void rollKeptDice(int playerNum);
+
+/* Generate random number from low and high inclusive, e.g. randomNumber(1, 6) for a die. Calls rand(). */
+int randomNumber(low, high)
+{
+    return rand() % high + low;
+}
+
+/* Roll 1 die. */
+int rollDie()
+{
+    return randomNumber(1, 6);
+}
+
+/* Roll n dice. */
+int rollDice(int n);
+
+/* Ask what category to claim (only show possible ones). */
+int playerPlayCategory(int playerNum);
+
+/* Display winner. */
+void displayWinner();
+
+/* Computer decides what dice to keep. */
+void askComputerDiceToKeep(int playerNum);
+
+/* Computer decides what category to play. */
+int computerPlayCategory(int playerNum);
+
+/* Call srand() with a key based on player's names to try to make it somewhat random. */
+void setRandomSeed();
 
 /* Main program */
 int main(void)
 {
     int i, n;
 
-#ifdef __CC65__
-    _randomize();
-#endif
 
     printf("%s", "\nWelcome to YUM!\n");
+
+    initialize();
 
     for (i=0; i < 5; i++) {
         n = rand() % 6 + 1;
