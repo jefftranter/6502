@@ -207,7 +207,7 @@ void displayScore()
 {
     int i;
 
-    printf("Current Score after %d of 12 rounds:\n", currentRound);
+    printf("Score after %d of 12 rounds:\n", currentRound);
     printf("Roll           ");
     for (i = 0; i < numHumanPlayers + numComputerPlayers; i++) {
         printf("%-8s", playerName[i]);
@@ -539,7 +539,7 @@ void playerPlayCategory()
         }
 
         if (scoreSheet[player][category] == UNSET) {
-            printf("%d  - %s\n", category + 1, labels[category]);
+            printf("%2d  - %s\n", category + 1, labels[category]);
         }
     }
 
@@ -564,11 +564,20 @@ void playerPlayCategory()
     case 9: /* High straight */
         scoreSheet[player][category] = hasHighStraight() ? 20 : 0;
         break;
-    case 10: /* Low score TODO: Must be less than high score. */
+    case 10: /* Low score. Must be 21 or more and less than high score. */
         scoreSheet[player][category] = (sum() >= 21) ? sum() : 0;
+        if ((sum() >= 21) && ((scoreSheet[player][11] == UNSET) || (sum < scoreSheet[player][11]))) {
+            scoreSheet[player][category] = sum();
+        } else {
+            scoreSheet[player][category] = 0;
+        }
         break;
-    case 11: /* High score TODO: Must be more than low score. */
-        scoreSheet[player][category] = (sum() >= 22) ? sum() : 0;
+    case 11: /* High score. Must be 22 or more and more than low score. */
+        if ((sum() >= 22) && (sum > scoreSheet[player][10])) {
+            scoreSheet[player][category] = sum();
+        } else {
+            scoreSheet[player][category] = 0;
+        }
         break;
     case 12: /* Full House */
         scoreSheet[player][category] = hasFullHouse() ? 25 : 0;
@@ -592,16 +601,22 @@ void displayWinner()
         }
     }
 
-    // TODO: Check for a tie.
-
     /* Display the winner. */
-    printf("The winner is %s with %d points.\n", playerName[winner], scoreSheet[winner][14]);
+    if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[1][14] == scoreSheet[2][14])) {
+        printf("It was a three way tie!\n");
+    } else if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[0][14] == max)) {
+        printf("It was a tie between %s and %s\n", playerName[0], playerName[1]);
+    } else if ((scoreSheet[1][14] == scoreSheet[2][14]) && (scoreSheet[1][14] == max)) {
+        printf("It was a tie between %s and %s\n", playerName[1], playerName[2]);
+    } else if ((scoreSheet[0][14] == scoreSheet[2][14]) && (scoreSheet[0][14] == max)) {
+        printf("It was a tie between %s and %s\n", playerName[0], playerName[2]);
+    } else {
+        printf("The winner is %s.\n", playerName[winner]);
+    }
 
-    /* Display other player's scores. */
+    /* Display player's scores. */
     for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
-        if (p != winner) {
-            printf("%s has %d points.\n", playerName[p], scoreSheet[p][14]);
-        }
+        printf("%s has %d points.\n", playerName[p], scoreSheet[p][14]);
     }
 }
 
@@ -658,6 +673,7 @@ int main(void)
 
     printf("Press <Enter> to start the game");
     pressEnter();
+    clearScreen();
 
     for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
         for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
@@ -700,6 +716,7 @@ int main(void)
             }
 
             updateScore();
+            clearScreen();
             displayScore();
 
         }
