@@ -44,92 +44,8 @@
 
 YUM - a variation of the game Yahtzee
 
-Up to 3 players (compile time, limited by screen size).
+Up to 3 players (set at compile time, limited by screen size).
 Players can be the computer.
-Compile time option for all uppercase output or not.
-
-------------------------------------------------------------------------
-
-Sample session:
-
-Welcome to Yahtzee!
-
-Do you want instructions (Y/N) ? N
-How many human players? (0-3) 2
-How many computer players? (0-1) 1
-Name of player 1: Jeff
-Name of player 2: Veronica
-Player three will be "Apple 1".
-Press <Enter> to start
-
-Current Score after 6 of 12 turns:
-
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXXXXXX       YYYYYYYYXXXXXXXXYYYYYYYY
-Roll            Jeff  Veronica Apple 1
-1's               5      3       4
-2's               -      -       6
-3's               -      6       -
-4's               -      -      12
-5's              15     25      20
-6's               6      -       -
-Sub-total        26     34      42
-Bonus             -      -       -
-Low Straight     15     15       -
-High Straight     -      2      20
-Low Score        17     12      11
-High Score       22     26      24
-Full House        -     25       -
-YUM               -     30      30
-TOTAL           114    178     169
-
-Jeff's turn. Press <Enter> to roll 
-
-Jeff, One your first roll you have:
-1 2 3 3 6
-What numbers do you want to keep? 336
-
-Rolling again...
-Jeff, One your second roll you have:
-1 3 3 6 6
-What numbers do you want to keep? 3366
-
-Rolling again...
-Jeff, One your final roll you have:
-3 3 3 6 6
-
-1  - 1's (0/5)
-2  - 2's (0/10)
-3  - 3's (9/15)
-4  - 4's (0/20)
-5  - 5's (0/25)
-6  - 6's (12/30)
-7  - Low Straight (0/15)
-8  - High Straight (0/20)
-9  - Low Score (25)
-10 - High Score (25)
-11 - Full House (25/25)
-12 - YUM (0/30)
-
-Jeff, what do you want to claim (1-12)? 3
-
-Current Score after 7 of 12 rounds:
-
- ...
-
-That was the last turn.
-Here is the final score:
-
-Roll            Jeff  Veron   Apple
-1's               5      3       4
-...
-TOTAL           114    178     169
-
-
-The winner was Veronica with 178 points.
-
-Would you like to play again (Y/N) ? Y
-Same players as last time (Y/N)? Y
 
 */
 
@@ -195,6 +111,16 @@ char *labels[MAXCATEGORY] = { "1's", "2's", "3's", "4's", "5's", "6's", "Sub-tot
 
 /* Functions*/
 
+/* Mark all dice to be rolled. */
+void markAllDiceToBeRolled()
+{
+    int p;
+
+    for (p = 0; p < MAXDICE; p++) {
+        dice[p] = UNSET;
+    }
+}
+
 /*
  * Initialize score table to initial values for start of a game. Don't
  * clear player names since we may be starting a new game with the
@@ -210,10 +136,8 @@ void initialize()
         }
     }
 
-    /* Inititialize all dice to UNSET state too. */
-    for (p = 0; p < MAXDICE; p++) {
-        dice[p] = UNSET;
-    }
+    /* Initialize all dice to UNSET state too. */
+    markAllDiceToBeRolled();
 }
 
 /* Wait fot user to press enter then continue. */
@@ -222,7 +146,7 @@ void pressEnter()
     fgets(buffer, sizeof(buffer)-1, stdin);
 }
 
-/* Print a score value as a number. If set to UNSET, display blanks. */
+/* Print a score value as a number. If set to UNSET, displayw blanks. */
 void printField(int i)
 {
     if (i == UNSET) {
@@ -313,7 +237,88 @@ void displayHelp()
            "\n"
            "This version supports up to three\n"
            "players of which any can be human or\n"
-           "computer players.\n");
+           "computer players.\n\n");
+}
+
+/* Return number of dice that are n. */
+int numberOf(int n)
+{
+    int i;
+    int sum = 0;
+
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] == n) {
+            sum += 1;
+        }
+    }
+    return sum;
+}
+
+/*
+ *  Return if dice form a low straight.
+ * The dice must be sorted in order from low to high
+ */
+bool hasLowStraight()
+{
+    int i;
+
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] != i + 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/*
+ *  Return if dice form a high straight.
+ * The dice must be sorted in order from low to high
+ */
+bool hasHighStraight()
+{
+    int i;
+
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] != i + 2) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/* Return sum of dice. */
+int sum()
+{
+    int i;
+    int sum = 0;
+
+    for (i = 0; i < MAXDICE; i++) {
+            sum += dice[i];
+    }
+    return sum;
+}
+
+/* Return if dice form a full house. Dice must be sorted in order. */
+bool hasFullHouse()
+{
+    if ((dice[0] == dice[1]) && (dice[1] == dice[2]) && (dice[3] == dice[4]))
+        return true;
+    if ((dice[0] == dice[1]) && (dice[2] == dice[3]) && (dice[3] == dice[4]))
+        return true;
+    return false;
+}
+
+/* Return if dice form a Yum. */
+bool hasYum()
+{
+    int i;
+
+    for (i = 1; i < MAXDICE; i++) {
+        if (dice[i] != dice[0]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /* Display a string and prompt for a string. */
@@ -522,30 +527,82 @@ void rollDice()
 }
 
 /* Ask what category to claim (only show possible ones). */
-int playerPlayCategory()
+void playerPlayCategory()
 {
-    // TODO: Implement
-    //1  - 1's (0/5)
-    //2  - 2's (0/10)
-    //3  - 3's (9/15)
-    //4  - 4's (0/20)
-    //5  - 5's (0/25)
-    //6  - 6's (12/30)
-    //7  - Low Straight (0/15)
-    //8  - High Straight (0/20)
-    //9  - Low Score (25)
-    //10 - High Score (25)
-    //11 - Full House (25/25)
-    //12 - YUM (0/30)
-    //Jeff, what do you want to claim (1-12)? 3
+    int category;
+    char buffer[40];
 
-    return 0;
+    for (category = 0; category < MAXCATEGORY; category++) {
+        /* Some categories need to be skipped. */
+        if ((category == 6) || (category == 7) || (category == 14)) {
+            continue;
+        }
+
+        if (scoreSheet[player][category] == UNSET) {
+            printf("%d  - %s\n", category + 1, labels[category]);
+        }
+    }
+
+    while (true) {
+        sprintf(buffer, "%s, what do you want to claim?", playerName[player]);
+        category = promptNumber(buffer, 1, MAXCATEGORY-1) - 1;
+        if (scoreSheet[player][category] != UNSET) {
+            printf("You already used that category. Try again.\n");
+        } else {
+            break;
+        }
+    }
+
+    switch (category) {
+    case 0: case 1: case 2: case 3: case 4: case 5:
+        /* Score is number of the dice times the die value. */
+        scoreSheet[player][category] = numberOf(category + 1) * (category + 1);
+        break;
+    case 8: /* Low straight */
+        scoreSheet[player][category] = hasLowStraight() ? 15 : 0;
+        break;
+    case 9: /* High straight */
+        scoreSheet[player][category] = hasHighStraight() ? 20 : 0;
+        break;
+    case 10: /* Low score TODO: Must be less than high score. */
+        scoreSheet[player][category] = (sum() >= 21) ? sum() : 0;
+        break;
+    case 11: /* High score TODO: Must be more than low score. */
+        scoreSheet[player][category] = (sum() >= 22) ? sum() : 0;
+        break;
+    case 12: /* Full House */
+        scoreSheet[player][category] = hasFullHouse() ? 25 : 0;
+        break;
+    case 13: /* YUM */
+        scoreSheet[player][category] = hasYum() ? 30 : 0;
+        break;
+    }
 }
 
 /* Display winner. */
 void displayWinner()
 {
-    // TODO: Implement
+    int max = UNSET;
+    int winner = UNSET;
+    int p;
+
+    for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
+        if (scoreSheet[p][14] > max) {
+            winner = p;
+        }
+    }
+
+    // TODO: Check for a tie.
+
+    /* Display the winner. */
+    printf("The winner is %s with %d points.\n", playerName[winner], scoreSheet[winner][14]);
+
+    /* Display other player's scores. */
+    for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
+        if (p != winner) {
+            printf("%s has %d points.\n", playerName[p], scoreSheet[p][14]);
+        }
+    }
 }
 
 /* Computer decides what dice to roll again. Return false if does not want to roll any. */
@@ -591,7 +648,7 @@ int main(void)
 
     if (promptYesNo("Do you want instructions")) {
         clearScreen();
-        displayHelp();        
+        displayHelp();
     }
 
     setPlayers();
@@ -607,6 +664,7 @@ int main(void)
 
             printf("%s's turn. Press <Enter> to roll", playerName[player]);
             pressEnter();
+            markAllDiceToBeRolled();
 
             for (roll = 1; roll <= MAXROLLS; roll++) {
                 bool ret;
@@ -635,10 +693,22 @@ int main(void)
                 }
             }
 
-            playerPlayCategory();
+            if (isComputerPlayer[player]) {
+                computerPlayCategory();
+            } else {
+                playerPlayCategory();
+            }
+
             updateScore();
             displayScore();
+
         }
     }
+
+    displayWinner();
+
+    //Would you like to play again (Y/N) ? Y
+    //Same players as last time (Y/N)? Y
+
     return 0;
 }
