@@ -147,6 +147,12 @@ Same players as last time (Y/N)? Y
 /* Number of dice. */
 #define MAXDICE 5
 
+/* Number of rounds. */
+#define MAXROUNDS 12
+
+/* Number of dice rolls. */
+#define MAXROLLS 3
+
 /* TYPES */
 
 /* DATA */
@@ -161,7 +167,10 @@ int numComputerPlayers;
 int currentRound;
 
 /* Current player. */
-int currentPlayer;
+int player;
+
+/* Current dice roll number (1-3). */
+int roll;
 
 /* Returns true if a given player is a computer. */
 bool isComputerPlayer[MAXPLAYERS];
@@ -200,6 +209,12 @@ void initialize()
             scoreSheet[p][c] = UNSET;
         }
     }
+}
+
+/* Wait fot user to press enter then continue. */
+void pressEnter()
+{
+    fgets(buffer, sizeof(buffer)-1, stdin);
 }
 
 /* Print a score value as a number. If set to UNSET, display blanks. */
@@ -334,7 +349,7 @@ void setPlayers()
 
     numHumanPlayers = promptNumber("How many human players", 0, MAXPLAYERS);
     if (numHumanPlayers < MAXPLAYERS) {
-        numComputerPlayers = promptNumber("How many computer players", 0, MAXPLAYERS - numHumanPlayers);
+        numComputerPlayers = promptNumber("How many computer players", (numHumanPlayers == 0) ? 1 : 0, MAXPLAYERS - numHumanPlayers);
     } else {
         numComputerPlayers = 0;
     }
@@ -397,11 +412,17 @@ void displayDice()
     }
 }
 
-/* Ask what what dice to keep. With checking of values. */
-void askPlayerDiceToKeep(int playerNum);
+/* Ask what what dice to keep. Return false if does not want to roll any. */
+bool askPlayerDiceToKeep()
+{
+    printf("What numbers do you want to keep?");
+
+}   
 
 /* Roll dice being kept. */
-void rollKeptDice(int playerNum);
+void rollKeptDice()
+{
+}
 
 /* Generate random number from low and high inclusive, e.g. randomNumber(1, 6) for a die. Calls rand(). */
 int randomNumber(low, high)
@@ -426,16 +447,21 @@ void rollDice()
 }
 
 /* Ask what category to claim (only show possible ones). */
-int playerPlayCategory(int playerNum);
+int playerPlayCategory()
+{
+    //Jeff, what do you want to claim (1-12)? 3
+}
 
 /* Display winner. */
 void displayWinner();
 
-/* Computer decides what dice to keep. */
-void askComputerDiceToKeep(int playerNum);
+/* Computer decides what dice to keep. Return false if does not want to roll any. */
+bool askComputerDiceToKeep()
+{
+}
 
 /* Computer decides what category to play. */
-int computerPlayCategory(int playerNum);
+int computerPlayCategory();
 
 /*
  * Call srand() with a key based on player's names to try to make it
@@ -459,9 +485,6 @@ void setRandomSeed()
 /* Main program */
 int main(void)
 {
-    currentRound = 1;
-    currentPlayer = 0;
-
     initialize();
 
     clearScreen();
@@ -473,34 +496,35 @@ int main(void)
     }
 
     setPlayers();
-    printf("Number of human players: %d\n", numHumanPlayers);
-    printf("Number of computer players: %d\n", numComputerPlayers);
 
     /* This needs to be done after setting player names since the seed is based on names. */
     setRandomSeed();
 
-    printf("Press <Enter> to start");
-    fgets(buffer, sizeof(buffer)-1, stdin);
+    printf("Press <Enter> to start the game");
+    pressEnter();
 
-    {
-        int i, j;
-        for (i = 0; i < numHumanPlayers + numComputerPlayers; i++) {
-            for (j = 0; j < MAXCATEGORY; j++) {
-                scoreSheet[i][j] = randomNumber(1, 10);
+    for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
+        for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
+
+            printf("%s's turn. Press <Enter> to roll", playerName[player]);
+            pressEnter();
+
+            for (roll = 1; roll <= MAXROLLS; roll++) {
+                rollDice();
+                sortDice();
+                printf("On your first roll you have:");
+                displayDice();
+                printf("\n");
+
+                askPlayerDiceToKeep();
+                rollKeptDice();
             }
+
+            playerPlayCategory();
+            updateScore();
+            displayScore();
         }
     }
-
-//    displayScore();
-//    updateScore();
-//    displayScore();
-
-    rollDice();
-    displayDice();
-    printf("\n");
-    sortDice();
-    displayDice();
-    printf("\n");
 
     return 0;
 }
