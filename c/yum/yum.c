@@ -209,6 +209,11 @@ void initialize()
             scoreSheet[p][c] = UNSET;
         }
     }
+
+    /* Inititialize all dice to UNSET state too. */
+    for (p = 0; p < MAXDICE; p++) {
+        dice[p] = UNSET;
+    }
 }
 
 /* Wait fot user to press enter then continue. */
@@ -316,13 +321,12 @@ char *promptString(char *string)
 {
     printf("%s?", string);
     fgets(buffer, sizeof(buffer)-1, stdin);
-    buffer[strlen(buffer)-1] = '\0'; // Remove newline at end of string
+    buffer[strlen(buffer)-1] = '\0'; /* Remove newline at end of string */
     return buffer;
 }
 
 /* Display a string and prompt for a number. Number must be in range
- * min through max. Returns numeric value. TODO: Filter and ignore
- * invalid characters?
+ * min through max. Returns numeric value.
  */
 int promptNumber(char *string, int min, int max)
 {
@@ -375,13 +379,11 @@ void clearScreen()
         printf("\n");
 }
 
-/* Display a string and prompt for Y or N. Return boolean value.
- * TODO: Remove need to hit <Enter> ?
- */
+/* Display a string and prompt for Y or N. Return boolean value. */
 bool promptYesNo(char *string)
 {
     while (true) {
-        printf("%s (Y/N)?", string);
+        printf("%s (y/n)?", string);
         fgets(buffer, sizeof(buffer)-1, stdin);    
         if (toupper(buffer[0]) == 'Y')
             return true;
@@ -412,16 +414,87 @@ void displayDice()
     }
 }
 
-/* Ask what what dice to keep. Return false if does not want to roll any. */
-bool askPlayerDiceToKeep()
+/* Return if dice contains number i. */
+bool contains(int die)
 {
-    printf("What numbers do you want to keep?");
+    int i;
+ 
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] == die)
+            return true;
+    }
+    return false;
+}
 
-}   
-
-/* Roll dice being kept. */
-void rollKeptDice()
+/* Return location of number i in dice array. */
+int find(int die)
 {
+    int i;
+ 
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] == die)
+            return i;
+    }
+    return UNSET;
+}
+
+/* Ask what what dice to roll again. Return false if does not want to roll any. */
+int askPlayerDiceToRollAgain()
+{
+    int i;
+    bool valid;
+    
+    while (true) {
+
+        printf("What dice you want to roll again?");
+        fgets(buffer, sizeof(buffer)-1, stdin);
+        buffer[strlen(buffer)-1] = '\0'; /* Remove newline at end of string */
+
+        /* If empty string, no dice to roll again and we return with false status. */
+        if (strlen(buffer) == 0) {
+            return false;
+        }
+
+        valid = true;
+        /* First validate the input line. */
+        for (i = 0; i < strlen(buffer); i++) {
+            /* Validate character. */
+            if ((buffer[i] != ' ') && ((buffer[i] < '1') || (buffer[i] > '6'))) {
+                printf("Invalid input: '%c', try again.\n", buffer[i]);
+                valid = false;
+                break;
+            }
+        }
+
+        /* Try again if not valid. */
+        if (!valid) {
+            continue;
+        }
+
+        /* Now examine the input line */
+        for (i = 0; i < strlen(buffer); i++) {
+            /* Skip any space */
+            if (buffer[i] == ' ') {
+                continue;
+            }
+            
+            /* Does it match a die we have? If so, unset it to mark it to be rolled again. */
+            if (contains(buffer[i] - '0')) {
+                dice[find(buffer[i] - '0')] = UNSET;
+            } else {
+                printf("You don't have a '%c', try again.\n", buffer[i]);
+                valid = false;
+                break; 
+           }
+        }
+
+        /* Try again if not valid. */
+        if (!valid) {
+            continue;
+        }
+
+        return true;
+    }
 }
 
 /* Generate random number from low and high inclusive, e.g. randomNumber(1, 6) for a die. Calls rand(). */
@@ -436,32 +509,58 @@ int rollDie()
     return randomNumber(1, 6);
 }
 
-/* Roll the dice. */
+/* Roll the dice. Only some dice need to be rolled, the ones that are set to UNSET. */
 void rollDice()
 {
     int i;
- 
+
     for (i = 0; i < MAXDICE; i++) {
-        dice[i] = randomNumber(1, 6);
+        if (dice[i] == UNSET) {
+            dice[i] = randomNumber(1, 6);
+        }
     }
 }
 
 /* Ask what category to claim (only show possible ones). */
 int playerPlayCategory()
 {
+    // TODO: Implement
+    //1  - 1's (0/5)
+    //2  - 2's (0/10)
+    //3  - 3's (9/15)
+    //4  - 4's (0/20)
+    //5  - 5's (0/25)
+    //6  - 6's (12/30)
+    //7  - Low Straight (0/15)
+    //8  - High Straight (0/20)
+    //9  - Low Score (25)
+    //10 - High Score (25)
+    //11 - Full House (25/25)
+    //12 - YUM (0/30)
     //Jeff, what do you want to claim (1-12)? 3
+
+    return 0;
 }
 
 /* Display winner. */
-void displayWinner();
-
-/* Computer decides what dice to keep. Return false if does not want to roll any. */
-bool askComputerDiceToKeep()
+void displayWinner()
 {
+    // TODO: Implement
+}
+
+/* Computer decides what dice to roll again. Return false if does not want to roll any. */
+bool askComputerDiceToRollAgain()
+{
+    // TODO: Implement
+    return false;
 }
 
 /* Computer decides what category to play. */
-int computerPlayCategory();
+int computerPlayCategory()
+{
+    // TODO: Implement
+    return 0;
+}
 
 /*
  * Call srand() with a key based on player's names to try to make it
@@ -510,14 +609,30 @@ int main(void)
             pressEnter();
 
             for (roll = 1; roll <= MAXROLLS; roll++) {
+                bool ret;
+
                 rollDice();
                 sortDice();
-                printf("On your first roll you have:");
+                if (roll == 1) {
+                    printf("On your first roll you have:");
+                } else if (roll == 2) {
+                    printf("On your second roll you have:");
+                } else {
+                    printf("On your last roll you have:");
+                }
                 displayDice();
                 printf("\n");
-
-                askPlayerDiceToKeep();
-                rollKeptDice();
+                if (roll < 3) {
+                    if (isComputerPlayer[player]) {
+                        ret = askComputerDiceToRollAgain();
+                    } else {
+                        ret = askPlayerDiceToRollAgain();
+                    }
+                    /* Player wants to roll again? */
+                    if (ret == false) {
+                        break;
+                    }
+                }
             }
 
             playerPlayCategory();
@@ -525,6 +640,5 @@ int main(void)
             displayScore();
         }
     }
-
     return 0;
 }
