@@ -21,8 +21,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * TO DO:
- * - compile tome option for all uppercase output
+ * TODO:
+ * - compile time option for all uppercase output
  * - make computer player smarter
  *
  * Revision History:
@@ -173,7 +173,7 @@ char playerName[MAXPLAYERS][10];
 int scoreSheet[MAXPLAYERS][MAXCATEGORY];
 
 /* Current dice for player. */
-int dice[MAXPLAYERS][MAXDICE];
+int dice[MAXDICE];
 
 /* General purpose buffer for user input. */
 char buffer[40];
@@ -225,7 +225,38 @@ void printRow(char *label, int row)
 }
 
 /* Update scores after a turn, i.e. recalculate totals. */
-void updateScore();
+void updateScore()
+{
+    int p, i, total;
+
+    for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
+
+        /* Calculate sub-total. */
+        total = 0;
+        for (i = 0; i <= 5 ; i++) {
+            if (scoreSheet[p][i] != -1) {
+                total += scoreSheet[p][i];
+            }
+        }
+        scoreSheet[p][6] = total;
+
+        /* Calculate bonus. */
+        if (scoreSheet[p][6] >= 63) {
+            scoreSheet[p][7] = 25;
+        } else {
+            scoreSheet[p][7] = 0;
+        }
+
+        /* Calculate total. */
+        total = 0;
+        for (i = 6; i <= 13 ; i++) {
+            if (scoreSheet[p][i] != -1) {
+                total += scoreSheet[p][i];
+            }
+        }
+        scoreSheet[p][14] = total;
+    }
+}
 
 /* Display the current score card. Displays final results if all categories are played. */
 void displayScore()
@@ -324,6 +355,7 @@ void setPlayers()
 void clearScreen()
 {
     int i;
+
     for (i = 0; i < 24; ++i)
         printf("\n");
 }
@@ -343,8 +375,27 @@ bool promptYesNo(char *string)
     }
 }
 
-/* Display what dice user has (sorted) */
-void displayDice(int playerNum);
+/* Compare function for sorting. */
+int compare(const void *i, const void *j)
+{
+    return *(int *)(i) - *(int *)(j);
+}
+
+/* Sort dice */
+void sortDice()
+{
+    qsort(dice, sizeof(dice) / sizeof(dice[0]), sizeof(dice[0]), compare);
+}
+
+/* Display what dice user has. */
+void displayDice()
+{
+    int i;
+ 
+    for (i = 0; i < MAXDICE; i++) {
+        printf(" %d", dice[i]);
+    }
+}
 
 /* Ask what what dice to keep. With checking of values. */
 void askPlayerDiceToKeep(int playerNum);
@@ -364,8 +415,15 @@ int rollDie()
     return randomNumber(1, 6);
 }
 
-/* Roll n dice. */
-int rollDice(int n);
+/* Roll the dice. */
+void rollDice()
+{
+    int i;
+ 
+    for (i = 0; i < MAXDICE; i++) {
+        dice[i] = randomNumber(1, 6);
+    }
+}
 
 /* Ask what category to claim (only show possible ones). */
 int playerPlayCategory(int playerNum);
@@ -428,12 +486,21 @@ int main(void)
         int i, j;
         for (i = 0; i < numHumanPlayers + numComputerPlayers; i++) {
             for (j = 0; j < MAXCATEGORY; j++) {
-                scoreSheet[i][j] = randomNumber(1, 120);
+                scoreSheet[i][j] = randomNumber(1, 10);
             }
         }
     }
 
-    displayScore();
+//    displayScore();
+//    updateScore();
+//    displayScore();
+
+    rollDice();
+    displayDice();
+    printf("\n");
+    sortDice();
+    displayDice();
+    printf("\n");
 
     return 0;
 }
