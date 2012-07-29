@@ -18,12 +18,13 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License four the specific language governing permissions and
  * limitations under the License.
  *
  * TODO:
  * - compile time option for all uppercase output
  * - make computer player smarter
+ * - optimize code size (e.g. combine strings, use char instead of int)
  *
  * Revision History:
  *
@@ -240,6 +241,18 @@ void displayHelp()
            "computer players.\n\n");
 }
 
+/* Return location of number i in dice array. */
+int find(int die)
+{
+    int i;
+ 
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] == die)
+            return i;
+    }
+    return UNSET;
+}
+
 /* Return number of dice that are n. */
 int numberOf(int n)
 {
@@ -258,7 +271,7 @@ int numberOf(int n)
  *  Return if dice form a low straight.
  * The dice must be sorted in order from low to high
  */
-bool hasLowStraight()
+bool haveLowStraight()
 {
     int i;
 
@@ -274,7 +287,7 @@ bool hasLowStraight()
  *  Return if dice form a high straight.
  * The dice must be sorted in order from low to high
  */
-bool hasHighStraight()
+bool haveHighStraight()
 {
     int i;
 
@@ -298,8 +311,20 @@ int sum()
     return sum;
 }
 
+/* Return if dice contains number i. */
+bool contains(int die)
+{
+    int i;
+ 
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] == die)
+            return true;
+    }
+    return false;
+}
+
 /* Return if dice form a full house. Dice must be sorted in order. */
-bool hasFullHouse()
+bool haveFullHouse()
 {
     if ((dice[0] == dice[1]) && (dice[1] == dice[2]) && (dice[3] == dice[4]))
         return true;
@@ -309,7 +334,7 @@ bool hasFullHouse()
 }
 
 /* Return if dice form a Yum. */
-bool hasYum()
+bool haveYum()
 {
     int i;
 
@@ -319,6 +344,179 @@ bool hasYum()
         }
     }
     return true;
+}
+
+/* Determine if we have four the same. If so, return the number we have and set d to the dice that is wrong. */
+int haveFourTheSame(int *d)
+{
+    int i, j;
+
+    for (i = 0; i < MAXDICE; i++) {
+        if (numberOf(i) == 4) {
+            /* Found 4 the same. */
+            for (j = 0; i < MAXDICE; j++) {
+                /* Find the one that doesn't match. */
+                if (dice[j] != i) {
+                    *d = j;
+                    return i;
+                }
+            }
+        }
+    }
+
+    /* We don't have 4 the same. */
+    return 0;
+}
+
+/*
+ * Determine if we almost have a full house. Returns true if so, and
+ * sets d to the index of dice that is wrong. e.g. for 22335 would
+ * return true and 4.
+ */
+bool possibleFullHouse(int *d)
+{
+    /* Three possibilities: ijjkk iijkk iijjk */
+
+    if ((dice[1] == dice[2]) && (dice[3] == dice[4])) {
+        *d = 0;
+        return true;
+    } else if ((dice[0] == dice[1]) && (dice[3] == dice[4])) {
+        *d = 2;
+        return true;
+    } else if ((dice[0] == dice[1]) && (dice[2] == dice[3])) {
+        *d = 4;
+        return true;
+    }
+
+    return false;
+}
+
+/*
+ * Determine if we almost have a high straight. Returns true if so, and
+ * sets d to the index of dice that is wrong. e.g. for 23356 would
+ * return true and 2.
+ */
+bool possibleHighStraight(int *d)
+{
+    int i;
+    int count = 0;
+
+    /* See if each value from 2 to 6 appears. */
+    for (i = 2; i <= MAXDICE + 1; i++) {
+        if (contains(i)) {
+            count += 1;
+        }
+    }
+
+    if (count == 4) {
+        /* We have a possible low straight. Now which dice is wrong? Either one that occurs twice or is a 1. */
+        for (i = 0; i < MAXDICE; i++) {
+            if ((dice[i] == 1) || (numberOf(dice[i]) == 2)) {
+                *d = i;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/* Same as above but for low straight, i.e. 12345 */
+bool possibleLowStraight(int *d)
+{
+    int i;
+    int count = 0;
+
+    /* See if each value from 1 to 5 appears. */
+    for (i = 1; i <= MAXDICE; i++) {
+        if (contains(i)) {
+            count += 1;
+        }
+    }
+
+    if (count == 4) {
+        /* We have a possible low straight. Now which dice is wrong? Either one that occurs twice or is a 6. */
+        for (i = 0; i < MAXDICE; i++) {
+            if ((dice[i] == 6) || (numberOf(dice[i]) == 2)) {
+                *d = i;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/* Return if we have three of a kind. If so, set the dice that are not the same to UNSET. */
+bool handleThreeOfAKind()
+{
+    int i, kind;
+
+    for (i = 6; i > 0; i--) {
+        if (numberOf(i) == 3) {
+            kind = i;
+            for (i = 0; i < MAXDICE; i++) {
+                if (dice[i] != kind) {
+                    dice[i] = UNSET;
+                }
+            }
+            return true;
+        }
+    }
+    return false;   
+}
+
+/* Return if we have two of a kind. If so, set the dice that are not the same to UNSET. */
+bool handleTwoOfAKind()
+{
+    int i, kind;
+
+    printf("handleTwoOfAKind() ");
+
+    for (i = 6; i > 0; i--) {
+        if (numberOf(i) == 2) {
+            kind = i;
+            for (i = 0; i < MAXDICE; i++) {
+                if (dice[i] != kind) {
+                    dice[i] = UNSET;
+                }
+            }
+            return true;
+        }
+    }
+    return false;   
+}
+
+/* Keep the single highest die in a category we have not used. If none, return false. */
+bool keepHighest()
+{
+    int i, kind;
+
+    for (i = MAXDICE - 1; i >= 0; i--) {
+        if (scoreSheet[player][i] == UNSET) {
+            kind = i - 1;
+            for (i = 0; i < MAXDICE; i++) {
+                if (dice[i] != kind) {
+                    dice[i] = UNSET;
+                }
+            }
+            return true;
+        }
+    }
+    return false;   
+}
+
+/* Display dice being kept and being rolled again. */
+void displayDiceRolledAgain()
+{
+    int i;
+
+    printf("%s keeps:", playerName[player]);
+ 
+    for (i = 0; i < MAXDICE; i++) {
+        if (dice[i] != UNSET)
+            printf(" %d", dice[i]);
+    }
+
+    printf("\n");
 }
 
 /* Display a string and prompt for a string. */
@@ -417,30 +615,6 @@ void displayDice()
     for (i = 0; i < MAXDICE; i++) {
         printf(" %d", dice[i]);
     }
-}
-
-/* Return if dice contains number i. */
-bool contains(int die)
-{
-    int i;
- 
-    for (i = 0; i < MAXDICE; i++) {
-        if (dice[i] == die)
-            return true;
-    }
-    return false;
-}
-
-/* Return location of number i in dice array. */
-int find(int die)
-{
-    int i;
- 
-    for (i = 0; i < MAXDICE; i++) {
-        if (dice[i] == die)
-            return i;
-    }
-    return UNSET;
 }
 
 /* Ask what what dice to roll again. Return false if does not want to roll any. */
@@ -559,31 +733,31 @@ void playerPlayCategory()
         scoreSheet[player][category] = numberOf(category + 1) * (category + 1);
         break;
     case 8: /* Low straight */
-        scoreSheet[player][category] = hasLowStraight() ? 15 : 0;
+        scoreSheet[player][category] = haveLowStraight() ? 15 : 0;
         break;
     case 9: /* High straight */
-        scoreSheet[player][category] = hasHighStraight() ? 20 : 0;
+        scoreSheet[player][category] = haveHighStraight() ? 20 : 0;
         break;
     case 10: /* Low score. Must be 21 or more and less than high score. */
         scoreSheet[player][category] = (sum() >= 21) ? sum() : 0;
-        if ((sum() >= 21) && ((scoreSheet[player][11] == UNSET) || (sum < scoreSheet[player][11]))) {
+        if ((sum() >= 21) && ((scoreSheet[player][11] == UNSET) || (sum() < scoreSheet[player][11]))) {
             scoreSheet[player][category] = sum();
         } else {
             scoreSheet[player][category] = 0;
         }
         break;
     case 11: /* High score. Must be 22 or more and more than low score. */
-        if ((sum() >= 22) && (sum > scoreSheet[player][10])) {
+        if ((sum() >= 22) && (sum() > scoreSheet[player][10])) {
             scoreSheet[player][category] = sum();
         } else {
             scoreSheet[player][category] = 0;
         }
         break;
     case 12: /* Full House */
-        scoreSheet[player][category] = hasFullHouse() ? 25 : 0;
+        scoreSheet[player][category] = haveFullHouse() ? 25 : 0;
         break;
     case 13: /* YUM */
-        scoreSheet[player][category] = hasYum() ? 30 : 0;
+        scoreSheet[player][category] = haveYum() ? 30 : 0;
         break;
     }
 }
@@ -620,17 +794,110 @@ void displayWinner()
     }
 }
 
-/* Computer decides what dice to roll again. Return false if does not want to roll any. */
+/*
+ * Computer decides what dice to roll again (by setting them to
+ * UNSET). Returns false if does not want to roll any.
+*/
 bool askComputerDiceToRollAgain()
 {
-    // TODO: Implement
-    return false;
+    int n, d;
+
+    /* If we have YUM and have not claimed it, don't roll any. */
+    if (haveYum() && scoreSheet[player][13] == UNSET) {
+        return false;
+    }
+
+    /* If we have all the same and have not claimed that category don't roll any. */
+    if (haveYum() && scoreSheet[player][dice[0] - '0'] == UNSET) {
+        return false;
+    }
+
+    /* If we have a full house and have not claimed that category don't roll any. */
+    if (haveFullHouse() && scoreSheet[player][12] == UNSET) {
+        return false;
+    }
+
+    /* If we have a high straight and have not claimed that category don't roll any. */
+    if (haveHighStraight() && scoreSheet[player][9] == UNSET) {
+        return false;
+    }
+
+    /* If we have a low straight and have not claimed that category don't roll any. */
+    if (haveLowStraight() && scoreSheet[player][8] == UNSET) {
+        return false;
+    }
+
+    /* If we have 4 the same and have not claimed that category then roll the remaining die. */
+    if ((n = haveFourTheSame(&d)) && scoreSheet[player][dice[n - '0']] == UNSET) {
+        dice[d] = UNSET;
+        return true;
+    }
+
+    /* If we almost have a full house and have not claimed that category then roll the remaining die. */
+    if (possibleFullHouse(&d) && scoreSheet[player][12] == UNSET) {
+        dice[d] = UNSET;
+        return true;
+    }
+
+    /* If we almost have a high straight and have not claimed that category then roll the remaining die. */
+    if (possibleHighStraight(&d) && scoreSheet[player][9] == UNSET) {
+        dice[d] = UNSET;
+        return true;
+    }
+
+    /* If we almost have a low straight and have not claimed that category then roll the remaining die. */
+    if (possibleLowStraight(&d) && scoreSheet[player][8] == UNSET) {
+        dice[d] = UNSET;
+        return true;
+    }
+
+    /* If we have 3 the same, roll the remaining dice. */
+    if (handleThreeOfAKind()) {
+        return true;
+    }
+
+    /* If we have 2 the same, roll the remaining dice. */
+    if (handleTwoOfAKind()) {
+        return true;
+    }
+
+    /* Keep the 1 highest dice in a category we have not completed. */
+    if (keepHighest()) {
+        return true;
+    }
+
+    /* If all else fails, roll them all again */
+    markAllDiceToBeRolled();
+    return true;
 }
 
 /* Computer decides what category to play. */
 int computerPlayCategory()
 {
-    // TODO: Implement
+    /* Try for YUM. */
+
+    /* Try all the same. */
+
+    /* Try full house. */
+
+    /* Try high straight. */
+
+    /* Try  low straight. */
+
+    /* Try 4 the same. */
+
+    /* Try 3 the same. */
+
+    /* Try high score. */
+
+    /* Try low score. */
+
+    /* Try the highest 2 the same. */
+
+    /* Try the highest 1 the same. */
+
+    /* Throw away the lowest unused category. */
+
     return 0;
 }
 
@@ -699,6 +966,7 @@ int main(void)
                 if (roll < 3) {
                     if (isComputerPlayer[player]) {
                         ret = askComputerDiceToRollAgain();
+                        displayDiceRolledAgain();
                     } else {
                         ret = askPlayerDiceToRollAgain();
                     }
