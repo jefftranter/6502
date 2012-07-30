@@ -1003,7 +1003,6 @@ void setRandomSeed()
 int main(void)
 {
     initialize();
-
     clearScreen();
     printf("%s", "\nWelcome to YUM!\n");
 
@@ -1017,65 +1016,71 @@ int main(void)
     /* This needs to be done after setting player names since the seed is based on names. */
     setRandomSeed();
 
-    printf("Press <Enter> to start the game");
-    pressEnter();
-    //clearScreen();
+    while (true) {
 
-    for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
-        for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
+        printf("Press <Enter> to start the game");
+        pressEnter();
 
-            printf("%s's turn. Press <Enter> to roll", playerName[player]);
-            pressEnter();
-            markAllDiceToBeRolled();
+        for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
+            for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
 
-            for (roll = 1; roll <= MAXROLLS; roll++) {
-                bool ret;
+                printf("%s's turn. Press <Enter> to roll", playerName[player]);
+                pressEnter();
+                markAllDiceToBeRolled();
 
-                rollDice();
-                sortDice();
-                if (roll == 1) {
-                    printf("On your first roll you have:");
-                } else if (roll == 2) {
-                    printf("On your second roll you have:");
-                } else {
-                    printf("On your last roll you have:");
-                }
-                displayDice();
-                printf("\n");
-                if (roll < 3) {
-                    if (isComputerPlayer[player]) {
-                        ret = askComputerDiceToRollAgain();
-                        displayDiceRolledAgain();
+                for (roll = 1; roll <= MAXROLLS; roll++) {
+                    bool ret;
+
+                    rollDice();
+                    sortDice();
+                    if (roll == 1) {
+                        printf("On your first roll you have:");
+                    } else if (roll == 2) {
+                        printf("On your second roll you have:");
                     } else {
-                        ret = askPlayerDiceToRollAgain();
+                        printf("On your last roll you have:");
                     }
-                    /* Player wants to roll again? */
-                    if (ret == false) {
-                        break;
+                    displayDice();
+                    printf("\n");
+                    if (roll < 3) {
+                        if (isComputerPlayer[player]) {
+                            ret = askComputerDiceToRollAgain();
+                            displayDiceRolledAgain();
+                        } else {
+                            ret = askPlayerDiceToRollAgain();
+                        }
+                        /* Player wants to roll again? */
+                        if (ret == false) {
+                            break;
+                        }
                     }
                 }
+
+                if (isComputerPlayer[player]) {
+                    int c;
+                    c = computerPickCategory();
+                    printf("%s plays %s\n", playerName[player], labels[c]);
+                    playCategory(c);
+                } else {
+                    playCategory(humanPickCategory());
+                }
+
+                updateScore();
+                displayScore();
             }
-
-            if (isComputerPlayer[player]) {
-                int c;
-                c = computerPickCategory();
-                printf("%s plays %s\n", playerName[player], labels[c]);
-                playCategory(c);
-            } else {
-                playCategory(humanPickCategory());
-            }
-
-            updateScore();
-            displayScore();
-
         }
+
+        displayWinner();
+
+        if (!promptYesNo("Would you like to play again")) {
+            break;
+        }
+
+        if (!promptYesNo("Same players as last time")) {
+            setPlayers();
+        }
+
+        initialize();
     }
-
-    displayWinner();
-
-    // TODO: Prompt to play again as below.
-    // Would you like to play again (Y/N) ? Y
-    // Same players as last time (Y/N)? Y
-
     return 0;
 }
