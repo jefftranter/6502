@@ -21,11 +21,10 @@
  * limitations under the License.
  *
  * TODO:
- * - test computer AI logic
  * - set random seed based on time waiting to press key to start
  * - optimize display for Replica 1 screen
- * - make computer player smarter
  * - optimize code size size (e.g. use char instead of int)
+ * - make computer player smarter
  *
  * Revision History:
  *
@@ -73,10 +72,10 @@ Players can be the computer.
 
 /* DATA */
 
-/* Number of players. */
+/* Number of human players. */
 int numHumanPlayers;
 
-/* Number of players. */
+/* Number of computer players. */
 int numComputerPlayers;
 
 /* Current round. */
@@ -808,23 +807,32 @@ void displayWinner()
 
     for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
         if (scoreSheet[p][14] > max) {
+            max = scoreSheet[p][14];
             winner = p;
         }
     }
 
-    // TODO: Handle number of players is not 3.
-
     /* Display the winner. */
-    if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[1][14] == scoreSheet[2][14])) {
-        printf("IT WAS A THREE WAY TIE!\n");
-    } else if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[0][14] == max)) {
-        printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[1]);
-    } else if ((scoreSheet[1][14] == scoreSheet[2][14]) && (scoreSheet[1][14] == max)) {
-        printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[1], playerName[2]);
-    } else if ((scoreSheet[0][14] == scoreSheet[2][14]) && (scoreSheet[0][14] == max)) {
-        printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[2]);
-    } else {
-        printf("THE WINNER IS %s.\n", playerName[winner]);
+    if (numHumanPlayers + numComputerPlayers == 3) {
+        if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[1][14] == scoreSheet[2][14])) {
+            printf("IT WAS A THREE WAY TIE!\n");
+        } else if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[0][14] == max)) {
+            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[1]);
+        } else if ((scoreSheet[1][14] == scoreSheet[2][14]) && (scoreSheet[1][14] == max)) {
+            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[1], playerName[2]);
+        } else if ((scoreSheet[0][14] == scoreSheet[2][14]) && (scoreSheet[0][14] == max)) {
+            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[2]);
+        } else {
+            printf("THE WINNER IS %s.\n", playerName[winner]);
+        }
+    }
+
+    if (numHumanPlayers + numComputerPlayers == 2) {
+        if (scoreSheet[0][14] == scoreSheet[1][14]) {
+            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[1]);
+        } else {
+            printf("THE WINNER IS %s.\n", playerName[winner]);
+        }
     }
 
     /* Display player's scores. */
