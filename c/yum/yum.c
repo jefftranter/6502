@@ -351,10 +351,10 @@ int haveFourTheSame(int *d)
 {
     int i, j;
 
-    for (i = 0; i < MAXDICE; i++) {
+    for (i = 1; i <= 6; i++) {
         if (numberOf(i) == 4) {
             /* Found 4 the same. */
-            for (j = 0; i < MAXDICE; j++) {
+            for (j = 0; j < MAXDICE; j++) {
                 /* Find the one that doesn't match. */
                 if (dice[j] != i) {
                     *d = j;
@@ -365,6 +365,35 @@ int haveFourTheSame(int *d)
     }
 
     /* We don't have 4 the same. */
+    return 0;
+}
+
+/* Determine if we have three the same. If so, return the number we have. */
+int haveThreeTheSame()
+{
+    int i;
+
+    for (i = 1; i <= 6; i++) {
+        if (numberOf(i) == 3) {
+            return i;
+        }
+    }
+
+    /* We don't have 3 the same. */
+    return 0;
+}
+/* Determine if we have two the same. If so, return the number we have. */
+int haveTwoTheSame()
+{
+    int i;
+
+    for (i = 1; i <= 6; i++) {
+        if (numberOf(i) == 2) {
+            return i;
+        }
+    }
+
+    /* We don't have 2 the same. */
     return 0;
 }
 
@@ -402,7 +431,7 @@ bool possibleHighStraight(int *d)
     int count = 0;
 
     /* See if each value from 2 to 6 appears. */
-    for (i = 2; i <= MAXDICE + 1; i++) {
+    for (i = 2; i <= 6; i++) {
         if (contains(i)) {
             count += 1;
         }
@@ -427,7 +456,7 @@ bool possibleLowStraight(int *d)
     int count = 0;
 
     /* See if each value from 1 to 5 appears. */
-    for (i = 1; i <= MAXDICE; i++) {
+    for (i = 1; i <= 5; i++) {
         if (contains(i)) {
             count += 1;
         }
@@ -468,8 +497,6 @@ bool handleThreeOfAKind()
 bool handleTwoOfAKind()
 {
     int i, kind;
-
-    printf("handleTwoOfAKind() ");
 
     for (i = 6; i > 0; i--) {
         if (numberOf(i) == 2) {
@@ -700,8 +727,46 @@ void rollDice()
     }
 }
 
+/* Play a category. */
+void playCategory(int category)
+{
+    switch (category) {
+    case 0: case 1: case 2: case 3: case 4: case 5:
+        /* Score is number of the dice times the die value. */
+        scoreSheet[player][category] = numberOf(category + 1) * (category + 1);
+        break;
+    case 8: /* Low straight */
+        scoreSheet[player][category] = haveLowStraight() ? 15 : 0;
+        break;
+    case 9: /* High straight */
+        scoreSheet[player][category] = haveHighStraight() ? 20 : 0;
+        break;
+    case 10: /* Low score. Must be 21 or more and less than high score. */
+        scoreSheet[player][category] = (sum() >= 21) ? sum() : 0;
+        if ((sum() >= 21) && ((scoreSheet[player][10] == UNSET) || (sum() < scoreSheet[player][11]))) {
+            scoreSheet[player][category] = sum();
+        } else {
+            scoreSheet[player][category] = 0;
+        }
+        break;
+    case 11: /* High score. Must be 22 or more and more than low score. */
+        if ((sum() >= 22) && (sum() > scoreSheet[player][10])) {
+            scoreSheet[player][category] = sum();
+        } else {
+            scoreSheet[player][category] = 0;
+        }
+        break;
+    case 12: /* Full House */
+        scoreSheet[player][category] = haveFullHouse() ? 25 : 0;
+        break;
+    case 13: /* YUM */
+        scoreSheet[player][category] = haveYum() ? 30 : 0;
+        break;
+    }
+}
+
 /* Ask what category to claim (only show possible ones). */
-void playerPlayCategory()
+int humanPickCategory()
 {
     int category;
     char buffer[40];
@@ -727,39 +792,7 @@ void playerPlayCategory()
         }
     }
 
-    switch (category) {
-    case 0: case 1: case 2: case 3: case 4: case 5:
-        /* Score is number of the dice times the die value. */
-        scoreSheet[player][category] = numberOf(category + 1) * (category + 1);
-        break;
-    case 8: /* Low straight */
-        scoreSheet[player][category] = haveLowStraight() ? 15 : 0;
-        break;
-    case 9: /* High straight */
-        scoreSheet[player][category] = haveHighStraight() ? 20 : 0;
-        break;
-    case 10: /* Low score. Must be 21 or more and less than high score. */
-        scoreSheet[player][category] = (sum() >= 21) ? sum() : 0;
-        if ((sum() >= 21) && ((scoreSheet[player][11] == UNSET) || (sum() < scoreSheet[player][11]))) {
-            scoreSheet[player][category] = sum();
-        } else {
-            scoreSheet[player][category] = 0;
-        }
-        break;
-    case 11: /* High score. Must be 22 or more and more than low score. */
-        if ((sum() >= 22) && (sum() > scoreSheet[player][10])) {
-            scoreSheet[player][category] = sum();
-        } else {
-            scoreSheet[player][category] = 0;
-        }
-        break;
-    case 12: /* Full House */
-        scoreSheet[player][category] = haveFullHouse() ? 25 : 0;
-        break;
-    case 13: /* YUM */
-        scoreSheet[player][category] = haveYum() ? 30 : 0;
-        break;
-    }
+    return category;
 }
 
 /* Display winner. */
@@ -774,6 +807,8 @@ void displayWinner()
             winner = p;
         }
     }
+
+    // TODO: Handle number of players is not 3.
 
     /* Display the winner. */
     if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[1][14] == scoreSheet[2][14])) {
@@ -808,7 +843,7 @@ bool askComputerDiceToRollAgain()
     }
 
     /* If we have all the same and have not claimed that category don't roll any. */
-    if (haveYum() && scoreSheet[player][dice[0] - '0'] == UNSET) {
+    if (haveYum() && scoreSheet[player][dice[0] - 1] == UNSET) {
         return false;
     }
 
@@ -828,7 +863,7 @@ bool askComputerDiceToRollAgain()
     }
 
     /* If we have 4 the same and have not claimed that category then roll the remaining die. */
-    if ((n = haveFourTheSame(&d)) && scoreSheet[player][dice[n - '0']] == UNSET) {
+    if ((n = haveFourTheSame(&d)) && scoreSheet[player][dice[n - 1]] == UNSET) {
         dice[d] = UNSET;
         return true;
     }
@@ -872,31 +907,73 @@ bool askComputerDiceToRollAgain()
 }
 
 /* Computer decides what category to play. */
-int computerPlayCategory()
+int computerPickCategory()
 {
+    int n, d;
+
     /* Try for YUM. */
+    if (haveYum() && scoreSheet[player][13] == UNSET) {
+        return 13;
+    }
 
     /* Try all the same. */
+    if (haveYum() && scoreSheet[player][dice[0] - 1] == UNSET) {
+        return dice[0] - 1;
+    }
 
     /* Try full house. */
+    if (haveFullHouse() && scoreSheet[player][12] == UNSET) {
+        return 12;
+    }
 
     /* Try high straight. */
+    if (haveHighStraight() && scoreSheet[player][9] == UNSET) {
+        return 9;
+    }
 
-    /* Try  low straight. */
+    /* Try low straight. */
+    if (haveLowStraight() && scoreSheet[player][8] == UNSET) {
+        return 8;
+    }
 
     /* Try 4 the same. */
+    if ((n = haveFourTheSame(&d)) && scoreSheet[player][dice[n - 1]] == UNSET) {
+        return n - 1;
+    }
 
     /* Try 3 the same. */
+    if ((n = haveThreeTheSame()) && scoreSheet[player][dice[n - 1]] == UNSET) {
+        return n - 1;
+    }
 
-    /* Try high score. */
+    /* Try high score. Must be 22 or more. */
+    if ((sum() >= 22) && (sum() > scoreSheet[player][10])) {
+        return 11;
+    }
 
-    /* Try low score. */
+    /* Try low score. Must be 21 or more. */
+    if ((sum() >= 21) && ((scoreSheet[player][10] == UNSET) || (sum() < scoreSheet[player][11]))) {
+        return 10;
+    }
 
     /* Try the highest 2 the same. */
+    if ((n = haveTwoTheSame()) && scoreSheet[player][dice[n - 1]] == UNSET) {
+        return n - 1;
+    }
 
     /* Try the highest 1 the same. */
+    for (d = MAXDICE - 1; d >= 0; d--) {
+        if (scoreSheet[player][dice[d] - 1] == UNSET) {
+            return dice[d] - 1;
+        }
+    }
 
     /* Throw away the lowest unused category. */
+    for (d = 0; d < MAXCATEGORY; d++) {
+        if (scoreSheet[player][d] == UNSET) {
+            return d;
+        }
+    }
 
     return 0;
 }
@@ -978,13 +1055,15 @@ int main(void)
             }
 
             if (isComputerPlayer[player]) {
-                computerPlayCategory();
+                int c;
+                c = computerPickCategory();
+                printf("%s plays %s\n", playerName[player], labels[c]);
+                playCategory(c);
             } else {
-                playerPlayCategory();
+                playCategory(humanPickCategory());
             }
 
             updateScore();
-            clearScreen();
             displayScore();
 
         }
