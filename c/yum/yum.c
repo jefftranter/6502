@@ -1,5 +1,4 @@
 /*
- * 
  * YUM
  *
  * Jeff Tranter <tranter@pobox.com>
@@ -39,7 +38,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
+#include <string.h>
 
 /*
 
@@ -69,8 +68,6 @@ Players can be the computer.
 
 /* Number of dice rolls. */
 #define MAXROLLS 3
-
-/* TYPES */
 
 /* DATA */
 
@@ -245,7 +242,7 @@ void displayHelp()
 int find(int die)
 {
     int i;
- 
+
     for (i = 0; i < MAXDICE; i++) {
         if (dice[i] == die)
             return i;
@@ -315,7 +312,7 @@ int sum()
 bool contains(int die)
 {
     int i;
- 
+
     for (i = 0; i < MAXDICE; i++) {
         if (dice[i] == die)
             return true;
@@ -490,7 +487,7 @@ bool handleThreeOfAKind()
             return true;
         }
     }
-    return false;   
+    return false;
 }
 
 /* Return if we have two of a kind. If so, set the dice that are not the same to UNSET. */
@@ -509,7 +506,7 @@ bool handleTwoOfAKind()
             return true;
         }
     }
-    return false;   
+    return false;
 }
 
 /* Keep the single highest die in a category we have not used. If none, return false. */
@@ -528,7 +525,7 @@ bool keepHighest()
             return true;
         }
     }
-    return false;   
+    return false;
 }
 
 /* Display dice being kept and being rolled again. */
@@ -537,7 +534,7 @@ void displayDiceRolledAgain()
     int i;
 
     printf("%s keeps:", playerName[player]);
- 
+
     for (i = 0; i < MAXDICE; i++) {
         if (dice[i] != UNSET)
             printf(" %d", dice[i]);
@@ -614,7 +611,7 @@ bool promptYesNo(char *string)
 {
     while (true) {
         printf("%s (y/n)?", string);
-        fgets(buffer, sizeof(buffer)-1, stdin);    
+        fgets(buffer, sizeof(buffer)-1, stdin);
         if (toupper(buffer[0]) == 'Y')
             return true;
         if (toupper(buffer[0]) == 'N')
@@ -638,7 +635,7 @@ void sortDice()
 void displayDice()
 {
     int i;
- 
+
     for (i = 0; i < MAXDICE; i++) {
         printf(" %d", dice[i]);
     }
@@ -649,7 +646,7 @@ int askPlayerDiceToRollAgain()
 {
     int i;
     bool valid;
-    
+
     while (true) {
 
         printf("What dice you want to roll again?");
@@ -683,14 +680,14 @@ int askPlayerDiceToRollAgain()
             if (buffer[i] == ' ') {
                 continue;
             }
-            
+
             /* Does it match a die we have? If so, unset it to mark it to be rolled again. */
             if (contains(buffer[i] - '0')) {
                 dice[find(buffer[i] - '0')] = UNSET;
             } else {
                 printf("You don't have a '%c', try again.\n", buffer[i]);
                 valid = false;
-                break; 
+                break;
            }
         }
 
@@ -730,6 +727,11 @@ void rollDice()
 /* Play a category. */
 void playCategory(int category)
 {
+    if (scoreSheet[player][category] != UNSET) {
+        printf("INTERNAL ERROR: Tried to play a category that was already selected!\n");
+        return;
+    }
+
     switch (category) {
     case 0: case 1: case 2: case 3: case 4: case 5:
         /* Score is number of the dice times the die value. */
@@ -947,12 +949,12 @@ int computerPickCategory()
     }
 
     /* Try high score. Must be 22 or more. */
-    if ((sum() >= 22) && (sum() > scoreSheet[player][10])) {
+    if ((sum() >= 22) && (scoreSheet[player][11] == UNSET) && (sum() > scoreSheet[player][10])) {
         return 11;
     }
 
     /* Try low score. Must be 21 or more. */
-    if ((sum() >= 21) && ((scoreSheet[player][10] == UNSET) || (sum() < scoreSheet[player][11]))) {
+    if ((sum() >= 21) && (scoreSheet[player][10] == UNSET) && ((scoreSheet[player][11] == UNSET) || (sum() < scoreSheet[player][11]))) {
         return 10;
     }
 
@@ -981,7 +983,7 @@ int computerPickCategory()
 /*
  * Call srand() with a key based on player's names to try to make it
  * somewhat random. Be sure to call this after setting player
- * names. 
+ * names.
  */
 void setRandomSeed()
 {
@@ -1017,7 +1019,7 @@ int main(void)
 
     printf("Press <Enter> to start the game");
     pressEnter();
-    clearScreen();
+    //clearScreen();
 
     for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
         for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
@@ -1071,8 +1073,9 @@ int main(void)
 
     displayWinner();
 
-    //Would you like to play again (Y/N) ? Y
-    //Same players as last time (Y/N)? Y
+    // TODO: Prompt to play again as below.
+    // Would you like to play again (Y/N) ? Y
+    // Same players as last time (Y/N)? Y
 
     return 0;
 }
