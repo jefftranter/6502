@@ -21,9 +21,8 @@
  * limitations under the License.
  *
  * TODO:
- * - set random seed based on time waiting to press key to start
  * - optimize display for Replica 1 screen
- * - optimize code size size (e.g. use char instead of int)
+ * - optimize code size (e.g. use char instead of int)
  * - make computer player smarter
  *
  * Revision History:
@@ -40,6 +39,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __CC65__
+#include <apple1.h>
+#endif
+#ifndef __CC65__
+#include <time.h>
+#endif
 
 /*
 
@@ -86,6 +91,9 @@ int player;
 
 /* Current dice roll number (1-3). */
 int roll;
+
+/* Seed value for random numbers. */
+int randomSeed;
 
 /* Returns true if a given player is a computer. */
 bool isComputerPlayer[MAXPLAYERS];
@@ -142,7 +150,19 @@ void initialize()
 /* Wait for user to press enter, then continue. */
 void pressEnter()
 {
+#ifdef __CC65__
+
+    /* On CC65 platform use keyPressed() routine and use this to set the random seed. */
+
+    while (!keypressed()) {
+        randomSeed++;
+    }
+
+#else
+
     fgets(buffer, sizeof(buffer)-1, stdin);
+
+#endif
 }
 
 /* Print a score value as a number. If set to UNSET, display blanks. */
@@ -990,23 +1010,20 @@ int computerPickCategory()
     return 0;
 }
 
-/*
- * Call srand() with a key based on player's names to try to make it
- * somewhat random. Be sure to call this after setting player
- * names.
- */
+/* Set random seed for the rand() function. */
 void setRandomSeed()
 {
-    int i, p, seed;
+#ifdef __CC65__
 
-    seed = 0;
+    /* On embedded CC65 systems like the Replica use time taken for key to be pressed. */
+    srand(randomSeed);
 
-    for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
-        for (i = 0; i < strlen(playerName[p]); i++) {
-            seed = (seed << 2) ^ playerName[p][i];
-        }
-    }
-    srand(seed);
+#else
+
+    /* On desktop systems use system time as random seed. */
+    srand(time(0));
+
+#endif
 }
 
 /* Main program */
@@ -1023,13 +1040,11 @@ int main(void)
 
     setPlayers();
 
-    /* This needs to be done after setting player names since the seed is based on names. */
-    setRandomSeed();
-
     while (true) {
 
         printf("PRESS <ENTER> TO START THE GAME");
         pressEnter();
+        setRandomSeed();
 
         for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
             for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
