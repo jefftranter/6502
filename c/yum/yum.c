@@ -937,12 +937,12 @@ int computerPickCategory()
     }
 
     /* Try 4 the same. */
-    if ((n = haveFourTheSame(&d)) && scoreSheet[player][dice[n - 1]] == UNSET) {
+    if ((n = haveFourTheSame(&d)) && scoreSheet[player][n - 1] == UNSET) {
         return n - 1;
     }
 
     /* Try 3 the same. */
-    if ((n = haveThreeTheSame()) && scoreSheet[player][dice[n - 1]] == UNSET) {
+    if ((n = haveThreeTheSame()) && scoreSheet[player][n - 1] == UNSET) {
         return n - 1;
     }
 
@@ -957,7 +957,7 @@ int computerPickCategory()
     }
 
     /* Try the highest 2 the same. */
-    if ((n = haveTwoTheSame()) && scoreSheet[player][dice[n - 1]] == UNSET) {
+    if ((n = haveTwoTheSame()) && scoreSheet[player][n - 1] == UNSET) {
         return n - 1;
     }
 

@@ -8,14 +8,16 @@ default: native
 yum.mon: yum.bin
 	bintomon -v -f yum.bin >yum.mon
 
-yum.bin: yum.c
+yum.bin: yum.c Makefile
 	cl65 -O -l -vm -m yum.map -t replica1 -o yum.bin yum.c
 
 # SEND is a script I wrote.
 upload: yum.mon
 	SEND yum.mon
 
-native: yum.c
+native: yum
+
+yum:	yum.c Makefile
 	gcc -Wall -o yum yum.c
 
 release: yum.mon
