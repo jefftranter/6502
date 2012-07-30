@@ -105,7 +105,7 @@ char buffer[40];
 char *computerNames[MAXPLAYERS] = { "Apple", "Replica", "Woz" };
 
 /* Names of categories */
-char *labels[MAXCATEGORY] = { "1's", "2's", "3's", "4's", "5's", "6's", "Sub-total", "Bonus", "Low Straight", "High Straight", "Low Score", "High Score", "Full House", "YUM", "TOTAL" };
+char *labels[MAXCATEGORY] = { "1's", "2's", "3's", "4's", "5's", "6's", "Sub-Total", "Bonus", "Low Straight", "High Straight", "Low Score", "High Score", "Full House", "YUM", "TOTAL" };
 
 /* Functions*/
 
@@ -138,13 +138,13 @@ void initialize()
     markAllDiceToBeRolled();
 }
 
-/* Wait fot user to press enter then continue. */
+/* Wait for user to press enter, then continue. */
 void pressEnter()
 {
     fgets(buffer, sizeof(buffer)-1, stdin);
 }
 
-/* Print a score value as a number. If set to UNSET, displayw blanks. */
+/* Print a score value as a number. If set to UNSET, display blanks. */
 void printField(int i)
 {
     if (i == UNSET) {
@@ -154,7 +154,7 @@ void printField(int i)
     }
 }
 
-/* Print numeric row of the score card. */
+/* Print a numeric row of the score card. */
 void printRow(char *label, int row)
 {
     int p;
@@ -993,7 +993,7 @@ void setRandomSeed()
 
     for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
         for (i = 0; i < strlen(playerName[p]); i++) {
-            seed = (seed << 1) ^ playerName[p][i];
+            seed = (seed << 2) ^ playerName[p][i];
         }
     }
     srand(seed);
