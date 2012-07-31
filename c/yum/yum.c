@@ -74,7 +74,7 @@ Players can be the computer.
 /* Number of dice rolls. */
 #define MAXROLLS 3
 
-/* DATA */
+/* VARIABLES */
 
 /* Number of human players. */
 int numHumanPlayers;
@@ -100,7 +100,7 @@ bool isComputerPlayer[MAXPLAYERS];
 /* Names of each player. */
 char playerName[MAXPLAYERS][10];
 
-/* 2d array of values given player number and category. */
+/* 2D array of values given player number and category. */
 int scoreSheet[MAXPLAYERS][MAXCATEGORY];
 
 /* Current dice for player. */
@@ -112,10 +112,10 @@ char buffer[40];
 /* Names of computer players. */
 char *computerNames[MAXPLAYERS] = { "APPLE", "REPLICA", "WOZ" };
 
-/* Names of categories */
+/* Names of categories. */
 char *labels[MAXCATEGORY] = { "1'S", "2'S", "3'S", "4'S", "5'S", "6'S", "SUB-TOTAL", "BONUS", "LOW STRAIGHT", "HIGH STRAIGHT", "LOW SCORE", "HIGH SCORE", "FULL HOUSE", "YUM", "TOTAL" };
 
-/* Functions*/
+/* FUNCTIONS */
 
 /* Mark all dice to be rolled. */
 void markAllDiceToBeRolled()
@@ -146,7 +146,7 @@ void initialize()
     markAllDiceToBeRolled();
 }
 
-/* Clear the screen */
+/* Clear the screen. */
 void clearScreen()
 {
     int i;
@@ -270,7 +270,7 @@ void displayHelp()
 
     pressEnter("\nPRESS <ENTER> TO CONTINUE");
     clearScreen();
-     
+
     printf("%s",
            "CATEGORIES ARE AS FOLLOWS:\n"
            "1'S THROUGH 6'S - DICE OF SAME TYPE\n"
@@ -312,7 +312,7 @@ int numberOf(int n)
 
 /*
  *  Return if dice form a low straight.
- * The dice must be sorted in order from low to high
+ * The dice must be sorted in order from low to high.
  */
 bool haveLowStraight()
 {
@@ -328,7 +328,7 @@ bool haveLowStraight()
 
 /*
  *  Return if dice form a high straight.
- * The dice must be sorted in order from low to high
+ * The dice must be sorted in order from low to high.
  */
 bool haveHighStraight()
 {
@@ -589,7 +589,7 @@ void displayDiceRolledAgain()
     printf("\n");
 }
 
-/* Display a string and prompt for a string. */
+/* Display a string and get an input string. */
 char *promptString(char *string)
 {
     printf("%s?", string);
@@ -662,7 +662,7 @@ int compare(const void *i, const void *j)
     return *(int *)(i) - *(int *)(j);
 }
 
-/* Sort dice */
+/* Sort dice. */
 void sortDice()
 {
     qsort(dice, sizeof(dice) / sizeof(dice[0]), sizeof(dice[0]), compare);
@@ -774,10 +774,10 @@ void playCategory(int category)
         /* Score is number of the dice times the die value. */
         scoreSheet[player][category] = numberOf(category + 1) * (category + 1);
         break;
-    case 8: /* Low straight */
+    case 8: /* Low straight. */
         scoreSheet[player][category] = haveLowStraight() ? 15 : 0;
         break;
-    case 9: /* High straight */
+    case 9: /* High straight. */
         scoreSheet[player][category] = haveHighStraight() ? 20 : 0;
         break;
     case 10: /* Low score. Must be 21 or more and less than high score. */
@@ -795,10 +795,10 @@ void playCategory(int category)
             scoreSheet[player][category] = 0;
         }
         break;
-    case 12: /* Full House */
+    case 12: /* Full House. */
         scoreSheet[player][category] = haveFullHouse() ? 25 : 0;
         break;
-    case 13: /* YUM */
+    case 13: /* YUM. */
         scoreSheet[player][category] = haveYum() ? 30 : 0;
         break;
     }
@@ -1051,7 +1051,16 @@ int main(void)
 {
     initialize();
     clearScreen();
-    printf("%s", "\nWELCOME TO YUM!\n");
+
+    printf("%s", 
+          "#     # #     # #     #\n"
+          " #   #  #     # ##   ##\n"
+          "  # #   #     # # # # #\n"
+          "   #    #     # #  #  #\n"
+          "   #    #     # #     #\n"
+          "   #    #     # #     #\n"
+          "   #     #####  #     #\n"
+          "\n\nWELCOME TO YUM!\n");
 
     if (promptYesNo("DO YOU WANT INSTRUCTIONS")) {
         clearScreen();
