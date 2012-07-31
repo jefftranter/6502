@@ -1,6 +1,18 @@
-diff -r -N -uw cc65-2.13.3.orig//include/apple1.h cc65-2.13.3/include/apple1.h
---- cc65-2.13.3.orig//include/apple1.h	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/include/apple1.h	2012-04-21 17:52:27.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/asminc/errno.inc cc65-2.13.3/asminc/errno.inc
+--- cc65-2.13.3.orig/asminc/errno.inc	2009-07-27 14:48:03.000000000 -0400
++++ cc65-2.13.3/asminc/errno.inc	2012-07-31 16:59:57.000000000 -0400
+@@ -5,7 +5,7 @@
+ ; Variables and functions
+ 
+         .global         __errno, __oserror
+-        .global         __maperrno, __osmaperrno
++        .global         __maperrno
+         .global         __seterrno
+         .global         oserrcheck
+         .global         seterrnofromoserror
+diff -r -N -uw cc65-2.13.3.orig/include/apple1.h cc65-2.13.3/include/apple1.h
+--- cc65-2.13.3.orig/include/apple1.h	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/include/apple1.h	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,63 @@
 +/*****************************************************************************/
 +/*                                                                           */
@@ -65,9 +77,9 @@ diff -r -N -uw cc65-2.13.3.orig//include/apple1.h cc65-2.13.3/include/apple1.h
 +
 +/* End of apple1.h */
 +#endif
-diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/apple1.inc cc65-2.13.3/libsrc/apple1/apple1.inc
---- cc65-2.13.3.orig//libsrc/apple1/apple1.inc	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/libsrc/apple1/apple1.inc	2012-04-21 17:51:49.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/apple1.inc cc65-2.13.3/libsrc/apple1/apple1.inc
+--- cc65-2.13.3.orig/libsrc/apple1/apple1.inc	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/apple1.inc	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,30 @@
 +;-----------------------------------------------------------------------------
 +; Zero page locations
@@ -99,9 +111,9 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/apple1.inc cc65-2.13.3/libsrc/app
 +
 +RESET	:=	$FF00	; RESET entrypoint into monitor
 +ECHO	:=	$FFEF	; Echo character in A to video hardware
-diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/basicio.s cc65-2.13.3/libsrc/apple1/basicio.s
---- cc65-2.13.3.orig//libsrc/apple1/basicio.s	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/libsrc/apple1/basicio.s	2012-04-21 17:51:49.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/basicio.s cc65-2.13.3/libsrc/apple1/basicio.s
+--- cc65-2.13.3.orig/libsrc/apple1/basicio.s	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/basicio.s	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,37 @@
 +;
 +; David Schmenk, 6/11/2006
@@ -141,9 +153,9 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/basicio.s cc65-2.13.3/libsrc/appl
 +_writevid:
 +	jmp	ECHO
 \ No newline at end of file
-diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/crt0.s cc65-2.13.3/libsrc/apple1/crt0.s
---- cc65-2.13.3.orig//libsrc/apple1/crt0.s	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/libsrc/apple1/crt0.s	2012-04-21 18:23:45.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/crt0.s cc65-2.13.3/libsrc/apple1/crt0.s
+--- cc65-2.13.3.orig/libsrc/apple1/crt0.s	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/crt0.s	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,75 @@
 +;
 +; Startup code for cc65 (Apple1 version)
@@ -220,9 +232,9 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/crt0.s cc65-2.13.3/libsrc/apple1/
 +
 +        ; Push arguments and call main()
 +        jmp     callmain
-diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/ctype.s cc65-2.13.3/libsrc/apple1/ctype.s
---- cc65-2.13.3.orig//libsrc/apple1/ctype.s	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/libsrc/apple1/ctype.s	2012-04-21 17:51:49.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/ctype.s cc65-2.13.3/libsrc/apple1/ctype.s
+--- cc65-2.13.3.orig/libsrc/apple1/ctype.s	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/ctype.s	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,161 @@
 +;
 +; Stefan Haubenthal with minor changes from Ullrich von Bassewitz, 2003-05-02
@@ -385,9 +397,9 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/ctype.s cc65-2.13.3/libsrc/apple1
 +        .endrepeat
 +
 +
-diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/Makefile cc65-2.13.3/libsrc/apple1/Makefile
---- cc65-2.13.3.orig//libsrc/apple1/Makefile	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/libsrc/apple1/Makefile	2012-04-21 17:51:49.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/Makefile cc65-2.13.3/libsrc/apple1/Makefile
+--- cc65-2.13.3.orig/libsrc/apple1/Makefile	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/Makefile	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,76 @@
 +#
 +# makefile for CC65 runtime library
@@ -465,9 +477,75 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/Makefile cc65-2.13.3/libsrc/apple
 +zap:	clean
 +	@$(RM) $(EMDS) $(JOYS) $(SERS) $(TGIS)
 +
-diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/randomize.s cc65-2.13.3/libsrc/apple1/randomize.s
---- cc65-2.13.3.orig//libsrc/apple1/randomize.s	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/libsrc/apple1/randomize.s	2012-04-21 17:51:49.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/oserror.s cc65-2.13.3/libsrc/apple1/oserror.s
+--- cc65-2.13.3.orig/libsrc/apple1/oserror.s	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/oserror.s	2012-07-31 17:01:52.000000000 -0400
+@@ -0,0 +1,62 @@
++;
++; Ullrich von Bassewitz, 17.05.2000
++;
++; int __fastcall__ _osmaperrno (unsigned char oserror);
++;
++
++        .export 	__osmaperrno
++
++        .include	"errno.inc"
++
++__osmaperrno:
++        ldx	#ErrTabSize
++:       cmp	ErrTab-2,x	; Search for the error code
++        beq	:+		; Jump if found
++        dex
++        dex
++        bne	:-		; Next entry
++
++        ; Code not found, return EUNKNOWN
++        lda	#<EUNKNOWN
++        ldx	#>EUNKNOWN
++        rts
++
++        ; Found the code
++:       lda	ErrTab-1,x
++        ldx	#$00		; High byte always zero
++        rts
++
++        .rodata
++
++ErrTab: .byte   $01, ENOSYS	; Invalid MLI function code number
++        .byte	$04, EINVAL	; Incorrect parameter count
++        .byte	$25, ENOMEM	; Interrupt table full
++        .byte	$27, EIO	; I/O error
++        .byte	$28, ENODEV	; No device connected
++        .byte	$2B, EACCES	; Write protected
++;       .byte	$2E, EUNKNOWN	; Disk switched
++        .byte	$2F, ENODEV	; No disk in drive
++        .byte	$40, EINVAL	; Invalid pathname syntax
++        .byte	$42, EMFILE	; Too many files open
++        .byte	$43, EINVAL	; Bad reference number
++        .byte	$44, ENOENT	; Bad pathname
++        .byte	$45, ENOENT	; Volume not mounted
++        .byte	$46, ENOENT	; File not found
++        .byte	$47, EEXIST	; File already exists
++        .byte	$48, ENOSPC	; Disk full
++        .byte	$49, ENOSPC	; Directory full
++;       .byte	$4A, EUNKNOWN	; Incompatible ProDOS version
++        .byte	$4B, EINVAL	; Unsupported storage type
++;       .byte	$4C, EUNKNOWN	; End of file
++        .byte	$4D, ESPIPE	; Position past EOF
++        .byte	$4E, EACCES	; Access denied
++        .byte	$50, EINVAL	; File already open
++;       .byte	$51, EUNKNOWN	; File count bad
++        .byte	$52, ENODEV	; Not a ProDOS disk
++        .byte	$53, ERANGE	; Parameter out of range
++        .byte	$55, EMFILE	; Too many devices mounted
++        .byte	$56, EINVAL	; Bad buffer address
++;       .byte	$57, EUNKNOWN	; Duplicate volume name
++;       .byte	$5A, EUNKNOWN	; Damaged disk free space bit map
++
++ErrTabSize = (* - ErrTab)
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/randomize.s cc65-2.13.3/libsrc/apple1/randomize.s
+--- cc65-2.13.3.orig/libsrc/apple1/randomize.s	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/randomize.s	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,17 @@
 +;
 +; Ullrich von Bassewitz, 07.11.2002
@@ -486,9 +564,9 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/randomize.s cc65-2.13.3/libsrc/ap
 +        lda     #$55
 +        jmp     _srand          ; Initialize generator
 +
-diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/stdio.s cc65-2.13.3/libsrc/apple1/stdio.s
---- cc65-2.13.3.orig//libsrc/apple1/stdio.s	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/libsrc/apple1/stdio.s	2012-04-21 17:51:49.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/apple1/stdio.s cc65-2.13.3/libsrc/apple1/stdio.s
+--- cc65-2.13.3.orig/libsrc/apple1/stdio.s	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/libsrc/apple1/stdio.s	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,189 @@
 +;
 +; Oliver Schmidt, 12.01.2005
@@ -679,9 +757,33 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/apple1/stdio.s cc65-2.13.3/libsrc/apple1
 +wrfin:	lda	ptr3
 +	ldx	ptr3+1
 +	rts
-diff -r -N -uw cc65-2.13.3.orig//libsrc/Makefile cc65-2.13.3/libsrc/Makefile
---- cc65-2.13.3.orig//libsrc/Makefile	2009-09-22 17:43:57.000000000 -0400
-+++ cc65-2.13.3/libsrc/Makefile	2012-04-21 18:27:17.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/libsrc/common/maperrno.s cc65-2.13.3/libsrc/common/maperrno.s
+--- cc65-2.13.3.orig/libsrc/common/maperrno.s	2008-04-15 02:55:35.000000000 -0400
++++ cc65-2.13.3/libsrc/common/maperrno.s	2012-07-31 17:00:26.000000000 -0400
+@@ -19,7 +19,7 @@
+ seterrnofromoserror:     
+ 	ldx	#$00			; Clear error
+ 	stx	__oserror
+-	jsr	__osmaperrno		; Map the code
++;	jsr	__osmaperrno		; Map the code
+        	sta    	__errno
+ 	stx	__errno+1
+ L9:	rts
+diff -r -N -uw cc65-2.13.3.orig/libsrc/common/oserrcheck.s cc65-2.13.3/libsrc/common/oserrcheck.s
+--- cc65-2.13.3.orig/libsrc/common/oserrcheck.s	2003-11-12 19:12:56.000000000 -0500
++++ cc65-2.13.3/libsrc/common/oserrcheck.s	2012-07-31 17:01:07.000000000 -0400
+@@ -18,7 +18,7 @@
+         sta     __oserror               ; Store the error code
+         tay                             ; Did we have an error?
+         beq     ok                      ; Branch if no
+-        jsr     __osmaperrno            ; Map os error into errno code
++;        jsr     __osmaperrno            ; Map os error into errno code
+         sta     __errno
+         stx     __errno+1               ; Save in errno
+         lda     #$FF                    ; Return -1
+diff -r -N -uw cc65-2.13.3.orig/libsrc/Makefile cc65-2.13.3/libsrc/Makefile
+--- cc65-2.13.3.orig/libsrc/Makefile	2009-09-22 17:43:57.000000000 -0400
++++ cc65-2.13.3/libsrc/Makefile	2012-07-31 16:59:24.000000000 -0400
 @@ -15,6 +15,7 @@
  # List of all targets
  ALLTARGETS =   	apple2 		\
@@ -717,9 +819,9 @@ diff -r -N -uw cc65-2.13.3.orig//libsrc/Makefile cc65-2.13.3/libsrc/Makefile
 -
 -
 -
-diff -r -N -uw cc65-2.13.3.orig//src/ca65/main.c cc65-2.13.3/src/ca65/main.c
---- cc65-2.13.3.orig//src/ca65/main.c	2009-09-28 16:12:43.000000000 -0400
-+++ cc65-2.13.3/src/ca65/main.c	2012-04-21 17:59:28.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/ca65/main.c cc65-2.13.3/src/ca65/main.c
+--- cc65-2.13.3.orig/src/ca65/main.c	2009-09-28 16:12:43.000000000 -0400
++++ cc65-2.13.3/src/ca65/main.c	2012-07-31 16:59:24.000000000 -0400
 @@ -243,6 +243,14 @@
              NewSymbol ("__APPLE2ENH__", 1);
       	    break;
@@ -735,9 +837,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/ca65/main.c cc65-2.13.3/src/ca65/main.c
       	case TGT_GEOS:
       	    /* Do not handle as a CBM system */
       	    NewSymbol ("__GEOS__", 1);
-diff -r -N -uw cc65-2.13.3.orig//src/cc65/main.c cc65-2.13.3/src/cc65/main.c
---- cc65-2.13.3.orig//src/cc65/main.c	2009-09-28 16:12:43.000000000 -0400
-+++ cc65-2.13.3/src/cc65/main.c	2012-04-21 18:02:17.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/cc65/main.c cc65-2.13.3/src/cc65/main.c
+--- cc65-2.13.3.orig/src/cc65/main.c	2009-09-28 16:12:43.000000000 -0400
++++ cc65-2.13.3/src/cc65/main.c	2012-07-31 16:59:24.000000000 -0400
 @@ -205,6 +205,14 @@
              DefineNumericMacro ("__APPLE2ENH__", 1);
       	    break;
@@ -753,9 +855,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/cc65/main.c cc65-2.13.3/src/cc65/main.c
       	case TGT_GEOS:
       	    /* Do not handle as a CBM system */
       	    DefineNumericMacro ("__GEOS__", 1);
-diff -r -N -uw cc65-2.13.3.orig//src/common/target.c cc65-2.13.3/src/common/target.c
---- cc65-2.13.3.orig//src/common/target.c	2009-09-13 07:46:04.000000000 -0400
-+++ cc65-2.13.3/src/common/target.c	2012-04-21 17:57:34.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/common/target.c cc65-2.13.3/src/common/target.c
+--- cc65-2.13.3.orig/src/common/target.c	2009-09-13 07:46:04.000000000 -0400
++++ cc65-2.13.3/src/common/target.c	2012-07-31 16:59:24.000000000 -0400
 @@ -66,6 +66,8 @@
      "bbc",
      "apple2",
@@ -774,9 +876,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/common/target.c cc65-2.13.3/src/common/targ
      CPU_6502,           /* geos */
      CPU_6502,           /* lunix */
      CPU_6502,           /* atmos */
-diff -r -N -uw cc65-2.13.3.orig//src/common/target.h cc65-2.13.3/src/common/target.h
---- cc65-2.13.3.orig//src/common/target.h	2009-09-13 07:46:04.000000000 -0400
-+++ cc65-2.13.3/src/common/target.h	2012-04-21 17:56:01.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/common/target.h cc65-2.13.3/src/common/target.h
+--- cc65-2.13.3.orig/src/common/target.h	2009-09-13 07:46:04.000000000 -0400
++++ cc65-2.13.3/src/common/target.h	2012-07-31 16:59:24.000000000 -0400
 @@ -66,6 +66,8 @@
      TGT_BBC,
      TGT_APPLE2,
@@ -786,9 +888,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/common/target.h cc65-2.13.3/src/common/targ
      TGT_GEOS,
      TGT_LUNIX,
      TGT_ATMOS,
-diff -r -N -uw cc65-2.13.3.orig//src/common/tgttrans.c cc65-2.13.3/src/common/tgttrans.c
---- cc65-2.13.3.orig//src/common/tgttrans.c	2009-09-13 07:46:04.000000000 -0400
-+++ cc65-2.13.3/src/common/tgttrans.c	2012-04-21 17:54:36.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/common/tgttrans.c cc65-2.13.3/src/common/tgttrans.c
+--- cc65-2.13.3.orig/src/common/tgttrans.c	2009-09-13 07:46:04.000000000 -0400
++++ cc65-2.13.3/src/common/tgttrans.c	2012-07-31 16:59:24.000000000 -0400
 @@ -155,6 +155,8 @@
  	case TGT_BBC:  	       	memcpy (Tab, CTNone, sizeof (Tab));  	break;
  	case TGT_APPLE2:	memcpy (Tab, CTNone, sizeof (Tab));  	break;
@@ -798,9 +900,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/common/tgttrans.c cc65-2.13.3/src/common/tg
  	case TGT_GEOS:		memcpy (Tab, CTNone, sizeof (Tab));  	break;
  	case TGT_LUNIX:		memcpy (Tab, CTNone, sizeof (Tab));  	break;
         	case TGT_ATMOS:		memcpy (Tab, CTNone, sizeof (Tab));  	break;
-diff -r -N -uw cc65-2.13.3.orig//src/ld65/apple1.inc cc65-2.13.3/src/ld65/apple1.inc
---- cc65-2.13.3.orig//src/ld65/apple1.inc	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/src/ld65/apple1.inc	2012-04-21 19:03:03.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/ld65/apple1.inc cc65-2.13.3/src/ld65/apple1.inc
+--- cc65-2.13.3.orig/src/ld65/apple1.inc	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/src/ld65/apple1.inc	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,39 @@
 +static const char CfgApple1 [] = 
 +"MEMORY {\n"
@@ -841,9 +943,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/ld65/apple1.inc cc65-2.13.3/src/ld65/apple1
 +"\n"
 +"\n"
 +;
-diff -r -N -uw cc65-2.13.3.orig//src/ld65/replica1.inc cc65-2.13.3/src/ld65/replica1.inc
---- cc65-2.13.3.orig//src/ld65/replica1.inc	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/src/ld65/replica1.inc	2012-04-21 19:02:57.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/ld65/replica1.inc cc65-2.13.3/src/ld65/replica1.inc
+--- cc65-2.13.3.orig/src/ld65/replica1.inc	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/src/ld65/replica1.inc	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,38 @@
 +static const char CfgReplica1 [] = 
 +"MEMORY {\n"
@@ -883,9 +985,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/ld65/replica1.inc cc65-2.13.3/src/ld65/repl
 +"\n"
 +"\n"
 +;
-diff -r -N -uw cc65-2.13.3.orig//src/ld65/tgtcfg.c cc65-2.13.3/src/ld65/tgtcfg.c
---- cc65-2.13.3.orig//src/ld65/tgtcfg.c	2009-09-18 15:13:59.000000000 -0400
-+++ cc65-2.13.3/src/ld65/tgtcfg.c	2012-04-21 18:01:10.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/src/ld65/tgtcfg.c cc65-2.13.3/src/ld65/tgtcfg.c
+--- cc65-2.13.3.orig/src/ld65/tgtcfg.c	2009-09-18 15:13:59.000000000 -0400
++++ cc65-2.13.3/src/ld65/tgtcfg.c	2012-07-31 16:59:24.000000000 -0400
 @@ -51,6 +51,8 @@
  /* Actual target configurations, converted into C strings by a perl script */
  #include "apple2.inc"
@@ -904,9 +1006,9 @@ diff -r -N -uw cc65-2.13.3.orig//src/ld65/tgtcfg.c cc65-2.13.3/src/ld65/tgtcfg.c
      {   BINFMT_BINARY,  CfgGeos         },
      {   BINFMT_O65,     CfgLunix        },
      {  	BINFMT_BINARY,	CfgAtmos        },
-diff -r -N -uw cc65-2.13.3.orig//util/apple1/bintomon.c cc65-2.13.3/util/apple1/bintomon.c
---- cc65-2.13.3.orig//util/apple1/bintomon.c	1969-12-31 19:00:00.000000000 -0500
-+++ cc65-2.13.3/util/apple1/bintomon.c	2012-04-21 17:50:22.000000000 -0400
+diff -r -N -uw cc65-2.13.3.orig/util/apple1/bintomon.c cc65-2.13.3/util/apple1/bintomon.c
+--- cc65-2.13.3.orig/util/apple1/bintomon.c	1969-12-31 19:00:00.000000000 -0500
++++ cc65-2.13.3/util/apple1/bintomon.c	2012-07-31 16:59:24.000000000 -0400
 @@ -0,0 +1,141 @@
 +/*
 + * Convert binary file to Woz monitor format.
