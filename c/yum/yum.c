@@ -166,7 +166,7 @@ void pressEnter(char *s)
 
     /* Default string is printed if s is 0. */
     if (s == 0) {
-        pressEnter("\nPRESS <ENTER> TO CONTINUE");
+        printf("\nPRESS <ENTER> TO CONTINUE");
     } else {
         printf("%s", s);
     }
@@ -281,15 +281,15 @@ void displayHelp()
     clearScreen();
 
     printf("%s",
-           "CATEGORIES ARE AS FOLLOWS:\n"
+           "CATEGORIES ARE AS FOLLOWS:\n\n"
            "1'S THROUGH 6'S - DICE OF SAME TYPE\n"
-           "LOW STRAIGHT - 1 2 3 4 5\n"
-           "HIGH STRAIGHT - 2 3 4 5 6\n"
+           "LOW STRAIGHT (15) - 1 2 3 4 5\n"
+           "HIGH STRAIGHT (20) - 2 3 4 5 6\n"
            "LOW SCORE - TOTAL 21 OR MORE\n"
            "HIGH SCORE - TOTAL 22 OR MORE\n"
-           "FULL HOUSE - 3 OF A KIND AND A PAIR\n"
-           "YUM - 5 DICE THE SAME\n\n"
-           "BONUS OF 25 POINTS IF UPPER SECTON\n"
+           "FULL HOUSE (25) - 3 OF A KIND AND PAIR\n"
+           "YUM (30) - 5 DICE THE SAME\n\n"
+           "BONUS OF 25 POINTS IF UPPER SECTION\n"
            "IS 63 OR MORE.\n\n");
 }
 
@@ -1055,7 +1055,7 @@ void setRandomSeed()
 #endif
 }
 
-/* Main program */
+/* Main program. */
 int main(void)
 {
     initialize();
