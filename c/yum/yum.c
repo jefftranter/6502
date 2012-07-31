@@ -21,8 +21,6 @@
  * limitations under the License.
  *
  * TODO:
- * - show score values in help
- * - option when keeping dice to see current score
  * - check binary into git
  * - announce on blog posting
  * - optimize code size (e.g. use char instead of int)
@@ -685,6 +683,7 @@ void displayDice()
     for (i = 0; i < MAXDICE; i++) {
         printf(" %d", dice[i]);
     }
+    printf("\n");
 }
 
 /* Ask what what dice to roll again. Return false if does not want to roll any. */
@@ -695,9 +694,21 @@ int askPlayerDiceToRollAgain()
 
     while (true) {
 
-        printf("WHAT DICE TO ROLL AGAIN?");
+        printf("ENTER DICE TO ROLL AGAIN OR\nD FOR DICE OR S FOR SCORE:");
         fgets(buffer, sizeof(buffer)-1, stdin);
         buffer[strlen(buffer)-1] = '\0'; /* Remove newline at end of string */
+
+        /* Entering 'S' will display the current score. Useful if you can't remember what categories you used. */
+        if (toupper(buffer[0]) == 'S') {
+            displayScore();
+            continue;
+        }
+
+        /* Entering 'D' will display the dice. Useful if it scrolled off the screen. */
+        if (toupper(buffer[0]) == 'D') {
+            displayDice();
+            continue;
+        }
 
         /* If empty string, no dice to roll again and we return with false status. */
         if (strlen(buffer) == 0) {
@@ -1104,7 +1115,6 @@ int main(void)
                         printf("LAST ROLL IS:");
                     }
                     displayDice();
-                    printf("\n");
                     if (roll < 3) {
                         if (isComputerPlayer[player]) {
                             ret = askComputerDiceToRollAgain();
