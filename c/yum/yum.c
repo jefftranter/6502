@@ -21,6 +21,10 @@
  * limitations under the License.
  *
  * TODO:
+ * - show score values in help
+ * - option when keeping dice to see current score
+ * - check binary into git
+ * - announce on blog posting
  * - optimize code size (e.g. use char instead of int)
  * - make computer player smarter
  *
@@ -29,6 +33,7 @@
  * Version  Date         Comments
  * -------  ----         --------
  * 0.0      25 Jul 2012  Started coding
+ * 0.1      31 Jul 2012  First release.
  *
  */
 
@@ -158,7 +163,11 @@ void clearScreen()
 /* Print a string, wait for user to press enter, then continue. */
 void pressEnter(char *s)
 {
-    if (s != 0) {
+
+    /* Default string is printed if s is 0. */
+    if (s == 0) {
+        pressEnter("\nPRESS <ENTER> TO CONTINUE");
+    } else {
         printf("%s", s);
     }
 
@@ -268,7 +277,7 @@ void displayHelp()
            "PLAYERS OF WHICH ANY CAN BE HUMAN OR\n"
            "COMPUTER PLAYERS.\n");
 
-    pressEnter("\nPRESS <ENTER> TO CONTINUE");
+    pressEnter(0);
     clearScreen();
 
     printf("%s",
@@ -276,8 +285,8 @@ void displayHelp()
            "1'S THROUGH 6'S - DICE OF SAME TYPE\n"
            "LOW STRAIGHT - 1 2 3 4 5\n"
            "HIGH STRAIGHT - 2 3 4 5 6\n"
-           "LOW SCORE - 21 OR MORE\n"
-           "HIGH SCORE - 22 OR MORE\n"
+           "LOW SCORE - TOTAL 21 OR MORE\n"
+           "HIGH SCORE - TOTAL 22 OR MORE\n"
            "FULL HOUSE - 3 OF A KIND AND A PAIR\n"
            "YUM - 5 DICE THE SAME\n\n"
            "BONUS OF 25 POINTS IF UPPER SECTON\n"
@@ -1078,8 +1087,8 @@ int main(void)
             for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
 
                 clearScreen();
-                printf("%s'S TURN. PRESS <ENTER> TO ROLL", playerName[player]);
-                pressEnter(0);
+                snprintf(buffer, sizeof(buffer), "%s'S TURN. PRESS <ENTER> TO ROLL", playerName[player]);
+                pressEnter(buffer);
                 markAllDiceToBeRolled();
 
                 for (roll = 1; roll <= MAXROLLS; roll++) {
@@ -1115,7 +1124,7 @@ int main(void)
                     c = computerPickCategory();
                     printf("%s PLAYS %s\n", playerName[player], labels[c]);
                     playCategory(c);
-                    pressEnter("\nPRESS <ENTER> TO CONTINUE");
+                    pressEnter(0);
                 } else {
                     playCategory(humanPickCategory());
                 }
@@ -1124,12 +1133,12 @@ int main(void)
             clearScreen();
             updateScore();
             displayScore();
-            pressEnter("\nPRESS <ENTER> TO CONTINUE");
+            pressEnter(0);
         }
 
         displayWinner();
 
-        pressEnter("\nPRESS <ENTER> TO CONTINUE");
+        pressEnter(0);
         clearScreen();
 
         if (!promptYesNo("WOULD YOU LIKE TO PLAY AGAIN")) {
