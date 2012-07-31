@@ -21,7 +21,6 @@
  * limitations under the License.
  *
  * TODO:
- * - optimize display for Replica 1 screen
  * - optimize code size (e.g. use char instead of int)
  * - make computer player smarter
  *
@@ -147,21 +146,32 @@ void initialize()
     markAllDiceToBeRolled();
 }
 
-/* Wait for user to press enter, then continue. */
-void pressEnter()
+/* Clear the screen */
+void clearScreen()
 {
-#ifdef __CC65__
+    int i;
 
+    for (i = 0; i < 24; ++i)
+        printf("\n");
+}
+
+/* Print a string, wait for user to press enter, then continue. */
+void pressEnter(char *s)
+{
+    if (s != 0) {
+        printf("%s", s);
+    }
+
+#ifdef __CC65__
     /* On CC65 platform use keyPressed() routine and use this to set the random seed. */
 
     while (!keypressed()) {
         randomSeed++;
     }
-
+    readkey();
+    printf("\n");
 #else
-
     fgets(buffer, sizeof(buffer)-1, stdin);
-
 #endif
 }
 
@@ -226,7 +236,7 @@ void displayScore()
 {
     int i;
 
-    printf("SCORE AFTER %d OF 12 ROUNDS:\n", currentRound);
+    printf("SCORE AFTER %d OF 12 ROUNDS:\n\n", currentRound);
     printf("ROLL           ");
     for (i = 0; i < numHumanPlayers + numComputerPlayers; i++) {
         printf("%-8s", playerName[i]);
@@ -256,7 +266,22 @@ void displayHelp()
            "\n"
            "THIS VERSION SUPPORTS UP TO THREE\n"
            "PLAYERS OF WHICH ANY CAN BE HUMAN OR\n"
-           "COMPUTER PLAYERS.\n\n");
+           "COMPUTER PLAYERS.\n");
+
+    pressEnter("\nPRESS <ENTER> TO CONTINUE");
+    clearScreen();
+     
+    printf("%s",
+           "CATEGORIES ARE AS FOLLOWS:\n"
+           "1'S THROUGH 6'S - DICE OF SAME TYPE\n"
+           "LOW STRAIGHT - 1 2 3 4 5\n"
+           "HIGH STRAIGHT - 2 3 4 5 6\n"
+           "LOW SCORE - 21 OR MORE\n"
+           "HIGH SCORE - 22 OR MORE\n"
+           "FULL HOUSE - 3 OF A KIND AND A PAIR\n"
+           "YUM - 5 DICE THE SAME\n\n"
+           "BONUS OF 25 POINTS IF UPPER SECTON\n"
+           "IS 63 OR MORE.\n\n");
 }
 
 /* Return location of number i in dice array. */
@@ -586,7 +611,7 @@ int promptNumber(char *string, int min, int max)
         fgets(buffer, sizeof(buffer)-1, stdin);
         errno = 0;
         val = strtol(buffer, &endptr, 10);
-        if ((errno == 0) && (endptr != buffer) && (val >= min) && (val <= max))
+        if ((errno == 0) /*&& (endptr != buffer)*/ && (val >= min) && (val <= max))
             return val;
     }
 }
@@ -616,15 +641,6 @@ void setPlayers()
         strcpy(playerName[i], computerNames[i - numHumanPlayers]);
         isComputerPlayer[i] = true;
     }
-}
-
-/* Clear the screen */
-void clearScreen()
-{
-    int i;
-
-    for (i = 0; i < 24; ++i)
-        printf("\n");
 }
 
 /* Display a string and prompt for Y or N. Return boolean value. */
@@ -670,7 +686,7 @@ int askPlayerDiceToRollAgain()
 
     while (true) {
 
-        printf("WHAT DICE YOU WANT TO ROLL AGAIN?");
+        printf("WHAT DICE TO ROLL AGAIN?");
         fgets(buffer, sizeof(buffer)-1, stdin);
         buffer[strlen(buffer)-1] = '\0'; /* Remove newline at end of string */
 
@@ -683,7 +699,7 @@ int askPlayerDiceToRollAgain()
         /* First validate the input line. */
         for (i = 0; i < strlen(buffer); i++) {
             /* Validate character. */
-            if ((buffer[i] != ' ') && ((buffer[i] < '1') || (buffer[i] > '6'))) {
+            if ((buffer[i] != ' ') && (buffer[i] != ',') && ((buffer[i] < '1') || (buffer[i] > '6'))) {
                 printf("INVALID INPUT: '%c', TRY AGAIN.\n", buffer[i]);
                 valid = false;
                 break;
@@ -697,8 +713,8 @@ int askPlayerDiceToRollAgain()
 
         /* Now examine the input line */
         for (i = 0; i < strlen(buffer); i++) {
-            /* Skip any space */
-            if (buffer[i] == ' ') {
+            /* Skip any spaces or commas */
+            if ((buffer[i] == ' ') || (buffer[i] == ',')) {
                 continue;
             }
 
@@ -792,7 +808,9 @@ void playCategory(int category)
 int humanPickCategory()
 {
     int category;
-    char buffer[40];
+    char buffer[50];
+
+    printf("\n");
 
     for (category = 0; category < MAXCATEGORY; category++) {
         /* Some categories need to be skipped. */
@@ -806,7 +824,7 @@ int humanPickCategory()
     }
 
     while (true) {
-        sprintf(buffer, "%s, WHAT DO YOU WANT TO CLAIM?", playerName[player]);
+        sprintf(buffer, "\n%s, WHAT CATEGORY DO\nYOU WANT TO CLAIM?", playerName[player]);
         category = promptNumber(buffer, 1, MAXCATEGORY-1) - 1;
         if (scoreSheet[player][category] != UNSET) {
             printf("YOU ALREADY USED THAT CATEGORY. TRY AGAIN.\n");
@@ -1042,15 +1060,15 @@ int main(void)
 
     while (true) {
 
-        printf("PRESS <ENTER> TO START THE GAME");
-        pressEnter();
+        pressEnter("PRESS <ENTER> TO START THE GAME");
         setRandomSeed();
 
         for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
             for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
 
+                clearScreen();
                 printf("%s'S TURN. PRESS <ENTER> TO ROLL", playerName[player]);
-                pressEnter();
+                pressEnter(0);
                 markAllDiceToBeRolled();
 
                 for (roll = 1; roll <= MAXROLLS; roll++) {
@@ -1059,11 +1077,11 @@ int main(void)
                     rollDice();
                     sortDice();
                     if (roll == 1) {
-                        printf("ON YOUR FIRST ROLL YOU HAVE:");
+                        printf("FIRST ROLL IS:");
                     } else if (roll == 2) {
-                        printf("ON YOUR SECOND ROLL YOU HAVE:");
+                        printf("SECOND ROLL IS:");
                     } else {
-                        printf("ON YOUR LAST ROLL YOU HAVE:");
+                        printf("LAST ROLL IS:");
                     }
                     displayDice();
                     printf("\n");
@@ -1086,16 +1104,22 @@ int main(void)
                     c = computerPickCategory();
                     printf("%s PLAYS %s\n", playerName[player], labels[c]);
                     playCategory(c);
+                    pressEnter("\nPRESS <ENTER> TO CONTINUE");
                 } else {
                     playCategory(humanPickCategory());
                 }
 
-                updateScore();
-                displayScore();
             }
+            clearScreen();
+            updateScore();
+            displayScore();
+            pressEnter("\nPRESS <ENTER> TO CONTINUE");
         }
 
         displayWinner();
+
+        pressEnter("PRESS <ENTER> TO CONTINUE");
+        clearScreen();
 
         if (!promptYesNo("WOULD YOU LIKE TO PLAY AGAIN")) {
             break;

@@ -18,7 +18,7 @@ upload: yum.mon
 native: yum
 
 yum:	yum.c Makefile
-	gcc -Wall -o yum yum.c
+	gcc -g -Wall -o yum yum.c
 
 release: yum.mon
 	zip yum-1.0.zip yum.c Makefile yum.mon README.txt LICENSE-2.0.txt
