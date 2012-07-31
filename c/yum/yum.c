@@ -21,8 +21,6 @@
  * limitations under the License.
  *
  * TODO:
- * - check binary into git
- * - announce on blog posting
  * - optimize code size (e.g. use char instead of int)
  * - make computer player smarter
  *
@@ -640,7 +638,8 @@ void setPlayers()
 
     for (i = 0; i < numHumanPlayers; i++) {
         snprintf(buffer, sizeof(buffer), "NAME OF PLAYER %d", i+1);
-        strcpy(playerName[i], promptString(buffer));
+        strncpy(playerName[i], promptString(buffer), sizeof(playerName[i]) - 1);
+        playerName[i][strlen(playerName[i])] = 0; /* May need to add terminating null */
         isComputerPlayer[i] = false;
     }
 
@@ -1072,7 +1071,7 @@ int main(void)
     initialize();
     clearScreen();
 
-    printf("%s", 
+    printf("%s",
           "#     # #     # #     #\n"
           " #   #  #     # ##   ##\n"
           "  # #   #     # # # # #\n"
