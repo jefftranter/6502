@@ -632,7 +632,7 @@ void setPlayers()
     }
 
     for (i = 0; i < numHumanPlayers; i++) {
-        sprintf(buffer, "NAME OF PLAYER %d", i+1);
+        snprintf(buffer, sizeof(buffer), "NAME OF PLAYER %d", i+1);
         strcpy(playerName[i], promptString(buffer));
         isComputerPlayer[i] = false;
     }
@@ -824,10 +824,10 @@ int humanPickCategory()
     }
 
     while (true) {
-        sprintf(buffer, "\n%s, WHAT CATEGORY DO\nYOU WANT TO CLAIM?", playerName[player]);
+        snprintf(buffer, sizeof(buffer), "\n%s, WHAT CATEGORY DO\nYOU WANT TO CLAIM?", playerName[player]);
         category = promptNumber(buffer, 1, MAXCATEGORY-1) - 1;
         if (scoreSheet[player][category] != UNSET) {
-            printf("YOU ALREADY USED THAT CATEGORY. TRY AGAIN.\n");
+            printf("YOU ALREADY USED THAT CATEGORY.\nTRY AGAIN.\n");
         } else {
             break;
         }
@@ -849,6 +849,8 @@ void displayWinner()
             winner = p;
         }
     }
+
+    printf("\n");
 
     /* Display the winner. */
     if (numHumanPlayers + numComputerPlayers == 3) {
@@ -1118,7 +1120,7 @@ int main(void)
 
         displayWinner();
 
-        pressEnter("PRESS <ENTER> TO CONTINUE");
+        pressEnter("\nPRESS <ENTER> TO CONTINUE");
         clearScreen();
 
         if (!promptYesNo("WOULD YOU LIKE TO PLAY AGAIN")) {
