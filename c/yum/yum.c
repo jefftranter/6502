@@ -690,6 +690,12 @@ int askPlayerDiceToRollAgain()
 {
     int i;
     bool valid;
+    int tempDice[MAXDICE];
+
+    /* Make a copy of the dice in case we have to undo changes after an error. */
+    for (i = 0; i < MAXDICE; i++) {
+        tempDice[i] = dice[i];
+    }
 
     while (true) {
 
@@ -743,6 +749,10 @@ int askPlayerDiceToRollAgain()
             } else {
                 printf("YOU DON'T HAVE A '%c', TRY AGAIN.\n", buffer[i]);
                 valid = false;
+                /* Revert the dice to the original saved values since we may have changed it before the error was detected. */
+                for (i = 0; i < MAXDICE; i++) {
+                    dice[i] = tempDice[i];
+                }
                 break;
            }
         }
