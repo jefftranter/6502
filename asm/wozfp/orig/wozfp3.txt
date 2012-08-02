@@ -1,0 +1,867 @@
+Woz 6502 Floating Point Routines
+
+Apple II Reference Manual (Red Book), January 1978, pages 94-95.
+
+                ***********************
+                *                     *
+                *  APPLE-II FLOATING  *
+                *   POINT ROUTINES    *
+                *                     *
+                *  COPYRIGHT 1977 BY  *
+                * APPLE COMPUTER INC. *
+                *                     *
+                * ALL RIGHTS RESERVED *
+                *                     *
+                *     S. WOZNIAK      *
+                *                     *
+                ***********************
+                 TITLE "FLOATING POINT ROUTINES"
+                SIGN      EPZ  $F3
+                X2        EPZ  $F4
+                M2        EPZ  $F5
+                X1        EPZ  $F8
+                M1        EPZ  $F9
+                E         EPZ  $FC
+                OVLOC     EQU  $3F5
+                          ORG  $F425
+F425: 18        ADD       CLC           CLEAR CARRY
+F426: A2 02               LDX  #$2      INDEX FOR 3-BYTE ADD.
+F428: B5 F9     ADD1      LDA  M1,X
+F42A: 75 F5               ADC  M2,X     ADD A BYTE OF MANT2 TO MANT1
+F42C: 95 F9               STA  M1,X
+F42E: CA                  DEX           INDEX TO NEXT MORE SIGNIF. BYTE.
+F42F: 10 F7               BPL  ADD1     LOOP UNTIL DONE.
+F431: 60                  RTS           RETURN
+F432: 06 F3     MD1       ASL  SIGN     CLEAR LSB OF SIGN.
+F434: 20 37 F4            JSR  ABSWAP   ABS VAL OF M1, THEN SWAP WITH M2
+F437: 24 F9     ABSWAP    BIT  M1       MANT1 NEGATIVE?
+F439: 10 05               BPL  ABSWAP1  NO, SWAP WITH MANT2 AND RETURN.
+F43B: 20 A4 F4            JSR  FCOMPL   YES, COMPLEMENT IT.
+F43E: E6 F3               INC  SIGN     INCR SIGN, COMPLEMENTING LSB.
+F440: 38        ABSWAP1   SEC           SET CARRY FOR RETURN TO MUL/DIV.
+F441: A2 04     SWAP      LDX  #$4      INDEX FOR 4 BYTE SWAP.
+F443: 94 FB     SWAP1     STY  E-1,X
+F445: B5 F7               LDA  X1-1,X   SWAP A BYTE OF EXP/MANT1 WITH
+F447: B4 F3               LDY  X2-1,X   EXP/MANT2 AND LEAVE A COPY OF
+F449: 94 F7               STY  X1-1,X   MANT1 IN E (3 BYTES).  E+3 USED
+F44B: 95 F3               STA  X2-1,X
+F44D: CA                  DEX           ADVANCE INDEX TO NEXT BYTE
+F44E: D0 F3               BNE  SWAP1    LOOP UNTIL DONE.
+F450: 60                  RTS           RETURN
+F451: A9 8E     FLOAT     LDA  #$8E     INIT EXP1 TO 14,
+F453: 85 F8               STA  X1       THEN NORMALIZE TO FLOAT.
+F455: A5 F9     NORM1     LDA  M1       HIGH-ORDER MANT1 BYTE.
+F457: C9 C0               CMP  #$C0     UPPER TWO BITS UNEQUAL?
+F459: 30 0C               BMI  RTS1     YES, RETURN WITH MANT1 NORMALIZED
+F45B: C6 F8               DEC  X1       DECREMENT EXP1.
+F45D: 06 FB               ASL  M1+2
+F45F: 26 FA               ROL  M1+1     SHIFT MANT1 (3 BYTES) LEFT.
+F461: 26 F9               ROL  M1
+F463: A5 F8     NORM      LDA  X1       EXP1 ZERO?
+F465: D0 EE               BNE  NORM1    NO, CONTINUE NORMALIZING.
+F467: 60        RTS1      RTS           RETURN.
+F468: 20 A4 F4  FSUB      JSR  FCOMPL   CMPL MANT1,CLEARS CARRY UNLESS 0
+F46B: 20 7B F4  SWPALGN   JSR  ALGNSWP  RIGHT SHIFT MANT1 OR SWAP WITH
+F46E: A5 F4     FADD      LDA  X2
+F470: C5 F8               CMP  X1       COMPARE EXP1 WITH EXP2.
+F472: D0 F7               BNE  SWPALGN  IF #,SWAP ADDENDS OR ALIGN MANTS.
+F474: 20 25 F4            JSR  ADD      ADD ALIGNED MANTISSAS.
+F477: 50 EA     ADDEND    BVC  NORM     NO OVERFLOW, NORMALIZE RESULT.
+F479: 70 05               BVS  RTLOG    OV: SHIFT M1 RIGHT, CARRY INTO SIGN
+F47B: 90 C4     ALGNSWP   BCC  SWAP     SWAP IF CARRY CLEAR,
+                *       ELSE SHIFT RIGHT ARITH.
+F47D: A5 F9     RTAR      LDA  M1       SIGN OF MANT1 INTO CARRY FOR
+F47F: 0A                  ASL           RIGHT ARITH SHIFT.
+F480: E6 F8     RTLOG     INC  X1       INCR X1 TO ADJUST FOR RIGHT SHIFT
+F482: F0 75               BEQ  OVFL     EXP1 OUT OF RANGE.
+F484: A2 FA     RTLOG1    LDX  #$FA     INDEX FOR 6:BYTE RIGHT SHIFT.
+F486: 76 FF     ROR1      ROR  E+3,X
+F488: E8                  INX           NEXT BYTE OF SHIFT.
+F489: D0 FB               BNE  ROR1     LOOP UNTIL DONE.
+F48B: 60                  RTS           RETURN.
+F48C: 20 32 F4  FMUL      JSR  MD1      ABS VAL OF MANT1, MANT2
+F48F: 65 F8               ADC  X1       ADD EXP1 TO EXP2 FOR PRODUCT EXP
+F491: 20 E2 F4            JSR  MD2      CHECK PROD. EXP AND PREP. FOR MUL
+F494: 18                  CLC           CLEAR CARRY FOR FIRST BIT.
+F495: 20 84 F4  MUL1      JSR  RTLOG1   M1 AND E RIGHT (PROD AND MPLIER)
+F498: 90 03               BCC  MUL2     IF CARRY CLEAR, SKIP PARTIAL PROD
+F49A: 20 25 F4            JSR  ADD      ADD MULTIPLICAND TO PRODUCT.
+F49D: 88        MUL2      DEY           NEXT MUL ITERATION.
+F49E: 10 F5               BPL  MUL1     LOOP UNTIL DONE.
+F4A0: 46 F3     MDEND     LSR  SIGN     TEST SIGN LSB.
+F4A2: 90 BF     NORMX     BCC  NORM     IF EVEN,NORMALIZE PROD,ELSE COMP
+F4A4: 38        FCOMPL    SEC           SET CARRY FOR SUBTRACT.
+F4A5: A2 03               LDX  #$3      INDEX FOR 3 BYTE SUBTRACT.
+F4A7: A9 00     COMPL1    LDA  #$0      CLEAR A.
+F4A9: F5 F8               SBC  X1,X     SUBTRACT BYTE OF EXP1.
+F4AB: 95 F8               STA  X1,X     RESTORE IT.
+F4AD: CA                  DEX           NEXT MORE SIGNIFICANT BYTE.
+F4AE: D0 F7               BNE  COMPL1   LOOP UNTIL DONE.
+F4B0: F0 C5               BEQ  ADDEND   NORMALIZE (OR SHIFT RT IF OVFL).
+F4B2: 20 32 F4  FDIV      JSR  MD1      TAKE ABS VAL OF MANT1, MANT2.
+F4B5: E5 F8               SBC  X1       SUBTRACT EXP1 FROM EXP2.
+F4B7: 20 E2 F4            JSR  MD2      SAVE AS QUOTIENT EXP.
+F4BA: 38        DIV1      SEC           SET CARRY FOR SUBTRACT.
+F4BB: A2 02               LDX  #$2      INDEX FOR 3-BYTE SUBTRACTION.
+F4BD: B5 F5     DIV2      LDA  M2,X
+F4BF: F5 FC               SBC  E,X      SUBTRACT A BYTE OF E FROM MANT2.
+F4C1: 48                  PHA           SAVE ON STACK.
+F4C2: CA                  DEX           NEXT MORE SIGNIFICANT BYTE.
+F4C3: 10 F8               BPL  DIV2     LOOP UNTIL DONE.
+F4C5: A2 FD               LDX  #$FD     INDEX FOR 3-BYTE CONDITIONAL MOVE
+F4C7: 68        DIV3      PLA           PULL BYTE OF DIFFERENCE OFF STACK
+F4C8: 90 02               BCC  DIV4     IF M2<E THEN DON'T RESTORE M2.
+F4CA: 95 F8               STA  M2+3,X
+F4CC: E8        DIV4      INX           NEXT LESS SIGNIFICANT BYTE.
+F4CD: D0 F8               BNE  DIV3     LOOP UNTIL DONE.
+F4CF: 26 FB               ROL  M1+2
+F4D1: 26 FA               ROL  M1+1     ROLL QUOTIENT LEFT, CARRY INTO LSB
+F4D3: 26 F9               ROL  M1
+F4D5: 06 F7               ASL  M2+2
+F4D7: 26 F6               ROL  M2+1     SHIFT DIVIDEND LEFT
+F4D9: 26 F5               ROL  M2
+F4DB: B0 1C               BCS  OVFL     OVFL IS DUE TO UNNORMED DIVISOR
+F4DD: 88                  DEY           NEXT DIVIDE ITERATION.
+F4DE: D0 DA               BNE  DIV1     LOOP UNTIL DONE 23 ITERATIONS.
+F4E0: F0 BE               BEQ  MDEND    NORM. QUOTIENT AND CORRECT SIGN.
+F4E2: 86 FB     MD2       STX  M1+2
+F4E4: 86 FA               STX  M1+1     CLEAR MANT1 (3 BYTES) FOR MUL/DIV.
+F4E6: 86 F9               STX  M1
+F4E8: B0 0D               BCS  OVCHK    IF CALC. SET CARRY,CHECK FOR OVFL
+F4EA: 30 04               BMI  MD3      IF NEG THEN NO UNDERFLOW.
+F4EC: 68                  PLA           POP ONE RETURN LEVEL.
+F4ED: 68                  PLA
+F4EE: 90 B2               BCC  NORMX    CLEAR X1 AND RETURN.
+F4F0: 49 80     MD3       EOR  #$80     COMPLEMENT SIGN BIT OF EXPONENT.
+F4F2: 85 F8               STA  X1       STORE IT.
+F4F4: A0 17               LDY  #$17     COUNT 24 MUL/23 DIV ITERATIONS.
+F4F6: 60                  RTS           RETURN.
+F4F7: 10 F7     OVCHK     BPL  MD3      IF POSITIVE EXP THEN NO OVFL.
+F4F9: 4C F5 03  OVFL      JMP  OVLOC
+                          ORG  $F63D
+F63D: 20 7D F4  FIX1      JSR  RTAR
+F640: A5 F8     FIX       LDA  X1
+F642: 10 13               BPL  UNDFL
+F644: C9 8E               CMP  #$8E
+F646: D0 F5               BNE  FIX1
+F648: 24 F9               BIT  M1
+F64A: 10 0A               BPL  FIXRTS
+F64C: A5 FB               LDA  M1+2
+F64E: F0 06               BEQ  FIXRTS
+F650: E6 FA               INC  M1+1
+F652: D0 02               BNE  FIXRTS
+F654: E6 F9               INC  M1
+F656: 60        FIXRTS    RTS
+F657: A9 00     UNDFL     LDA  #$0
+F659: 85 F9               STA  M1
+F65B: 85 FA               STA  M1+1
+F65D: 60                  RTS
+
+***************************************************************************
+Wozpak ][, November 1979, pages 109-115.
+
+FLOATING POINT PACKAGE
+
+The mantissa-exponent, or 'floating point' numerical representation is 
+widely used by computers to express values with a wide dynamic range.  With 
+floating point representation, the number 7.5 x 10^22 requires no more 
+memory to store than the number 75 does.  We have allowed for binary 
+floating point arithmetic on the APPLE ][ computer by providing a useful 
+subroutine package in ROM, which performs the common arithmetic functions.  
+Maximum precision is retained by these routines and overflow conditions 
+such as 'divide by zero' are trapped for the user.  The 4-byte floating 
+point number representation is compatible with future APPLE products such 
+as floating point BASIC.
+
+A small amount of memory in Page Zero is dedicated to the floating point 
+workspace, including the two floating-point accumulators, FP1 and FP2.  
+After placing operands in these accumulators, the user calls subroutines in 
+the ROM which perform the desired arithmetic operations, leaving results in 
+FP1.  Should an overflow condition occur, a jump to location $3F5 is 
+executed, allowing a user routine to take appropriate action.
+
+
+
+        FLOATING POINT REPRESENTATION
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+     |     |  | HI  |  |     |  | LOW |
+     |_____|  |_____|  |_____|  |_____|
+
+    Exponent       Signed Mantissa
+
+1.  Mantissa
+
+The floating point mantissa is stored in two's complement representation 
+with the sign at the most significant bit (MSB) position of the high-order 
+mantissa byte.  The mantissa provides 24 bits of precision, including sign, 
+and can represent 24-bit integers precisely.  Extending precision is simply 
+a matter of adding bytes at the low order end of the mantissa.
+
+Except for magnitudes less than 2^-128 (which lose precision) mantissa are 
+normalized by the floating point routines to retain maximum precision.  
+That is, the numbers are adjusted so that the upper two high-order mantissa 
+bits are unequal.
+
+
+      HIGH-ORDER MANTISSA BYTE
+     01.XXXXXX  Positive mantissa.
+     10.XXXXXX  Negative mantissa.
+     00.XXXXXX  Unnormalized mantissa.
+     11.XXXXXX  Exponent = -128.
+
+2.  Exponent.
+
+The exponent is a binary scaling factor (power of two) which is applied to 
+the mantissa.  Ranging from -128 to +127, the exponent is stored in 
+standard two's complement representation except for the sign bit which is 
+complemented.  This representation allows direct comparison of exponents, 
+since they are stored in increasing numerical sequence.  The most negative 
+exponent, corresponding to the smallest magnItude, -128, is stored as $00 
+($ means hexidecimal) and the most positive, +127, is stored as $FF (all 
+ones).
+
+
+     EXPONENT      STORED AS
+
+      +127      11111111  ($FF)
+
+        +3      10000011  ($83)
+        +2      10000010  ($82)
+        +1      10000001  ($81)
+         0      10000000  ($80)
+        -1      01111111  ($7F)
+        -2      01111110  ($7E)
+        -3      01111101  ($7D)
+
+      -128      00000000  ($00)
+
+
+The smallest magnitude which can be represented is 2^-150.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+     |  0  |  |  0  |  |  0  |  |  1  |
+     |_____|  |_____|  |_____|  |_____|
+
+               HIGH               LOW
+       EXP            MANTISSA
+
+
+The largest positive magnitude which can be represented is +2^128-1.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+     | $7F |  | $7F |  | $FF |  | $FF |
+     |_____|  |_____|  |_____|  |_____|
+
+       EXP            MANTISSA
+
+
+
+ FLOATING POINT REPRESENTATION EXAMPLES
+
+    DECIMAL    HEX        HEX
+    NUMBER   EXPONENT   MANTISSA
+
+     + 3        81      60 00 00
+     + 4        82      40 00 00
+     + 5        82      50 00 00
+     + 7        82      70 00 00
+     +12        83      60 00 00
+     +15        83      78 00 00
+     +17        84      44 00 00
+     +20        84      50 00 00
+     +60        85      78 00 00
+
+     - 3        81      A0 00 00
+     - 4        81      80 00 00
+     - 5        82      B0 00 00
+     - 7        82      90 00 00
+     -12        83      A0 00 00
+     -15        83      88 00 00
+     -17        84      BC 00 00
+     -20        84      B0 00 00
+     -60        85      88 00 00
+
+
+
+FLOATING POINT SUBROUTINE DESCRIPTIONS
+
+
+
+FCOMPL subroutine (address $F4A4)
+
+Purpose: FCOMPL is used to negate floating point numbers.
+
+Entry: A normalized or unnormalized value is in FP1 (floating point 
+accumulator 1).
+
+Uses: NORM, RTLOG.
+
+Exit: The value in FP1 is negated and then normalized to retain precision.  
+The 3-byte FP1 extension, E, may also be altered but FP2 and SIGN are not 
+disturbed.  The 6502 A-REG is altered and the X-REG is cleared.  The Y-REG 
+is not disturbed.
+
+Caution: Attempting to negate -2^128 will result in an overflow since 
++2^128 is not representable, and a jump to location $3F5 will be executed, 
+with the following contents in FP1.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: |  0  |  | $80 |  |  0  |  |  0  |
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+
+Example: Prior to calling FCOMPL, FP1 contains +15.
+
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $83 |  | $78 |  |  0  |  |  0  |   (+15)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+After calling FCOMPL as a subroutine, FP1 contains -15.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $83 |  | $88 |  |  0  |  |  0  |   (+15)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+
+
+FADD subroutine (address $F46E)
+
+Purpose: To add two numbers in floating point form.
+
+Entry: The two addends are in FP1 and FP2 respectively.  For maximum 
+precision, both should be normalized.
+
+Uses: SWPALGN, ADD, NORM, RTLOG.
+
+Exit: The normalized sum is left in FP1.  FP2 contains the addend of 
+greatest magnitude.  E is altered but sign is not.  The A-REG is altered 
+and the X-REG is cleared.  The sum mantissa is truncated to 24 bits.
+
+Caution: Overflow may result if the sum is less that -2^128 or greater than 
++2^128-1.  If so, a jump to location $3F5 is executed leaving 0 in X1, and 
+twice the proper sum in the mantissa M1.  The sign bit is left in the 
+carry, 0 for positive, 1 for negative.
+
+      _____    __________ 
+     |     |  |          |
+FP1: |  0  |  | X.YYY... |
+     |_____|  |__________|
+
+       X1       M1
+
+(For carry=0, true sum=+X.YYY x 2^128)
+
+Example: Prior to calling FADD, FP1 contains +12 and FP2 contains -5.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $83 |  | $60 |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP2: | $82 |  | $B0 |  |  0  |  |  0  |   (-5)
+     |_____|  |_____|  |_____|  |_____|
+
+       X2       M2
+
+After calling FADD, FP1 contains +7 (FP2 contains +12).
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1  | $82 |  | $70 |  |  0  |  |  0  |   (+7)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+
+
+FSUB subroutine (address $F468)
+
+Purpose: To subtract two floating point numbers.
+
+Entry: The minuend is in FP1 and the subtrahend is in FP2.  Both should be 
+normalized to retain maximum precision prior to calling FSUB.
+
+Uses: FCOMPL, ALGNSWP, FADD, ADD, NORM, RTLOG.
+
+Exit: The normalized difference is in FP1 with the mantissa truncated to 24 
+bits.  FP2 holds either the minued or the negated subtrahend, whichever is 
+of greater magnitude.  E is altered but SIGN and SCR are not.  the A-REG is 
+altered and the X-REG is cleared.  The Y-REG is not disturbed.
+
+Cautions: An exit to location S3F5 is taken if the result is less than 
+-2^128 or greater than +2^128-1.  or if the subtrahend is -2^128.
+
+Example: Prior to calling FSUB, FP1 contains +7 (minuend) and FP2 contalns 
+-5 (subtrahend).
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $82 |  | $70 |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP2: | $82 |  | $B0 |  |  0  |  |  0  |   (- 5)
+     |_____|  |_____|  |_____|  |_____|
+
+       X2       M2
+
+After calling FSUB, FP1 contains +12 and FP2 contains +7.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $83 |  | $60 |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+
+
+FMUL subroutine (address $F48C)
+
+Purpose: To multiply floating point numbers.
+
+Entry: The multiplicand and multiplier must reside in FP1 and FP2 
+respectively.  Both should be normalized prior to calling FMUL to retain 
+maximum precision.
+
+Uses: MD1, MD2, RTLOG1, ADD, MDEND.
+
+Exit: The signed normalized floating point product is left in FP1.  M1 is 
+truncated to contain the 24 most significant mantissa bits (including 
+sign).  The absolute value of the multiplier mantissa (M2) is left in FP2.  
+E, SIGN, and SCR are altered.  The A- and X-REGs are altered and the Y-REG 
+contains $FF upon exit.
+
+Cautions: An exit to location $3F5 is taken if the product is less than 
+-2^128 or greater than +2^128-1.
+
+Notes: FMUL will run faster if the absolute value of the multiplier 
+mantissa contains fewer '1's than the absolute value of the multiplicand 
+mantissa.
+
+Example: Prior to calling FMUL, FP1 contains +12 and FP2 contains -5.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $83 |  | $60 |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP2: | $82 |  | $B0 |  |  0  |  |  0  |   (- 5)
+     |_____|  |_____|  |_____|  |_____|
+
+       X2       M2
+
+After calling FMUL, FP1 contains -60 and FP2 contains +5.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $85 |  | $88 |  |  0  |  |  0  |   (-60)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP2: | $82 |  | $50 |  |  0  |  |  0  |   (+ 5)
+     |_____|  |_____|  |_____|  |_____|
+
+       X2       M2
+
+
+
+FDIV subroutine (addr $F4B2)
+
+Purpose: To perform division of floating point numbers.
+
+Entry: The normalized dividend is in FP2 and the normalized divisor is in 
+FP1.
+
+Exit: The signed normalized floating point quotient is left in FP1.  The 
+mantissa (M1) is truncated to 24 bits.  The 3-bit M1 extension (E) contains 
+the absolute value of the divisor mantissa.  MD2, SIGN, and SCR are 
+altered.  The A- and X-REGs are altered and the Y-REG is cleared.
+
+Uses: MD1, MD2, MDEND.
+
+Cautions: An exit to location $3F5 is taken if the quotient is less than 
+-2^128 or greater than +2^128-1
+
+Notes: MD2 contains the remainder mantissa (equivalent to the MOD 
+function).  The remainder exponent is the same as the quotient exponent, or 
+1 less if the dividend mantissa magnitude is less than the divisor mantissa 
+magnitude.
+
+Example: Prior to calling FDIV, FP1 contains -60 (dividend), and FP2 
+contains +12 (divisor).
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $85 |  | $80 |  |  0  |  |  0  |   (-60)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP2  | $83 |  | $60 |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+After calling FMUL, FP1 contains -5 and M2 contains 0.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $82 |  | $B0 |  |  0  |  |  0  |   (-5)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+
+
+FLOAT Subroutine (address $F451)
+
+Purpose: To convert integers to floating point representation.
+
+Entry: A signed (two's complement) 2-byte integer is stored in M1 
+(high-order byte) and M1+1 (low-order byte).  M1+2 must be cleared by user 
+prior to entry.
+
+Uses: NORM1.
+
+Exit: The normalized floating point equivalent is left in FP1.  E, FP2, 
+SIGN, and SCR are not disturbed.  The A-REG contains a copy of the 
+high-order mantissa byte upon exit but the X- and Y-REGs are not disturbed.  
+The carry is cleared.
+
+Notes: To float a 1-byte integer, place it in M1+1 and clear M1 as well as 
+M1+2 prior to calling FLOAT.
+
+FLOAT takes approximately 3 msec. lonqer to convert zero to floating point 
+form than other arguments.  The user may check for zero prior to calling 
+FLOAT and increase throughput.
+
+           *
+           *  LOW-ORDER INT. BYTE IN A-REG
+           * HIGH-ORDER BYTE IN Y-REG
+           *
+85 FA      XFLOAT  STA  M1+1
+84 F9              STY  M1    INIT MANT1
+A0 00              LDY  #$0
+84 FB              STY  M1+2
+05 D9              ORA  M1    CHK BOTH
+                              BYTES FOR
+D0 03              BNE  TOFLOAT  ZERO
+85 F8              STA  X1    IF SO CLR X1
+60                 RTS        AND RETURN
+4C 51 F4  TOFLOAT  JMP  FLOAT ELSE FLOAT
+                              INTEGER
+
+Example: Float +274 ($0112 hex)
+
+             CALLING SEQUENCE
+
+A0 01              LDY  #$01  HIGH-ORDER
+                              INTEGER BYTE
+A9 12              LDA  #$12  LOW-ORDER
+                              INTEGER BYTE
+84 F9              STY M1
+85 FA              STA M1+1
+A9 00              LDA #$00
+85 F8              STA M1+2
+20 51 F4           JSR FLOAT
+
+Upon returning from FLOAT, FP1 contains the floating point representation 
+of +274.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1  | $88 |  | $44 |  | $80 |  |  0  |   (+274)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+
+
+FIX subroutine (address $F640)
+
+Purpose: To extract the integer portion of a floating point number with 
+truncation (ENTIER function).
+
+Entry: A floating point value is in FP1.  It need not be normalized.
+
+Uses: RTAR.
+
+Exit: The two-byte signed two's complement representation of the integer 
+portion is left in M1 (high-order byte) and M1+1 (low-order byte).  The 
+floating point values +24.63 and -61.2 are converted to the integers +24 
+and -61 respectively.  FP1 and E are altered but FP2, E, SIGN, and SCR are 
+not.  The A- and X-REGs are altered but the Y-REG is not.
+
+Example: The floating point value +274 is in FP1 prior to calling FIX.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $88 |  | $44 |  | $80 |  |  0  |   (+274)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+After calling FIX, M1 (high-order byte) and M1+1 (low-order byte) contain 
+the integer representation of +274 ($0112).
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $8E |  | $01 |  | $12 |  |  0  |
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+Note: FP1 contains an unnormalized representation of +274 upon exit.
+
+
+
+NORM Subroutine (address $F463)
+
+Purpose: To normalize the value in FP1, thus insuring maximum precision.
+
+Entry: A normalized or unnormalized value is in FP1.
+
+Exit: The value in FP1 is normalized.  A zero mantissa will exit with X1=0 
+(2 exponent).  If the exponent on exit is -128 (X1=0) then the mantissa 
+(M1) is not necessarily normalized (with the two high-order mantissa bits 
+unequal).  E, FP2, SIGN, AND SCR are not distubed.  The A-REG is disturbed 
+but the X- and Y-REGs are not.  The carry is set.
+
+Example: FP1 contains +12 in unnormalized form (as .0011 x 2 ).
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $86 |  | $0C |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+       x1       M1
+
+Upon exit from NORM, FP1 contains +12 in normalized form (as 1.1 x 2 ).
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $83 |  | $60 |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+
+
+NORM1 subroutine (address $F455)
+
+Purpose: To normalize a floating point value in FP1 when it is known the 
+exponent is not -128 (X1=0) upon entry.
+
+Entry: An unnormalized number is in FP1.  The exponent byte should not be 0 
+for normal use.
+
+Exit: The normalized value is in FP1.  E, FP2, SIGN, and SCR are not not 
+disturbed.  The A-REG is altered but the X- and Y-REGs are not.
+
+
+
+ADD Subroutine (address $F425)
+
+Purpose: To add the two mantissas (M1 and M2) as 3-byte integers.
+
+Entry: Two mantissas are in M1 (through M1+2) and M2 (through M2+2).  They 
+should be aligned, that is with identical exponents, for use in the FADD 
+and FSUB subroutines.
+
+Exit: the 24-bit integer sum is in M1 (high-order byte in M1, low-order 
+byte in M1+2).  FP2, X1, E, SIGN and SCR are not disturbed.  The A-REG 
+contains the high-order byte of the sum, the X-REG contains $FF and the 
+Y-REG is not altered.  The carry is the '25th' sum bit.
+
+
+Example: FP1 contains +5 and FP2 contains +7 prior to calling ADD.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $82 |  | $50 |  |  0  |  |  0  |   (+5)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP2: | $82 |  | $70 |  |  0  |  |  0  |   (+7)
+     |_____|  |_____|  |_____|  |_____|
+
+Upon exit, M1 contains the overflow value for +12.  Note that the sign bit 
+is incorrect.  This is taken care of with a call to the right shift 
+routine.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP:  | $82 |  | $C0 |  |  0  |  |  0  |   (+12)
+     |_____|  |_____|  |_____|  |_____|
+
+
+
+ABSWAP Subroutine (address $F437)
+
+Purpose: To take the absolute value of FP1 and then swap FP1 with FP2.  
+Note that two sequential calls to ABSWAP will take the absolute values of 
+both FP1 and FP2 in preparation for a multiply or divide.
+
+Entry: FP1 and FP2 contain floating point values.
+
+Exit: The absolute value of the original FP1 contents are in FP2 and the 
+original FP2 contents are in FP1.  The least significant bit of SIGN is 
+complemented if a negation takes place (if the original FP1 contents are 
+negative) by means of an increment.  SCR and E are used.  The A-REG 
+contains a copy of X2, the X-REG is cleared, and the Y-REG is not altered.
+
+
+
+RTAR Subroutine (address $F47D)
+
+Purpose: To shift M1 right one bit position while incrementing X1 to 
+compensate for scale.  This is roughly the opposite of the NORM subroutine.
+
+Entry: A normalized or unnormalized floating point value is in FP1.
+
+Exit: The 6-byte field MANT1 and E is shifted right one bit arithmetically 
+and X1 is incremented by 1 to retain proper scale.  The sign bit of MANT1 
+(MSB of M1) is unchanged.  FP2, SIGN, and SCR are not disturbed.  The A-REG 
+contains the least significant byte of E (E+2), the X-REG is cleared, and 
+the Y-REG is not disturbed.
+
+Caution: If X1 increments of 0 (overflow) then an exit to location $3F5 is 
+taken, the A-REG contains the high-order MANT1 byte, M1 and X1 is cleared.  
+FP2, SIGN, SCR, and the X- and Y-REGs are not disturbed.
+
+Uses: RTLOG
+
+Example: Prior to calling RTAR, FP1 contains the normalized value -7.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1  | $83 |  | $A0 |  |  0  |  |  0  |   (-7)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+After calling RTAR, FP1 contains the unnormalized value -7 (note that 
+precision is lost off the low-order end of M1).
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1  | $84 |  | $D0 |  |  0  |  |  0  |   (-7)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+Note: M1 sign bit is unchanged.
+
+
+
+RTLOG subroutine (address $F480)
+
+Purpose: To shift the 6-byte field MANT1 and E one bit to the right (toward 
+the least significant bit).  The 6502 carry bit is shifted into the 
+high-order M1 bit.  This is useful in correcting binary sum overflows.
+
+Entry: A normalized or unnormalized floating point value is in FP1.  The 
+carry must be cleared or set by the user since it is shifted Into the sign 
+bit of M1.
+
+Exit: Same as RTAR except that the sign of M1 is not preserved (it is set 
+to the value of the carry bit on entry)
+
+Caution: Same as RTAR.
+
+Example: Prior to calling RTLOG, FP1 contains the normalized value -12 and 
+the carry is clear.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $83 |  | $A0 |  |  0  |  |  0  |   (-12)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+After calling RTLOG, M1 is shifted one bit to the right and the sign bit is 
+clear.  X1 is incremented by 1.
+
+      _____    _____    _____    _____ 
+     |     |  |     |  |     |  |     |
+FP1: | $84 |  | $50 |  |  0  |  |  0  |   (+20)
+     |_____|  |_____|  |_____|  |_____|
+
+       X1       M1
+
+Note: The bit shifted off the end of MANT1 is rotated into the high-order 
+bit of the 3-byte extension E.  The 3-byte E field is also shifted one bit 
+to the right.
+
+
+
+RTLOG1 subroutine (address $F484)
+
+Purpose: To shift MANT1 and E right one bit without adjusting X1.  This is 
+used by the multiply loop.  The carry is shifted into the sign bit of 
+MANT1.
+
+Entry: M1 and E contain a 6-byte unsigned field.  E is the 3-byte low-order 
+extension of MANT1.
+
+Exit: Same as RTLOG except that X1 is not altered and an overflow exit 
+cannot occur.
+
+
+
+MD2 subroutine (address $F4E2)
+
+Purpose: To clear the 3-byte MANT1 field for FMUL and FDIV, check for 
+inital result exponent overflow (and underflow), and initialize the X-REG 
+to $17 for loop counting.
+
+Entry: the X-REG is cleared by the user since it is placed in the 3 bytes 
+of MANT1.  The A-REG contains the result of an exponent addition (FMUL) or 
+subtraction (FDIV).  The carry and sign status bits should be set according 
+to this addition or subtraction for overflow and underflow determination.
+
+Exit: The 3 bytes of M1 are cleared (or all set to the contents of the 
+X-REG on Entry) and the Y-REG is loaded with $17.  The sign bit of the 
+A-REG is complemented and a copy of the A-REG is stored in X1.  FP2, SIGN, 
+SCR, and the X-REG are not disturbed.
+
+Uses: NORM.
+
+Caution: Exponent overflow results in an exit to location $3F5.  Exponent 
+underflow results in an early return from the calling subroutine (FDIV or 
+FMUL) with a floating point zero in FP1.  Because MD2 pops a return address 
+off the stack, it may only be called by another subroutine.
