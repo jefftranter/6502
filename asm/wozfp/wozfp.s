@@ -35,19 +35,19 @@
 ;       DIGITS.
 ;
 ;
-       .ORG 3      ; SET BASE PAGE ADRESSES
-SIGN:  NOP
-X2:    NOP         ; EXPONENT 2
-M2:    .res 3      ; MANTISSA 2
-X1:    NOP         ; EXPONENT 1
-M1:    .res 3      ; MANTISSA 1
-E:     .res 4      ; SCRATCH
-ZZ:    .res 4
-T:     .res 4
-SEXP:  .res 4
-INT:   .res 1
+       .org 3      ; SET BASE PAGE ADRESSES
+       SIGN = *
+       X2   = SIGN+1        ; EXPONENT 2
+       M2   = X2+1          ; MANTISSA 2
+       X1   = M2+3          ; EXPONENT 1
+       M1   = X1+1          ; MANTISSA 1
+       E    = M1+3          ; SCRATCH
+       ZZ   = E+4
+       T    = ZZ+4
+       SEXP = T+4
+       INT  = SEXP+4
 ;
-       .ORG $1D00   ; STARTING LOCATION FOR LOG
+       .org $1D00   ; STARTING LOCATION FOR LOG
 ;
 ;
 ;     NATURAL LOG OF MANT/EXP1 WITH RESULT IN MANT/EXP1
@@ -58,13 +58,15 @@ LOG:    LDA M1
 ERROR:  BRK         ; ERROR ARG<=0
 ;
 CONT:  JSR SWAP    ; MOVE ARG TO EXP/MANT2
+       LDX #0      ; LOAD X FOR HIGH BYTE OF EXPONENT
        LDA X2      ; HOLD EXPONENT
        LDY #$80
        STY X2      ; SET EXPONENT 2 TO 0 ($80)
        EOR #$80    ; COMPLIMENT SIGN BIT OF ORIGINAL EXPONENT
        STA M1+1    ; SET EXPONENT INTO MANTISSA 1 FOR FLOAT
-       LDA #0
-       STA M1      ; CLEAR MSB OF MANTISSA 1
+       BPL *+3     ; IS EXPONENT NEGATIVE
+       DEX         ; YES, SET X TO $FF
+       STX M1      ; SET UPPER BYTE OF EXPONENT
        JSR FLOAT   ; CONVERT TO FLOATING POINT
        LDX #3      ; 4 BYTE TRANSFERS
 SEXP1: LDA X2,X
@@ -155,22 +157,23 @@ L10:   LDA LN10,X
        JSR FMUL    ; LOG10(X)=LN(X)/LN(10)
        RTS
 ;
-LN10:  ; DCM 0.4342945
+LN10:  .byte $7E, $6F, $2D, $ED ; 0.4342945
 
-R22:   ; DCM 1.4142136   ; SQRT(2)
+R22:   .byte $80, $5A, $02, $7A ; 1.4142136 SQRT(2)
 
-LE2:   ; DCM 0.69314718  ; LOG BASE E OF 2
+LE2:   .byte $7F, $58, $B9, $0C ; 0.69314718 LOG BASE E OF 2
 
-A1:    ; DCM 1.2920074
+A1:    .byte $80, $52, $80, 40 ; 1.2920074
 
-MB:    ; DCM -2.6398577
+MB:    .byte $81, $AB, $86, $49 ; -2.6398577
 
-C:     ; DCM 1.6567626
+C:     .byte $80, $6A, $08, $66 ; 1.6567626
 
-MHLF:  ; DCM 0.5
+MHLF:  .byte $7F, $40, $00, $00 ; 0.5
 
 ;
-       .ORG $1E00   ; STARTING LOCATION FOR EXP
+       .res $1e00-*
+       .org $1E00   ; STARTING LOCATION FOR EXP
 ;
 ;     EXP OF MANT/EXP1 RESULT IN MANT/EXP1
 ;
@@ -283,21 +286,22 @@ LD12:  LDA MHLF,X
        ADC X1      ; 2**(INT+1)
        STA X1      ; RETURN RESULT TO EXPONENT
        RTS         ; RETURN ANS=(.5+Z/(-Z+D+C2*Z*Z-B2/(Z*Z+A2))*2**(INT+1)
-L2E:   ; DCM 1.4426950409   LOG BASE 2 OF E
+L2E:   .byte $80, $5C, $55, $1E ; 1.4426950409 LOG BASE 2 OF E
 
-A2:    ; DCM 87.417497202
+A2:    .byte $86, $57, $6A, $E1 ; 87.417497202
 
-B2:    ; DCM 617.9722695
+B2:    .byte $89, $4D, $3F, $1D ; 617.9722695
 
-C2:    ; DCM .03465735903
+C2:    .byte $7B, $46, $FA, $70 ; .03465735903
 
-D:     ; DCM 9.9545957821
+D:     .byte $83, $4F, $A3, $03 ; 9.9545957821
 
 ;
 ;
 ;     BASIC FLOATING POINT ROUTINES
 ;
-       .ORG $1F00  ; START OF BASIC FLOATING POINT ROUTINES
+       .res $1F00-*
+       .org $1F00  ; START OF BASIC FLOATING POINT ROUTINES
 ADD:   CLC         ; CLEAR CARRY
        LDX #$02    ; INDEX FOR 3-BYTE ADD
 ADD1:  LDA M1,X
