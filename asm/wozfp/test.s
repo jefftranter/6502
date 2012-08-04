@@ -113,13 +113,113 @@ FloatToFixed:
 
 ; Natural log -- log to base e or ln(x)
 NaturalLog:
+        LDX #<NaturalLogString
+        LDY #>NaturalLogString
+        JSR PrintString
+
+        LDX #<EnterFloatString          ; Get float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
+        JSR LOG                          ; Take the log
+
+        LDX #<ResultIsString             ; Display result
+        LDY #>ResultIsString
+        JSR PrintString
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
         RTS
 
-; Natural log -- log to base 10 or log(x)
+; Common log -- log to base 10 or log(x)
 CommonLog:
+        LDX #<CommonLogString
+        LDY #>CommonLogString
+        JSR PrintString
+
+        LDX #<EnterFloatString          ; Get float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
+        JSR LOG10                        ; Take the log
+
+        LDX #<ResultIsString             ; Display result
+        LDY #>ResultIsString
+        JSR PrintString
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
         RTS
 
+; exp(x) i.e. e^x
 Exponential:
+        LDX #<ExponentialString
+        LDY #>ExponentialString
+        JSR PrintString
+
+        LDX #<EnterFloatString          ; Get float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
+        JSR EXP                          ; Calculate the exponent
+
+        LDX #<ResultIsString             ; Display result
+        LDY #>ResultIsString
+        JSR PrintString
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
         RTS
 
 ; Add two floating point numbers
@@ -156,7 +256,7 @@ Add:
         STA M2+2
         JSR PrintCR
 
-        JSR FADD                         ; Do the add.
+        JSR FADD                         ; Do the add
 
         LDX #<ResultIsString             ; Display result
         LDY #>ResultIsString
@@ -207,7 +307,7 @@ Subtract:
         STA M1+2
         JSR PrintCR
 
-        JSR FSUB                         ; Do the subtract.
+        JSR FSUB                         ; Do the subtract
 
         LDX #<ResultIsString             ; Display result
         LDY #>ResultIsString
@@ -404,7 +504,7 @@ PromptString:
 InvalidString:
         .byte "INVALID COMMAND, TYPE '?' FOR HELP",CR,0
 
-FixedToFloatString:        
+FixedToFloatString:
        .byte "FIXED TO FLOATING POINT",CR,0
 
 Enter16BitHexString:
