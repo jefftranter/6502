@@ -460,3 +460,4 @@ FIX:   LDA X1      ; CHECK EXPONENT
        BNE FIX-3   ; NO, SHIFT
 RTRN:  RTS         ; RETURN
 
+       .include "util.s"
