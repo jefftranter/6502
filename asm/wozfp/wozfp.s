@@ -48,6 +48,8 @@
        INT  = SEXP+4
 ;
        .org $1D00   ; STARTING LOCATION FOR LOG
+       .export WOZFP
+WOZFP:
 ;
 ;
 ;     NATURAL LOG OF MANT/EXP1 WITH RESULT IN MANT/EXP1

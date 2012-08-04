@@ -1,46 +1,37 @@
 ;
 ; Test and demonstration of the floating point math routines
 ;
+; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+;
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;   http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+;
+; Possible Future Enhancements:
+; - routines to convert floating point to displayed decimal and vice versa
+
+; Revision History
+; Version Date         Comments
+; 0.0     03-Aug-2012  First version started
 
         .include "wozfp.s"
 
-;   FLOATING POINT DEMONSTRATION PROGRAM
-; 
-; F - FIXED TO FLOATING POINT
-; P - FLOATING TO FIXED POINT
-; N - NATURAL LOG
-; L - COMMON LOG
-; E - EXPONENTIAL
-; A - FLOATING POINT ADD
-; S - FLOATING POINT SUBTRACT
-; M - FLOATING POINT MULTIPLY
-; D - FLOATING POINT DIVIDE
-; ? - THIS HELP SCREEN
-; X - EXIT
-; 
-; SELECT A FUNCTION: 1
-; FIXED TO FLOATING POINT
-; ENTER 16-BIT HEX NUMBER: 00 0C
-; FLOATING POINT IS: 83  60 00 00
-; 
-; SELECT A FUNCTION: 2
-; FLOATING TO FIXED POINT
-; ENTER 8-BIT EXPONENT and 24-BIT MANTISSA: 83 60 00 00
-; FIXED POINT IS: 00 0C
-; 
-; SELECT A FUNCTION: 6
-; FLOATING POINT ADD
-; ENTER 8-BIT EXPONENT and 24-BIT MANTISSA: 83 60 00 00
-; ENTER 8-BIT EXPONENT and 24-BIT MANTISSA: 83 60 00 00
-; RESULT IS: 84 52 00 00
-
         .export FPDEMO
+
+; Entry point.
 FPDEMO:
         JSR ClearScreen
         JSR Help
 
-; TODO: Use command table code from JMON
-
+; Main command loop.
 Command:
         LDX #<PromptString
         LDY #>PromptString
@@ -50,60 +41,289 @@ Command:
         JSR PrintChar           ; Echo the command
         JSR PrintCR             ; and newline
         JSR OPICK               ; Call option picker to run appropriate command
-
-        JMP Command
+        JMP Command             ; Go back and get next command
 
 ; Print error message for invalid command.
 Invalid:
         LDX #<InvalidString
         LDY #>InvalidString
         JSR PrintString
-        
         RTS
 
+; Convert a fixed point number to float.
 FixedToFloat:
+        LDX #<FixedToFloatString
+        LDY #>FixedToFloatString
+        JSR PrintString
+        LDX #<Enter16BitHexString
+        LDY #>Enter16BitHexString
+        JSR PrintString
+        JSR GetByte
+        STA M1                          ; High byte
+        JSR GetByte
+        STA M1+1                        ; Low byte
+        JSR PrintCR
+        JSR FLOAT                       ; Convert to float
+        LDX #<FloatingPointIsString
+        LDY #>FloatingPointIsString
+        JSR PrintString
 
-; Convert a fixed point number 274 ($0112) to float
+; Result comes back in M1 (3 byte mantissa) and X1 (1 byte exponent).
 
-        LDA #$01
-        STA M1          ; High byte
-        LDA #$12
-        STA M1+1        ; Low byte
-        JSR FLOAT       ; Convert to float
-
-; Result comes back in M1 (3 byte mantissa) and X (1 byte exponent)
-;      _____    _____    _____    _____ 
-;     |     |  |     |  |     |  |     |
-;FP1  | $88 |  | $44 |  | $80 |  |  0  |   (+274)
-;     |_____|  |_____|  |_____|  |_____|
-;
-;       X1       M1
-
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
         RTS
 
+; Convert floating point to fixed point.
 FloatToFixed:
-
-; Convert a floating point number (above) to fixed point.
-; Returns in M1 (high) and M1+1 (low)
-
-        LDA #$88
+        LDX #<FloatToFixedString
+        LDY #>FloatToFixedString
+        JSR PrintString
+        LDX #<EnterFloatString
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
         STA X1
-        LDA #$44
+        JSR PrintSpace
+        JSR GetByte
         STA M1
-        LDA #$80
+        JSR GetByte
         STA M1+1
-        LDA #$0
+        JSR GetByte
         STA M1+2
-        JSR FIX
+        JSR PrintCR
+        JSR FIX                 ; Returns in M1 (high) and M1+1 (low)
+        LDX #<FixedPointIsString
+        LDY #>FixedPointIsString
+        JSR PrintString
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        JSR PrintCR
         RTS
 
+; Natural log -- log to base e or ln(x)
 NaturalLog:
+        RTS
+
+; Natural log -- log to base 10 or log(x)
 CommonLog:
+        RTS
+
 Exponential:
+        RTS
+
+; Add two floating point numbers
 Add:
+        LDX #<AddString
+        LDY #>AddString
+        JSR PrintString
+
+        LDX #<EnterFloatString          ; Get first float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
+        LDX #<EnterFloatString          ; Get second float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X2
+        JSR PrintSpace
+        JSR GetByte
+        STA M2
+        JSR GetByte
+        STA M2+1
+        JSR GetByte
+        STA M2+2
+        JSR PrintCR
+
+        JSR FADD                         ; Do the add.
+
+        LDX #<ResultIsString             ; Display result
+        LDY #>ResultIsString
+        JSR PrintString
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
+        RTS
+
+; Substract two floating point numbers (first minus second).
 Subtract:
+        LDX #<SubtractString
+        LDY #>SubtractString
+        JSR PrintString
+
+        LDX #<EnterFloatString          ; Get first float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X2
+        JSR PrintSpace
+        JSR GetByte
+        STA M2
+        JSR GetByte
+        STA M2+1
+        JSR GetByte
+        STA M2+2
+        JSR PrintCR
+
+        LDX #<EnterFloatString          ; Get second float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
+        JSR FSUB                         ; Do the subtract.
+
+        LDX #<ResultIsString             ; Display result
+        LDY #>ResultIsString
+        JSR PrintString
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
+        RTS
+
+; Multiply two floating point numbers.
 Multiply:
+        LDX #<MultiplyString
+        LDY #>MultiplyString
+        JSR PrintString
+
+        LDX #<EnterFloatString          ; Get first float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
+        LDX #<EnterFloatString          ; Get second float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X2
+        JSR PrintSpace
+        JSR GetByte
+        STA M2
+        JSR GetByte
+        STA M2+1
+        JSR GetByte
+        STA M2+2
+        JSR PrintCR
+
+        JSR FMUL                         ; Do the multiply
+
+        LDX #<ResultIsString             ; Display result
+        LDY #>ResultIsString
+        JSR PrintString
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
+        RTS
+
+; Divide two floating point numbers (first divided by second).
 Divide:
+        LDX #<DivideString
+        LDY #>DivideString
+        JSR PrintString
+
+        LDX #<EnterFloatString          ; Get first float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X2
+        JSR PrintSpace
+        JSR GetByte
+        STA M2
+        JSR GetByte
+        STA M2+1
+        JSR GetByte
+        STA M2+2
+        JSR PrintCR
+
+        LDX #<EnterFloatString          ; Get second float number
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
+        JSR FDIV                         ; Do the divide
+
+        LDX #<ResultIsString             ; Display result
+        LDY #>ResultIsString
+        JSR PrintString
+        LDA X1
+        JSR PrintByte
+        JSR PrintSpace
+        LDA M1
+        JSR PrintByte
+        LDA M1+1
+        JSR PrintByte
+        LDA M1+2
+        JSR PrintByte
+        JSR PrintCR
         RTS
 
 ; Display help information.
@@ -152,8 +372,8 @@ MATCHFL:
 
 JMPFL:
         .word Invalid-1
-        .word FloatToFixed-1
         .word FixedToFloat-1
+        .word FloatToFixed-1
         .word NaturalLog-1
         .word CommonLog-1
         .word Exponential-1
@@ -179,7 +399,49 @@ IntroString:
         .byte "X - EXIT",CR,0
 
 PromptString:
-        .byte "SELECT A FUNCTION: ",0
+        .byte CR, "SELECT A FUNCTION: ",0
 
 InvalidString:
         .byte "INVALID COMMAND, TYPE '?' FOR HELP",CR,0
+
+FixedToFloatString:        
+       .byte "FIXED TO FLOATING POINT",CR,0
+
+Enter16BitHexString:
+       .byte "ENTER 16-BIT HEX NUMBER: ",0
+
+FloatingPointIsString:
+        .byte "FLOATING POINT IS: ",0
+
+FloatToFixedString:
+       .byte "FLOATING TO FIXED POINT",CR,0
+
+EnterFloatString:
+        .byte "ENTER EXPONENT AND MANTISSA: ",0
+
+FixedPointIsString:
+        .byte "FIXED POINT IS: ",0
+
+AddString:
+        .byte "FLOATING POINT ADD",CR,0
+
+SubtractString:
+        .byte "FLOATING POINT SUBTRACT",CR,0
+
+MultiplyString:
+        .byte "FLOATING POINT MULTIPLY",CR,0
+
+DivideString:
+        .byte "FLOATING POINT DIVIDE",CR,0
+
+NaturalLogString:
+        .byte "NATURAL LOG",CR,0
+
+CommonLogString:
+        .byte "COMMON LOG",CR,0
+
+ExponentialString:
+        .byte "EXPONENTIAL",CR,0
+
+ResultIsString:
+        .byte "RESULT IS: ",0
