@@ -28,8 +28,9 @@
 
 ; Entry point.
 FPDEMO:
-        JSR ClearScreen
-        JSR Help
+        JSR ClearScreen         ; Clear scree
+        JSR SetupBrkHandler     ; Set up BRK (error) handler
+        JSR Help                ; Display help info
 
 ; Main command loop.
 Command:
@@ -439,6 +440,37 @@ Exit:
         PLA
         RTS
 
+; Install handler to jump to our routine when BRK occurr due to an error.
+SetupBrkHandler:
+        LDA $FFFE               ; get address of BRK vector
+        STA T1                  ; and save in page zero
+        LDA $FFFF
+        STA T1+1
+        LDA #$4C                ; JMP instruction
+        LDY #0          
+        STA (T1),Y              ; store at IRQ/BRK vector
+        LDA #<BreakHandler      ; handler address low byte
+        INY
+        STA (T1),Y              ; write it after JMP
+        LDA #>BreakHandler      ; handler address low byte
+        INY
+        STA (T1),Y              ; write it after JMP
+        RTS
+
+; Called when BRK instruction is executed due to an error.
+BreakHandler:
+        LDX #<ErrorString
+        LDY #>ErrorString
+        JSR PrintString
+        PLA             ; P
+        PLA             ; PC low
+        TAX
+        PLA             ; PC high
+        TAY
+        JSR PrintAddress
+        JSR PrintCR
+        JMP Command
+
 ; Option picker. Adapted from "Assembly Cookbook for the Apple II/IIe" by Don Lancaster.
 ; Call with command letter in A.
 ; Registers affected: X
@@ -545,3 +577,6 @@ ExponentialString:
 
 ResultIsString:
         .byte "RESULT IS: ",0
+
+ErrorString:
+        .byte "ERROR OCCURRED AT ADDRESS $",0
