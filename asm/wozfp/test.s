@@ -28,15 +28,15 @@
 
 ; Entry point.
 FPDEMO:
-        JSR ClearScreen         ; Clear scree
+        JSR ClearScreen         ; Clear screen
         JSR SetupBrkHandler     ; Set up BRK (error) handler
         JSR Help                ; Display help info
 
 ; Main command loop.
 Command:
-        LDX #<PromptString
+        LDX #<PromptString      ; Print command prompt
         LDY #>PromptString
-        JSR PrintString         ; Print command prompt
+        JSR PrintString
 
         JSR GetKey              ; Get a key
         JSR PrintChar           ; Echo the command
@@ -56,7 +56,7 @@ FixedToFloat:
         LDX #<FixedToFloatString
         LDY #>FixedToFloatString
         JSR PrintString
-        LDX #<Enter16BitHexString
+        LDX #<Enter16BitHexString       ; Prompt user for number
         LDY #>Enter16BitHexString
         JSR PrintString
         JSR GetByte
@@ -70,6 +70,7 @@ FixedToFloat:
         JSR PrintString
 
 ; Result comes back in M1 (3 byte mantissa) and X1 (1 byte exponent).
+; Display the exponent followed by a space then three mantissa bytes.
 
         LDA X1
         JSR PrintByte
@@ -223,7 +224,7 @@ Exponential:
         JSR PrintCR
         RTS
 
-; Add two floating point numbers
+; Add two floating point numbers.
 Add:
         LDX #<AddString
         LDY #>AddString
@@ -434,7 +435,8 @@ Help:
         JSR PrintString
         RTS
 
-; Return to caller of the program by popping return address so we return to caller of main.
+; Exit command. Return to caller of the program by popping return
+; address so we return to caller of main.
 Exit:
         PLA
         PLA
@@ -447,7 +449,7 @@ SetupBrkHandler:
         LDA $FFFF
         STA T1+1
         LDA #$4C                ; JMP instruction
-        LDY #0          
+        LDY #0
         STA (T1),Y              ; store at IRQ/BRK vector
         LDA #<BreakHandler      ; handler address low byte
         INY
@@ -458,14 +460,15 @@ SetupBrkHandler:
         RTS
 
 ; Called when BRK instruction is executed due to an error.
+; Display the address (actually address+2) where break occurred.
 BreakHandler:
         LDX #<ErrorString
         LDY #>ErrorString
         JSR PrintString
-        PLA             ; P
-        PLA             ; PC low
+        PLA                      ; P
+        PLA                      ; PC low
         TAX
-        PLA             ; PC high
+        PLA                      ; PC high
         TAY
         JSR PrintAddress
         JSR PrintCR
@@ -515,6 +518,8 @@ JMPFL:
         .word Divide-1
         .word Help-1
         .word Exit-1
+
+; Strings
 
 IntroString:
         .byte "FLOATING POINT DEMONSTRATION PROGRAM",CR,CR

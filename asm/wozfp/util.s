@@ -1,3 +1,18 @@
+; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+;
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;   http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+
+
   T1      = $30                 ; Temp variable 1 (2 bytes)
 T2:       .res 1                ; Temp variable 2
 
@@ -10,7 +25,6 @@ T2:       .res 1                ; Temp variable 2
   KBD     = $D010               ; PIA.A keyboard input
   KBDCR   = $D011               ; PIA.A keyboard control register
   DSP     = $D012               ; PIA.B display output register
-
 
 ; -------------------- Utility Functions --------------------
 
@@ -224,25 +238,6 @@ PrintChar:
         PLA             ; Restore A
         PLP             ; Restore status
         RTS             ; Return.
-
-; Print a dollar sign
-; Registers changed: None
-PrintDollar:
-        PHA
-        LDA #'$'
-        JSR PrintChar
-        PLA
-        RTS
-
-; Print several space characters.
-; X contains number of spaces to print.
-; Registers changed: X
-PrintSpaces:
-        PHA                     ; save A
-        LDA #' '
-        JSR PrintChars
-        PLA                     ; restore A
-        RTS
 
 ; Output a character multiple times
 ; A contains character to print.
