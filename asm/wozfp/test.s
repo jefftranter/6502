@@ -23,6 +23,7 @@
 ; 0.0     03-Aug-2012  First version started
 
         .include "wozfp.s"
+;        .include "bcdfloat.s"
 
         .export FPDEMO
 

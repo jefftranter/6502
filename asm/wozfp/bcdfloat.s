@@ -111,7 +111,7 @@ BRNA:   LDA #$0B        ; Set digit counter to eleven.
 BRI:    LDY #$04        ; Rotate BCD accumulator left to output most-significant digits first. But first bypass zeros.
 BRH:    CLC
         LDX #$FB
-BRG:    ROL BCDN
+BRG:    ROL BCDN,X
         INX
         BNE BRG
         ROL OVFLO       ; Rotate digit into OVFLO.
@@ -127,7 +127,7 @@ BRX:    CLC             ; Convert digit to ASCII and output it.
         STA OVFLO
         LDY #$04        ; Output the remaining digits.
 BRL:    CLC
-        LDX $FB
+        LDX #$FB
 BRJ:    ROL BCDN,X      ; Rotate a digit at a time into
         INX             ; OVFLO, then output it. One digit is four bits or one nibble.
         BNE BRJ
