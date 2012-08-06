@@ -26,7 +26,7 @@
 
 START:  CLD             ; Decimal mode not required
         LDX #$20         ; Clear all the memory locations used for storage by this routine by loading them with zeros.
-        LDA $00
+        LDA #$00
 CLEAR:  STA MEM,X
         DEX
         BPL CLEAR
@@ -264,7 +264,7 @@ INPUT:  JSR $E93C
         PHA
         LDA $A438,X
         ORA #$80
-        JSR $EF78
+        JSR $EF7B
         PLA
         TAX
         DEX
