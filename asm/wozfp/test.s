@@ -23,7 +23,6 @@
 ; 0.0     03-Aug-2012  First version started
 
         .include "wozfp.s"
-;        .include "bcdfloat.s"
 
         .export FPDEMO
 
@@ -586,3 +585,5 @@ ResultIsString:
 
 ErrorString:
         .byte "ERROR OCCURRED AT ADDRESS $",0
+
+        .include "bcdfloat.s"

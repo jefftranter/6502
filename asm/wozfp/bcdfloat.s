@@ -2,6 +2,10 @@
 ; Marvin L. De Jong
 ; from Compute! Issue 9 / February 1981 / Page 46
 
+; A Floating-Point Binary to BCD  Routine
+; Marvin L. De Jong
+; from Compute! Issue 11 / April 1981 / Page 66
+
 ; The original listing had many errors (e.g. "#" missing).
 
         OVFLO  = $00           ; overflow byte for the accumulator when it is shifted left or multiplied by ten.
@@ -181,9 +185,104 @@ ARND1:  LDA #$0D        ; Get an ASCII carriage return.
         JSR OUTCH
         RTS             ; All finished.
 
-; Listing 1: ASCII to Floating-Point Binary Conversion Program
-        .org $0E00
+; Listing 2. Multiply by Ten Subroutine.
 
+        .res $0D00-*
+        .org $0D00
+TENX:   CLC             ; Shift accumulator left.
+        LDX #$04        ; Accumulator contains four bytes so X is set to four.
+BR1:    LDA ACC,X
+        ROL A           ; Shift a byte left.
+        STA ACCB,X      ; Store it in accumulator B.
+        DEX
+        BPL BR1         ; Back to get another byte.
+        LDX #$04        ; Now shift accumulator B left once again to get "times four."
+        CLC
+BR2:    ROL ACCB,X      ; Shift one byte left.
+        DEX
+        BPL BR2         ; Back to get another byte.
+        LDX #$04        ; Add accumulator to accumulator B to get A + 4* A = 5* A.
+        CLC
+BR3:    LDA ACC,X
+        ADC ACCB,X
+        STA ACC,X       ; Result into accumulator.
+        DEX
+        BPL BR3
+        LDX #$04        ; Finally, shift accumulator left one bit to get 2*5* A = 10* A.
+        CLC
+BR4:    ROL ACC,X
+        DEX
+        BPL BR4         ; Get another byte.
+        RTS
+
+; Listing 3. Normalize the Mantissa Subroutine.
+
+        .res $0D30-*
+        .org $0D30
+NORM:   CLC
+BR6:    LDA OVFLO       ; Any bits set in the overflow byte? Yes, then rotate right.
+        BEQ BR5
+        LSR OVFLO       ; No, then rotate left.
+        ROR MSB
+        ROR NMSB
+        ROR NLSB
+        ROR LSB         ; For each shift right, increment binary exponent.
+        INC BEXP
+        CLV             ; Force a jump back.
+        BVC BR6
+BR5:    BCC BR7         ; Did the last rotate cause a carry? Yes, then round the mantissa upward.
+        LDX #$04
+BR8:    LDA ACC,X
+        ADC #$00        ; Carry is set so one is added
+        STA ACC,X
+        DEX
+        BPL BR8
+        BMI BR6         ; Check overflow byte once more.
+
+BR7:    LDY #$20        ; Y will limit the number of left shifts to 32.
+BR10:   LDA MSB
+        BMI BR11        ; If mantissa has a one in its most-significant bit, get out.
+        CLC
+        LDX #$04
+BR9:    ROL ACC,X       ; Shift accumulator left one bit.
+        DEX
+        BNE BR9
+        DEC BEXP        ; Decrement binary exponent for each left shift.
+        DEY
+        BNE BR10        ; No more than $20 = 32 bits shifted.
+BR11:   RTS             ; That's it.
+
+
+; Listing 5. A 32 Bit Binary-to-BCD Subroutine.
+
+        .res $0D67-*
+        .org $0D67
+CONVD:  LDX  #$05       ; Clear BCD accumulator.
+        LDA #$00
+BRM:    STA BCDA,X      ; Zeros into BCD accumulator.
+        DEX
+        BPL BRM
+        SED             ; Decimal mode for add.
+        LDY #$20        ; Y has number of bits to be converted. Rotate binary number into carry.
+BRN:    ASL LSB
+        ROL NLSB
+        ROL NMSB
+        ROL MSB
+        LDX #$FB        ; X will control a five byte addition. Get least-significant byte of the BCD accumulator, add is to itself, then store.
+BRO:    LDA BCDA,X
+        ADC BCDA,X
+        STA BCDA,X
+        INX             ; Repeat until all five bytes have been added.
+        BNE BRO
+        DEY             ; Get another bit from the binary number.
+        BNE BRN
+        CLD             ; Back to binary mode.
+        RTS             ; And back to the program.
+
+; Listing 1: ASCII to Floating-Point Binary Conversion Program
+
+        .res $0E00-*
+        .org $0E00
 START:  CLD             ; Decimal mode not required
         LDX #$20        ; Clear all the memory locations used for storage by this routine by loading them with zeros.
         LDA #$00
@@ -352,99 +451,9 @@ STLPLS: JSR TENX        ; Jump to multiply-by-ten subroutine.
         BNE STLPLS
 FINISH: RTS
 
-; Listing 2. Multiply by Ten Subroutine.
-
-        .org $0D00
-TENX:   CLC             ; Shift accumulator left.
-        LDX #$04        ; Accumulator contains four bytes so X is set to four.
-BR1:    LDA ACC,X
-        ROL A           ; Shift a byte left.
-        STA ACCB,X      ; Store it in accumulator B.
-        DEX
-        BPL BR1         ; Back to get another byte.
-        LDX #$04        ; Now shift accumulator B left once again to get "times four."
-        CLC
-BR2:    ROL ACCB,X      ; Shift one byte left.
-        DEX
-        BPL BR2         ; Back to get another byte.
-        LDX #$04        ; Add accumulator to accumulator B to get A + 4* A = 5* A.
-        CLC
-BR3:    LDA ACC,X
-        ADC ACCB,X
-        STA ACC,X       ; Result into accumulator.
-        DEX
-        BPL BR3
-        LDX #$04        ; Finally, shift accumulator left one bit to get 2*5* A = 10* A.
-        CLC
-BR4:    ROL ACC,X
-        DEX
-        BPL BR4         ; Get another byte.
-        RTS
-
-; Listing 3. Normalize the Mantissa Subroutine.
-
-        .org $0D30
-NORM:   CLC
-BR6:    LDA OVFLO       ; Any bits set in the overflow byte? Yes, then rotate right.
-        BEQ BR5
-        LSR OVFLO       ; No, then rotate left.
-        ROR MSB
-        ROR NMSB
-        ROR NLSB
-        ROR LSB         ; For each shift right, increment binary exponent.
-        INC BEXP
-        CLV             ; Force a jump back.
-        BVC BR6
-BR5:    BCC BR7         ; Did the last rotate cause a carry? Yes, then round the mantissa upward.
-        LDX #$04
-BR8:    LDA ACC,X
-        ADC #$00        ; Carry is set so one is added
-        STA ACC,X
-        DEX
-        BPL BR8
-        BMI BR6         ; Check overflow byte once more.
-
-BR7:    LDY #$20        ; Y will limit the number of left shifts to 32.
-BR10:   LDA MSB
-        BMI BR11        ; If mantissa has a one in its most-significant bit, get out.
-        CLC
-        LDX #$04
-BR9:    ROL ACC,X       ; Shift accumulator left one bit.
-        DEX
-        BNE BR9
-        DEC BEXP        ; Decrement binary exponent for each left shift.
-        DEY
-        BNE BR10        ; No more than $20 = 32 bits shifted.
-BR11:   RTS             ; That's it.
-
-
-; Listing 5. A 32 Bit Binary-to-BCD Subroutine.
-
-        .org $0D67
-CONVD:  LDX  #$05       ; Clear BCD accumulator.
-        LDA #$00
-BRM:    STA BCDA,X      ; Zeros into BCD accumulator.
-        DEX
-        BPL BRM
-        SED             ; Decimal mode for add.
-        LDY #$20        ; Y has number of bits to be converted. Rotate binary number into carry.
-BRN:    ASL LSB
-        ROL NLSB
-        ROL NMSB
-        ROL MSB
-        LDX #$FB        ; X will control a five byte addition. Get least-significant byte of the BCD accumulator, add is to itself, then store.
-BRO:    LDA BCDA,X
-        ADC BCDA,X
-        STA BCDA,X
-        INX             ; Repeat until all five bytes have been added.
-        BNE BRO
-        DEY             ; Get another bit from the binary number.
-        BNE BRN
-        CLD             ; Back to binary mode.
-        RTS             ; And back to the program.
-
 ; Listing 4. AIM 65 Input/Output Subroutines.
 
+        .org $0F30-*
         .org $0F30
 INPUT:  JSR $E93C
         JSR $F000
@@ -454,6 +463,7 @@ INPUT:  JSR $E93C
         LDA $06
         RTS
 
+        .res $0F60-*
         .org $0F60
         LDX #$13
         TXA
