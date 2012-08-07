@@ -27,15 +27,15 @@
         BCDA   = $20           ; BCD accumulator (6 bytes)
         BCDN   = $25           ; ???
 
-; Listing 3. A Floating-Point Binary to BCD Routine.			
+; Listing 3. A Floating-Point Binary to BCD Routine.
 
-        .org $0B00
+;        .org $0B00
 BEGIN:  LDA MSB         ; Test MSB to see if mantissa is zero.
         BNE BRT         ; If it is, print a zero and then get out. Clear display.
         JSR CLDISP
-        LDA #$30        ; Get ASCII zero.
+        LDA #'0'        ; Get ASCII zero.
         JSR OUTCH       ; Jump to output subroutine.
-        LDA #$0D        ; Get "carriage return."
+        LDA #CR         ; Get "carriage return."
         JSR OUTCH       ; Output it.
         RTS             ; Return to calling routine.
 BRT:    LDA #$00        ; Clear OVFLO location.
@@ -46,7 +46,7 @@ BRY:    LDA BEXP        ; Is the binary exponent negative?
         JSR NORM
         DEC DEXP        ; Decrement decimal exponent.
         CLV             ; Force a jump.
-        BVC BRY         ; Repeat.	
+        BVC BRY         ; Repeat.
 BRZ:    LDA BEXP        ; Compare the binary exponent to
         CMP #$20        ; $20 = 32.
         BEQ BCD         ; Equal. Convert binary to BCD.
@@ -108,7 +108,7 @@ BROA:   NOP             ; Oops. These NOPs cover an earlier mistake.
         JSR CLDISP      ; This routine simply clears the AIM 65 20-character display.
         LDA MFLAG
         BEQ BRNA        ; If the sign of the number is minus, output a minus sign first.
-        LDA #$2D
+        LDA #'-'
         JSR OUTCH       ; ASCII " - " = $2D. Output character.
 BRNA:   LDA #$0B        ; Set digit counter to eleven.
         STA TEMP
@@ -125,7 +125,7 @@ BRG:    ROL BCDN,X
         LDA OVFLO       ; Is the rotated digit zero?
         BEQ BRI         ; Yes. Rotate again.
 BRX:    CLC             ; Convert digit to ASCII and output it.
-        ADC #$30
+        ADC #'0'
         JSR OUTCH
         LDA #$00        ; Clear OVFLO for next digit.
         STA OVFLO
@@ -143,13 +143,13 @@ BRJ:    ROL BCDN,X      ; Rotate a digit at a time into
         BNE BRX
         LDA DEXP        ; Is the decimal exponent zero?
         BEQ ARND1       ; Yes. No need to output exponent.
-        LDA #$2E        ; Get ASCII decimal point.
+        LDA #'.'        ; Get ASCII decimal point.
         JSR OUTCH       ; Output it.
-        LDA #$45        ; Get ASCII "E".
+        LDA #'E'        ; Get ASCII "E".
         JSR OUTCH
         LDA DEXP        ; Is the decimal exponent plus?
         BPL THERE       ; Yes.
-        LDA #$2D        ; No. Output ASCII " - "
+        LDA #'-'        ; No. Output ASCII " - "
         JSR OUTCH
         LDA DEXP        ; It's minus, so complement it and add one to form the twos complement.
         EOR #$FF
@@ -160,35 +160,35 @@ THERE:  LDA #$00        ; Clear OVFLO.
         SED             ; Convert exponent to BCD.
         LDY #$08
 BR1A:   ROL DEXP
-        LDA OVFLO	
+        LDA OVFLO
         ADC OVFLO
         STA OVFLO
-        DEY	
+        DEY
         BNE BR1A
         CLD
         CLC
         LDA OVFLO       ; Get BCD exponent.
-        AND #$F0        ; $Mask low-order nibble (digit).
+        AND #$F0        ; Mask low-order nibble (digit).
         BEQ BR2A
         ROR A           ; Rotate nibble to the right.
         ROR A
         ROR A
         ROR A
-        ADC #$30        ; Convert to ASCII.
+        ADC #'0'        ; Convert to ASCII.
         JSR OUTCH       ; Output the most-significant digit.
 BR2A:   LDA OVFLO       ; Get the least-significant digit.
         AND #$0F        ; Mask the high nibble.
         CLC
-        ADC #$30        ; Convert to ASCII.
+        ADC #'0'        ; Convert to ASCII.
         JSR OUTCH
-ARND1:  LDA #$0D        ; Get an ASCII carriage return.
+ARND1:  LDA #CR         ; Get an ASCII carriage return.
         JSR OUTCH
         RTS             ; All finished.
 
 ; Listing 2. Multiply by Ten Subroutine.
 
-        .res $0D00-*
-        .org $0D00
+;        .res $0D00-*
+;        .org $0D00
 TENX:   CLC             ; Shift accumulator left.
         LDX #$04        ; Accumulator contains four bytes so X is set to four.
 BR1:    LDA ACC,X
@@ -217,8 +217,8 @@ BR4:    ROL ACC,X
 
 ; Listing 3. Normalize the Mantissa Subroutine.
 
-        .res $0D30-*
-        .org $0D30
+;        .res $0D30-*
+;        .org $0D30
 NORM:   CLC
 BR6:    LDA OVFLO       ; Any bits set in the overflow byte? Yes, then rotate right.
         BEQ BR5
@@ -255,9 +255,9 @@ BR11:   RTS             ; That's it.
 
 ; Listing 5. A 32 Bit Binary-to-BCD Subroutine.
 
-        .res $0D67-*
-        .org $0D67
-CONVD:  LDX  #$05       ; Clear BCD accumulator.
+;        .res $0D67-*
+;        .org $0D67
+CONVD:  LDX #$05        ; Clear BCD accumulator.
         LDA #$00
 BRM:    STA BCDA,X      ; Zeros into BCD accumulator.
         DEX
@@ -281,8 +281,8 @@ BRO:    LDA BCDA,X
 
 ; Listing 1: ASCII to Floating-Point Binary Conversion Program
 
-        .res $0E00-*
-        .org $0E00
+;        .res $0E00-*
+;        .org $0E00
 START:  CLD             ; Decimal mode not required
         LDX #$20        ; Clear all the memory locations used for storage by this routine by loading them with zeros.
         LDA #$00
@@ -290,14 +290,14 @@ CLEAR:  STA MEM,X
         DEX
         BPL CLEAR
         JSR CLDISP      ; Clears AIM 65 display.
-        JSR INPUT       ; Get ASCII representation of BCD digit. Is it a + sign? Yes, get another character. Is it a minus sign?
-        CMP #$2B
-        BEQ PLUS
-        CMP #$2D
+        JSR INPUT       ; Get ASCII representation of
+        CMP #'+'        ; BCD digit. Is it a + sign?
+        BEQ PLUS        ; Yes, get another character.   
+        CMP #'-'        ; Is it a minus sign?
         BNE NTMNS
         DEC MFLAG       ; Yes, set minus flag to $FF.
 PLUS:   JSR INPUT       ; Get the next character.
-NTMNS:  CMP #$2E        ; Is character a decimal point?
+NTMNS:  CMP #'.'        ; Is character a decimal point?
         BNE DIGIT       ; No. Perhaps it is a digit. Yes, check flag.
         LDA DPFLAG      ; Was the decimal point flag set?
         BNE NORMIZ      ; Time to normalize the mantissa.
@@ -311,7 +311,7 @@ DIGIT:  CMP #$30        ; Is the character a digit?
         LDA CHAR
         SEC
         SBC #$30
-        CLC             ; Add the new digit to the least- significant byte of the accumulator.
+        CLC             ; Add the new digit to the least-significant byte of the accumulator.
         ADC LSB
         STA LSB         ; Next, any "carry" will be added to the other bytes of the accumulator.
         LDX #$03
@@ -334,29 +334,29 @@ NORMIZ: JSR NORM        ; Normalize the mantissa.
         LDA MSB         ; If the MSB of the accumulator is zero, then the number is zero, and its all over. Otherwise, check if the last character was an "E".
         BEQ FINISH1     ; Original listing branched to FINISH but that is too far to reach.
         LDA CHAR
-        CMP #$45
+        CMP #'E'
         BNE TENPRW      ; If not, move to TENPRW.
         JSR INPUT       ; If so, get another character.
-        CMP #$2B        ; Is it a plus?
+        CMP #'+'        ; Is it a plus?
         BEQ PAST        ; Yes, then get another character.
-        CMP #$2D        ; Perhaps it was a minus?
+        CMP #'-'        ; Perhaps it was a minus?
         BNE NUMB        ; No, then maybe it was a number.
         DEC ESIGN       ; Set exponent sign flag.
 PAST:   JSR INPUT       ; Get another character.
-NUMB:   CMP #$30        ; Is it a digit?
+NUMB:   CMP #'0'        ; Is it a digit?
         BCC TENPRW      ; No, more to TENPRW.
         CMP #$3A
         BCS TENPRW
         SEC             ; It was a digit, so strip ASCII prefix.
-        SBC #$30        ; ASCII prefix is $30.
+        SBC #'0'        ; ASCII prefix is $30.
         STA TEMP        ; Keep the first digit here.
         JSR INPUT       ; Get another character.
-        CMP #$30        ; Is it a digit?
+        CMP #'0'        ; Is it a digit?
         BCC HERE        ; No. Then finish handling the exponent.
         CMP #$3A
         BCS HERE
         SEC             ; Yes. Decimal exponent is new digit plus 10 times the old digit.
-        SBC #$30
+        SBC #'0'
         STA EVAL        ; Strip ASCII prefix from new digit.
         LDA TEMP        ; Get the old character and multiply it by ten. First times two.
         ASL A
@@ -453,8 +453,9 @@ FINISH: RTS
 
 ; Listing 4. AIM 65 Input/Output Subroutines.
 
-        .org $0F30-*
-        .org $0F30
+          .ifdef AIM65
+;        .org $0F30-*
+;        .org $0F30
 INPUT:  JSR $E93C
         JSR $F000
         STA $06
@@ -463,8 +464,8 @@ INPUT:  JSR $E93C
         LDA $06
         RTS
 
-        .res $0F60-*
-        .org $0F60
+;        .res $0F60-*
+;        .org $0F60
         LDX #$13
         TXA
         PHA
@@ -514,3 +515,16 @@ OUTCH:    JSR PRINT     ; AIM 65 monitor subroutine.
           JSR MODIFY    ; See previous article in COMPUTE!
           JSR DISPLAY   ; See previous article in COMPUTE!
           RTS
+          .endif
+
+; Replica 1 I/O Routines
+
+          .ifndef AIM65
+OUTCH:
+          JMP PrintChar         ; Output character in A
+INPUT:
+          JSR GetKey            ; Get a key
+          JMP PrintChar         ; and echo it
+CLDISP:
+          JMP ClearScreen       ; Clear the screen
+          .endif
