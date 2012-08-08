@@ -524,6 +524,7 @@ OUTCH:
           JMP PrintChar         ; Output character in A
 INPUT:
           JSR GetKey            ; Get a key
+          STA CHAR
           JMP PrintChar         ; and echo it
 CLDISP:
           JMP ClearScreen       ; Clear the screen
