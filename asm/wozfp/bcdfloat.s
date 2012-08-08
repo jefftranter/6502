@@ -24,15 +24,15 @@
         TEMP   = $0B           ; temporary storage location.
         EVAL   = $0C           ; value of the decimal exponent entered after the "E."
         DEXP   = $17           ; current value of the decimal exponent.
-        BCDA   = $20           ; BCD accumulator (6 bytes)
+        BCDA   = $20           ; BCD accumulator (5 bytes)
         BCDN   = $25           ; ???
 
 ; Listing 3. A Floating-Point Binary to BCD Routine.
 
 ;        .org $0B00
 BEGIN:  LDA MSB         ; Test MSB to see if mantissa is zero.
-        BNE BRT         ; If it is, print a zero and then get out. Clear display.
-        JSR CLDISP
+        BNE BRT         ; If it is, print a zero and then
+;       JSR CLDISP      ; get out. Clear display.
         LDA #'0'        ; Get ASCII zero.
         JSR OUTCH       ; Jump to output subroutine.
         LDA #CR         ; Get "carriage return."
@@ -100,12 +100,13 @@ BRQ:    ROR BCDA,X
         LDA BCDA        ; Has a non-zero digit been shifted into the least-significant place?
         AND #$0F
         BEQ BRMA        ; No. Shift another digit.
-BROA:   NOP             ; Oops. These NOPs cover an earlier mistake.
-        NOP
-        NOP
-        NOP
-        NOP
-        JSR CLDISP      ; This routine simply clears the AIM 65 20-character display.
+BROA:
+;       NOP             ; Oops. These NOPs cover an earlier mistake.
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       JSR CLDISP      ; This routine simply clears the AIM 65 20-character display.
         LDA MFLAG
         BEQ BRNA        ; If the sign of the number is minus, output a minus sign first.
         LDA #'-'
@@ -329,8 +330,8 @@ NORMIZ: JSR NORM        ; Normalize the mantissa.
         LDA BEXP        ; Get binary exponent.
         ADC #$20        ; Add $20 = 32 to place binary
         STA BEXP        ; point properly.
-        NOP
-        NOP
+;       NOP
+;       NOP
         LDA MSB         ; If the MSB of the accumulator is zero, then the number is zero, and its all over. Otherwise, check if the last character was an "E".
         BEQ FINISH1     ; Original listing branched to FINISH but that is too far to reach.
         LDA CHAR
@@ -425,19 +426,19 @@ BRD:    LDA ACC,X       ; Get the LSB.
 BRE:    LDA #$00        ; Clear the OVFLO position, then get out.
         STA OVFLO
         RTS
-        NOP             ; Empty memory locations here.
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
+;       NOP             ; Empty memory locations here.
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
+;       NOP
 ARND:   LDA #$00        ; Clear overflow byte.
         STA OVFLO
         INC DEXP        ; For each divide-by-10, increment the decimal exponent until it is zero. Then its all over.

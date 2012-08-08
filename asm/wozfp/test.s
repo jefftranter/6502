@@ -453,6 +453,9 @@ StringToFloat:
         JSR PrintByte
         LDA LSB                         ; Least-significant byte of the accumulator.
         JSR PrintByte
+        JSR PrintSpace
+        LDA MFLAG                       ; Set to $FF when a minus sign is entered.
+        Jsr PrintByte
         JSR PrintCR
         RTS
 
