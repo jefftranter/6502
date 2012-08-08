@@ -15,12 +15,11 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 ;
-; Possible Future Enhancements:
-; - routines to convert floating point to displayed decimal and vice versa
 
 ; Revision History
 ; Version Date         Comments
 ; 0.0     03-Aug-2012  First version started
+; 0.1     08-Aug-2012  Hooked up DeJong BDC/binary code
 
         .include "wozfp.s"
 
@@ -468,12 +467,24 @@ FloatToString:
         LDY #>EnterFloatString
         JSR PrintString
         JSR GetByte
+        STA BEXP                                ; Exponent
         JSR PrintSpace
         JSR GetByte
+        STA MSB
         JSR GetByte
+        STA NMSB
         JSR GetByte
+        STA NLSB
         JSR GetByte
+        STA LSB
+        JSR PrintSpace
+        JSR GetByte
+        STA MFLAG                               ; Minus flag
         JSR PrintCR
+        LDX #<FloatingPointIsString
+        LDY #>FloatingPointIsString
+        JSR PrintString
+        JSR BEGIN
         RTS
 
 ; Display help information.

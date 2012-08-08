@@ -270,9 +270,9 @@ BRN:    ASL LSB
         ROL NMSB
         ROL MSB
         LDX #$FB        ; X will control a five byte addition. Get least-significant byte of the BCD accumulator, add is to itself, then store.
-BRO:    LDA BCDA,X
-        ADC BCDA,X
-        STA BCDA,X
+BRO:    LDA BCDN,X
+        ADC BCDN,X
+        STA BCDN,X
         INX             ; Repeat until all five bytes have been added.
         BNE BRO
         DEY             ; Get another bit from the binary number.
