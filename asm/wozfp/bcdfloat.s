@@ -289,7 +289,7 @@ START:  CLD             ; Decimal mode not required
 CLEAR:  STA MEM,X
         DEX
         BPL CLEAR
-        JSR CLDISP      ; Clears AIM 65 display.
+;       JSR CLDISP      ; Clears AIM 65 display.
         JSR INPUT       ; Get ASCII representation of
         CMP #'+'        ; BCD digit. Is it a + sign?
         BEQ PLUS        ; Yes, get another character.   

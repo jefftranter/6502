@@ -430,6 +430,49 @@ Divide:
         JSR PrintCR
         RTS
 
+; String to floating point.
+StringToFloat:
+        LDX #<StringToFloatingPointString
+        LDY #>StringToFloatingPointString
+        JSR PrintString
+        LDX #<EnterFPString
+        LDY #>EnterFPString
+        JSR PrintString
+        JSR START
+        LDX #<FloatingPointIsString
+        LDY #>FloatingPointIsString
+        JSR PrintString
+        LDA BEXP                        ; Contains the binary exponent, bit seven is the sign bit.
+        JSR PrintByte
+        JSR PrintSpace
+        LDA MSB                         ; Most-significant byte of the accumulator.
+        JSR PrintByte
+        LDA NMSB                        ; Next-most-significant byte of the accumulator.
+        JSR PrintByte
+        LDA NLSB                        ; Next-least-significant byte of the accumulator.
+        JSR PrintByte
+        LDA LSB                         ; Least-significant byte of the accumulator.
+        JSR PrintByte
+        JSR PrintCR
+        RTS
+
+; Floating point to ASCII string
+FloatToString:
+        LDX #<FloatingPointToStringString
+        LDY #>FloatingPointToStringString
+        JSR PrintString
+        LDX #<EnterFloatString
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        JSR PrintSpace
+        JSR GetByte
+        JSR GetByte
+        JSR GetByte
+        JSR GetByte
+        JSR PrintCR
+        RTS
+
 ; Display help information.
 Help:
         LDX #<IntroString
@@ -505,7 +548,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "FPLNEASMD?X"
+        .byte "FPLNEASMDBT?X"
 
 JMPFL:
         .word Invalid-1
@@ -518,6 +561,8 @@ JMPFL:
         .word Subtract-1
         .word Multiply-1
         .word Divide-1
+        .word StringToFloat-1
+        .word FloatToString-1
         .word Help-1
         .word Exit-1
 
@@ -534,6 +579,8 @@ IntroString:
         .byte "S - FLOATING POINT SUBTRACT",CR
         .byte "M - FLOATING POINT MULTIPLY",CR
         .byte "D - FLOATING POINT DIVIDE",CR
+        .byte "B - STRING TO FLOATING POINT",CR
+        .byte "T - FLOATING POINT TO STRING",CR
         .byte "? - THIS HELP SCREEN",CR
         .byte "X - EXIT",CR,0
 
@@ -558,6 +605,9 @@ FloatToFixedString:
 EnterFloatString:
         .byte "ENTER EXPONENT AND MANTISSA: ",0
 
+EnterFPString:
+       .byte "ENTER FP STRING: ",0
+
 FixedPointIsString:
         .byte "FIXED POINT IS: ",0
 
@@ -572,6 +622,12 @@ MultiplyString:
 
 DivideString:
         .byte "FLOATING POINT DIVIDE",CR,0
+
+StringToFloatingPointString:
+        .byte "STRING TO FLOATING POINT",CR,0
+
+FloatingPointToStringString:
+        .byte "FLOATING POINT TO STRING",CR,0
 
 NaturalLogString:
         .byte "NATURAL LOG",CR,0
