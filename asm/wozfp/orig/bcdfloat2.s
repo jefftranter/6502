@@ -24,10 +24,10 @@
         TEMP   = $0B           ; temporary storage location.
         EVAL   = $0C           ; value of the decimal exponent entered after the "E."
         DEXP   = $17           ; current value of the decimal exponent.
-        BCDA   = $20           ; BCD accumulator (6 bytes)
+        BCDA   = $20           ; BCD accumulator (5 bytes)
         BCDN   = $25           ; ???
 
-; Listing 3. A Floating-Point Binary to BCD Routine.			
+; Listing 3. A Floating-Point Binary to BCD Routine.
 
         .org $0B00
 BEGIN:  LDA MSB         ; Test MSB to see if mantissa is zero.
@@ -46,7 +46,7 @@ BRY:    LDA BEXP        ; Is the binary exponent negative?
         JSR NORM
         DEC DEXP        ; Decrement decimal exponent.
         CLV             ; Force a jump.
-        BVC BRY         ; Repeat.	
+        BVC BRY         ; Repeat.
 BRZ:    LDA BEXP        ; Compare the binary exponent to
         CMP #$20        ; $20 = 32.
         BEQ BCD         ; Equal. Convert binary to BCD.
@@ -160,15 +160,15 @@ THERE:  LDA #$00        ; Clear OVFLO.
         SED             ; Convert exponent to BCD.
         LDY #$08
 BR1A:   ROL DEXP
-        LDA OVFLO	
+        LDA OVFLO
         ADC OVFLO
         STA OVFLO
-        DEY	
+        DEY
         BNE BR1A
         CLD
         CLC
         LDA OVFLO       ; Get BCD exponent.
-        AND #$F0        ; $Mask low-order nibble (digit).
+        AND #$F0        ; Mask low-order nibble (digit).
         BEQ BR2A
         ROR A           ; Rotate nibble to the right.
         ROR A
@@ -269,9 +269,9 @@ BRN:    ASL LSB
         ROL NMSB
         ROL MSB
         LDX #$FB        ; X will control a five byte addition. Get least-significant byte of the BCD accumulator, add is to itself, then store.
-BRO:    LDA BCDA,X
-        ADC BCDA,X
-        STA BCDA,X
+BRO:    LDA BCDN,X
+        ADC BCDN,X
+        STA BCDN,X
         INX             ; Repeat until all five bytes have been added.
         BNE BRO
         DEY             ; Get another bit from the binary number.
