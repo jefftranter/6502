@@ -22,7 +22,6 @@
 ; 0.1     08-Aug-2012  Hooked up DeJong BDC/binary code
 
         .include "wozfp.s"
-
         .include "bcdfloat.s"
 
         .export FPDEMO
@@ -91,6 +90,19 @@ FloatToFixed:
         LDY #>FloatToFixedString
         JSR PrintString
         LDX #<EnterFloatString
+        LDY #>EnterFloatString
+        JSR PrintString
+        JSR GetByte
+        STA X1
+        JSR PrintSpace
+        JSR GetByte
+        STA M1
+        JSR GetByte
+        STA M1+1
+        JSR GetByte
+        STA M1+2
+        JSR PrintCR
+
         LDY #>EnterFloatString
         JSR PrintString
         JSR GetByte
@@ -437,24 +449,58 @@ StringToFloat:
         LDX #<EnterFPString
         LDY #>EnterFPString
         JSR PrintString
-        JSR START
+
+        JSR START                       ; Get string and return floating point.
+
+        JSR PrintCR
         LDX #<FloatingPointIsString
         LDY #>FloatingPointIsString
         JSR PrintString
-        LDA BEXP                        ; Contains the binary exponent, bit seven is the sign bit.
+
+; Now convert from DeJong format to Woz:
+; Exponent:
+; subtract 1
+; complement bit 7.
+; Mantissa:
+;  shift all bytes right one position
+;  set most significant bit to 1 if sign is $FF
+;  throw away least significant byte.
+
+        LDA BEXP                        ; Get exponent
+        SEC                             ; Subtract one
+        SBC #1
+        EOR #%10000000                  ; Complement bit 7
+        STA X1
+
+        CLC
+        LDA MSB                         ;  shift all mantissa bytes right one position
+        ROR A
+        STA M1
+        LDA NMSB
+        ROR A
+        STA M1+1
+        LDA NLSB
+        ROR A
+        STA M1+2
+
+        LDA MFLAG                       ;  set most significant bit to 1 if sign is $FF
+        BEQ @Plus
+        LDA M1
+        ORA #%10000000
+        STA M1
+
+; Display the exponent followed by a space then three mantissa bytes.
+
+@Plus:
+        LDA X1
         JSR PrintByte
         JSR PrintSpace
-        LDA MSB                         ; Most-significant byte of the accumulator.
+        LDA M1
         JSR PrintByte
-        LDA NMSB                        ; Next-most-significant byte of the accumulator.
+        LDA M1+1
         JSR PrintByte
-        LDA NLSB                        ; Next-least-significant byte of the accumulator.
+        LDA M1+2
         JSR PrintByte
-        LDA LSB                         ; Least-significant byte of the accumulator.
-        JSR PrintByte
-        JSR PrintSpace
-        LDA MFLAG                       ; Set to $FF when a minus sign is entered.
-        Jsr PrintByte
         JSR PrintCR
         RTS
 
@@ -467,24 +513,58 @@ FloatToString:
         LDY #>EnterFloatString
         JSR PrintString
         JSR GetByte
-        STA BEXP                                ; Exponent
+        STA X1
         JSR PrintSpace
         JSR GetByte
-        STA MSB
+        STA M1
         JSR GetByte
-        STA NMSB
+        STA M1+1
         JSR GetByte
-        STA NLSB
-        JSR GetByte
-        STA LSB
-        JSR PrintSpace
-        JSR GetByte
-        STA MFLAG                               ; Minus flag
+        STA M1+2
         JSR PrintCR
+
+; Convert from Woz format to DeJong:
+; Sign:
+;  Set MFLAG to $FF if most significant bit of mantissa is 1, else set to $00.
+; Mantissa:
+;  Shift all bytes left one position. Set LSB byte to $00.
+; Exponent:
+;  complement bit 7
+;  add 1
+
+        LDA #0
+        STA MFLAG               ; Initially set MFLAG to 0.
+        STA LSB                 ; LSB is always zero
+
+        LDA M1                  ; If M1 is negative
+        BPL @Plus
+        LDA #$FF                ; Store $FF in MFLAG
+        STA MFLAG
+@Plus:
+        CLC                     ; Shift all mantissa bytes left one position.
+        LDA M1+2
+        ROL A
+        STA NLSB
+        LDA M1+1
+        ROL A
+        STA NMSB
+        LDA M1
+        ROL A
+        STA MSB
+
+        LDA X1                  ; Handle exponent
+        EOR #%10000000          ; Toggle bit 7
+        CLC                     ; Add one
+        ADC #1
+        STA BEXP
+
         LDX #<FloatingPointIsString
         LDY #>FloatingPointIsString
         JSR PrintString
-        JSR BEGIN
+
+        JSR BEGIN                       ; Convert from floating point to string and display
+
+        JSR PrintCR
         RTS
 
 ; Display help information.

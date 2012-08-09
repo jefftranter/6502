@@ -6,7 +6,7 @@
 ; Marvin L. De Jong
 ; from Compute! Issue 11 / April 1981 / Page 66
 
-; The original listing had many errors (e.g. "#" missing).
+; Note: The original listing had many errors (e.g. "#" missing).
 
         OVFLO  = $00           ; overflow byte for the accumulator when it is shifted left or multiplied by ten.
         MSB    = $01           ; most-significant byte of the accumulator.
@@ -35,8 +35,8 @@ BEGIN:  LDA MSB         ; Test MSB to see if mantissa is zero.
 ;       JSR CLDISP      ; get out. Clear display.
         LDA #'0'        ; Get ASCII zero.
         JSR OUTCH       ; Jump to output subroutine.
-        LDA #CR         ; Get "carriage return."
-        JSR OUTCH       ; Output it.
+;       LDA #CR         ; Get "carriage return."
+;       JSR OUTCH       ; Output it.
         RTS             ; Return to calling routine.
 BRT:    LDA #$00        ; Clear OVFLO location.
         STA OVFLO
@@ -182,8 +182,9 @@ BR2A:   LDA OVFLO       ; Get the least-significant digit.
         CLC
         ADC #'0'        ; Convert to ASCII.
         JSR OUTCH
-ARND1:  LDA #CR         ; Get an ASCII carriage return.
-        JSR OUTCH
+ARND1:
+;       LDA #CR         ; Get an ASCII carriage return.
+;       JSR OUTCH
         RTS             ; All finished.
 
 ; Listing 2. Multiply by Ten Subroutine.

@@ -35,7 +35,7 @@
 ;       DIGITS.
 ;
 ;
-       .org 3      ; SET BASE PAGE ADRESSES
+       .org $40      ; SET BASE PAGE ADRESSES
        SIGN = *
        X2   = SIGN+1        ; EXPONENT 2
        M2   = X2+1          ; MANTISSA 2
