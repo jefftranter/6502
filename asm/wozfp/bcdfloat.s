@@ -6,7 +6,7 @@
 ; Marvin L. De Jong
 ; from Compute! Issue 11 / April 1981 / Page 66
 
-; Note: The original listing had many errors (e.g. "#" missing).
+; Note: The original listing had many errors (e.g. "#" missing). These have been corrected.
 
         OVFLO  = $00           ; overflow byte for the accumulator when it is shifted left or multiplied by ten.
         MSB    = $01           ; most-significant byte of the accumulator.
@@ -29,14 +29,10 @@
 
 ; Listing 3. A Floating-Point Binary to BCD Routine.
 
-;        .org $0B00
 BEGIN:  LDA MSB         ; Test MSB to see if mantissa is zero.
-        BNE BRT         ; If it is, print a zero and then
-;       JSR CLDISP      ; get out. Clear display.
+        BNE BRT         ; If it is, print a zero and then get out.
         LDA #'0'        ; Get ASCII zero.
         JSR OUTCH       ; Jump to output subroutine.
-;       LDA #CR         ; Get "carriage return."
-;       JSR OUTCH       ; Output it.
         RTS             ; Return to calling routine.
 BRT:    LDA #$00        ; Clear OVFLO location.
         STA OVFLO
@@ -101,12 +97,6 @@ BRQ:    ROR BCDA,X
         AND #$0F
         BEQ BRMA        ; No. Shift another digit.
 BROA:
-;       NOP             ; Oops. These NOPs cover an earlier mistake.
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       JSR CLDISP      ; This routine simply clears the AIM 65 20-character display.
         LDA MFLAG
         BEQ BRNA        ; If the sign of the number is minus, output a minus sign first.
         LDA #'-'
@@ -183,14 +173,10 @@ BR2A:   LDA OVFLO       ; Get the least-significant digit.
         ADC #'0'        ; Convert to ASCII.
         JSR OUTCH
 ARND1:
-;       LDA #CR         ; Get an ASCII carriage return.
-;       JSR OUTCH
         RTS             ; All finished.
 
 ; Listing 2. Multiply by Ten Subroutine.
 
-;        .res $0D00-*
-;        .org $0D00
 TENX:   CLC             ; Shift accumulator left.
         LDX #$04        ; Accumulator contains four bytes so X is set to four.
 BR1:    LDA ACC,X
@@ -219,8 +205,6 @@ BR4:    ROL ACC,X
 
 ; Listing 3. Normalize the Mantissa Subroutine.
 
-;        .res $0D30-*
-;        .org $0D30
 NORM:   CLC
 BR6:    LDA OVFLO       ; Any bits set in the overflow byte? Yes, then rotate right.
         BEQ BR5
@@ -257,8 +241,6 @@ BR11:   RTS             ; That's it.
 
 ; Listing 5. A 32 Bit Binary-to-BCD Subroutine.
 
-;        .res $0D67-*
-;        .org $0D67
 CONVD:  LDX #$05        ; Clear BCD accumulator.
         LDA #$00
 BRM:    STA BCDA,X      ; Zeros into BCD accumulator.
@@ -283,15 +265,12 @@ BRO:    LDA BCDN,X
 
 ; Listing 1: ASCII to Floating-Point Binary Conversion Program
 
-;        .res $0E00-*
-;        .org $0E00
 START:  CLD             ; Decimal mode not required
         LDX #$20        ; Clear all the memory locations used for storage by this routine by loading them with zeros.
         LDA #$00
 CLEAR:  STA MEM,X
         DEX
         BPL CLEAR
-;       JSR CLDISP      ; Clears AIM 65 display.
         JSR INPUT       ; Get ASCII representation of
         CMP #'+'        ; BCD digit. Is it a + sign?
         BEQ PLUS        ; Yes, get another character.   
@@ -331,8 +310,6 @@ NORMIZ: JSR NORM        ; Normalize the mantissa.
         LDA BEXP        ; Get binary exponent.
         ADC #$20        ; Add $20 = 32 to place binary
         STA BEXP        ; point properly.
-;       NOP
-;       NOP
         LDA MSB         ; If the MSB of the accumulator is zero, then the number is zero, and its all over. Otherwise, check if the last character was an "E".
         BEQ FINISH1     ; Original listing branched to FINISH but that is too far to reach.
         LDA CHAR
@@ -427,19 +404,6 @@ BRD:    LDA ACC,X       ; Get the LSB.
 BRE:    LDA #$00        ; Clear the OVFLO position, then get out.
         STA OVFLO
         RTS
-;       NOP             ; Empty memory locations here.
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
-;       NOP
 ARND:   LDA #$00        ; Clear overflow byte.
         STA OVFLO
         INC DEXP        ; For each divide-by-10, increment the decimal exponent until it is zero. Then its all over.
@@ -453,75 +417,8 @@ STLPLS: JSR TENX        ; Jump to multiply-by-ten subroutine.
         BNE STLPLS
 FINISH: RTS
 
-; Listing 4. AIM 65 Input/Output Subroutines.
-
-          .ifdef AIM65
-;        .org $0F30-*
-;        .org $0F30
-INPUT:  JSR $E93C
-        JSR $F000
-        STA $06
-        JSR $0F72
-        JSR $0F60
-        LDA $06
-        RTS
-
-;        .res $0F60-*
-;        .org $0F60
-        LDX #$13
-        TXA
-        PHA
-        LDA $A438,X
-        ORA #$80
-        JSR $EF7B
-        PLA
-        TAX
-        DEX
-        BPL $0F62
-        RTS
-        STA $A44C
-        LDX #$01
-        LDA $A438,X
-        DEX
-        STA $A438,X
-        INX
-        INX
-        CPX #$15
-        BCC $0F77
-        RTS
-        LDX #$12
-        LDA $A438,X
-        INX
-        STA $A438,X
-        DEX
-        DEX
-        BPL $0F87
-        LDA #$20
-        STA $A438
-        JSR $0F60
-        RTS
-CLDISP: LDX #$13
-        LDA #$20
-        STA $A438,X
-        DEX
-        BPL $0F9F
-        RTS
-
-; Listing 4. Subroutine OUTCH For the AIM 65.
-
-          PRINT = $F000
-          MODIFY = $0F72
-          DISPLAY = $0F60
-
-OUTCH:    JSR PRINT     ; AIM 65 monitor subroutine.
-          JSR MODIFY    ; See previous article in COMPUTE!
-          JSR DISPLAY   ; See previous article in COMPUTE!
-          RTS
-          .endif
-
 ; Replica 1 I/O Routines
 
-          .ifndef AIM65
 OUTCH:
           JMP PrintChar         ; Output character in A
 INPUT:
@@ -530,4 +427,3 @@ INPUT:
           JMP PrintChar         ; and echo it
 CLDISP:
           JMP ClearScreen       ; Clear the screen
-          .endif
