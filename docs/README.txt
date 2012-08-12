@@ -20,6 +20,10 @@ MultiIOErrata.txt -  Errata for the Replica 1 Multi I/O board assembly manual.
 
 replica1addresses.odt - Quick Reference of key addresses on the Replica 1.
 
+Replica1QuickReference.odt - Quick Reference for the Replica 1.
+
+Replica1QuickReference.odt - Quick Reference for the Replica 1 (PDF format).
+
 ---
 
 Files written by me are released under the following license:
