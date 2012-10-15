@@ -15,7 +15,6 @@
 ; limitations under the License.
 ;
 ; Possible Future Enhancements:
-; - 16-bit memory checksum command K 
 ; - use CPU type option for disassembly/assembly/trace
 ; - trace: support for 65C02 instructions (only need to implement BBR and BBS)
 ; - trace: support for 65816 instructions, including variable length
@@ -71,8 +70,7 @@
 ;                      Moved variables to allow program to run in ROM.
 ;        18-Jul-2012   Added new iNfo command.
 ; 1.0    20-Jul-2012   Bump version to 1.00.
-; 1.0.1  14-Oct-2012   Add new checksum (K) command.
-
+; 1.0.1  14-Oct-2012   Added new checKsum command.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
