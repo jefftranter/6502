@@ -15,6 +15,7 @@
 ; limitations under the License.
 ;
 ; Possible Future Enhancements:
+; - 16-bit memory checksum command K 
 ; - use CPU type option for disassembly/assembly/trace
 ; - trace: support for 65C02 instructions (only need to implement BBR and BBS)
 ; - trace: support for 65816 instructions, including variable length
@@ -69,7 +70,8 @@
 ;                      Processor status bits are shown in lower case if supported.
 ;                      Moved variables to allow program to run in ROM.
 ;        18-Jul-2012   Added new iNfo command.
-; 1.0    20-Jul-2012   Bump verson to 1.00.
+; 1.0    20-Jul-2012   Bump version to 1.00.
+; 1.0.1  14-Oct-2012   Add new checksum (K) command.
 
 
 ; Constants
@@ -1382,6 +1384,73 @@ Math:
         JSR PrintCR
         RTS
 
+; Checksum command. Sum memory bytes in a range and show 16-bit result.
+; Format: K <start> <end>
+; e.g.
+; K C100 C1FF 1234
+Checksum:
+        JSR PrintChar           ; echo command
+        JSR PrintSpace          ; print space
+        JSR GetAddress          ; prompt for start address
+        STX SL                  ; store address
+        STY SH
+        JSR PrintSpace          ; print space
+        JSR GetAddress          ; prompt for end address
+        STX EL                  ; store address
+        STY EH
+        JSR PrintSpace          ; print space
+
+; Check that start address <= end address
+        LDA SH
+        CMP EH
+        BCC @okay1
+        BEQ @okay1
+        BNE @invalid1
+        LDA SL
+        CMP EL
+        BCC @okay1
+        BEQ @okay1
+@invalid1:
+        LDX #<InvalidRange
+        LDY #>InvalidRange
+        JSR PrintString
+        RTS
+@okay1:
+        LDA #0                  ; Initialize checkum to zero
+        STA DL
+        STA DH
+        LDY #0
+@CalcSum:
+        LDA (SL),Y              ; read a byte
+        CLC
+        ADC DL                  ; add to sum
+        STA DL
+        BCC @NoCarry1
+        INC DH                  ; add carry to upper byte of sum
+@NoCarry1:
+        LDA SH                  ; reached end yet?
+        CMP EH
+        BNE @NotDone
+        LDA SL
+        CMP EL
+        BNE @NotDone
+
+        LDX DL                  ; Get checksum value
+        LDY DH
+        JSR PrintAddress        ; Print it
+        JSR PrintCR
+        RTS                     ; done
+
+@NotDone:
+        LDA SL                  ; increment start address
+        CLC
+        ADC #1
+        STA SL
+        BCC @NoCarry2
+        INC SH
+@NoCarry2:
+        JMP @CalcSum
+
 ; -------------------- Utility Functions --------------------
 
 ; Generate one line of output for the dump command.
@@ -1926,7 +1995,7 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-        .byte "$?ABCDEFGHILMNORSTUV:=."
+        .byte "$?ABCDEFGHIKLMNORSTUV:=."
 
 JMPFL:
         .word Invalid-1
@@ -1941,6 +2010,7 @@ JMPFL:
         .word Go-1
         .word Hex-1
         .word Basic-1
+        .word Checksum-1
         .word ClearScreen-1
         .word CFFA1-1
         .word Info-1
@@ -2287,7 +2357,7 @@ WozMonPresent:
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON monitor 1.00 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 1.01 by Jeff Tranter", CR, 0
 
 PromptString:
         .asciiz "? "
@@ -2306,6 +2376,7 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
+        .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "CFFA1 menu  M", CR
         .byte "Info        N", CR
