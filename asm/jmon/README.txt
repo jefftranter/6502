@@ -94,6 +94,10 @@ BASIC: I
 Jump to Applesoft BASIC cold start entry point (address $E000). Does
 not perform any check that the ROM-based BASIC is present.
 
+CHECKSUM: K <START> <END>
+
+Calculate a 16-bit checksum of memory from addresses START to END.
+
 CLR SCREEN: L
 
 Clear the screen by printing 24 newlines.
