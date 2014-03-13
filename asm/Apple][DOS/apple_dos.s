@@ -2,6 +2,22 @@
 ;*	6.3	10-6-78
 ;*	8 BIT ASSEMBLER
 	.SETCPU "6502"
+
+; Macro to define a string in ASCII with high bit set on each character.
+.macro  db11 Arg
+    .repeat .strlen(Arg), I
+    .byte   .strat(Arg, I) | $80
+    .endrep
+.endmacro
+
+; Macro to define a string in ASCII with high bit set on last character.
+.macro  db01  Arg
+    .repeat .strlen (Arg) - 1, I
+        .byte   .strat (Arg, I)
+    .endrep
+        .byte   .strat (Arg, .strlen (Arg) - 1) | $80
+.endmacro
+
 ;*
 ;**************************************************************************************
 ;*	(C)  COPYRIGHT 1978  APPLE COMPUTER, INC
@@ -2117,34 +2133,34 @@ MVSRTN:
 ;
 EC1:
 CMDNTB:
-	.byte	"INIT"  ; FIXME: Last character should have high bit set
-	.byte	"LOAD"  ; "
-	.byte	"SAVE"  ; "
-	.byte	"RUN"  ; "
-	.byte	"CHAIN"  ; "
-	.byte	"DELETE"  ; "
-	.byte	"LOCK"  ; "
-	.byte	"UNLOCK"  ; "
-	.byte	"CLOSE"  ; "
-	.byte	"READ"  ; "
-	.byte	"EXEC"  ; "
-	.byte	"WRITE"  ; "
-	.byte	"POSITION"  ; "
-	.byte	"OPEN"  ; "
-	.byte	"APPEND"  ; "
-	.byte	"RENAME"  ; "
-	.byte	"CATALOG"  ; "
-	.byte	"MON"  ; "
-	.byte	"NOMON"  ; "
-	.byte	"PR#"  ; "
-	.byte	"IN#"  ; "
-	.byte	"MAXFILES"  ; "
-	.byte	"FP"  ; "
-	.byte	"INT"  ; "
-	.byte	"BSAVE"  ; "
-	.byte	"BLOAD"  ; "
-	.byte	"BRUN"  ; "
-	.byte	"VERIFY"  ; "
+	db01	"INIT"
+	db01	"LOAD"
+	db01	"SAVE"
+	db01	"RUN"
+	db01	"CHAIN"
+	db01	"DELETE"
+	db01	"LOCK"
+	db01	"UNLOCK"
+	db01	"CLOSE"
+	db01	"READ"
+	db01	"EXEC"
+	db01	"WRITE"
+	db01	"POSITION"
+	db01	"OPEN"
+	db01	"APPEND"
+	db01	"RENAME"
+	db01	"CATALOG"
+	db01	"MON"
+	db01	"NOMON"
+	db01	"PR#"
+	db01	"IN#"
+	db01	"MAXFILES"
+	db01	"FP"
+	db01	"INT"
+	db01	"BSAVE"
+	db01	"BLOAD"
+	db01	"BRUN"
+	db01	"VERIFY"
 	.byte	0
 ;	PAGE
 ;
@@ -2204,7 +2220,7 @@ CMDSTB:
 ;	OPTAB – OPTIONAL PARMS SYNTAX TABLES
 ;
 OPTAB1:
-	.byte	"VDSLRBACIO"  ; FIXME: All character should have high bit set
+	db11	"VDSLRBACIO"
 OPT1L	=	*-OPTAB1
 OPTAB2:
 	.byte	V,D,S,L,R,B,AA,CIO+MC,CIO+MI,CIO+MO
@@ -2222,35 +2238,35 @@ OPTAB3:
 ;
 EMSG:
 	.byte	$0D,$07
-	.byte	"***DISK: "  ; FIXME: Last character should have high bit set
+	db01	"***DISK: "
 EM1	=	*-EMSG
 EM2	=	*-EMSG
 EM3	=	*-EMSG
-	.byte	"SYS"  ; FIXME: Last character should have high bit set
+	db01	"SYS"
 EM4	=	*-EMSG
-	.byte	"WRITE PROTECT"  ; FIXME: Last character should have high bit set
+	db01	"WRITE PROTECT"
 EM5	=	*-EMSG
-	.byte	"END OF DATA"  ; FIXME: Last character should have high bit set
+	db01	"END OF DATA"
 EM6	=	*-EMSG
-	.byte	"FILE NOT FOUND"  ; FIXME: Last character should have high bit set
+	db01	"FILE NOT FOUND"
 EM7	=	*-EMSG
-	.byte	"VOLUME MISMATCH"  ; FIXME: Last character should have high bit set
+	db01	"VOLUME MISMATCH"
 EM8	=	*-EMSG
-	.byte	"DISK I/O"  ; FIXME: Last character should have high bit set
+	db01	"DISK I/O"
 EM9	=	*-EMSG
-	.byte	"DISK FULL"  ; FIXME: Last character should have high bit set
+	db01	"DISK FULL"
 EM10	=	*-EMSG
-	.byte	"FILE LOCKED"  ; FIXME: Last character should have high bit set
+	db01	"FILE LOCKED"
 EM11	=	*-EMSG
-	.byte	"CMD SYNTAX"  ; FIXME: Last character should have high bit set
+	db01	"CMD SYNTAX"
 EM12	=	*-EMSG
-	.byte	"NO FILE BUFFS AVAIL"  ; FIXME: Last character should have high bit set
+	db01	"NO FILE BUFFS AVAIL"
 EM13	=	*-EMSG
-	.byte	"NOT BASIC PROGRAM"  ; FIXME: Last character should have high bit set
+	db01	"NOT BASIC PROGRAM"
 EM14	=	*-EMSG
-	.byte	"PROGRAM TOO LARGE"  ; FIXME: Last character should have high bit set
+	db01	"PROGRAM TOO LARGE"
 EM15	=	*-EMSG
-	.byte	"NOT BINARY FILE"  ; FIXME: Last character should have high bit set
+	db01	"NOT BINARY FILE"
 ;
 EML	=	*-EMSG
 	.byte	" ERROR"
@@ -2303,7 +2319,7 @@ CCHAR:	.byte	$84		;CONTROL CHAR
 ESTATE:	.byte	0		;EXECUTE STATE
 EFTABA:	.byte 	0,0		;EXECUTE FILE TABLE POINTER
 ASIBSW:	.byte	0		;APPLESOFT, IB SWITCH
-FASB:	.byte	"APPLESOFT"     ; FIXME: All characters should have upper bit set
+FASB:	db11	"APPLESOFT"
 FASBL	=	*-FASB
 ;	PAGE
 ;
@@ -3714,8 +3730,8 @@ TEMP3:	.byte	0		;TEMP BYTE 3
 ENTSLT:	.byte	0		;BOOT SLOT SAVED
 ALC10S:	.byte	0,0,$F8,$FF	;ALLOCATATION TRACK BIT MAP
 CVTAB:	.byte	1,10,100		;CONVERSION TABLE
-FTTAB:	.byte	"TBAI"		;FILE TYPE CONVERSION TABLE FIXME: SET BIT 7 OF ALL CHARS.
-VOLUMES: .byte	" EMULOV KSID"  ;FIXME: SET BIT 7 OF ALL CHARS.
+FTTAB:	db11	"TBAI"		;FILE TYPE CONVERSION TABLE
+VOLUMES: db11	" EMULOV KSID"
 VML	=	*-VOLUMES-1
 ;	PAGE
 ;
