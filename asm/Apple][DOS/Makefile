@@ -7,6 +7,6 @@ apple_dos.o:	apple_dos.s
 	ca65 -g -l apple_dos.s
 
 clean:
-	$(RM) *.o *.lst *.map
+	$(RM) *.o *.lst
 
 distclean: clean

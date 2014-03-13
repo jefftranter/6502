@@ -2259,16 +2259,16 @@ EMDTB:
 	.byte	0,EM1,EM2,EM3,EM4
 	.byte	EM5,EM6,EM7,EM8,EM9
 	.byte	EM10,EM11,EM12,EM13,EM14
-	.byte	EM15
+	.word	EM15
 ;	PAGE
 ;
 ;	MISC BUT REQD CELLS
 ;
-CFTABA:	.byte	0		;CURRENT FILE TABLE POINTER
+CFTABA:	.word	0		;CURRENT FILE TABLE POINTER
 ISTATE:	.byte	0		;INPUT STATE
 OSTATE:	.byte	0		;OUTPUT STATE
-SVOUTS:	.byte	0		;SAVED OUT SWITCH
-SVINS:	.byte	0		;SAVED IN SWITCH
+SVOUTS:	.word	0		;SAVED OUT SWITCH
+SVINS:	.word	0		;SAVED IN SWITCH
 CNFTBS:	.byte	0		;CURRENT NO FILE TABLES
 DFNFTB:	.byte	3		;DEFAULT NO FILE TABLES
 SVSTK:	.byte	0		;SAVED STACK PTR
@@ -2288,13 +2288,13 @@ TEMP1A:	.byte	0
 TEMP2A:	.byte	0
 INOPTS:	.byte	0		;INPUT OPTIONS
 CUROPT:				;CURRENT OPTIONS
-CV:	.byte	0		;VOLUME
-CD:	.byte	0		;DRIVE
-CS:	.byte	0		;SLOT
-CL:	.byte	1		;RECORD LENGTH
-CR:	.byte	0		;RECORD NUMBER
-CB:	.byte	0		;RECORD BYTE
-CA:	.byte	0		;ADDRESS
+CV:	.word	0		;VOLUME
+CD:	.word	0		;DRIVE
+CS:	.word	0		;SLOT
+CL:	.word	1		;RECORD LENGTH
+CR:	.word	0		;RECORD NUMBER
+CB:	.word	0		;RECORD BYTE
+CA:	.word	0		;ADDRESS
 IMBITS:	.byte	0
 FNAME1:	.res	30		;FILENAME 1
 FNAME2:	.res	30		;FILENAME 2
@@ -4007,8 +4007,9 @@ BI01:	STY	IBSECT		;SET NEXT SECTOR
 ;	DOS PATCH AREA 1
 ;
 DP1	=	*
-	.align 256
-	.ORG	*-$20
+;	.align 256
+;	.ORG	*-$20
+        .org $37E0              ; Above does not seem to work with CA65
 EC3:
 NDPGS:	.byte	0
 BRWCNT:	.byte	0
