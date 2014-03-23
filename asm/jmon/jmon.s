@@ -74,6 +74,7 @@
 ; 1.0.2  23-Mar-2014   Bug fixes from Dave Lyons:
 ;                      Properly check for top of RAM in INFO command.
 ;                      Fix extra code in tests for start and end addresses.
+;                      Factor out code for address range check into subroutine.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -383,20 +384,8 @@ Copy:
         STX DL          ; store address
         STY DH
         JSR PrintCR
-
-; Check that start address <= end address
-        LDA SH
-        CMP EH
+        JSR RequireStartNotAfterEnd
         BCC @okay1
-        BNE @invalid1
-        LDA SL
-        CMP EL
-        BCC @okay1
-        BEQ @okay1
-@invalid1:
-        LDX #<InvalidRange
-        LDY #>InvalidRange
-        JSR PrintString
         RTS
 
 ; Separate copy up and down routines to handle avoid overlapping memory
@@ -503,20 +492,9 @@ Search:
         BNE @lenokay
         RTS
 
-; Check that start address <= end address
 @lenokay:
-        LDA SH
-        CMP EH
+        JSR RequireStartNotAfterEnd
         BCC @StartSearch
-        BNE @invalid
-        LDA SL
-        CMP EL
-        BCC @StartSearch
-        BEQ @StartSearch
-@invalid:
-        LDX #<InvalidRange
-        LDY #>InvalidRange
-        JSR PrintString
         RTS
 
 @StartSearch:
@@ -600,20 +578,10 @@ Verify:
         STY DH
         JSR PrintCR
 
-; Check that start address <= end address
-        LDA SH
-        CMP EH
+        JSR RequireStartNotAfterEnd
         BCC @verify
-        BNE @invalid
-        LDA SL
-        CMP EL
-        BCC @verify
-        BEQ @verify
-@invalid:
-        LDX #<InvalidRange
-        LDY #>InvalidRange
-        JSR PrintString
         RTS
+
 @verify:
         LDY #0
         LDA (SL),Y              ; compare source
@@ -761,21 +729,9 @@ Fill:
         LDA IN                  ; If length of pattern is zero, return
         BNE @lenokay
         RTS
-
-; Check that start address <= end address
 @lenokay:
-        LDA SH
-        CMP EH
+        JSR RequireStartNotAfterEnd
         BCC @fill
-        BNE @invalid
-        LDA SL
-        CMP EL
-        BCC @fill
-        BEQ @fill
-@invalid:
-        LDX #<InvalidRange
-        LDY #>InvalidRange
-        JSR PrintString
         RTS
 
 @fill:
@@ -1397,20 +1353,10 @@ Checksum:
         STY EH
         JSR PrintSpace          ; print space
 
-; Check that start address <= end address
-        LDA SH
-        CMP EH
+        JSR RequireStartNotAfterEnd
         BCC @okay1
-        BNE @invalid1
-        LDA SL
-        CMP EL
-        BCC @okay1
-        BEQ @okay1
-@invalid1:
-        LDX #<InvalidRange
-        LDY #>InvalidRange
-        JSR PrintString
         RTS
+
 @okay1:
         LDA #0                  ; Initialize checkum to zero
         STA DL
@@ -1809,10 +1755,10 @@ PrintChar:
         BPL @NotLower   ; Skip conversion if not set
 
         CMP #'a'        ; Is it 'a' or higher?
-	BMI @NotLower
-	CMP #'z'+1      ; Is it 'x' or lower?
-	BPL @NotLower
-	AND #%11011111  ; Convert to upper case by clearing bit 5
+        BMI @NotLower
+        CMP #'z'+1      ; Is it 'x' or lower?
+        BPL @NotLower
+        AND #%11011111  ; Convert to upper case by clearing bit 5
 @NotLower:
         STA DSP         ; Output character. Sets DA.
         PLA             ; Restore A
@@ -1960,6 +1906,29 @@ DELAY:
         BEQ NODELAY
         JMP WAIT
 NODELAY:
+        RTS
+
+; Check if start address in SH/EH is less than or equal to end address
+; in EH/EL. If so, return with carry clear. If not, print error
+; message and return with carry set.
+RequireStartNotAfterEnd:
+; Check that start address <= end address
+        LDA SH
+        CMP EH
+        BCC @rangeOkay
+        BNE @rangeInvalid
+        LDA SL
+        CMP EL
+        BCC @rangeOkay
+        BEQ @rangeOkay
+@rangeInvalid:
+        LDX #<InvalidRange
+        LDY #>InvalidRange
+        JSR PrintString
+        SEC
+        RTS
+@rangeOkay:
+        CLC
         RTS
 
 ; Option picker. Adapted from "Assembly Cookbook for the Apple II/IIe" by Don Lancaster.
