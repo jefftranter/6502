@@ -1,6 +1,6 @@
 ; Information Routines
 ;
-; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2014 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -265,7 +265,7 @@ FindTopOfRAM:
 ;  page)? If so, need to skip over it because otherwise the memory
 ;  test will collide with the code being executed when writing to it.
 
-        LDA TOP             ; High byte of page
+        LDA TOP+1           ; High byte of page
         CMP #>FindTopOfRAM  ; Same page as this code?
         BNE @NotUs
         INC TOP+1           ; Skip over this page when testing

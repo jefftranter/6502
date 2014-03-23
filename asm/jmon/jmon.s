@@ -1,6 +1,6 @@
 ; JMON - 6502 Monitor Program
 ;
-; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2014 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -71,6 +71,9 @@
 ;        18-Jul-2012   Added new iNfo command.
 ; 1.0    20-Jul-2012   Bump version to 1.00.
 ; 1.0.1  14-Oct-2012   Added new checKsum command.
+; 1.0.2  23-Mar-2014   Bug fixes from Dave Lyons:
+;                      Properly check for top of RAM in INFO command.
+;                      Fix extra code in tests for start and end addresses.
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -385,7 +388,6 @@ Copy:
         LDA SH
         CMP EH
         BCC @okay1
-        BEQ @okay1
         BNE @invalid1
         LDA SL
         CMP EL
@@ -506,7 +508,6 @@ Search:
         LDA SH
         CMP EH
         BCC @StartSearch
-        BEQ @StartSearch
         BNE @invalid
         LDA SL
         CMP EL
@@ -603,7 +604,6 @@ Verify:
         LDA SH
         CMP EH
         BCC @verify
-        BEQ @verify
         BNE @invalid
         LDA SL
         CMP EL
@@ -767,7 +767,6 @@ Fill:
         LDA SH
         CMP EH
         BCC @fill
-        BEQ @fill
         BNE @invalid
         LDA SL
         CMP EL
@@ -1402,7 +1401,6 @@ Checksum:
         LDA SH
         CMP EH
         BCC @okay1
-        BEQ @okay1
         BNE @invalid1
         LDA SL
         CMP EL
@@ -2355,7 +2353,7 @@ WozMonPresent:
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON monitor 1.01 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 1.02 by Jeff Tranter", CR, 0
 
 PromptString:
         .asciiz "? "

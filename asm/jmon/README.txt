@@ -3,7 +3,7 @@ JMON - Jeff's Monitor Program
 
 A machine language monitor program for the Apple Replica 1.
 
-Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+Copyright (C) 2012-2014 by Jeff Tranter <tranter@pobox.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
