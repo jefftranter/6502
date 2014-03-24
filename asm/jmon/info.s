@@ -86,7 +86,6 @@ Info:
         LDA #'.'
         JSR PrintChar
         TXA
-        AND #$0F
         JSR PRHEX
         LDX #<MHzString
         LDY #>MHzString
@@ -166,9 +165,7 @@ Info:
         JSR PrintString
         JSR WozMonPresent
         JSR PrintPresent
-        JSR PrintCR
-
-        RTS
+        JMP PrintCR
 
 ; Determine type of CPU. Returns result in A.
 ; 1 - 6502, 2 - 65C02, 3 - 65816.
@@ -212,8 +209,7 @@ PrintPresent:
 @Present:
         LDX #<PresentString
         LDY #>PresentString
-        JSR PrintString
-        RTS
+        JMP PrintString
 
 ; Determines top of installed RAM while trying not to corrupt any other
 ; program including this one. We assume RAM starts at 0. Returns top

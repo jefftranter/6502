@@ -439,9 +439,7 @@ NewPC:
         STA ADDR
         LDA SAVE_PC+1
         STA ADDR+1
-        JSR DISASM
-
-        RTS                     ; Return
+        JMP DISASM              ; will return via caller
 
 ; Given an instruction opcode, return the instruction's length.
 ; On entry opcode is in OPCODE. Length is returned in LEN.

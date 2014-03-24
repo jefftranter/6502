@@ -240,7 +240,7 @@ ADJUST:
   JMP REPSEP
 
 TRYX:
-  LDA XBIT              ; Is M bit zero?
+  LDA XBIT              ; Is X bit zero?
   BNE REPSEP            ; If not, skip adjustment.
   LDA OPCODE            ; See if the opcode is one that needs to be adjusted
   CMP #$A0

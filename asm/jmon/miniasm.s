@@ -90,8 +90,7 @@ GetMnem:
         LDY #>InvalidInstructionString
         JSR PrintString         ; Print error message
 EscPressed:
-        JSR PrintCR
-        RTS                     ; and return
+        JMP PrintCR             ; Return via caller
 
 ; Mnemonic is valid. Does instruction use implicit addressing mode (i.e. no operand needed)?
 
@@ -511,8 +510,7 @@ InvalidOp:
         LDX #<InvalidOperandString
         LDY #>InvalidOperandString
         JSR PrintString
-        JSR PrintCR
-        RTS
+        JMP PrintCR             ; Return via caller
 
 GenerateCode:
         JSR PrintCR             ; Output newline
@@ -523,8 +521,7 @@ GenerateCode:
         LDX #<InvalidAddressingModeString ; Not a valid addressing mode
         LDY #>InvalidAddressingModeString
         JSR PrintString         ; Print error message
-        JSR PrintCR
-        RTS                     ; and return
+        JMP PrintCR             ; Return via caller
 
 OperandOkay:
 
@@ -553,8 +550,7 @@ OperandOkay:
         LDX ADDR
         LDY ADDR+1
         JSR PrintAddress
-        JSR PrintCR
-        RTS                     ; and return
+        JMP PrintCR             ; Return via caller
 
 ; Generate code for operands
 
@@ -631,8 +627,7 @@ OutOfRange:
          LDX #<BranchOutOfRangeString
          LDY #>BranchOutOfRangeString
          JSR PrintString
-         JSR PrintCR
-         RTS
+         JMP PrintCR                ; Return via caller
 
 OkayZero:
          LDA OPERAND                ; Low byte

@@ -75,6 +75,8 @@
 ;                      Properly check for top of RAM in INFO command.
 ;                      Fix extra code in tests for start and end addresses.
 ;                      Factor out code for address range check into subroutine.
+;                      Check if RAM test spans two pages.
+;                      Optimize JSR / RTS to JMP
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -165,8 +167,7 @@ MainLoop:
 Invalid:
         LDX #<InvalidCommand
         LDY #>InvalidCommand
-        JSR PrintString
-        RTS
+        JMP PrintString         ; Return via caller
 
 ; Display help
 Help:
@@ -176,21 +177,19 @@ Help:
         JSR PrintString
         LDX #<HelpString
         LDY #>HelpString
-        JSR PrintString
-        RTS
+        JMP PrintString         ; Return via caller
 
 ; Call CFFA1 flash interface menu
 
 CFFA1:
         JSR CFFA1Present        ; Is the card present?
         BEQ @NoCFFA1
-        JSR MENU                ; Jump to CFFA1 menu, will return when done.
-        RTS
+        JMP MENU                ; Jump to CFFA1 menu, will return when done.
+
 @NoCFFA1:
         LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
         LDY #>NoCFFA1String
-        JSR PrintString
-        RTS
+        JMP PrintString         ; Return via caller
 
 ; Call ACI (Apple Cassette Interface) firmware
 ; First check for the presence of the card by looking for the first two byes of the ROM firmware.
@@ -202,8 +201,7 @@ ACIFW:
 NoACI:
         LDX #<NoACIString       ; Display error that no ACI is present.
         LDY #>NoACIString
-        JSR PrintString
-        RTS
+        JMP PrintString         ; Return via caller
 
 ; Go to Woz Monitor
 Monitor:
@@ -213,8 +211,7 @@ Monitor:
 @NoWozMon:
         LDX #<NoWozMonString    ; Display error that no Woz Monitor is present.
         LDY #>NoWozMonString
-        JSR PrintString
-        RTS
+        JMP PrintString         ; Return via caller
 
 ; Go to Mini Assembler
 Assemble:
@@ -224,8 +221,7 @@ Assemble:
         STX ADDR                ; Save it
         STY ADDR+1              ; Save it
         JSR PrintCR             ; Start new line
-        JSR AssembleLine        ; Call asssembler
-        RTS
+        JMP AssembleLine        ; Call asssembler
 
 ; Go to BASIC
 
@@ -236,8 +232,7 @@ Basic:
 NoBasic:
         LDX #<NoBASICString     ; Display error that no BASIC is present.
         LDY #>NoBASICString
-        JSR PrintString
-        RTS
+        JMP PrintString
 
 ; Handle breakpoint
 ; B ?                    <- list status of all breakpoints
@@ -252,8 +247,8 @@ IGN:    JSR GetKey              ; get breakpoint number
         BEQ LISTB
         CMP #ESC                ; <Escape> cancels
         BNE Num
-        JSR PrintCR
-        RTS
+        JMP PrintCR
+
 Num:    CMP #'0'                ; is it 0 through 3?
         BMI IGN                 ; Invalid, ignore and try again
         CMP #'3'+1
@@ -268,11 +263,10 @@ VALIDBP:
         JSR GetAddress          ; prompt for address
         JSR PrintCR
         PLA                     ; restore BP number
-        JSR BPADD
-        RTS
+        JMP BPADD
+
 LISTB:  JSR PrintCR
-        JSR BPLIST
-        RTS
+        JMP BPLIST
 
 ; Hex to decimal conversion command
 Hex:
@@ -317,8 +311,7 @@ Hex:
         STA LAST
         LDA BCD
         JSR PrintByteLZ
-        JSR PrintCR
-        RTS
+        JMP PrintCR
 
 ; Run at address
 Go:
@@ -528,8 +521,8 @@ Search:
         BNE @NotDone
         LDX #<NotFound
         LDY #>NotFound
-        JSR PrintString
-        RTS                     ; done
+        JMP PrintString
+
 @NotDone:
         LDA SL                  ; increment address
         CLC
@@ -709,8 +702,7 @@ Test:
         LDX #<TestString3
         LDY #>TestString3
         JSR PrintString
-        JSR MEM_TEST
-        RTS
+        JMP MEM_TEST
 
 ; Memory fill command
 Fill:
@@ -795,13 +787,12 @@ CLEAR:
 VNOTINRAM:
         LDX #<VNotRAMString
         LDY #>VNotRAMString
-        JSR PrintString
-        RTS
+        JMP PrintString
+
 BNOTINRAM:
         LDX #<BNotRAMString
         LDY #>BNotRAMString
-        JSR PrintString
-        RTS
+        JMP PrintString
 
 ; List breakpoints, e.g.
 ; "BREAKPOINT n AT $nnnn"
@@ -1186,8 +1177,7 @@ PrintRegisters:
         JSR PrintByte
         JSR PrintSpace
         JSR OUTP
-        JSR PrintCR
-        RTS
+        JMP PrintCR
 
 ; Prompt user to change program options
 Options:
@@ -1207,8 +1197,8 @@ Options:
         BEQ @No
         BNE @Retry
 @Return:
-        JSR PrintCR             ; new line
-        RTS
+        JMP PrintCR             ; new line
+
 @Yes:
         JSR PrintChar           ; echo command
         LDA #$FF
@@ -1275,8 +1265,7 @@ Options:
         JSR PrintChar           ; echo command
         AND #%00000011          ; Convert ASCII number to binary number
         STA OCPU
-        JSR PrintCR             ; new line
-        RTS
+        JMP PrintCR             ; new line
 
 ; Math command. Add or substract two 16-bit hex numbers.
 ; Format: = <ADDRESS> +/- <ADDRESS>
@@ -1334,8 +1323,7 @@ Math:
         LDX DL                  ; Print the result
         LDY DH
         JSR PrintAddress
-        JSR PrintCR
-        RTS
+        JMP PrintCR
 
 ; Checksum command. Sum memory bytes in a range and show 16-bit result.
 ; Format: K <start> <end>
@@ -1380,8 +1368,7 @@ Checksum:
         LDX DL                  ; Get checksum value
         LDY DH
         JSR PrintAddress        ; Print it
-        JSR PrintCR
-        RTS                     ; done
+        JMP PrintCR
 
 @NotDone:
         LDA SL                  ; increment start address
@@ -1585,13 +1572,6 @@ PrintAddress:
         PLA                     ; Restore A
         RTS
 
-; Print byte in hex
-; Pass byte in A
-; Registers changed: None
-PrintByte:
-        JSR PRBYTE              ; Just call PRBYTE routine
-        RTS
-
 ; Print byte in BCD with leading zero suppression
 ; Pass byte in A
 ; Registers changed: None
@@ -1625,8 +1605,7 @@ PrintByteLZ:
         AND #$0F                ; mask out lower nybble
         CLC
         ADC #'0'
-        JSR PrintCharLZ
-        RTS
+        JMP PrintCharLZ
 
 ; Print character but suppress 0 if LZ it not set.
 ; Sets LZ when non-zero printed.
@@ -1640,8 +1619,8 @@ PrintCharLZ:
         PLA
         RTS                     ; suppress leading zero
 @print: PLA
-        JSR PrintChar
-        RTS
+        JMP PrintChar
+
 @notzero:
         JSR PrintChar           ; print it
         LDA #1                  ; set LZ to 1
@@ -1656,8 +1635,8 @@ PrintAscii:
         BMI NotAscii
         CMP #$7E+1              ; last printable character (~)
         BPL NotAscii
-        JSR PrintChar
-        RTS
+        JMP PrintChar
+
 NotAscii:
         PHA                     ; save A
         LDA #'.'
@@ -1716,6 +1695,7 @@ done:
 ; Taken from Woz Monitor PRBYTE routine ($FFDC).
 ; Pass byte in A
 ; Registers changed: A
+PrintByte:
 PRBYTE:
         PHA             ; Save A for LSD.
         LSR
@@ -2159,8 +2139,7 @@ ACIPresent:
         LDA #0
         RTS
 
-
-; Determines if an ACI (Apple Cassette Interface) card is present.
+; Determines if a CFFA1 (Compact Flash) card is present.
 ; Returns in A 1 if present, 0 if not.
 ; The documented way to check for a CFFA1 is to check for two ID bytes.
 ; The documentation says it is addresses $AFFC and $AFFD but the firmware
@@ -2332,7 +2311,7 @@ InvalidCommand:
 
 ; Help string.
 HelpString:
-        .byte "Assemble    A", CR
+        .byte "Assemble    A <address>", CR
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
         .byte "Dump        D <start>", CR
