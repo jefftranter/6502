@@ -5,7 +5,7 @@
 ; assembler by Jeff Tranter <tranter@pobox.com>.
 
 ; Macro to define a string in ASCII with high bit set on each character.
-.macro  Str Arg
+.macro Str Arg
     .repeat .strlen(Arg), I
     .byte   .strat(Arg, I) | $80
     .endrep
@@ -59,7 +59,10 @@ CURSUP = $FC1A
 ; ZMODE =  $FFC7
 ; CHRTBL = $FFCC
 
+;  .ORG $3500
+;  .ORG $6500
   .ORG $7500
+;  .ORG $B500
 
 REL: SBC #$81 ; IS FMT COMPATIBLE
   LSR ; WITH RELATIVE MODE?
