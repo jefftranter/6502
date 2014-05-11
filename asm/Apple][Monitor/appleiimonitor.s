@@ -8,6 +8,13 @@
 ; code.
 APPLE1 = 1
 
+; Macro to define a string in ASCII with high bit set on each character.
+.macro  Str Arg
+    .repeat .strlen(Arg), I
+    .byte   .strat(Arg, I) | $80
+    .endrep
+.endmacro
+
 ; ***********************
 ; *                     *
 ; * APPLE-II            *
@@ -191,7 +198,7 @@ FORM2: JSR GETNSP ; GET FIRST CHAR OF ADDR
   LDY YSAV
 FORM3: CLC ; CLEAR BIT-NO MATCH
 FORM4: DEY ; BACK UP 1 CHAR
-FORM5: ROL ; FMT FORM FORMAT BYTE
+FORM5: ROL FMT ; FORM FORMAT BYTE
   CPX #$3 ; TIME TO CHECK FOR ADDR.
   BNE FORM7 ; NO
   JSR GETNUM ; YES
@@ -229,12 +236,12 @@ GETNSP: LDA IN,Y
 
 ; Add filler bytes up to documented Mini-Assembler entry point at
 ; address $X666
-.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-.byte 0,0,0,0,0,0,0,0,0,0
+.byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+.byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+.byte $FF
 
 ;        .ORG $F666
-MINIASM: JMP RESETZ
+;MINIASM: JMP RESETZ
 
 ; Apple 1 specific code
 .ifdef APPLE1
@@ -242,11 +249,19 @@ MINIASM: JMP RESETZ
   LDA   ($3A,X)
   TAY
   LSR
-  BCC   $7675
+  BCC   L0+1
   LSR
-  ORA   #$80
-  JMP   $7893
-  JMP   $789B
+  .BYTE $09 ; ORA #
+  JMP   RESETZ
+L0: LDA ($3A,X)
+  TAY
+  LSR A
+  BCC L1
+  LSR A
+  ORA #$80
+
+ JMP   $7893
+L1: JMP   $789B
   LDA   #$7F ; Initialize 6820
   STA   $D012
   LDX   #$A7
@@ -257,17 +272,17 @@ MINIASM: JMP RESETZ
   LDX   #$96
   STX   $D005
   RTS
-  BIT   $D012 ;Character Out
-  BMI   $7690
+L3: BIT   $D012 ; Character Out
+L2: BMI   L3
   STA   $D012
   RTS
   CMP   #$9B ; Use Esc for line kill
-  BNE   $769F
+  BNE   L4
   LDA   #$98
-  CMP   #$88 ; Use Control h for Backspace
-  BNE   $76A5
+L4: CMP   #$88 ; Use Control h for Backspace
+  BNE   L5
   LDA   #$DF ; Underscore out
-  RTS
+L5:  RTS
 
 .else
 
@@ -277,6 +292,51 @@ MINIASM: JMP RESETZ
 .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 .endif
+
+.ifdef APPLE1
+
+; 346 filler bytes in place of SWEET16 code
+
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0
+
+.else
 
 ; ***********************
 ; *                     *
@@ -519,6 +579,8 @@ RS: LDX #$18 ; 12*2 FOR R12 AS STACK POINTER
   STA R15L
  RTS
 RTN: JMP RTNZ
+
+.endif
 
 ; ***************************
 ; *                         *
@@ -851,7 +913,7 @@ FMT2: .BYTE $00 ; ERR
   .BYTE $4A ; (ABS)
   .BYTE $85 ; ZPAG,Y
   .BYTE $9D ; RELATIVE
-CHAR1: .byte ",),#($"
+CHAR1: Str ",),#($"
 CHAR2: .BYTE $D9,$00,$D8,$A4,$A4,$00
 ; CHAR2: "Y",0,"X$$",0
 ; MNEML IS OF FORM:
