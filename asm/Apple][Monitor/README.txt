@@ -13,7 +13,8 @@ Apple 1. The code can be conditionally compiled for Apple II or Apple
 
 The default build address is $7500. The entry point for the Apple II
 monitor is $7F65. The Mini-Assembler entry point is $7666. It has also
-been tested at addresses $3500 and $6500.
+been tested at addresses $3500 and $6500. I have not tested whether it
+will run out of ROM, only RAM.
 
 Known Issues:
 
@@ -27,4 +28,4 @@ The Briel Replica 1 has RAM from $0000 - $7FFF and so can run any
 version built for these addresses.
 
 Control commands do not work from a Briel Replica 1 keyboard as it
-does not support them. They will work if entered from serial port.
+does not support them. They will work if entered from the serial port.

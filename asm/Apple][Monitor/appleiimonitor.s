@@ -228,14 +228,11 @@ GETNSP: LDA IN,Y
   BEQ GETNSP
   RTS
 
-; Add filler bytes up to documented Mini-Assembler entry point at
-; address $X666
+; Add filler bytes so that the Mini-Assembler starts at the documented
+; entry point at address $X666
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 .byte $FF
-
-;        .ORG $F666
-;MINIASM: JMP RESETZ
 
 ; Apple 1 specific code
 
@@ -245,15 +242,14 @@ GETNSP: LDA IN,Y
   BCC   L0+1
   LSR
   .BYTE $09 ; ORA #
-  JMP   RESETZ
+MINIASM:  JMP   RESETZ
 L0: LDA ($3A,X)
 L6: TAY
   LSR A
   BCC L1
   LSR A
   ORA #$80
-
- JMP   INSDS2
+  JMP   INSDS2
 L1: JMP   IEVEN
 L8: LDA   #$7F ; Initialize 6820
   STA   $D012
