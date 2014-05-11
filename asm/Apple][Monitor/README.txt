@@ -8,8 +8,7 @@ See http://www.apple1notes.com/old_apple/Monitor_II_on_1.html
 
 I adapted the original monitor source from the "Red Book" to build
 under the CA65 assembler, then reverse engineered the patches for the
-Apple 1. The code can be conditionally compiled for Apple II or Apple
-1 and it can be relocated.
+Apple 1.
 
 The default build address is $7500. The entry point for the Apple II
 monitor is $7F65. The Mini-Assembler entry point is $7666. It has also
