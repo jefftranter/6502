@@ -242,14 +242,20 @@ GETNSP: LDA IN,Y
   RTS
 
 ; Add filler bytes so that the Mini-Assembler starts at the documented
-; entry point at address $X666
+; entry point at address $F666
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 .byte $FF
 
+.ifndef APPLE1
+
+.byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+
+MINIASM:  JMP   RESETZ
+.endif
+
 ; Apple 1 specific code
 .ifdef APPLE1
-
   LDA   ($3A,X)
   TAY
   LSR
@@ -576,6 +582,9 @@ RS: LDX #$18 ; 12*2 FOR R12 AS STACK POINTER
   STA R15L
  RTS
 RTN: JMP RTNZ
+
+; Padding bytes to make System Monitor start at $F800
+  .byte 0,0,0
 
 .endif
 
@@ -1348,6 +1357,8 @@ WRTAPE: LDY IOADR,X
   DEX
 .else
 WRTAPE: LDY TAPEOUT
+  LDY  #$2C
+  DEX
 .endif
   RTS
 RDBYTE: LDX #$08 ; 8 BITS TO READ
