@@ -68,7 +68,6 @@ CURSUP = $FC1A
 ;  .org $6500
   .org $7500
 ;  .org $B500
-;  .org $F600
 .else
   .org $F500
 .endif
