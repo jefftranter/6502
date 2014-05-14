@@ -64,14 +64,17 @@ CURSUP = $FC1A
 ; CHRTBL = $FFCC
 
 .ifdef APPLE1
-;  .ORG $3500
-;  .ORG $6500
-  .ORG $7500
-;  .ORG $B500
-;  .ORG$F600
+;  .org $3500
+;  .org $6500
+  .org $7500
+;  .org $B500
+;  .org $F600
 .else
-  .ORG $F500
+  .org $F500
 .endif
+
+  .export MON
+  .export REL
 
 REL: SBC #$81 ; IS FMT COMPATIBLE
   LSR ; WITH RELATIVE MODE?

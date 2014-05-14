@@ -1,7 +1,7 @@
 all:	appleiimonitor.mon
 
 appleiimonitor.mon: appleiimonitor.bin
-	bintomon -l 0x7500 -r 0x7f65 appleiimonitor.bin >appleiimonitor.mon
+	bintomon -v `./getaddress` appleiimonitor.bin >appleiimonitor.mon
 
 appleiimonitor.bin: appleiimonitor.o
 	ld65 -t replica1 -vm -m appleiimonitor.map -o appleiimonitor.bin appleiimonitor.o
