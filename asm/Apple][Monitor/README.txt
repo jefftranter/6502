@@ -34,7 +34,7 @@ I have tested this code on a Briel Replica 1. Control commands do not
 work when using a PS/2 keyboard as the Replica 1 does not support
 them. They will work if entered from the serial port. The Briel
 Replica 1 has RAM from $0000 to $7FFF and so can run any version built
-within this address range. The Fxxx version should work if burned to a
+within this address range. The Fxxx version will work if burned to a
 ROM.
 
 I have also tested it running on the POM1 Apple 1 emulator.
