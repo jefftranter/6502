@@ -214,9 +214,9 @@ WRITEBIT: JSR WDELAY            ; Do two equal phases
 
 WDELAY: DEY                     ; Delay 250us (one phase of 2kHz)
         BNE WDELAY
-        BCC WRITE1              ; Write a ‘1’ (2kHz)
+        BCC WRITE1              ; Write a '1' (2kHz)
 
-        LDY #47                 ; Additional delay for ‘0’ (1kHz)
+        LDY #47                 ; Additional delay for '0' (1kHz)
 WDELAY0: DEY                    ; (delay 250us)
         BNE WDELAY0
 
