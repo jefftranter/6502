@@ -5,6 +5,10 @@ The same software, with some changes, was also published in the book
 "Top Down Assembly Language Programming for your VIC-20 and Commodore
 64", by the same author.
 
+I do not own a copy, but the book "Top-Down Assembly Language
+Programming for the 6502 Personal Computer" may also contain the same
+or similar programs.
+
 The .bas files are BASIC programs that can be used to load the
 programs into memory, using OBJECTCODELOADER.bas.
 
