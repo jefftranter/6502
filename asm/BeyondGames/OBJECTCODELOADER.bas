@@ -37,10 +37,10 @@
 540 REM                          the range of DATA statements that
 550 REM                          contain object code.
 570 REM
-600 DATA ????                    :REM This should be the number of the
+600 DATA 1000                    :REM This should be the number of the
 610 REM                          first DATA statement containing object
 611 REM                          code.
 612 REM
-620 DATA ????                    :REM This should be the number of the
+620 DATA 2102                    :REM This should be the number of the
 630 REM                          last DATA statement containing object
 631 REM                          code.
