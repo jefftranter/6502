@@ -1,9 +1,5 @@
 all:	C1.bin C13.bin
 
-basic:
-	cp OBJECTCODELOADER.bas ALL.bas
-	cat E*.bas | grep " DATA  " | sort >> ALL.bas
-
 C1.bin: C1.o
 	ld65 -t none -vm -m C1.map -o C1.bin C1.o
 

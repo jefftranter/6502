@@ -17,7 +17,7 @@
 310 SUM=A                        :REM Initialize calculated sum of data.
 320 FOR J=1 TO 8                 :REM Get 8 bytes of object code from
 321 REM                          data.
-330 READ TEMP:BYTE(J)=TEMP       :REM Put them in the byte array, and
+330 READ BYTE(J)                 :REM Put them in the byte array, and
 340 SUM=SUM+BYTE(J)              :REM add them to the calculated sum of
 341 REM                          data
 350 NEXT J                       :REM Now we have the 8 bytes, and we
