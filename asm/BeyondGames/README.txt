@@ -19,6 +19,49 @@ This only includes the version for the Ohio Scientific C-1P (support
 for the PET 2001, Apple II, and Atari 800 would only require entering
 the appropriate system data blocks).
 
-These files have not yet been tested.
+The easiest way to load the monitor is to enter the OSI machine
+language monitor (answer "M" to the D/C/W/M? prompt on power up). Then
+load the file visiblemonitor.lod by pressing L and loading it from the
+serial port of cassette interface. It will load and start
+automatically.
+
+Here is a summary of how to use the monitor:
+
+Sample display:
+
+                   A     X     Y     P
+1135    4A    J   00    00    00    00
+   ^
+/|\    /|\   /|\ /|\   /|\   /|\   /|\
+ |      |     |   |     |     |     +- P register
+ |      |     |   |     |     +- Y register
+ |      |     |   |     +- X register
+ |      |     |   +- A register
+ |      |     +- current address in ASCII
+ |      +- Contents of the current address.
+ +- Current address.
+
+The caret ("^") shows which field is active for entry.
+
+Key       Function
+---       --------
+0-9,A-F   Enter hex digit
+>         Make next field active
+<         Make previous field active
+<space>   Advance to next address
+<Return>  Move to previous address
+G         Go (call) specified address
+H         Call the hex dump tool
+M         Call the move tool
+P         Toggle the printer flag
+T         Call the test editor
+U         Toggle the user output flag
+?         Call the disassembler
+
+
+Other notes:
+
+The start address is 1207. From the OSI monitor you can start it by
+typing .1207G
 
 Jeff Tranter <tranter@pobox.com>
