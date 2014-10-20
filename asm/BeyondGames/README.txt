@@ -22,7 +22,7 @@ the appropriate system data blocks).
 The easiest way to load the monitor is to enter the OSI machine
 language monitor (answer "M" to the D/C/W/M? prompt on power up). Then
 load the file visiblemonitor.lod by pressing L and loading it from the
-serial port of cassette interface. It will load and start
+serial port or cassette interface. It will load and start
 automatically.
 
 Here is a summary of how to use the monitor:
@@ -58,6 +58,15 @@ T         Call the test editor
 U         Toggle the user output flag
 ?         Call the disassembler
 
+Editor Keys:
+
+Control-F Flush buffer
+Control-C Toggle between insert and overstrike
+>         Move to next character in buffer
+<         Move to previous character in buffer
+Control-P Print the buffer
+<Delete>  Delete the current character.
+QQ        Quit the editor (two Q characters in a row).
 
 Other notes:
 
