@@ -13,11 +13,16 @@ The .bas files are BASIC programs that can be used to load the
 programs into memory, using OBJECTCODELOADER.bas.
 
 The .s files are assembler source. They are intended to be assembled
-with CC65 (See http://www.cc65.org).
+with CC65 (See http://www.cc65.org). The source files are currently
+incomplete.
 
-This only includes the version for the Ohio Scientific C-1P (support
-for the PET 2001, Apple II, and Atari 800 would only require entering
-the appropriate system data blocks).
+This only includes the version for the Ohio Scientific C-1P. Support
+for the PET 2001, Apple II, and Atari 800 should only require entering
+the appropriate system data blocks.
+
+The software has been testing using the Ohio Scientific/Compukit UK101
+emulator found at http://osi.marks-lab.com/ I plan to also test it
+using a Briel Computers Superboard III.
 
 The easiest way to load the monitor is to enter the OSI machine
 language monitor (answer "M" to the D/C/W/M? prompt on power up). Then
@@ -66,7 +71,7 @@ Control-C Toggle between insert and overstrike
 <         Move to previous character in buffer
 Control-P Print the buffer
 <Delete>  Delete the current character.
-QQ        Quit the editor (two Q characters in a row).
+QQ        Quit the editor (enter two Q characters in a row).
 
 Other notes:
 
