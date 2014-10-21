@@ -54,7 +54,7 @@ G         Go (call) specified address
 H         Call the hex dump tool
 M         Call the move tool
 P         Toggle the printer flag
-T         Call the test editor
+T         Call the text editor
 U         Toggle the user output flag
 ?         Call the disassembler
 
