@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Convert binary file to format used by OSI Monitor Load command.
+
+# Start address
+addr=FE00
+
+# Load (go) address
+start=FE00
+
+if [ "$#" -ne "1" ]
+then
+  echo "Usage: $0 <filename>"
+  exit
+fi
+
+echo -n ".${addr}/"
+hexdump -v -e '/1 "%02X\r"' $1
+echo ".${start}G\r"
