@@ -84,7 +84,7 @@ OTHER   LDA     $FC00   ; SERIAL INPUT SUB
 ;
 LEGAL   CMP     #'0'    ; IGNORE NON HEX CHAR.
         BMI     FAIL
-        CMP     #';'
+        CMP     #':'
         BMI     OK
         CMP     #'A'
         BMI     FAIL
