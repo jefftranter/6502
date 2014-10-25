@@ -1,4 +1,4 @@
-all:	osi65v.lod boot.lod keyboard.lod
+all:	osi65v.lod boot.lod keyboard.lod diskboot.lod
 
 osi65v.lod: osi65v.bin
 	./bintolod osi65v.bin >osi65v.lod
@@ -9,6 +9,9 @@ boot.lod: boot.bin
 keyboard.lod: keyboard.bin
 	./bintolod keyboard.bin >keyboard.lod
 
+diskboot.lod: diskboot.bin
+	./bintolod diskboot.bin >diskboot.lod
+
 osi65v.bin: osi65v.o
 	ld65 -t none -vm -m osi65v.map -o osi65v.bin osi65v.o
 
@@ -18,6 +21,9 @@ boot.bin: boot.o
 keyboard.bin: keyboard.o
 	ld65 -t none -vm -m keyboard.map -o keyboard.bin keyboard.o
 
+diskboot.bin: diskboot.o
+	ld65 -t none -vm -m diskboot.map -o diskboot.bin diskboot.o
+
 osi65v.o: osi65v.s
 	ca65 -g -l --feature labels_without_colons --feature pc_assignment osi65v.s
 
@@ -26,6 +32,9 @@ boot.o:	boot.s
 
 keyboard.o:	keyboard.s
 	ca65 -g -l --feature labels_without_colons --feature pc_assignment --feature c_comments keyboard.s 
+
+diskboot.o:	diskboot.s
+	ca65 -g -l --feature labels_without_colons --feature pc_assignment --feature c_comments diskboot.s 
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin *.lod
