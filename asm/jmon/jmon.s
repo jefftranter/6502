@@ -2049,7 +2049,7 @@ GetHexBytes:
 
 ; Below came from
 ; http://www.6502.org/source/integers/hex2dec-more.htm
-; Convert an 16 bit binary value to BCD
+; Convert a 16 bit binary value to BCD
 ;
 ; This function converts a 16 bit binary value into a 24 bit BCD. It
 ; works by transferring one bit a time from the source and adding it
