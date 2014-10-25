@@ -1,16 +1,16 @@
 all:	osi65v.lod boot.lod keyboard.lod diskboot.lod
 
 osi65v.lod: osi65v.bin
-	./bintolod osi65v.bin >osi65v.lod
+	./bintolod -s FE00 -l FE00 osi65v.bin >osi65v.lod
 
 boot.lod: boot.bin
-	./bintolod boot.bin >boot.lod
+	./bintolod -s FE00 -l FEOO boot.bin >boot.lod
 
 keyboard.lod: keyboard.bin
-	./bintolod keyboard.bin >keyboard.lod
+	./bintolod -s FD00 -l FD00 keyboard.bin >keyboard.lod
 
 diskboot.lod: diskboot.bin
-	./bintolod diskboot.bin >diskboot.lod
+	./bintolod -s FC00 -l FC00 diskboot.bin >diskboot.lod
 
 osi65v.bin: osi65v.o
 	ld65 -t none -vm -m osi65v.map -o osi65v.bin osi65v.o

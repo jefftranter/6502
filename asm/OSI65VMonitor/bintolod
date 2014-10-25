@@ -2,18 +2,24 @@
 #
 # Convert binary file to format used by OSI Monitor Load command.
 
-# Start address
-addr=FE00
-
-# Load (go) address
+# Default start address
 start=FE00
 
-if [ "$#" -ne "1" ]
-then
-  echo "Usage: $0 <filename>"
-  exit
-fi
+# Default load (go) address
+load=FE00
 
-echo -n ".${addr}/"
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+while getopts s:l: o
+do  case "$o" in
+    s)	start="$OPTARG";;
+    l)	load="$OPTARG";;
+    [?])	echo >&2 "Usage: $0 [-s <start address>] [-l <load address>] <filename>"
+        exit 1;;
+    esac
+done
+shift $((OPTIND-1))
+
+echo -n ".${start}/"
 hexdump -v -e '/1 "%02X\r"' $1
-echo ".${start}G\r"
+echo ".${load}G\r"
