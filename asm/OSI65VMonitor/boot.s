@@ -1,4 +1,5 @@
 /*
+
 FROM Peek(65) Vol 5 No. 1, Jan. 1984
 By: Leroy Erickson
 Courtesy of OSMOSUS NEWS
@@ -75,31 +76,31 @@ SYNMON ROM Page 7 - Floppy Disk Boot Code
         ; *** DISK BOOT SUBROUTINE ***
         ;
 HFF00   LDY #$00        ;Select Data Direction Register A
-	STY DSKPIA+1
-	STY DSKPIA	;Assign Port A as all INPUT
-	LDX #$04	;Select I/O Port A
-	STX DSKPIA+1
-	STY DSKPIA+3	;Select Data Direction Register B
-	DEY		;Get an FF
-	STY DSKPIA+2	;Assign Port B as all OUTPUT
-	STX DSKPIA+3	;Select I/O Port B
-	STY DSKPIA+2	;Write Port B = all high (FF)
+        STY DSKPIA+1
+        STY DSKPIA      ;Assign Port A as all INPUT
+        LDX #$04        ;Select I/O Port A
+        STX DSKPIA+1
+        STY DSKPIA+3    ;Select Data Direction Register B
+        DEY             ;Get an FF
+        STY DSKPIA+2    ;Assign Port B as all OUTPUT
+        STX DSKPIA+3    ;Select I/O Port B
+        STY DSKPIA+2    ;Write Port B = all high (FF)
 
-	LDA #$FB	;Set step direction line to 'IN'
-        BNE HFF27	;Skip for first pass
-HFF1E	LDA #$02	;Test for 'Track 0' true
-	BIT DSKPIA	;Read Port-A & mask with TRKO bit
-	BEQ HFF41	;True - exit this loop
-	LDA #$FF	;Else, set step dir line to 'OUT'
-HFF27	STA DSKPIA+2	;Set step direction to given value
-	JSR HFF99	;Wait 12 clock cycles
-	AND #$F7	;Select 'STEP' function
+        LDA #$FB        ;Set step direction line to 'IN'
+        BNE HFF27       ;Skip for first pass
+HFF1E   LDA #$02        ;Test for 'Track 0' true
+        BIT DSKPIA      ;Read Port-A & mask with TRKO bit
+        BEQ HFF41       ;True - exit this loop
+        LDA #$FF        ;Else, set step dir line to 'OUT'
+HFF27   STA DSKPIA+2    ;Set step direction to given value
+        JSR HFF99       ;Wait 12 clock cycles
+        AND #$F7        ;Select 'STEP' function
                         ;
         STA DSKPIA+2
         JSR HFF99       ;Wait 12 clock cycles
         ORA #$08        ;Turn off 'STEP' function
         STA DSKPIA+2    ;
-        LDX #$18        ;Wait 30,000 clock cyles
+        LDX #$18        ;Wait 30,000 clock cycles
         JSR WAIT        ; (30 OR 15 ms)
         BEQ HFF1E       ;Loop back for more steps
                         ;
@@ -137,7 +138,7 @@ HFF6F   JSR GETCHR      ;Get a data byte
         STA (LODADR),Y  ;Save it at current
                         ;location
         INY             ;Bump index
-	BNE HFF6F       ;Loop until a page is full
+        BNE HFF6F       ;Loop until a page is full
         INC LODADR+1    ;When a page is full, incr
                         ;addr hi, decr the # of
                         ;pages to load
