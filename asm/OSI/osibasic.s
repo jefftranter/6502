@@ -10,8 +10,8 @@
 
         * = $BEE2
 
-        brk
-        brk
+        .byte   0, 0
+
 LFE02:  lda     $BF05
         lsr     a
         bcc     LFE02
@@ -19,16 +19,19 @@ LFE02:  lda     $BF05
         sta     $FB07
         and     #$7F
         rts
+
         pha
 LFE12:  lda     $FB05
         bpl     LFE12
         pla
         sta     $FB04
         rts
+
         lda     $FB06
         lda     #$FF
         sta     $FB05
         rts
+
 LFE25:  lda     $FC00
         lsr     a
         bcc     LFE25
@@ -36,6 +39,7 @@ LFE25:  lda     $FC00
         beq     LFE25
         and     #$7F
         rts
+
         pha
 LFE34:  lda     $FC00
         lsr     a
@@ -44,11 +48,13 @@ LFE34:  lda     $FC00
         pla
         sta     $FC01
         rts
+
         lda     #$03
         sta     $FC00
         lda     #$B1
         sta     $FC00
         rts
+
         sta     $0202
         pha
         txa
@@ -85,6 +91,7 @@ LFE8B:  pla
         tax
         pla
         rts
+
 LFE91:  jsr     LBFD8
 LFE94:  jsr     LBFC2
         lda     $FFE0
@@ -123,8 +130,10 @@ LFEE6:  ldy     $FFE2
         bne     LFEEF
         sta     $D300,x
         rts
+
 LFEEF:  sta     $D700,x
         rts
+
         jsr     LBFC2
         lda     $FFE0
         sta     $0200
@@ -140,8 +149,7 @@ LFF0A:  sta     $0201
         sta     $D000,y
         iny
         rts
+
         .byte   $D3
         .byte   $D7
-        brk
-        brk
-        brk
+        .byte   0, 0, 0
