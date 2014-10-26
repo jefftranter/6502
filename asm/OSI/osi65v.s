@@ -9,10 +9,17 @@ PNTH=$FF                ; Holds current address (high byte)
 VM      LDX     #$28    ; INITIALIZATION (reset vector)
         TXS             ; Initialize stack pointer to $0128
         CLD             ; Clear decimal mode
-        LDA     $FB06   ; Initialize 6850 ACIA for cassette/serial port
-        LDA     #$FF
-        STA     $FB05
-        LDX     #$D8    ; Last page of video memory
+
+        NOP             ; Replaces old ACIA code which was removed.
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+
+        LDX     #$D4    ; Last page of video memory
         LDA     #$D0    ; First page of video memory
         STA     PNTH    ; Set PNTH/L to $D000 (start of video memory)
         LDA     #0
@@ -70,10 +77,10 @@ INNER   JSR     OUTPUT  ; Output current address and data
 LOAD    STA     FLAG    ; KICK INPUT DEVICE FLAG (enable input from cassette)
         BEQ     DATA    ; Go back and accept user input
 ;
-OTHER   LDA     $FC00   ; SERIAL INPUT SUB
+OTHER   LDA     $F000   ; SERIAL INPUT SUB
         LSR     A       ; (FOR AUDIO CASSETTE)
         BCC     OTHER   ; Branch until data available
-        LDA     $FC01   ; Get data from ACIA
+        LDA     $F001   ; Get data from ACIA
         NOP             ; Delay?
         NOP
         NOP
@@ -136,14 +143,16 @@ R01     ROL     A
         BNE     R01
         RTS
 INPUT   LDA     FLAG    ; CASSETTE IN?
-        BNE     $FE7E   ; YES-GO TO ACIA INPUT
+        BNE     $FE80   ; YES-GO TO ACIA INPUT
         JMP     $FD00   ; NO-GO POLL KB
-KBTEST  LDA     #$FF    ; KB TEST SUBR.
-        STA     $DF00
-        LDA     $DF00
-        RTS
-        NOP
-        .WORD   $130    ; NMI VECTOR (Note: on RAM page 1, can be clobbered by stack)
+
+        .WORD   $FFBA
+        .WORD   $FF69
+        .WORD   $FF9B
+        .WORD   $FF8B
+        .WORD   $FF96
+
+        .WORD   $0130    ; NMI VECTOR (Note: on RAM page 1, can be clobbered by stack)
         .WORD   $FE00   ; RESET VECTOR
         .WORD   $1C0    ; IRQ VECTOR (Note: on RAM page 1, can be clobbered by stack)
         .END
