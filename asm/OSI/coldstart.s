@@ -33,7 +33,7 @@ LFF06:  lda     $FEEF,y
         sty     $0206
         lda     LFFE0
         sta     $0200
-        lda     #$20
+        lda     #' '
 LFF26:  sta     $D300,y
         sta     $D200,y
         sta     $D100,y
@@ -46,16 +46,16 @@ LFF35:  lda     LFF5F,y
         iny
         bne     LFF35
 LFF40:  jsr     LFFBA
-        cmp     #$4D
+        cmp     #'M'
         bne     LFF4A
         jmp     LFE00
-LFF4A:  cmp     #$57
+LFF4A:  cmp     #'W'
         bne     LFF51
         jmp     L0000
-LFF51:  cmp     #$43
+LFF51:  cmp     #'C'
         bne     LFF58
         jmp     LBD11
-LFF58:  cmp     #$44
+LFF58:  cmp     #'D'
         bne     RESET
         jmp     LFC00
 LFF5F:  .asciiz   "D/C/W/M ?"
@@ -115,21 +115,8 @@ LFFBF:  lda     #$FD
         rts
 LFFD5:  inc     $0203
 LFFD8:  jmp     LFD00
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-LFFE0:  .byte   $65, $17
-        .byte   $00
-        .byte   $00
-        .byte   $03
-        .byte   $FF
-        .byte   $9F
-        .byte   $00
-        .byte   $03
-        .byte   $FF
-        .byte   $9F
+        .byte   $FF, $FF, $FF, $FF,  $FF
+LFFE0:  .byte   $65, $17, $00, $00, $03, $FF, $9F, $00, $03, $FF, $9F
         jmp     (L0218)
         jmp     (L021A)
         jmp     (L021C)
