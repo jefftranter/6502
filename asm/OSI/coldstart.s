@@ -1,21 +1,24 @@
-L0000           := $0000
-L0218           := $0218
-L021A           := $021A
-L021C           := $021C
-L021E           := $021E
-L0220           := $0220
-LA636           := $A636
-LBD11           := $BD11
-LBF2D           := $BF2D
-LFC00           := $FC00
-LFCA6           := $FCA6
-LFCB1           := $FCB1
-LFD00           := $FD00
-LFE00           := $FE00
+        NMI = $0130
+        IRQ = $01C0
+
+        L0000 = $0000
+        L0218 = $0218
+        L021A = $021A
+        L021C = $021C
+        L021E = $021E
+        L0220 = $0220
+        LA636 = $A636
+        LBD11 = $BD11
+        LBF2D = $BF2D
+        LFC00 = $FC00
+        LFCA6 = $FCA6
+        LFCB1 = $FCB1
+        LFD00 = $FD00
+        LFE00 = $FE00
 
         * = $FF00
 
-LFF00:  cld
+RESET:  cld
         ldx     #$28
         txs
         ldy     #$0A
@@ -53,16 +56,9 @@ LFF51:  cmp     #$43
         bne     LFF58
         jmp     LBD11
 LFF58:  cmp     #$44
-        bne     LFF00
+        bne     RESET
         jmp     LFC00
-LFF5F:  .byte   $44
-        .byte   $2F
-        .byte   $43
-        .byte   $2F
-        .byte   $57
-        .byte   $2F
-        eor     $3F20
-        brk
+LFF5F:  .asciiz   "D/C/W/M ?"
         jsr     LBF2D
         pha
         lda     $0205
@@ -124,13 +120,13 @@ LFFD8:  jmp     LFD00
         .byte   $FF
         .byte   $FF
         .byte   $FF
-LFFE0:  adc     $17
-        brk
-        brk
+LFFE0:  .byte   $65, $17
+        .byte   $00
+        .byte   $00
         .byte   $03
         .byte   $FF
         .byte   $9F
-        brk
+        .byte   $00
         .byte   $03
         .byte   $FF
         .byte   $9F
@@ -139,7 +135,6 @@ LFFE0:  adc     $17
         jmp     (L021C)
         jmp     (L021E)
         jmp     (L0220)
-        bmi     LFFFD
-        brk
-LFFFD:  .byte   $FF
-        cpy     #$01
+        .word   NMI
+        .word   RESET
+        .word   IRQ
