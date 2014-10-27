@@ -1,0 +1,69 @@
+diff --git a/asm/OSI/msbasic/error.s b/asm/OSI/msbasic/error.s
+index aa184e2..1f21a53 100644
+--- a/asm/OSI/msbasic/error.s
++++ b/asm/OSI/msbasic/error.s
+@@ -1,23 +1,23 @@
+ init_error_table
+ 
+ .ifdef CONFIG_SMALL
+-define_error ERR_NOFOR, "NF"
+-define_error ERR_SYNTAX, "SN"
+-define_error ERR_NOGOSUB, "RG"
+-define_error ERR_NODATA, "OD"
+-define_error ERR_ILLQTY, "FC"
+-define_error ERR_OVERFLOW, "OV"
+-define_error ERR_MEMFULL, "OM"
+-define_error ERR_UNDEFSTAT, "US"
+-define_error ERR_BADSUBS, "BS"
+-define_error ERR_REDIMD, "DD"
+-define_error ERR_ZERODIV, "/0"
+-define_error ERR_ILLDIR, "ID"
+-define_error ERR_BADTYPE, "TM"
+-define_error ERR_STRLONG, "LS"
+-define_error ERR_FRMCPX, "ST"
+-define_error ERR_CANTCONT, "CN"
+-define_error ERR_UNDEFFN, "UF"
++define_err ERR_NOFOR, "NF"
++define_err   ERR_SYNTAX, "SN"
++define_err ERR_NOGOSUB, "RG"
++define_err ERR_NODATA, "OD"
++define_err ERR_ILLQTY, "FC"
++define_err ERR_OVERFLOW, "OV"
++define_err ERR_MEMFULL, "OM"
++define_err ERR_UNDEFSTAT, "US"
++define_err ERR_BADSUBS, "BS"
++define_err ERR_REDIMD, "DD"
++define_err ERR_ZERODIV, "/0"
++define_err ERR_ILLDIR, "ID"
++define_err ERR_BADTYPE, "TM"
++define_err ERR_STRLONG, "LS"
++define_err ERR_FRMCPX, "ST"
++define_err ERR_CANTCONT, "CN"
++define_err ERR_UNDEFFN, "UF"
+ .else
+ define_error ERR_NOFOR, "NEXT WITHOUT FOR"
+ define_error ERR_SYNTAX, "SYNTAX"
+@@ -46,4 +46,4 @@ define_error ERR_BADDATA, "FILE DATA"
+ define_error ERR_FRMCPX, "FORMULA TOO COMPLEX"
+ define_error ERR_CANTCONT, "CAN'T CONTINUE"
+ define_error ERR_UNDEFFN, "UNDEF'D FUNCTION"
+-.endif
+\ No newline at end of file
++.endif
+diff --git a/asm/OSI/msbasic/macros.s b/asm/OSI/msbasic/macros.s
+index 33f1ca0..ab5d6a2 100644
+--- a/asm/OSI/msbasic/macros.s
++++ b/asm/OSI/msbasic/macros.s
+@@ -68,6 +68,12 @@ ERROR_MESSAGES:
+ 		htasc msg
+ .endmacro
+ 
++.macro define_err error, msg
++        .segment "ERROR"
++		error := <(*-ERROR_MESSAGES)
++		.byte msg
++.endmacro
++
+ ;---------------------------------------------
+ ; set the MSB of every byte of a string
+ .macro asc80 str
