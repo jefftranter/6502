@@ -7,3 +7,7 @@ ROMs.
 
 This version builds with CC65 assembler. In some cases I have also
 added additional comments to the code.
+
+Included here are a couple of optional patches to BASIC. One fixes the
+display of error messages, and the other addresses the well-known
+garbage collection bug.
