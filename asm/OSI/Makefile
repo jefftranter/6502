@@ -1,5 +1,14 @@
 all: osirom.lod basicrom.lod
 
+patch: errormessage.patch garbagecollection.patch
+	patch -p3 <errormessage.patch
+	patch -p3 <garbagecollection.patch
+
+unpatch: errormessage.patch garbagecollection.patch
+	patch -R -p3 <errormessage.patch
+	patch -R -p3 <garbagecollection.patch
+	$(RM) -f msbasic/*.orig
+
 osirom.lod: osirom.bin
 	./bintolod -s F800 -l FFF0 osirom.bin >osirom.lod
 
