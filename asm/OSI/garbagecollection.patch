@@ -1,0 +1,99 @@
+diff --git a/asm/OSI/msbasic/string.s b/asm/OSI/msbasic/string.s
+index 499d4cd..22910dc 100644
+--- a/asm/OSI/msbasic/string.s
++++ b/asm/OSI/msbasic/string.s
+@@ -189,17 +189,14 @@ FINDHIGHESTSTRING:
+         sta     FRETOP+1
+         ldy     #$00
+         sty     FNCNAM+1
+-.ifdef CONFIG_2
+         sty     FNCNAM	; GC bugfix!
+-.endif
+         lda     STREND
+         ldx     STREND+1
+         sta     LOWTR
+         stx     LOWTR+1
+         lda     #TEMPST
+-        ldx     #$00
+         sta     INDEX
+-        stx     INDEX+1
++        sty     INDEX+1
+ L333D:
+         cmp     TEMPPT
+         beq     L3346
+@@ -223,7 +220,7 @@ L335A:
+ L335F:
+         sta     HIGHDS
+         stx     HIGHDS+1
+-        lda     #$03	; OSI GC bugfix -> $04 ???
++        lda     #$04	; OSI GC bugfix -> $04 ???
+         sta     DSCLEN
+ L3367:
+         lda     HIGHDS
+@@ -232,8 +229,8 @@ L336B:
+         cpx     STREND+1
+         bne     L3376
+         cmp     STREND
+-        bne     L3376
+-        jmp     MOVE_HIGHEST_STRING_TO_TOP
++        beq     MOVE_HIGHEST_STRING_TO_TOP
++
+ L3376:
+         sta     INDEX
+         stx     INDEX+1
+@@ -266,9 +263,7 @@ L3376:
+ .ifdef CONFIG_CBM1_PATCHES
+         jsr     LE7F3 ; XXX patch, call into screen editor
+ .else
+-  .ifdef CONFIG_11
+         ldy     #$00	; GC bugfix
+-  .endif
+         asl     a
+         adc     #$05
+ .endif
+@@ -329,8 +324,9 @@ L33DF:
+         ldx     INDEX+1
+         sta     FNCNAM
+         stx     FNCNAM+1
+-        lda     DSCLEN
+-        sta     Z52
++        dey
++        dey
++        sty     Z52
+ 
+ ; ----------------------------------------------------------------------------
+ ; ADD (DSCLEN) TO PNTR IN INDEX
+@@ -353,22 +349,12 @@ L33FA:
+ ; TO TOP AND GO BACK FOR ANOTHER
+ ; ----------------------------------------------------------------------------
+ MOVE_HIGHEST_STRING_TO_TOP:
+-.ifdef CONFIG_2
++        dec     DSCLEN
+         lda     FNCNAM+1	; GC bugfix
+         ora     FNCNAM
+-.else
+-        ldx     FNCNAM+1
+-.endif
+         beq     L33FA
+-        lda     Z52
+-.ifndef CONFIG_10A
+-        sbc     #$03
+-.else
+-        and     #$04
+-.endif
+-        lsr     a
+-        tay
+-        sta     Z52
++        ldy     Z52
++        clc
+         lda     (FNCNAM),y
+         adc     LOWTR
+         sta     HIGHTR
+@@ -390,6 +376,7 @@ MOVE_HIGHEST_STRING_TO_TOP:
+         iny
+         sta     (FNCNAM),y
+         jmp     FINDHIGHESTSTRING
++        .byte   $FF, $FF
+ 
+ ; ----------------------------------------------------------------------------
+ ; CONCATENATE TWO STRINGS
