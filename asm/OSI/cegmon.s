@@ -116,6 +116,7 @@ LF8D2:  pla
         tax
         pla
         rts
+
 LF8D8:  jsr     LFE59
         sta     $0201
         beq     LF904
@@ -183,6 +184,7 @@ LF96B:  dec     $FB
         bne     LF9E8
 LF96F:  beq     LF90C
 LF971:  rts
+
 LF972:  lda     $FB
         bne     LF971
         lda     #$3F
@@ -399,6 +401,7 @@ LFB57:  lda     $F000
         bcc     LFB4B
         lda     $F001
         rts
+
 LFB61:  lda     #$00
         sta     $FB
         sta     $0203
@@ -408,6 +411,7 @@ LFB6B:  ldx     $0222
         beq     LFB77
         inc     $022F
         rts
+
 LFB77:  ldx     #$00
         stx     $022F
 LFB7C:  clc
@@ -421,6 +425,7 @@ LFB7C:  clc
         lda     #$D0
 LFB90:  sta     $0232
 LFB93:  rts
+
         lda     $0212
         bne     LFB93
         lda     #$FE
@@ -446,6 +451,7 @@ LFBB8:  bvs     LFBB8
         sta     LD08C,x
         dex
         rts
+
         brk
         jsr     LD08C
         dey
@@ -457,6 +463,7 @@ LFBD2:  sec
         lda     $022C
         sbc     $0224,y
         rts
+
 LFBE0:  lda     #$3E
         .byte   $2C
 LFBE3:  lda     #$2C
@@ -469,6 +476,7 @@ LFBEB:  sec
         lda     $FF
         sbc     $FA
         rts
+
 LFBF5:  lda     #$0D
         jsr     LFFEE
         lda     #$0A
@@ -534,6 +542,7 @@ LFC7B:  jsr     LFC9C
         lda     #$FF
         sta     $C002
         rts
+
 LFC91:  ldy     #$F8
 LFC93:  dey
         bne     LFC93
@@ -541,16 +550,19 @@ LFC93:  dey
         dex
         bne     LFC91
         rts
+
 LFC9C:  lda     $C010
         lsr     a
         bcc     LFC9C
         lda     $C011
 LFCA5:  rts
+
 LFCA6:  lda     #$03
         sta     $F000
         lda     #$11
         sta     $F000
         rts
+
 LFCB1:  pha
 LFCB2:  lda     $F000
         lsr     a
@@ -559,10 +571,12 @@ LFCB2:  lda     $F000
         pla
         sta     $F001
         rts
+
 LFCBE:  eor     #$FF
         sta     $DF00
         eor     #$FF
         rts
+
 LFCC6:  pha
         jsr     LFCCF
         tax
@@ -570,9 +584,11 @@ LFCC6:  pha
         dex
         inx
         rts
+
 LFCCF:  lda     $DF00
         eor     #$FF
         rts
+
         cmp     #$5F
         beq     LFCDC
         jmp     LA374
@@ -695,6 +711,7 @@ LFDD3:  pla
         tax
         lda     $0215
         rts
+
 LFDDB:  jsr     LFEF9
         inc     $E4
         bne     LFDE4
@@ -704,6 +721,7 @@ LFDE4:  lda     (L00FE),y
         jsr     LFBEB
         bcc     LFDDB
         rts
+
 LFDEE:  clc
         lda     #$40
         adc     $0228,x
@@ -712,6 +730,7 @@ LFDEE:  clc
         adc     $0229,x
         sta     $0229,x
         rts
+
 LFE00:  ldx     #$28
         txs
         cld
@@ -728,6 +747,7 @@ LFE19:  ldx     $022F
         beq     LFE22
         dec     $022F
         rts
+
 LFE22:  ldx     $0222
         stx     $022F
 LFE28:  sec
@@ -741,6 +761,7 @@ LFE28:  sec
         lda     #$D7
 LFE3C:  sta     $0232
         rts
+
 LFE40:  ldy     #$1C
 LFE42:  lda     LFBB2,y
         sta     L0218,y
@@ -753,6 +774,7 @@ LFE52:  sta     $01FF,y
         dey
         bne     LFE52
         rts
+
 LFE59:  ldy     #$00
         sty     $F9
         lda     #$D0
@@ -766,23 +788,27 @@ LFE65:  sta     ($F9),y
         dex
         bne     LFE65
         rts
+
         pha
         dec     $0203
         lda     #$00
 LFE76:  sta     $0205
         pla
         rts
+
         pha
         lda     #$01
         bne     LFE76
 LFE80:  jsr     LFB57
         and     #$7F
         rts
+
 LFE86:  ldy     #$08
 LFE88:  dey
         asl     a
         bcc     LFE88
         rts
+
 LFE8D:  jsr     LFEE9
         jmp     LFFEE
 LFE93:  cmp     #$30
@@ -797,8 +823,10 @@ LFE93:  cmp     #$30
         sbc     #$07
 LFEA6:  and     #$0F
         rts
+
 LFEA9:  lda     #$80
         rts
+
         jsr     LFEB6
         nop
         nop
@@ -836,6 +864,7 @@ LFEE0:  rol     a
         dey
         bne     LFEE0
         rts
+
 LFEE9:  lda     $FB
         bne     LFE80
         jmp     LFD00
@@ -847,6 +876,7 @@ LFEF9:  inc     L00FE
         bne     LFEFF
         inc     $FF
 LFEFF:  rts
+
 LFF00:  cld
         ldx     #$28
         txs
@@ -874,24 +904,9 @@ LFF35:  cmp     #$43
         bne     LFF00
         .byte   $4C
         .byte   $11
-LFF3B:  .byte   $BD, $50, $3B
-        .byte   $2F
-        .byte $20, $5A, $41
-        .byte $51, $2C
-        .byte $4D, $4E, $42
-        .byte $56, $43
-        .byte $58
-        .byte   $4B
-        .byte $4A
-        .byte $48
-        .byte   $47
-        .byte $46, $44
-        .byte   $53
-        .byte $49, $55
-        .byte $59, $54, $52
-        .byte $45, $57
-        .byte $00, $00
-        .byte $0D, $0A, $4F
+LFF3B:  .byte   $BD
+        .byte   "P;/ ZAQ,MNBVCXKJHGFDSIUYTREW"
+        .byte $00, $00, $0D, $0A, 'O'
         jmp     L002E
         .byte   "_-:0987654321"
 LFF6D:  jsr     LFF8C
@@ -931,6 +946,7 @@ LFFB3:  jsr     LFCB1
         tax
 LFFBB:  pla
 LFFBC:  rts
+
 LFFBD:  jsr     LF9A6
         jsr     LFBE0
         ldx     #$03
@@ -940,6 +956,7 @@ LFFBD:  jsr     LF9A6
         sta     $E4
         stx     $E5
         rts
+
 LFFD1:  ldx     #$02
 LFFD3:  lda     $0222,x
         sta     L0227,x
@@ -947,6 +964,7 @@ LFFD3:  lda     $0222,x
         dex
         bne     LFFD3
         rts
+
         eor     $012F
 LFFE3:  lda     #$2E
         jsr     LFFEE
@@ -956,6 +974,6 @@ LFFEE:  jmp     (L021A)
         jmp     (L021C)
         jmp     (L021E)
 LFFF7:  jmp     (L0220)
-        .word   $0237
-        .word   $FF00
-        .word   $0235
+        .word   $0237           ; NMI vector
+        .word   $FF00           ; Reset vector
+        .word   $0235           ; BRK/IRQ vector
