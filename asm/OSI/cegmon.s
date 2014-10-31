@@ -584,20 +584,9 @@ LFCE3:  dex
         dey
         bne     LFCE1
         rts
-LFCEA:  .byte   $43
-        eor     $47
-        eor     $4E4F
-        plp
-        .byte   $43
-        and     #$31
-        and     $3038,y
-        jsr     L2F44
-        .byte   $43
-        .byte   $2F
-        .byte   $57
-        .byte   $2F
-        .byte   $4D
-        .byte   $3F
+
+LFCEA:  .byte "CEGMON(C)1980 D/C/W/M?"
+
 LFD00:  txa
         pha
         tya
@@ -872,7 +861,7 @@ LFF10:  lda     LFCEA,y
         bne     LFF10
         jsr     LFFEB
         and     #$DF
-        cmp     #$44
+        cmp     #'D'
         bne     LFF27
         jmp     LFC00
 LFF27:  cmp     #$4D
@@ -885,34 +874,26 @@ LFF35:  cmp     #$43
         bne     LFF00
         .byte   $4C
         .byte   $11
-LFF3B:  lda     $3B50,x
+LFF3B:  .byte   $BD, $50, $3B
         .byte   $2F
-        jsr     L415A
-        eor     ($2C),y
-        eor     $424E
-        lsr     $43,x
-        cli
+        .byte $20, $5A, $41
+        .byte $51, $2C
+        .byte $4D, $4E, $42
+        .byte $56, $43
+        .byte $58
         .byte   $4B
-        lsr     a
-        pha
+        .byte $4A
+        .byte $48
         .byte   $47
-        lsr     $44
+        .byte $46, $44
         .byte   $53
-        eor     #$55
-        eor     $5254,y
-        eor     $57
-        brk
-        brk
-        ora     $4F0A
+        .byte $49, $55
+        .byte $59, $54, $52
+        .byte $45, $57
+        .byte $00, $00
+        .byte $0D, $0A, $4F
         jmp     L002E
-        .byte   $5F
-        and     $303A
-        and     $3738,y
-        rol     $35,x
-        .byte   $34
-        .byte   $33
-        .byte   $32
-        .byte   $31
+        .byte   "_-:0987654321"
 LFF6D:  jsr     LFF8C
 LFF70:  ldx     #$00
         stx     $0200
@@ -975,8 +956,6 @@ LFFEE:  jmp     (L021A)
         jmp     (L021C)
         jmp     (L021E)
 LFFF7:  jmp     (L0220)
-        .byte   $37
-        .byte   $02
-        brk
-        .byte   $FF
-        and     $02,x
+        .word   $0237
+        .word   $FF00
+        .word   $0235
