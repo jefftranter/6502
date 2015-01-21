@@ -101,7 +101,7 @@ MODTAB 01" means "LDAX MODTAB+01" or in the more conventional CC65
 assembler, "LDA MODTAB+1,X".
 
 The binary dump at the end of the document was very useful for
-conforming that my assembled version exactly matched the original.
+confirming that my assembled version exactly matched the original.
 The only discrepancy in this listing is that the addresses for the I/O
 routines (GETCH, etc.) do not match the KIM-1 ROM addresses. This is
 because the dump was for a SYM system as the listing says "SYM USER'S
