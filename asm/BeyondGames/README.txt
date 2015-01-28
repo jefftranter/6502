@@ -21,8 +21,8 @@ for the PET 2001, Apple II, and Atari 800 should only require entering
 the appropriate system data blocks.
 
 The software has been testing using the Ohio Scientific/Compukit UK101
-emulator found at http://osi.marks-lab.com/ I plan to also test it
-using a Briel Computers Superboard III.
+emulator (http://osi.marks-lab.com/) as well as Briel Computers
+Superboard III (http://www.brielcomputers.com/).
 
 The easiest way to load the monitor is to enter the OSI machine
 language monitor (answer "M" to the D/C/W/M? prompt on power up). Then
