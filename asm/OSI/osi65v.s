@@ -152,7 +152,7 @@ INPUT   LDA     FLAG    ; CASSETTE IN?
         .WORD   $FF8B
         .WORD   $FF96
 
-        .WORD   $0130    ; NMI VECTOR (Note: on RAM page 1, can be clobbered by stack)
+        .WORD   $0130   ; NMI VECTOR (Note: on RAM page 1, can be clobbered by stack)
         .WORD   $FE00   ; RESET VECTOR
         .WORD   $1C0    ; IRQ VECTOR (Note: on RAM page 1, can be clobbered by stack)
         .END
