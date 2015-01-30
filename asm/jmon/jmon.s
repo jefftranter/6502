@@ -673,9 +673,13 @@ Dump:
 @line:  JSR PrintCR
         LDX #0
 @loop:  JSR DumpLine            ; display line of output
-        LDA SL                  ; add 8 to start address
+        LDA SL                  ; add 8 (4 for OSI) to start address
         CLC
+.ifdef APPLE1
         ADC #8
+.else
+        ADC #4
+.endif
         STA SL
         BCC @NoCarry
         INC SH
@@ -1422,7 +1426,9 @@ Checksum:
 ; -------------------- Utility Functions --------------------
 
 ; Generate one line of output for the dump command.
-; Displays 8 bytes of memory
+; Apple 1 format:         AAAA DD DD DD DD DD DD DD DD ........
+; Superboard /// format:  AAAA DD DD DD DD ....
+; Displays 8 (4 for OSI) bytes of memory
 ; Starting address in SL,SH.
 ; Registers changed: None
 DumpLine:
@@ -1440,14 +1446,22 @@ DumpLine:
         JSR PrintByte           ; Display it in hex
         JSR PrintSpace          ; Followed by space
         INY
+.ifdef APPLE1
         CPY #8                  ; Print 8 bytes per line
+.else
+        CPY #4                  ; Print 4 bytes per line
+.endif
         BNE @loop1
         JSR PrintSpace
         LDY #0
 @loop2: LDA (SL),Y              ; Now get the same data
         JSR PrintAscii          ; Display it in ASCII
         INY
+.ifdef APPLE1
         CPY #8                  ; 8 characters per line
+.else
+        CPY #4                  ; 4 characters per line
+.endif
         BNE @loop2
         JSR PrintCR             ; new line
         PLA                     ; Restore Y
