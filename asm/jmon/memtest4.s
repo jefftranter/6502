@@ -163,7 +163,7 @@ TESTDONE:                        ; print done and stop
         LDA        PASSES
         JSR        PrintByte
         JSR        PrintCR
-.ifdef APPLE
+.ifdef APPLE1
 ; Stop if key pressed
         BIT        $D011 ; Keyboard CR
         BMI        KeyPressed
