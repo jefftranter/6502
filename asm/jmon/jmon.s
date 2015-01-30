@@ -1,6 +1,6 @@
 ; JMON - 6502 Monitor Program
 ;
-; Copyright (C) 2012-2014 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2015 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -77,6 +77,14 @@
 ;                      Factor out code for address range check into subroutine.
 ;                      Check if RAM test spans two pages.
 ;                      Optimize JSR / RTS to JMP
+; 1.1.0  30-Jan-2015   Add support for Superboard /// platform
+
+
+; Platform
+; Define either APPLE1 for Apple 1 Replica1 or OSI for Ohio Scientific
+; SuperBoard ///.
+  APPLE1  = 1
+; OSI     = 1
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -84,14 +92,17 @@
   ESC     = $1B                 ; Escape
 
 ; Hardware addresses
+.ifdef APPLE1
   KBD     = $D010               ; PIA.A keyboard input
   KBDCR   = $D011               ; PIA.A keyboard control register
   DSP     = $D012               ; PIA.B display output register
+.endif
 
 ; Page Zero locations
 ; Note: Woz Mon uses $24 through $2B and $0200 through $027F.
 ; Krusader uses $F8, $F9, $FE, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
+; OSI monitor uses $FB, $FC, $FE, $FF.
   T1      = $30                 ; Temp variable 1 (2 bytes)
   SL      = $32                 ; Start address low byte
   SH      = $33                 ; Start address high byte
@@ -107,18 +118,31 @@
   BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
 
 ; Non page zero locations
+.ifdef APPLE1
   IN      = $0200               ; Buffer from $0200 through $027F (shared with Woz Mon)
+.else
+  IN      = $0300               ; Buffer from $0300 through $037F (shared with OSI BASIC)
+.endif
 
 ; External Routines
+.ifdef APPLE1
   BASIC   = $E000               ; BASIC
   WOZMON  = $FF00               ; Woz monitor entry point
-  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
   MENU    = $9006               ; CFFA1 menu entry point
   ACI     = $C100               ; ACI (Apple Cassette Interface) firmware entry point
+.else
+  BASIC   = $BD11               ; BASIC Cold Start
+  OSIMON  = $FE00               ; OSI monitor entry point
+.endif
+  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 
 ; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
+.ifdef APPLE1
 ; .org $A000
   .org $0280
+.else
+  .org $0400
+.endif
 
 ; JMON Entry point
   .export JMON
@@ -181,6 +205,7 @@ Help:
 
 ; Call CFFA1 flash interface menu
 
+.ifdef APPLE1
 CFFA1:
         JSR CFFA1Present        ; Is the card present?
         BEQ @NoCFFA1
@@ -190,10 +215,12 @@ CFFA1:
         LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
         LDY #>NoCFFA1String
         JMP PrintString         ; Return via caller
+.endif
 
 ; Call ACI (Apple Cassette Interface) firmware
 ; First check for the presence of the card by looking for the first two byes of the ROM firmware.
 
+.ifdef APPLE1
 ACIFW:
         JSR ACIPresent
         BEQ NoACI
@@ -202,9 +229,11 @@ NoACI:
         LDX #<NoACIString       ; Display error that no ACI is present.
         LDY #>NoACIString
         JMP PrintString         ; Return via caller
+.endif
 
-; Go to Woz Monitor
+; Go to Woz Monitor or OSI Monitor.
 Monitor:
+.ifdef APPLE1
         JSR WozMonPresent
         BEQ @NoWozMon
         JMP WOZMON
@@ -212,6 +241,9 @@ Monitor:
         LDX #<NoWozMonString    ; Display error that no Woz Monitor is present.
         LDY #>NoWozMonString
         JMP PrintString         ; Return via caller
+.else
+        JMP OSIMON              ; Jump into OSI Monitor
+.endif
 
 ; Go to Mini Assembler
 Assemble:
@@ -1423,11 +1455,15 @@ DumpLine:
 ; Clears high bit to be valid ASCII
 ; Registers changed: A
 GetKey:
+.ifdef APPLE1
         LDA KBDCR               ; Read keyboard control register
         BPL GetKey              ; Loop until key pressed (bit 7 goes high)
         LDA KBD                 ; Get keyboard data
         AND #%01111111          ; Clear most significant bit to convert to standard ASCII
         RTS
+.else
+        JMP $FD00               ; Call OSI input routine
+.endif
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
 ; ESC key cancels command and goes back to command loop.
@@ -1723,6 +1759,7 @@ PRHEX:
 ; Based on Woz Monitor ECHO routine ($FFEF).
 ; Registers changed: none
 PrintChar:
+.ifdef APPLE1
         PHP             ; Save status
         PHA             ; Save A as it may be changed
 @Loop:
@@ -1744,6 +1781,9 @@ PrintChar:
         PLA             ; Restore A
         PLP             ; Restore status
         RTS             ; Return.
+.else
+        JMP $BF2D       ; Call OSI character out routine.
+.endif
 
 ; Print a dollar sign
 ; Registers changed: None
@@ -1950,14 +1990,18 @@ JMPFL:
         .word Breakpoint-1
         .word Copy-1
         .word Dump-1
+.ifdef APPLE1
         .word ACIFW-1
+.endif
         .word Fill-1
         .word Go-1
         .word Hex-1
         .word Basic-1
         .word Checksum-1
         .word ClearScreen-1
+.ifdef APPLE1
         .word CFFA1-1
+.endif
         .word Info-1
         .word Options-1
         .word Registers-1
@@ -1975,7 +2019,7 @@ JMPFL:
 ; Can be up to 127 characters.
 ; Returns:
 ;   Length stored at IN (doesn't include zero byte).
-;   Characters stored starting at IN+1 ($0201-$027F, same as Woz Monitor)
+;   Characters stored starting at IN+1
 ;   String is terminated in a 0 byte.
 ;   Carry set if user hit <Esc>, clear if used <Enter> or max string length reached.
 ; Registers changed: A, X
@@ -2025,7 +2069,7 @@ EscapePressed:
 ; Can be up to 127 bytes.
 ; Returns:
 ;   Length stored at IN.
-;   Characters stored starting at IN+1 ($0201-$027F, same as Woz Monitor)
+;   Characters stored starting at IN+1
 ; Registers changed: A, X
 
 GetHexBytes:
@@ -2112,6 +2156,7 @@ P1:     LDX #7
 ; Clear screen by printing 24 carriage returns.
 ; Registers changed: none
 ClearScreen:
+.ifdef APPLE1
         PHA             ; save A
         TXA             ; save X
         PHA
@@ -2122,10 +2167,30 @@ ClearScreen:
         TAX
         PLA             ; restore A
         RTS
+.else
+        PHA             ; save A
+        TXA             ; save X
+        PHA
+        LDX #$FF
+        LDA #' '
+CLR1:   STA $D000,X
+        STA $D100,X
+        STA $D300,X
+        STA $D200,X
+        DEX
+        BNE CLR1
+        LDA #$65        ; Set cursor position to home
+        STA $0200
+        PLA             ; restore X
+        TAX
+        PLA             ; restore A
+        RTS
+.endif
 
 ; Determines if an ACI (Apple Cassette Interface) card is present.
 ; Reads the first two bytes of the ROM.
 ; Returns in A 1 if present, 0 if not.
+.ifdef APPLE1
 ACIPresent:
         LDA ACI                 ; First firmware byte
         CMP #$A9                ; Should contain $A9
@@ -2138,6 +2203,7 @@ ACIPresent:
 @NoACI:
         LDA #0
         RTS
+.endif
 
 ; Determines if a CFFA1 (Compact Flash) card is present.
 ; Returns in A 1 if present, 0 if not.
@@ -2147,6 +2213,7 @@ ACIPresent:
 ; not have these locations programmed even though firmware on CD-ROM did.
 ; I manually wrote these bytes to my EEPROM.
 
+.ifdef APPLE1
 CFFA1Present:
         LDA $AFDC               ; First CFFA1 ID byte
         CMP #$CF                ; Should contain $CF
@@ -2159,6 +2226,7 @@ CFFA1Present:
 @NoCFFA1:
         LDA #0
         RTS
+.endif
 
 ; Determines if a Replica 1 Multi I/O card is present.
 ; Returns in A 1 if present, 0 if not.
@@ -2183,6 +2251,7 @@ CFFA1Present:
 ; Write $AA to $C200, should read back different
 ; Read $C204 (timer). Read again and data should be different.
 
+.ifdef APPLE1
 MultiIOPresent:
         LDA #$00
         STA $C302
@@ -2242,20 +2311,32 @@ MultiIOPresent:
 @NoMultiIO:
         LDA #0
         RTS
+.endif
 
 ; Determines if BASIC ROM is present.
 ; Returns in A 1 if present, 0 if not.
 ; Looks for the first three bytes of ROM.
 ; It is unlikely but it could possibly not be present (e.g. when running in an Emulator)
+
+.ifdef APPLE1
+  BASIC0 = $4C
+  BASIC1 = $B0
+  BASIC2 = $E2
+.else
+  BASIC0 = $A2
+  BASIC1 = $FF
+  BASIC2 = $86
+.endif
+
 BASICPresent:
         LDA BASIC               ; First firmware byte
-        CMP #$4C                ; Should contain $4C
+        CMP #BASIC0
         BNE @NoBasic
         LDA BASIC+1             ; Second firmware byte
-        CMP #$B0                ; Should contain $B0
+        CMP #BASIC1
         BNE @NoBasic
         LDA BASIC+2             ; Third firmware byte
-        CMP #$E2                ; Should contain $E2
+        CMP #BASIC2
         BNE @NoBasic
         LDA #1
         RTS
@@ -2266,6 +2347,7 @@ BASICPresent:
 ; Determines if Krusader ROM present.
 ; Returns in A 1 if present, 0 if not.
 ; Looks for the first thee bytes of ROM.
+.ifdef APPLE1
 KrusaderPresent:
         LDA $F000
         CMP #$A9
@@ -2281,10 +2363,12 @@ KrusaderPresent:
 @NoKrusader:
         LDA #0
         RTS
+.endif
 
 ; Determines if Woz Mon is present.
 ; Returns in A 1 if present, 0 if not.
 ; Looks for the first two bytes of ROM.
+.ifdef APPLE1
 WozMonPresent:
         LDA WOZMON
         CMP #$D8
@@ -2297,11 +2381,12 @@ WozMonPresent:
 @NoWozMon:
         LDA #1
         RTS
+.endif
 
 ; Strings
 
 WelcomeMessage:
-        .byte CR,"JMON monitor 1.02 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 1.10 by Jeff Tranter", CR, 0
 
 PromptString:
         .asciiz "? "
@@ -2315,14 +2400,18 @@ HelpString:
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
         .byte "Dump        D <start>", CR
+.ifdef APPLE1
         .byte "ACI menu    E", CR
+.endif
         .byte "Fill        F <start> <end> <data>...", CR
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
+.ifdef APPLE1
         .byte "CFFA1 menu  M", CR
+.endif
         .byte "Info        N", CR
         .byte "Options     O", CR
         .byte "Registers   R", CR
@@ -2330,7 +2419,11 @@ HelpString:
         .byte "Test        T <start> <end>", CR
         .byte "Unassemble  U <start>", CR
         .byte "Verify      V <start> <end> <dest>", CR
+.ifdef APPLE1
         .byte "Woz mon     $", CR
+.else
+        .byte "OSI monitor $", CR
+.endif
         .byte "Write       : <address> <data>...", CR
         .byte "Math        = <address> +/- <address>", CR
         .byte "Trace       .", CR
@@ -2382,11 +2475,15 @@ KnownBPString1:
 KnownBPString2:
   .asciiz " at $"
 
+.ifdef APPLE1
 NoCFFA1String:
   .byte "No CFFA1 card found!", CR, 0
+.endif
 
+.ifdef APPLE1
 NoACIString:
   .byte "No ACI card found!", CR, 0
+.endif
 
 ReadString:
   .byte " Read: ", 0
@@ -2424,8 +2521,10 @@ UnableToWriteString:
 NoBASICString:
   .byte "BASIC not found!", CR, 0
 
+.ifdef APPLE1
 NoWozMonString:
   .byte "Woz Mon not found!", CR, 0
+.endif
 
 CPUString:
         .asciiz "         CPU type: "
@@ -2454,23 +2553,33 @@ PresentString:
 NotString:
         .asciiz "not "
 
+.ifdef APPLE1
 ACICardString:
         .asciiz "         ACI card: "
+.endif
 
+.ifdef APPLE1
 CFFA1CardString:
         .asciiz "       CFFA1 card: "
+.endif
 
+.ifdef APPLE1
 MultiIOCardString:
         .asciiz "   Multi I/O Card: "
+.endif
 
 BASICString:
         .asciiz "        BASIC ROM: "
 
+.ifdef APPLE1
 KrusaderString:
         .asciiz "     Krusader ROM: "
+.endif
 
+.ifdef APPLE1
 WozMonString:
         .asciiz "       WozMon ROM: "
+.endif
 
 RAMString:
         .asciiz "RAM detected from: $0000 to "

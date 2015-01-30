@@ -1,6 +1,6 @@
 ; Information Routines
 ;
-; Copyright (C) 2012-2014 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2015 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -65,6 +65,7 @@ Info:
 
 @Invalid:
 
+.ifdef APPLE1
         JSR MultiIOPresent      ; Can only measure clock speed if we have a Multi I/O card 
         BEQ @SkipSpeed
         
@@ -91,6 +92,7 @@ Info:
         LDY #>MHzString
         JSR PrintString
         JSR PrintCR
+.endif
 
 @SkipSpeed:
         LDX #<RAMString       ; Print range of RAM
@@ -125,6 +127,7 @@ Info:
         JSR PrintAddress
         JSR PrintCR
 
+.ifdef APPLE1
         LDX #<ACICardString
         LDY #>ACICardString
         JSR PrintString
@@ -145,6 +148,7 @@ Info:
         JSR MultiIOPresent
         JSR PrintPresent
         JSR PrintCR
+.endif
 
         LDX #<BASICString
         LDY #>BASICString
@@ -153,17 +157,21 @@ Info:
         JSR PrintPresent
         JSR PrintCR
        
+.ifdef APPLE1
         LDX #<KrusaderString
         LDY #>KrusaderString
         JSR PrintString
         JSR KrusaderPresent
+.endif
         JSR PrintPresent
         JSR PrintCR
        
+.ifdef APPLE1
         LDX #<WozMonString
         LDY #>WozMonString
         JSR PrintString
         JSR WozMonPresent
+.endif
         JSR PrintPresent
         JMP PrintCR
 
@@ -301,6 +309,8 @@ FindTopOfRAMEnd:            ; End of critical section we don't want to write to 
 ; Measure CPU clock speed by sending characters out the serial port of
 ; a Multi I/O board and counting how many CPU cycles it takes. Returns
 ; value in A that is approximately CPU speed in MHz * 10.
+
+.ifdef APPLE1
 MeasureCPUSpeed:
 
 ; 6551 Chip registers
@@ -341,3 +351,4 @@ TXFULL: INX
         PLA
         STA TXDATA
         RTS
+.endif
