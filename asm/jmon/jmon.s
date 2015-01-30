@@ -1045,7 +1045,11 @@ Okay:
         BCC nocarry
         INC SH
 nocarry:
+.ifdef APPLE1
         LDA #$07                ; Is address a multiple of 8?
+.else
+        LDA #$03                ; Is address a multiple of 4?
+.endif
         BIT SL
         BNE writeLoop           ; If not, keep getting data
         JSR PrintCR             ; Otherwise start new line
