@@ -162,18 +162,18 @@ Info:
         LDY #>KrusaderString
         JSR PrintString
         JSR KrusaderPresent
-.endif
         JSR PrintPresent
         JSR PrintCR
+.endif
        
 .ifdef APPLE1
         LDX #<WozMonString
         LDY #>WozMonString
         JSR PrintString
         JSR WozMonPresent
-.endif
         JSR PrintPresent
         JMP PrintCR
+.endif
 
 ; Determine type of CPU. Returns result in A.
 ; 1 - 6502, 2 - 65C02, 3 - 65816.

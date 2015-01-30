@@ -77,17 +77,17 @@
 ;                      Factor out code for address range check into subroutine.
 ;                      Check if RAM test spans two pages.
 ;                      Optimize JSR / RTS to JMP
-; 1.1.0  30-Jan-2015   Add support for Superboard /// platform
-
+; 1.1.0  30-Jan-2015   Added support for Superboard /// platform
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica1 or OSI for Ohio Scientific
 ; SuperBoard ///.
-  APPLE1  = 1
-; OSI     = 1
+ APPLE1  = 1
+;  OSI     = 1
 
 ; Constants
   CR      = $0D                 ; Carriage Return
+  LF      = $0A                 ; Line Feed
   SP      = $20                 ; Space
   ESC     = $1B                 ; Escape
 
@@ -1782,7 +1782,13 @@ PrintChar:
         PLP             ; Restore status
         RTS             ; Return.
 .else
-        JMP $BF2D       ; Call OSI character out routine.
+        JSR $BF2D       ; Call OSI character out routine.
+        CMP #CR         ; Is it Return?
+        BNE @ret        ; If not, return
+        LDA #LF
+        JSR $BF2D       ; Print Linefeed too
+@ret:
+        RTS
 .endif
 
 ; Print a dollar sign
@@ -1980,7 +1986,11 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
+.ifdef APPLE1
         .byte "$?ABCDEFGHIKLMNORSTUV:=."
+.else
+        .byte "$?ABCDFGHIKLNORSTUV:=."
+.endif
 
 JMPFL:
         .word Invalid-1
@@ -2386,32 +2396,41 @@ WozMonPresent:
 ; Strings
 
 WelcomeMessage:
+.ifdef APPLE1
         .byte CR,"JMON monitor 1.10 by Jeff Tranter", CR, 0
+.else
+        .byte CR,"JMON monitor 1.10", CR, "by Jeff Tranter", CR, 0
+.endif
 
 PromptString:
+.ifdef APPLE1
         .asciiz "? "
+.else
+        .asciiz "?"     ; Smaller on OSI due to smaller screen
+.endif
 
 InvalidCommand:
+.ifdef APPLE1
         .byte "Invalid command. Type '?' for help", CR, 0
+.else
+        .byte "Invalid command.", CR, "Type '?' for help", CR, 0
+.endif
 
 ; Help string.
 HelpString:
+.ifdef APPLE1
         .byte "Assemble    A <address>", CR
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
         .byte "Dump        D <start>", CR
-.ifdef APPLE1
         .byte "ACI menu    E", CR
-.endif
         .byte "Fill        F <start> <end> <data>...", CR
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
-.ifdef APPLE1
         .byte "CFFA1 menu  M", CR
-.endif
         .byte "Info        N", CR
         .byte "Options     O", CR
         .byte "Registers   R", CR
@@ -2419,19 +2438,44 @@ HelpString:
         .byte "Test        T <start> <end>", CR
         .byte "Unassemble  U <start>", CR
         .byte "Verify      V <start> <end> <dest>", CR
-.ifdef APPLE1
         .byte "Woz mon     $", CR
-.else
-        .byte "OSI monitor $", CR
-.endif
         .byte "Write       : <address> <data>...", CR
         .byte "Math        = <address> +/- <address>", CR
         .byte "Trace       .", CR
         .byte "Help        ?", CR
         .byte 0
+.else
+        .byte "Assemble   A <a>", CR
+        .byte "Breakpoint B <n><a>", CR
+        .byte "Copy       C <s><e><d>", CR
+        .byte "Dump       D <s>", CR
+        .byte "Fill       F <s><e><d>.", CR
+        .byte "Go         G <a>", CR
+        .byte "Hex to dec H <a>", CR
+        .byte "BASIC      I", CR
+        .byte "Checksum   K <s><e>",CR
+        .byte "Clr screen L", CR
+        .byte "Info       N", CR
+        .byte "Options    O", CR
+        .byte "Registers  R", CR
+        .byte "Search     S <s><e><d>.", CR
+        .byte "Test       T <s><e>", CR
+        .byte "Unassemble U <s>", CR
+        .byte "Verify     V <s><e><d>", CR
+        .byte "Monitor    $", CR
+        .byte "Write      : <a><d>...", CR
+        .byte "Math       = <a>+/-<a>", CR
+        .byte "Trace      .", CR
+        .byte "Help       ?", CR
+        .byte 0
+.endif
 
 ContinueString:
+.ifdef APPLE1
         .asciiz "  <Space> to continue, <ESC> to stop"
+.else
+        .asciiz " <SP> or <ESC> to stop"
+.endif
 
 InvalidRange:
         .byte "Error: start must be <= end", CR, 0
