@@ -1,9 +1,10 @@
 JMON - Jeff's Monitor Program
 ------------------------------
 
-A machine language monitor program for the Apple Replica 1.
+A machine language monitor program for the Apple Replica 1 and
+Superboard ///.
 
-Copyright (C) 2012-2014 by Jeff Tranter <tranter@pobox.com>
+Copyright (C) 2012-2015 by Jeff Tranter <tranter@pobox.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -70,8 +71,8 @@ continue or <Esc> to cancel when prompted.
 ACI MENU: E
 
 Calls the ACI (Apple Cassette Interface) firmware. Reports an error if
-an ACI card is not present. Note that the ACI firmware always go to
-the Woz Monitor on exit.
+an ACI card is not present. Note that the ACI firmware always goes to
+the Woz Monitor on exit. This command applies to the Replica 1 only.
 
 FILL: F <START> <END> <DATA>...
 
@@ -91,8 +92,8 @@ Convert 16-bit hexadecimal number to signed binary.
 
 BASIC: I
 
-Jump to Applesoft BASIC cold start entry point (address $E000). Does
-not perform any check that the ROM-based BASIC is present.
+Jump to the Applesoft or OSI BASIC cold start entry point (address
+$E000/$BD11). This will typically overwrite JMON.
 
 CHECKSUM: K <START> <END>
 
@@ -100,13 +101,15 @@ Calculate a 16-bit checksum of memory from addresses START to END.
 
 CLR SCREEN: L
 
-Clear the screen by printing 24 newlines.
+Clear the screen by printing 24 newlines (or clearing video memory on
+the Replica ///).
 
 CFFA1 MENU: M
 
 Calls the menu for the CFFA1 flash interface (address $9006). First
 performs a check that a CFFA1 card is present and reports an error if
-not. Quitting from the CFFA1 menu returns to JMON.
+not. Quitting from the CFFA1 menu returns to JMON. This command
+applies to the Replica 1 only.
 
 INFO: N
 
@@ -124,6 +127,8 @@ RAM detected from: $0000 to $8FFF
         BASIC ROM: present
      Krusader ROM: present
        WozMon ROM: present
+
+Some information applies to the Replica 1 only.
 
 OPTION: O
 
@@ -182,7 +187,8 @@ continue.
 
 WOZ MON: $
 
-Jump to the Woz monitor (Address $FF00).
+Jump to the Woz monitor (Address $FF00) or OSI monitor (Address
+$FE00).
 
 WRITE: : <ADDRESS> <DATA>...
 

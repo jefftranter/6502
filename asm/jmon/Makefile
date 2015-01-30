@@ -1,3 +1,11 @@
+all: jmon.mon jmon.lod
+
+jmon.lod: jmon.bin
+	~/git/6502/asm/OSI/bintolod -s 0380 -l 0380 jmon.bin >jmon.lod
+
+send:	jmon.lod
+	ascii-xfr -s jmon.lod  >/dev/ttyUSB0
+
 jmon.mon: jmon.bin
 	bintomon -v `./getaddress` jmon.bin >jmon.mon
 

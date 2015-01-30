@@ -26,22 +26,22 @@
        .endmacro
 
 ; SET TEST PATTERN
-; only for tests 4 and 5 (address in address tests), make address High or Low 
+; only for tests 4 and 5 (address in address tests), make address High or Low
 ; equal to pattern
 ; test 4 is LSB of address
 ; test 5 is MSB of address
-; 
+;
         .macro         SET_PATRN
         CPY        #4
         BNE         @TEST5
         LDA        ADDRS
-        STA        TEST_PATRN 
+        STA        TEST_PATRN
 @TEST5:
         CPY        #5
         BNE         @EXIT1
         LDA        ADDRS+$01
-        STA        TEST_PATRN 
-@EXIT1:        
+        STA        TEST_PATRN
+@EXIT1:
         .endmacro
 
 ; start of program
@@ -105,12 +105,12 @@ LOOP_ERR2:
         LDA        #$FF
 NX_TEST:
         STA        TEST_PATRN
-        INY                        ; move to next test 
+        INY                        ; move to next test
 NX_PASS3:
 NX_PASS1:
 NX_PASS2:
         JMP        NX_PASS
-        
+
 CHK_TEST1:
         CPY        #1                ; all ones complete?
         BNE        CHK_TEST2
@@ -140,7 +140,7 @@ CHK_TEST3:                ;floating zeros in progress or done
 ;
 ; pass of test 3 complete - 8 passes in all with 0 in each bit position
 ;
-        SEC                        
+        SEC
         ROR        TEST_PATRN        ; rotate right - Carry to MSB, LSB to Carry
         BCS        NX_PASS2        ; keep going until zero bit reaches carry
 
@@ -163,15 +163,27 @@ TESTDONE:                        ; print done and stop
         LDA        PASSES
         JSR        PrintByte
         JSR        PrintCR
-; Stop if ESC key pressed
-        BIT     $D011 ; Keyboard CR
-        BMI     KeyPressed
+.ifdef APPLE
+; Stop if key pressed
+        BIT        $D011 ; Keyboard CR
+        BMI        KeyPressed
         JMP        REPEAT
 KeyPressed:
-        LDA     $D010 ; Keyboard data
-        JMP     FINISHED
+        LDA        $D010 ; Keyboard data
+        JMP        FINISHED
+.else ; OSI keyboard code
+        LDA        #$00
+        STA        $DF00  ; Select all keyboard rows
+        LDA        $DF00  ; Read columns
+        ORA        #$01   ; Set bit for possible shift lock key
+        CMP        #$FF   ; All bits set means no key pressed
+        BNE        KeyPressed
+        JMP        REPEAT
+KeyPressed:
+        JMP        FINISHED
+.endif
 
-; OUTPUT THE ERROR INFO and STOP        
+; OUTPUT THE ERROR INFO and STOP
 ; TEST#, ADDRESS, PATTERN, ERROR
 LOOP_ERR:
         PHA

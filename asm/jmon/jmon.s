@@ -82,8 +82,8 @@
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica1 or OSI for Ohio Scientific
 ; SuperBoard ///.
- APPLE1  = 1
-;  OSI     = 1
+; APPLE1  = 1
+  OSI     = 1
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -1216,6 +1216,7 @@ Options:
         LDX #<OptionsString
         LDY #>OptionsString
         JSR PrintString
+.ifdef APPLE1
         LDX #<UppercaseString
         LDY #>UppercaseString
         JSR PrintString
@@ -1242,6 +1243,7 @@ Options:
         STA OUPPER
 @Next:
         JSR PrintCR             ; new line
+.endif
 
 ; Add a delay after all writes to accomodate slow EEPROMs.
 ; Applies to COPY, FILL, and TEST commands.
@@ -1255,6 +1257,7 @@ Options:
         STA OWDELAY
         JSR PrintCR             ; new line
 
+.ifdef APPLE1
         LDX #<HighBitString
         LDY #>HighBitString
         JSR PrintString
@@ -1278,6 +1281,7 @@ Options:
         STA OHIGHASCII
 @Next1:
         JSR PrintCR             ; new line
+.endif
 
         LDX #<CPUTypeString
         LDY #>CPUTypeString
@@ -1297,6 +1301,9 @@ Options:
         JSR PrintChar           ; echo command
         AND #%00000011          ; Convert ASCII number to binary number
         STA OCPU
+.ifndef APPLE1
+@Return:
+.endif
         JMP PrintCR             ; new line
 
 ; Math command. Add or substract two 16-bit hex numbers.
@@ -2499,7 +2506,11 @@ MismatchString:
         .asciiz "Mismatch: "
 
 TestString1:
+.ifdef APPLE1
         .asciiz "Testing memory from $"
+.else
+        .byte "Testing memory from", CR, "$", 0
+.endif
 
 TestString2:
         .asciiz " to $"
@@ -2554,7 +2565,11 @@ HighBitString:
   .byte "Set high bit in characters (Y/N)?", 0
 
 CPUTypeString:
+.ifdef APPLE1
   .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
+.else
+  .byte "CPU type 1-6502 2-65C02", CR, "3-65816?", 0
+.endif
 
 InvalidInstructionString:
   .byte "Invalid instruction", 0
@@ -2580,7 +2595,11 @@ NoWozMonString:
 .endif
 
 CPUString:
+.ifdef APPLE1
         .asciiz "         CPU type: "
+.else
+        .asciiz "      CPU type: "
+.endif
 
 Type6502String:
         .asciiz "6502"
@@ -2592,13 +2611,25 @@ Type65816String:
         .asciiz "65816"
 
 ResetVectorString:
+.ifdef APPLE1
         .asciiz "     RESET vector: $"
+.else
+        .asciiz "  RESET vector: $"
+.endif
 
 IRQVectorString:
+.ifdef APPLE1
         .asciiz "   IRQ/BRK vector: $"
+.else
+        .asciiz "IRQ/BRK vector: $"
+.endif
 
 NMIVectorString:
+.ifdef APPLE1
         .asciiz "       NMI vector: $"
+.else
+        .asciiz "    NMI vector: $"
+.endif
 
 PresentString:
         .asciiz "present"
@@ -2622,7 +2653,11 @@ MultiIOCardString:
 .endif
 
 BASICString:
+.ifdef APPLE1
         .asciiz "        BASIC ROM: "
+.else
+        .asciiz "     BASIC ROM: "
+.endif
 
 .ifdef APPLE1
 KrusaderString:
@@ -2635,7 +2670,11 @@ WozMonString:
 .endif
 
 RAMString:
+.ifdef APPLE1
         .asciiz "RAM detected from: $0000 to "
+.else
+        .byte "RAM found from: $0000", CR, "            to: ", 0
+.endif
 
 CPUSpeedString:
         .asciiz "        CPU speed: "
