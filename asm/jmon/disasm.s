@@ -1,7 +1,7 @@
 ;
 ; 6502/65C02/65816 Disassembler
 ;
-; Copyright (C) 2012-2014 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2015 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -304,11 +304,17 @@ PRADDR:
   LDY ADDR+1
   .ifndef SOURCEONLY
   JSR PrintAddress      ; print address
+.ifdef APPLE1
   LDX #3
   JSR PrintSpaces       ; then three spaces
+.else
+  JSR PrintSpace
+.endif
   LDA OPCODE            ; get instruction op code
   JSR PrintByte         ; display the opcode byte
+.ifdef APPLE1
   JSR PrintSpace
+.endif
   LDA LEN               ; how many bytes in the instruction?
   CMP #4
   BEQ FOUR
@@ -316,21 +322,31 @@ PRADDR:
   BEQ THREE
   CMP #2
   BEQ TWO
+.ifdef APPLE1
   LDX #5
+.else
+  LDX #4
+.endif
   JSR PrintSpaces
   JMP ONE
 TWO:
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte
   JSR PrintByte         ; display it
+.ifdef APPLE1
   LDX #3
+.else
+  LDX #2
+.endif
   JSR PrintSpaces
   JMP ONE
 THREE:
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte
   JSR PrintByte         ; display it
+.ifdef APPLE1
   JSR PrintSpace
+.endif
   LDY #2
   LDA (ADDR),Y          ; get 2nd operand byte
   JSR PrintByte         ; display it
@@ -339,11 +355,15 @@ FOUR:
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte
   JSR PrintByte         ; display it
+.ifdef APPLE1
   JSR PrintSpace
+.endif
   LDY #2
   LDA (ADDR),Y          ; get 2nd operand byte
   JSR PrintByte         ; display it
+.ifdef APPLE1
   JSR PrintSpace
+.endif
   LDY #3
   LDA (ADDR),Y          ; get 3nd operand byte
   JSR PrintByte         ; display it
@@ -351,7 +371,11 @@ FOUR:
   BNE SPC
 ONE:
   .endif                ; .ifndef SOURCEONLY
+.ifdef APPLE1
   LDX #4
+.else
+  LDX #1
+.endif
 SPC:
   JSR PrintSpaces
   LDA OP                ; get the op code
@@ -399,7 +423,11 @@ DOMB:
   LSR
   LSR
   JSR PRHEX
+.ifdef APPLE1
   LDX #2
+.else
+  LDX #1
+.endif
   JSR PrintSpaces
   JSR PrintDollar
   LDY #1
@@ -420,15 +448,21 @@ DOBB:                   ; handle special BBRn and BBSn instructions
   LSR
   LSR
   JSR PRHEX
+.ifdef APPLE1
   LDX #2
+.else
+  LDX #1
+.endif
   JSR PrintSpaces
   JSR PrintDollar
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte (address)
   JSR PrintByte         ; display it
+.ifdef APPLE1
   LDA #','
   JSR PrintChar
   JSR PrintDollar
+.endif
 ; Handle relative addressing
 ; Destination address is Current address + relative (sign extended so upper byte is $00 or $FF) + 3
   LDY #2
@@ -469,7 +503,11 @@ TRYINV:
   BNE TRYACC
   JMP DONEOPS           ; no operands
 TRYACC:
+.ifdef APPLE1
   LDX #3
+.else
+  LDX #1
+.endif
   JSR PrintSpaces
   CMP #AM_ACCUMULATOR
   BNE TRYIMM
