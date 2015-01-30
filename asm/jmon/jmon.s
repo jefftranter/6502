@@ -2512,7 +2512,11 @@ ContinueString:
 .endif
 
 InvalidRange:
+.ifdef APPLE1
         .byte "Error: start must be <= end", CR, 0
+.else
+        .byte "Start must be <= end!", CR, 0
+.endif
 
 NotFound:
         .byte "Not found", CR, 0
