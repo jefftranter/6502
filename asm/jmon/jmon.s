@@ -141,7 +141,7 @@
 ; .org $A000
   .org $0280
 .else
-  .org $0400
+  .org $0380
 .endif
 
 ; JMON Entry point
@@ -1782,13 +1782,17 @@ PrintChar:
         PLP             ; Restore status
         RTS             ; Return.
 .else
+        PHP             ; Save status
+        PHA             ; Save A as it may be changed
         JSR $BF2D       ; Call OSI character out routine.
         CMP #CR         ; Is it Return?
         BNE @ret        ; If not, return
         LDA #LF
         JSR $BF2D       ; Print Linefeed too
 @ret:
-        RTS
+        PLA             ; Restore A
+        PLP             ; Restore status
+        RTS             ; Return.
 .endif
 
 ; Print a dollar sign
@@ -2399,7 +2403,7 @@ WelcomeMessage:
 .ifdef APPLE1
         .byte CR,"JMON monitor 1.10 by Jeff Tranter", CR, 0
 .else
-        .byte CR,"JMON monitor 1.10", CR, "by Jeff Tranter", CR, 0
+        .byte CR,"JMON by Jeff Tranter", CR, 0
 .endif
 
 PromptString:
@@ -2474,7 +2478,7 @@ ContinueString:
 .ifdef APPLE1
         .asciiz "  <Space> to continue, <ESC> to stop"
 .else
-        .asciiz " <SP> or <ESC> to stop"
+        .asciiz " <SP> cont <ESC> stop"
 .endif
 
 InvalidRange:
