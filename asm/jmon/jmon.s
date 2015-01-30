@@ -1748,8 +1748,13 @@ PRBYTE:
 ; Registers changed: A
 PRHEX:
         AND #$0F        ; Mask LSD for hex print.
+.ifdef APPLE1
         ORA #'0'+$80    ; Add "0".
         CMP #$BA        ; Digit?
+.else
+        ORA #'0'        ; Add "0".
+        CMP #$3A        ; Digit?
+.endif
         BCC PrintChar   ; Yes, output it.
         ADC #$06        ; Add offset for letter.
                         ; Falls through into PrintChar routine
@@ -1784,11 +1789,11 @@ PrintChar:
 .else
         PHP             ; Save status
         PHA             ; Save A as it may be changed
-        JSR $BF2D       ; Call OSI character out routine.
+        JSR $BF2D       ; Call OSI character out routine
         CMP #CR         ; Is it Return?
         BNE @ret        ; If not, return
         LDA #LF
-        JSR $BF2D       ; Print Linefeed too
+        JSR $BF2D       ; Else print Linefeed too
 @ret:
         PLA             ; Restore A
         PLP             ; Restore status
@@ -2403,7 +2408,7 @@ WelcomeMessage:
 .ifdef APPLE1
         .byte CR,"JMON monitor 1.10 by Jeff Tranter", CR, 0
 .else
-        .byte CR,"JMON by Jeff Tranter", CR, 0
+        .byte CR,"JMON 1.10 by J. Tranter", CR, 0
 .endif
 
 PromptString:
