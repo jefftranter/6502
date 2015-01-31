@@ -24,11 +24,15 @@ Replica1QuickReference.odt - Quick Reference for the Replica 1.
 
 Replica1QuickReference.odt - Quick Reference for the Replica 1 (PDF format).
 
+SuperboardIIIQuickReference.odt - Quick Reference for the Superboard ///.
+
+SuperboardIIIQuickReference.pdf - Quick Reference for the Superboard /// (PDF format).
+
 ---
 
 Files written by me are released under the following license:
 
-Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+Copyright (C) 2012-2015 by Jeff Tranter <tranter@pobox.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
