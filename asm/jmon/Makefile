@@ -22,4 +22,4 @@ clean:
 	$(RM) *.o *.lst *.map *.bin
 
 distclean: clean
-	$(RM) *.mon
+	$(RM) *.mon *.lod

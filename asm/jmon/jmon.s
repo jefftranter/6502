@@ -2431,9 +2431,9 @@ WozMonPresent:
 
 WelcomeMessage:
 .ifdef APPLE1
-        .byte CR,"JMON monitor 1.10 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 1.1.0 by Jeff Tranter", CR, 0
 .else
-        .byte CR,"JMON 1.10 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.1.0 by J. Tranter", CR, 0
 .endif
 
 PromptString:
