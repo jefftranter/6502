@@ -28,6 +28,10 @@ SuperboardIIIQuickReference.odt - Quick Reference for the Superboard ///.
 
 SuperboardIIIQuickReference.pdf - Quick Reference for the Superboard /// (PDF format).
 
+KIM-1QuickReference.odt - Quick Reference for the KIM-1 Microcomputer.
+
+KIM-1QuickReference.odt - Quick Reference for the KIM-1 Microcomputer (PDF format).
+
 ---
 
 Files written by me are released under the following license:
