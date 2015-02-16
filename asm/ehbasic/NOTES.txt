@@ -21,3 +21,10 @@ Known issues:
 
 IRQ and NMI handling is not implemented because the vectors are in the
 Woz monitor ROM and cannot be changed.
+
+---
+
+Also included is a port to the Briel Computers Superboard ///, a
+replica of the Ohio Scientic Superboard II/Challenger 1P. To build
+this version use the make file Makefile.osi. You need a version of
+CC65 that supports the OSI C1P platform.

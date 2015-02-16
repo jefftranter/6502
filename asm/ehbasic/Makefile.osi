@@ -1,0 +1,15 @@
+# Adjust the run address to match the .org in the source code
+
+basic.c1p:: basic.bin
+	srec_cat basic.bin -binary -offset 0x5000 -o basic.c1p -Ohio_Scientific -execution-start-address=0x5000
+
+basic.bin: basic.o
+	ld65 -t osic1p -vm -m basic.map -o basic.bin basic.o
+
+basic.o: basic.asm osi_mon.asm
+	ca65 -g -l basic.lst --feature labels_without_colons -o basic.o osi_mon.asm
+
+clean:
+	$(RM) *.o *.lst *.map *.bin *.c1p
+
+distclean: clean
