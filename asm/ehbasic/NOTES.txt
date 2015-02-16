@@ -28,3 +28,14 @@ Also included is a port to the Briel Computers Superboard ///, a
 replica of the Ohio Scientic Superboard II/Challenger 1P. To build
 this version use the make file Makefile.osi. You need a version of
 CC65 that supports the OSI C1P platform.
+
+SAVE enables output to the serial/cassette port (just like for the OSI
+BASIC in ROM). To turn off SAVE, do "POKE 517,0".
+
+LOAD enables output from the serial/cassette port (just like for the
+OSI BASIC in ROM). To turn off LOAD, do "POKE 515,0".
+
+Known issues:
+
+The BASIC Control-C check interferes with keyboard input. The
+workaround is to do POKE 768,1 to turn it off.

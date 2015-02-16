@@ -78,7 +78,7 @@ LAB_dowarm
 SCRNout
         STX     SAVE_X                  ; Preserve X register
         STY     SAVE_Y                  ; Preserve Y register
-	JSR	$BF2D   		; OSI character out routine
+	JSR	$FF69   		; OSI character out routine
         LDX     SAVE_X                  ; Restore X
         LDY     SAVE_Y                  ; Restore Y
 	RTS
@@ -107,14 +107,20 @@ scan:
         CLC                             ; Indicate key not pressed
         RTS                             ; And return
 keypressed:
-        JSR     $FD00                   ; OSI character in routine
+        JSR     $FFBA                   ; OSI character in routine
         LDX     SAVE_X                  ; Restore X
         LDY     SAVE_Y                  ; Restore Y
         SEC                             ; Indicate key was pressed
         RTS                             ; And return
 
-OSIload				        ; empty load vector for EhBASIC
-OSIsave				        ; empty save vector for EhBASIC
+OSIload				        ; load vector for EhBASIC
+        LDA     #$80                    ; Set OSI ROM LOAD flag
+        STA     $0203
+	RTS
+
+OSIsave				        ; save vector for EhBASIC
+        LDA     #$01                    ; Set OSI ROM SAVE flag
+        STA     $0205
 	RTS
 
 ; vector tables
