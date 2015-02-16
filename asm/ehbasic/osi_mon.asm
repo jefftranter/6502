@@ -1,31 +1,25 @@
 
-; minimal monitor for EhBASIC and 6502 simulator V1.05
-
-; To run EhBASIC on the simulator load and assemble [F7] this file, start the simulator
-; running [F6] then start the code with the RESET [CTRL][SHIFT]R. Just selecting RUN
-; will do nothing, you'll still have to do a reset to run the code.
+; minimal monitor for EhBASIC and Briel Superboard /// or Ohio Scientic Superboard II/Challenger 1P
 
 	.include "basic.asm"
 
-; put the IRQ and MNI code in RAM so that it can be changed
+; OSI Defines
+CURPOS   = $0200        ; ROM BASIC cursor position
+LOADFLAG = $0203        ; ROM BASIC LOAD flag
+SAVEFLAG = $0205        ; ROM BASIC SAVE flag
+KBD      = $DF00        ; OSI polled keyboard register
 
 SAVE_X = $DE		; For saving registers
-SAVE_Y = $DF		; For saving registers
+SAVE_Y = $DF
+
+; put the IRQ and NMI code in RAM so that it can be changed
 
 IRQ_vec	= VEC_SV+2	; IRQ code vector
 NMI_vec	= IRQ_vec+$0A	; NMI code vector
 
-; setup for the 6502 simulator environment
-
-IO_AREA	= $F000		; set I/O area for this monitor
-
-KBD             = $DF00    ; OSI polled keyboard register
-
 ; now the code. all this does is set up the vectors and interrupt code
 ; and wait for the user to select [C]old or [W]arm start. nothing else
 ; fits in less than 128 bytes
-
-;	*=	$FF80			; pretend this is in a 1/8K ROM
 
 ; reset vector points here
 
@@ -45,8 +39,8 @@ LAB_stlp
 
 ; now do the signon message, Y = $00 here
 
-        LDA #$65                        ; Set OSI ROM cursor position to home
-        STA $0200
+        LDA     #$65                    ; Set OSI ROM cursor position to home
+        STA     CURPOS
 
 LAB_signon
 	LDA	LAB_mess,Y		; get byte from sign on message
@@ -88,6 +82,10 @@ SCRNout
 KBDin
         STX     SAVE_X                  ; Preserve X register
         STY     SAVE_Y                  ; Preserve Y register
+
+        BIT     LOADFLAG                ; If load is in effect
+        BMI     keypressed              ; skip test for keyboard key pressed
+
                                         ; First see if a key was pressed
         LDA     #%11111110              ; Select first keyboard row
 scan:
@@ -115,12 +113,12 @@ keypressed:
 
 OSIload				        ; load vector for EhBASIC
         LDA     #$80                    ; Set OSI ROM LOAD flag
-        STA     $0203
+        STA     LOADFLAG
 	RTS
 
 OSIsave				        ; save vector for EhBASIC
         LDA     #$01                    ; Set OSI ROM SAVE flag
-        STA     $0205
+        STA     SAVEFLAG
 	RTS
 
 ; vector tables
@@ -156,7 +154,7 @@ NMI_CODE
 END_CODE
 
 LAB_mess
-	.byte	$0D,$0A,"6502 EhBASIC",$0D,$0A, "[C]old/[W]arm ?",$00
+	.byte	$0D,$0A,"6502 EhBASIC",$0D,$0A, "[C]old/[W]arm?",$00
 					; sign on string
 
 ; system vectors
