@@ -12,15 +12,12 @@
 SAVE_X = $DE		; For saving registers
 SAVE_Y = $DF		; For saving registers
 
-IRQ_vec	= VEC_SV+2		; IRQ code vector
+IRQ_vec	= VEC_SV+2	; IRQ code vector
 NMI_vec	= IRQ_vec+$0A	; NMI code vector
 
 ; setup for the 6502 simulator environment
 
 IO_AREA	= $F000		; set I/O area for this monitor
-
-;ACIAsimwr	= IO_AREA+$01	; simulated ACIA write port
-;ACIAsimrd	= IO_AREA+$04	; simulated ACIA read port
 
 KBD             = $DF00    ; OSI polled keyboard register
 
@@ -76,9 +73,9 @@ LAB_nokey
 LAB_dowarm
 	JMP	LAB_WARM		; do EhBASIC warm start
 
-; byte out to simulated ACIA
+; byte out to screen
 
-ACIAout
+SCRNout
         STX     SAVE_X                  ; Preserve X register
         STY     SAVE_Y                  ; Preserve Y register
 	JSR	$BF2D   		; OSI character out routine
@@ -86,9 +83,9 @@ ACIAout
         LDY     SAVE_Y                  ; Restore Y
 	RTS
 
-; byte in from simulated ACIA
+; byte in from keyboard
 
-ACIAin
+KBDin
         STX     SAVE_X                  ; Preserve X register
         STY     SAVE_Y                  ; Preserve Y register
                                         ; First see if a key was pressed
@@ -105,36 +102,28 @@ scan:
         ROL     A                       ; Rotate row select to next bit position
         CMP     #$FF                    ; Done?
         BNE     scan                    ; If not, continue
-
-        ldx     #'N'
-        stx     $D0A5
-
         LDX     SAVE_X                  ; Restore X
         LDY     SAVE_Y                  ; Restore Y
         CLC                             ; Indicate key not pressed
         RTS                             ; And return
 keypressed:
         JSR     $FD00                   ; OSI character in routine
-
-        ldx     #'Y'
-        stx     $D0A5
-
         LDX     SAVE_X                  ; Restore X
         LDY     SAVE_Y                  ; Restore Y
         SEC                             ; Indicate key was pressed
         RTS                             ; And return
 
-no_load				        ; empty load vector for EhBASIC
-no_save				        ; empty save vector for EhBASIC
+OSIload				        ; empty load vector for EhBASIC
+OSIsave				        ; empty save vector for EhBASIC
 	RTS
 
 ; vector tables
 
 LAB_vec
-	.word	ACIAin                  ; byte in from simulated ACIA
-	.word	ACIAout		        ; byte out to simulated ACIA
-	.word	no_load		        ; null load vector for EhBASIC
-	.word	no_save		        ; null save vector for EhBASIC
+	.word	KBDin                   ; byte in from keyboard
+	.word	SCRNout		        ; byte out to screen
+	.word	OSIload		        ; load vector for EhBASIC
+	.word	OSIsave		        ; save vector for EhBASIC
 
 ; EhBASIC IRQ support
 
@@ -161,7 +150,7 @@ NMI_CODE
 END_CODE
 
 LAB_mess
-	.byte	$0D,$0A,"6502 EhBASIC [C]old/[W]arm ?",$00
+	.byte	$0D,$0A,"6502 EhBASIC",$0D,$0A, "[C]old/[W]arm ?",$00
 					; sign on string
 
 ; system vectors
