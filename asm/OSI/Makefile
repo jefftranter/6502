@@ -22,25 +22,25 @@ osirom.bin: fill.o diskboot.o keyboard.o osi65v.o coldstart.o
 	ld65 -t none -vm -m osirom.map -o osirom.bin fill.o diskboot.o keyboard.o osi65v.o coldstart.o
 
 fill.o:	fill.s
-	ca65 -g -l --feature labels_without_colons --feature pc_assignment fill.s
+	ca65 -g -l fill.lst --feature labels_without_colons --feature pc_assignment fill.s
 
 diskboot.o: diskboot.s
-	ca65 -g -l --feature labels_without_colons --feature pc_assignment diskboot.s
+	ca65 -g -l diskboot.lst --feature labels_without_colons --feature pc_assignment diskboot.s
 
 keyboard.o: keyboard.s
-	ca65 -g -l --feature labels_without_colons --feature pc_assignment keyboard.s
+	ca65 -g -l keyboard.lst --feature labels_without_colons --feature pc_assignment keyboard.s
 
 osi65v.o: osi65v.s
-	ca65 -g -l --feature labels_without_colons --feature pc_assignment osi65v.s
+	ca65 -g -l osi65v.lst --feature labels_without_colons --feature pc_assignment osi65v.s
 
 coldstart.o: coldstart.s
-	ca65 -g -l --feature labels_without_colons --feature pc_assignment coldstart.s
+	ca65 -g -l coldstart.lst --feature labels_without_colons --feature pc_assignment coldstart.s
 
 osibasic.o: osibasic.s
-	ca65 -g -l --feature labels_without_colons --feature pc_assignment osibasic.s
+	ca65 -g -l osibasic.lst --feature labels_without_colons --feature pc_assignment osibasic.s
 
 cegmon.o: cegmon.s
-	ca65 -g -l --feature labels_without_colons --feature pc_assignment cegmon.s
+	ca65 -g -l cegmon.lst --feature labels_without_colons --feature pc_assignment cegmon.s
 
 osibasic.bin: osibasic.o
 	ld65 -t none -vm -m osirom.map -o osibasic.bin osibasic.o
