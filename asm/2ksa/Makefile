@@ -13,6 +13,9 @@
 2ksa.o:	2ksa.s
 	ca65 -g -l 2ksa.lst 2ksa.s
 
+iosystem.o: iosystem.s
+	ca65 -g -l iosystem.lst iosystem.s
+
 clean:
 	$(RM) *.o *.lst *.map *.bin
 
