@@ -1,5 +1,5 @@
-; This is the code from Appendix A: An Inexpensive I/O System. from A
-; 2K Symbolic Assembler for the 6502 by Robert Ford Denison.
+; This is the code from "Appendix A: An Inexpensive I/O System." from
+; "A 2K Symbolic Assembler for the 6502" by Robert Ford Denison.
 ;
 ; Modified to assemble with the CC65 assembler by Jeff Tranter
 
@@ -10,6 +10,7 @@ SAVX    = $3B
 TIME    = $5C
 POINTL  = $FA
 POINTH  = $FB
+
 PAD     = $1700
 PADD    = $1701
 PCD     = $1740
@@ -53,14 +54,14 @@ KEYTAB:
 ; subset. Modify as desired.
 
 SEGTAB:
-        .byte $00,$0A,$22,$1B,$36,$24,$5F,$02,$39,$0F,$21,$18,$0C,$40,$08,$53
+        .byte $00,$0A,$22,$1B,$36,$24,$5F,$02,$39,$0F,$21,$18,$0C,$40,$08,$52
         .byte $3F,$06,$5B,$4F,$66,$6D,$7D,$07,$7F,$6F,$41,$45,$60,$48,$42,$53
         .byte $7B,$77,$7C,$58,$5E,$79,$71,$3D,$76,$04,$1E,$70,$38,$37,$54,$5C
         .byte $73,$67,$50,$2D,$78,$1C,$6A,$3E,$14,$6E,$49,$39,$44,$0F,$77,$61
 
         .org $0F00
 
-; Subroutine DSPLAY. Display 6 characters on KIM readout for about 3msec.
+; Subroutine DSPLAY. Display 6 characters on KIM readout for about 3 msec.
 
 DSPLAY:
         LDA   #$7F              ; Define I/O.
@@ -97,7 +98,7 @@ NXTKEY: DEC   PAD               ; Scan 2 keys.
         BNE   ANYKEY
         RTS
 ANYKEY: LDA   KEYTAB,Y          ; Get ASCII.
-        STX   PAD               ; Check shift ket.
+        STX   PAD               ; Check shift key.
         BIT   PAD
         BPL   SHFTKEY
         RTS                     ; No shift; return.
@@ -130,7 +131,7 @@ LEFT:   LDY     DSPBFI,X        ; to left.
 
         .org    $0F68
 
-; Subroutine GETCH. Get character from keybaord. Return ASCII in A.
+; Subroutine GETCH. Get character from keyboard. Return ASCII in A.
 ; Add to display or backspace as required. X is preserved.
 
 GETCH:
