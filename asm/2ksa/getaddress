@@ -3,6 +3,6 @@
 # Get load and run addresses from map file and output in hex in format
 # to be used as arguments to the bintomon program.
 
-L=`grep "ORG    " 2ksa.map | awk '{ print $5 }'`
-R=`grep "^MAIN    " 2ksa.map | awk '{ print $2 }'`
+L=`grep "ORG    " 2ksa.map | tail -1 | awk '{ print $5 }'`
+R=`grep "^MAIN    " 2ksa.map | tail -1 | awk '{ print $2 }'`
 echo "-l 0x$L -r 0x$R"
