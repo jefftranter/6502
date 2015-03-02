@@ -1,7 +1,7 @@
 all:	memorytest.ptp
 
 memorytest.ptp: memorytest.bin Makefile
-	srec_cat memorytest.bin -binary -o memorytest.ptp -MOS_Technologies
+	srec_cat memorytest.bin -binary -offset 0x0000 -o memorytest.ptp -MOS_Technologies
 
 memorytest.bin: memorytest.o
 	ld65 -t osic1p -vm -m memorytest.map -o memorytest.bin memorytest.o
