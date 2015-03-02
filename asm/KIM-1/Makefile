@@ -1,13 +1,7 @@
-kim.hex: kim.bin Makefile
-	srec_cat kim.bin -binary -offset 0x1800 -o kim.hex -MOS_Technologies
-
-kim.bin: kim.o
-	ld65 -t osic1p -vm -m kim.map -o kim.bin kim.o
-
-kim.o:	kim.s
-	ca65 -g -l kim.lst --feature labels_without_colons kim.s
+all:
+	cd ROMs; $(MAKE); cd ..
+	cd TheFirstBookOfKIM; $(MAKE); cd ..
 
 clean:
-	$(RM) *.o *.lst *.map *.bin *.hex
-
-distclean: clean
+	cd ROMs; $(MAKE) clean; cd ..
+	cd TheFirstBookOfKIM; $(MAKE) clean; cd ..
