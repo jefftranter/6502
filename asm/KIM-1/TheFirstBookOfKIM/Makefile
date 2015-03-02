@@ -1,8 +1,11 @@
+SUBDIRS = "Addition" "Memory Test"
+
 all:
-	cd "Memory Test"; $(MAKE); cd ..
+	@for i in $(SUBDIRS); do \
+	echo "make all in $$i..."; \
+	(cd "$$i"; $(MAKE) $(MFLAGS) all); done
 
 clean:
-	cd "Memory Test"; $(MAKE) clean; cd ..
-
-
-
+	@for i in $(SUBDIRS); do \
+	echo "Clearing in $$i..."; \
+	(cd "$$i"; $(MAKE) $(MFLAGS) clean); done

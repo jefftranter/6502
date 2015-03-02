@@ -1,3 +1,5 @@
+all: addition.ptp
+
 addition.ptp: addition.bin Makefile
 	srec_cat addition.bin -binary -o addition.ptp -MOS_Technologies
 

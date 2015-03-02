@@ -1,3 +1,5 @@
+all:	memorytest.ptp
+
 memorytest.ptp: memorytest.bin Makefile
 	srec_cat memorytest.bin -binary -o memorytest.ptp -MOS_Technologies
 

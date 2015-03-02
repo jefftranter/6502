@@ -1,7 +1,11 @@
+SUBDIRS = "ROMs" "TheFirstBookOfKIM"
+
 all:
-	cd ROMs; $(MAKE); cd ..
-	cd TheFirstBookOfKIM; $(MAKE); cd ..
+	@for i in $(SUBDIRS); do \
+	echo "make all in $$i..."; \
+	(cd "$$i"; $(MAKE) $(MFLAGS) all); done
 
 clean:
-	cd ROMs; $(MAKE) clean; cd ..
-	cd TheFirstBookOfKIM; $(MAKE) clean; cd ..
+	@for i in $(SUBDIRS); do \
+	echo "Clearing in $$i..."; \
+	(cd "$$i"; $(MAKE) $(MFLAGS) clean); done

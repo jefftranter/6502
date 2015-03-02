@@ -1,3 +1,5 @@
+all:	kim.ptp
+
 kim.ptp: kim.bin Makefile
 	srec_cat kim.bin -binary -offset 0x1800 -o kim.ptp -MOS_Technologies
 
