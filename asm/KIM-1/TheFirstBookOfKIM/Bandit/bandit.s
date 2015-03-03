@@ -70,7 +70,7 @@ LPB:   JSR     DISPLY
        LDX     #$10
        CMP     #$40            ; PAY $15 FOR 3 BARS
        BEQ     PAY
-       LDX     #$08
+       LDX     #$0B            ; NOTE: ERROR IN PRINTED LISTING
        CMP     #$42            ; PAY $10 FOR 3 UPS
        BEQ     PAY
        LDX     #$06
@@ -116,7 +116,7 @@ INDIS: DEX
        BPL     OVER
        LDA     #$7F
        STA     PADD
-       LDY     #$08
+       LDY     #$0B            ; NOTE: ERROR IN PRINTED LISTING
        LDX     #$04
 LITE:  LDA     WINDOW,X        ; LIGHT
        STY     SBD             ; ALL THE
