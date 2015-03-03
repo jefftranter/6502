@@ -1,4 +1,4 @@
-SUBDIRS = "Addition" "Asteroid" "Memory Test"
+SUBDIRS = Addition Asteroid Bagels "Memory Test"
 
 all:
 	@for i in $(SUBDIRS); do \
