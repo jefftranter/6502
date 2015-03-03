@@ -48,7 +48,7 @@ DISP:   LDA     #$7F            ; PORT TO OUTPUT
         STA     $00E0           ; 6TH BIT
 BITS:   LDY     #$02            ; 3 BYTES
         LDA     #$00            ; ZERO CHARACTER
-        STA     $00E0
+        STA     $00E1
 BYTE:   LDA     ($00E2),Y       ; GET BYTE
         AND     $00E0           ; NTH BIT = 1?
         BEQ     NOBT            ; NO, SKIP
