@@ -1,3 +1,4 @@
+        RND     = $D0
         PADD    = $1741
         INIT1   = $1E8E
 
@@ -73,7 +74,7 @@ TIMM:   LDA     $00E6           ; SPEED BYTE
         LDA     #$01            ; PA0 TO OUTPUT
         STA     $1701
 TOGG:   INC     $1700           ; TOGGLE PA0
-        LDX     $0057           ; DETERMINE FREQ.
+        LDX     $00E7           ; DETERMINE FREQ.
 FREQ:   DEX
         BNE     FREQ
         BIT     $1707           ; TIME UP?
@@ -103,22 +104,22 @@ SIX:    LDA     $00E8,Y         ; GET CHARACTER
         STY     $00FC           ; SAVE Y
         JSR     $1F4E           ; DISPLAY CHARACTER
         INY                     ; SET UP FOR NEXT OAR.
-        CMP     #$06            ; 6 CHAR. DISPLAYED?
+        CPY     #$06            ; 6 CHAR. DISPLAYED?
         BCC     SIX             ; NO
         JSR     $1F3D           ; KEY DOWN?
         RTS                     ; EXIT
 
 ;          ***** RANDOM NUMBER SUBROUTINE ******
 
-RAND:   CLC                     ; FROM J. BUTTERFIELD
+RAND:   SEC                     ; FROM J. BUTTERFIELD
         CLD                     ; KIM USER NOTES
-        LDA     $00E1           ; VOL. 1, *1
-        ADC     $00E4
-        ADC     $00E5
-        STA     $00E0
+        LDA     RND+1           ; VOL. 1, *1
+        ADC     RND+4
+        ADC     RND+5
+        STA     RND
         LDX     #$04
-ROLL:   LDA     $00E0,X
-        STA     $00E1,X
+ROLL:   LDA     RND,X
+        STA     RND+1,X
         DEX
         BPL     ROLL
         RTS
@@ -126,7 +127,7 @@ ROLL:   LDA     $00E0,X
 ;           ***** INITIALIZATION VALUES *******
 
         .ORG    $02DF
-        .BYTE   $00,$05,$3B,$03,$33,$66,$C0,$C0,$C0,$C0,$C0,$00
+        .BYTE   $00,$05,$36,$03,$33,$66,$C0,$C0,$C0,$C0,$C0,$00
 
 ;           ***** TABLE OF CODE CHARACTERS *******
 

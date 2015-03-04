@@ -46,4 +46,4 @@ CODE TEST, Page 58: zero page locations in random number routine
 duplicate others, change E's to D's. Send for re-write (other errors)
 
  CODE TEST, p.58: change 02CE thru 02DA to:
-       D1 65 D4 C5 D5 85 D0 A2 04 B5 D0 95 D1
+       D1 65 D4 65 D5 85 D0 A2 04 B5 D0 95 D1
