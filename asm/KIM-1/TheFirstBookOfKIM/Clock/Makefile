@@ -3,7 +3,7 @@ PROGRAM = clock
 all: $(PROGRAM).ptp
 
 $(PROGRAM).ptp: $(PROGRAM).bin Makefile
-	srec_cat $(PROGRAM).bin -binary -offset 0x0200 -o $(PROGRAM).ptp -MOS_Technologies
+	srec_cat $(PROGRAM).bin -binary -offset 0x0300 -o $(PROGRAM).ptp -MOS_Technologies
 
 $(PROGRAM).bin: $(PROGRAM).o
 	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
