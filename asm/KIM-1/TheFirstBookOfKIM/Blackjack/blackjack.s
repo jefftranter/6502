@@ -33,7 +33,7 @@ DK1:    TXA                     ; Create deck
         BPL     DK1             ; in sequence
         LDX     #2              ; Set up 5 locations
 INLOP:  LDA     INIT,X          ; ..into..
-        STA     PARAM           ; zero page
+        STA     PARAM,X         ; zero page
         DEX                     ; addresshi/ dpt/ amt
         BPL     INLOP
         LDA     TIMER           ; use random timer
@@ -243,7 +243,7 @@ YOU:    JSR     CARD            ; deal card
         LDY     #$10            ; ten count for aces
         BCC     YOVER           ; no ace?
         STY     UACE            ; ace, set 10 flag
-YOVER:  CLD
+YOVER:  CLC
         SED
         ADC     UTOT            ; add points to..
         STA     UTOT            ; ..point total
@@ -281,15 +281,10 @@ NUMDIS: PHA                     ; save number
 
 ; tables in hex format
 
-VALUE:
-INIT:
-        .BYTE  $03, $00, $20, $01, $02, $03, $04, $05, $06, $07, $08, $09, $10, $10, $10, $10
-SEGS:   .BYTE $F7, $DB
-        .BYTE  $CF, $E6, $ED, $FD, $87, $FF, $EF, $F1, $F1, $F1, $F1
-BST:
-        .BYTE $ED, $F6, $BE, $F1, $F1, $B8, $FC, $F9, $F8, $D3
-TOT:
-        .BYTE $F8, $DC, $F8, $C0, $FC, $BE, $ED, $87, $F9, $DE
-MBET:
-SHUF:
-
+INIT:   .BYTE  $03, $00, $20
+VALUE:  .BYTE $01, $02, $03, $04, $05, $06, $07, $08, $09, $10, $10, $10, $10
+SEGS:   .BYTE $F7, $DB, $CF, $E6, $ED, $FD, $87, $FF, $EF, $F1, $F1, $F1, $F1
+SHUF:   .BYTE $ED, $F6, $BE, $F1, $F1, $B8
+MBET:   .BYTE $FC, $F9, $F8, $D3
+TOT:    .BYTE $F8, $DC, $F8, $C0
+BST:    .BYTE $FC, $BE, $ED, $87, $F9, $DE
