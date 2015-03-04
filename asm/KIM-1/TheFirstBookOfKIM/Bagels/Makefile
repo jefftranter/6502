@@ -1,13 +1,15 @@
-all: bagels.ptp
+PROGRAM = bagels
 
-bagels.ptp: bagels.bin Makefile
-	srec_cat bagels.bin -binary -offset 0x0200 -o bagels.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-bagels.bin: bagels.o
-	ld65 -t osic1p -vm -m bagels.map -o bagels.bin bagels.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0000 -o $(PROGRAM).ptp -MOS_Technologies
 
-bagels.o:	bagels.s
-	ca65 -g -l bagels.lst bagels.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

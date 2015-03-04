@@ -1,13 +1,15 @@
-all: bandit.ptp
+PROGRAM = bandit
 
-bandit.ptp: bandit.bin Makefile
-	srec_cat bandit.bin -binary -offset 0x0200 -o bandit.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-bandit.bin: bandit.o
-	ld65 -t osic1p -vm -m bandit.map -o bandit.bin bandit.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0200 -o $(PROGRAM).ptp -MOS_Technologies
 
-bandit.o:	bandit.s
-	ca65 -g -l bandit.lst bandit.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

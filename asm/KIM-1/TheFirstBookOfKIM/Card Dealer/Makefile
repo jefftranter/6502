@@ -1,13 +1,15 @@
-all: carddealer.ptp
+PROGRAM = carddealer
 
-carddealer.ptp: carddealer.bin Makefile
-	srec_cat carddealer.bin -binary -offset 0x0000 -o carddealer.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-carddealer.bin: carddealer.o
-	ld65 -t osic1p -vm -m carddealer.map -o carddealer.bin carddealer.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0000 -o $(PROGRAM).ptp -MOS_Technologies
 
-carddealer.o:	carddealer.s
-	ca65 -g -l carddealer.lst carddealer.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

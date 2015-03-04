@@ -1,13 +1,15 @@
-all: asteroid.ptp
+PROGRAM = asteroid
 
-asteroid.ptp: asteroid.bin Makefile
-	srec_cat asteroid.bin -binary -offset 0x0200 -o asteroid.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-asteroid.bin: asteroid.o
-	ld65 -t osic1p -vm -m asteroid.map -o asteroid.bin asteroid.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0200 -o $(PROGRAM).ptp -MOS_Technologies
 
-asteroid.o:	asteroid.s
-	ca65 -g -l asteroid.lst asteroid.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

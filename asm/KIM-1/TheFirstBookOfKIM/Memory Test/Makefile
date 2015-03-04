@@ -1,13 +1,15 @@
-all:	memorytest.ptp
+PROGRAM = memorytest
 
-memorytest.ptp: memorytest.bin Makefile
-	srec_cat memorytest.bin -binary -offset 0x0000 -o memorytest.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-memorytest.bin: memorytest.o
-	ld65 -t osic1p -vm -m memorytest.map -o memorytest.bin memorytest.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0000 -o $(PROGRAM).ptp -MOS_Technologies
 
-memorytest.o:	memorytest.s
-	ca65 -g -l memorytest.lst memorytest.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

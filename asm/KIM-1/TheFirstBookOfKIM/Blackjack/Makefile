@@ -1,13 +1,15 @@
-all: blackjack.ptp
+PROGRAM = blackjack
 
-blackjack.ptp: blackjack.bin Makefile
-	srec_cat blackjack.bin -binary -offset 0x0200 -o blackjack.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-blackjack.bin: blackjack.o
-	ld65 -t osic1p -vm -m blackjack.map -o blackjack.bin blackjack.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0200 -o $(PROGRAM).ptp -MOS_Technologies
 
-blackjack.o:	blackjack.s
-	ca65 -g -l blackjack.lst blackjack.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

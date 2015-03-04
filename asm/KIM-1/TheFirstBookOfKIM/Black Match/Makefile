@@ -1,22 +1,25 @@
-all: blackmatch1.ptp blackmatch2.ptp
+PROGRAM1 = blackmatch1
+PROGRAM2 = blackmatch2
 
-blackmatch1.ptp: blackmatch1.bin Makefile
-	srec_cat blackmatch1.bin -binary -offset 0x0200 -o blackmatch1.ptp -MOS_Technologies
+all: $(PROGRAM1).ptp $(PROGRAM2).ptp
 
-blackmatch1.bin: blackmatch1.o
-	ld65 -t osic1p -vm -m blackmatch1.map -o blackmatch1.bin blackmatch1.o
+$(PROGRAM1).ptp: $(PROGRAM1).bin Makefile
+	srec_cat $(PROGRAM1).bin -binary -offset 0x0200 -o $(PROGRAM1).ptp -MOS_Technologies
 
-blackmatch1.o:	blackmatch1.s
-	ca65 -g -l blackmatch1.lst blackmatch1.s
+$(PROGRAM1).bin: $(PROGRAM1).o
+	ld65 -t osic1p -vm -m $(PROGRAM1).map -o $(PROGRAM1).bin $(PROGRAM1).o
 
-blackmatch2.ptp: blackmatch2.bin Makefile
-	srec_cat blackmatch2.bin -binary -offset 0x0200 -o blackmatch2.ptp -MOS_Technologies
+$(PROGRAM1).o:	$(PROGRAM1).s
+	ca65 -g -l $(PROGRAM1).lst $(PROGRAM1).s
 
-blackmatch2.bin: blackmatch2.o
-	ld65 -t osic1p -vm -m blackmatch2.map -o blackmatch2.bin blackmatch2.o
+$(PROGRAM2).ptp: $(PROGRAM2).bin Makefile
+	srec_cat $(PROGRAM2).bin -binary -offset 0x0200 -o $(PROGRAM2).ptp -MOS_Technologies
 
-blackmatch2.o:	blackmatch2.s
-	ca65 -g -l blackmatch2.lst blackmatch2.s
+$(PROGRAM2).bin: $(PROGRAM2).o
+	ld65 -t osic1p -vm -m $(PROGRAM2).map -o $(PROGRAM2).bin $(PROGRAM2).o
+
+$(PROGRAM2).o:	$(PROGRAM2).s
+	ca65 -g -l $(PROGRAM2).lst $(PROGRAM2).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

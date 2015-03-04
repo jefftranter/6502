@@ -1,13 +1,15 @@
-all: bitz.ptp
+PROGRAM = bitz
 
-bitz.ptp: bitz.bin Makefile
-	srec_cat bitz.bin -binary -offset 0x0200 -o bitz.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-bitz.bin: bitz.o
-	ld65 -t osic1p -vm -m bitz.map -o bitz.bin bitz.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0200 -o $(PROGRAM).ptp -MOS_Technologies
 
-bitz.o:	bitz.s
-	ca65 -g -l bitz.lst bitz.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp

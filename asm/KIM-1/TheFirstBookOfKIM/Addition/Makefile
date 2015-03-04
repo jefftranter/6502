@@ -1,13 +1,15 @@
-all: addition.ptp
+PROGRAM = addition
 
-addition.ptp: addition.bin Makefile
-	srec_cat addition.bin -binary -offset 0x0200 -o addition.ptp -MOS_Technologies
+all: $(PROGRAM).ptp
 
-addition.bin: addition.o
-	ld65 -t osic1p -vm -m addition.map -o addition.bin addition.o
+$(PROGRAM).ptp: $(PROGRAM).bin Makefile
+	srec_cat $(PROGRAM).bin -binary -offset 0x0200 -o $(PROGRAM).ptp -MOS_Technologies
 
-addition.o:	addition.s
-	ca65 -g -l addition.lst addition.s
+$(PROGRAM).bin: $(PROGRAM).o
+	ld65 -t osic1p -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+
+$(PROGRAM).o:	$(PROGRAM).s
+	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp
