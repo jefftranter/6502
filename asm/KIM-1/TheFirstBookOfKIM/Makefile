@@ -1,4 +1,4 @@
-SUBDIRS = Addition Asteroid Bagels Bandit Bitz "Black Match" Blackjack "Memory Test"
+SUBDIRS = Addition Asteroid Bagels Bandit Bitz "Black Match" Blackjack "Card Dealer" "Memory Test"
 
 all:
 	@for i in $(SUBDIRS); do \
