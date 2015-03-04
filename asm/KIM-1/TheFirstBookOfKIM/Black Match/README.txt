@@ -3,6 +3,9 @@ BY RON KUSHNIER
 (MODIFIED BY   
 THE EDITORS) 
 
+(Note: there are two versions of this program, appearing in different
+editions of The First Book of KIM. I included both here.)
+
 DESCRIPTION -
      THERE ARE 21 MATCHES.  EACH PLAYER MUST TAKE 1,2, OR
 3 MATCHES PER TURN.  THE PLAYER WHO WINDS UP WITH THE LAST
