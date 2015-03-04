@@ -10,8 +10,8 @@
        POINTL   = $00FA
        POINTH   = $00FB
 
-       PBD      = $0217
-       PBDD     = $0317
+       PBD      = $1702
+       PBDD     = $1703
        TIME4    = $1704
        TIME7    = $1707
        TIMEF    = $170F
@@ -71,9 +71,8 @@ GO:     LDA     #$01            ; set I/O ports
         TAX                     ; set delay
 DECR:   DEX
         BPL     DECR
-        BMI     AGAIN           ; keep sounding
-END:    RTS
-
+END:    BMI     AGAIN           ; keep sounding
+        RTS
 
 ; INTERRUPT ROUTINE
 
