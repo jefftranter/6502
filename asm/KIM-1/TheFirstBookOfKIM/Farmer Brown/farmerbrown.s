@@ -25,7 +25,7 @@ START:  LDX     #13
 SLOOP:  STA     WINDOW,X
         DEX
         BPL     SLOOP
-TEST:   LDX     #11             ; is window enipty?
+TEST:   LDX     #11             ; is window empty?
 TLOOP:  LDA     WINDOW,X
         BNE     CONTIN          ; no. keep going
         DEX

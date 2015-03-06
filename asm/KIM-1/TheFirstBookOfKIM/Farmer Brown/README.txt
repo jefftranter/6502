@@ -45,7 +45,7 @@ a nice speed-up feature.
 the display; but you can still catch it after it's partly
 left. The game would be harder - and maybe more fun -
 if you could only shoo it while it was completely in the
-display. Hint - testing location 00$F (WINDOW-1) would
+display. Hint - testing location 005F (WINDOW-1) would
 tell you if an animal was on its way out.
 
 4. You'd have a "Target Practice" game if you made the animal
