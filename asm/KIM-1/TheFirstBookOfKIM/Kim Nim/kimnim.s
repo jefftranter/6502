@@ -3,10 +3,10 @@
         MOVE    = $02
         TEMP    = $03
         VALUE   = $04
+        FLASHR  = $0A
         WINDOW  = $0B
         CUE     = $11
         WAIT    = $12
-        FLASHR  = $CA
 
         TIMER   = $1704
         SAD     = $1740
@@ -97,7 +97,7 @@ NOKEY:  LDX     PILE
         STA     FLASHR,X
         LDA     #$7F
         STA     PADD
-LIGHT:  LDY     #13
+LIGHT:  LDY     #$13
         LDX     #5
 LITE:   LDA     WINDOW,X
         STA     SAD
@@ -185,4 +185,5 @@ NIL:    STA     FLASHR,X        ; segments to wndw
         LDA     #0
         RTS
 
-DATA:   .BYTE   $FF, $06, $BE, $00, $B8, $BF, $ED, $F9
+        .BYTE   $FF
+DATA:   .BYTE   $06, $BE, $00, $B8, $BF, $ED, $F9
