@@ -11,7 +11,7 @@ Hit GO and several digits on the KIM display will light.
 Each lit digit represents a pile of objects you can
 pick from.  Decide which pile you want, and enter
 its identity:  A for the left-hand pile through to
-P for the right-hand pile.  The pile you have selected
+F for the right-hand pile.  The pile you have selected
 will start to flash on and off.  Now enter the number
 of items you want to take from that pile.
 
