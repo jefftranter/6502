@@ -105,59 +105,58 @@ WIN:    LDX     SQ1,Y
         LDX     SQ2,Y
         JSR     BLNK            ; BLINK #2
         LDX     SQ3,Y
-   0254   20   OG   (31      JSR BLNK   BLINK #3
-   0257   4C   FE   O2      JMP MTST   CHECK THE WINNER
-   025A   A2   09      DRAW   LOX .\'$~g
-   025C   AS   Co      OPEN   LDA #$CO   OPEN SQUARE?
-   025E   35   SF         AND DSPL1X
-   0260    F0   OE          SEQ TURN    YES - CONTINUE GAME
-   0262    CA             XX   NO - CK NEXT SQUARE
-   0263    DO   F7          SNE OPEN    ALL DONE?
-   0265    A2   (39          LDX #$os
-   0267    20   (36   Ol    NXBL    JSR BLNK    NO OPEN SQUARES
-   026A    CA             XX    1T15 A DRAW
-   0268    DC   FA          BNE NXBL    SLINK 'EM ALL
-   0260    4C   15   03       JMP DONE    GAME'5 OVER
-   0270    E6   Es       TURN    INC PLA4    COUNT THE PLAYS
-   0272   AS   OB          LDA MODE   WHO'S TURN?
-   0274    DO   17         SNE WAIT   KIM'S
-   0276    20   A6   03   KEY   JSR KEYS    PLAYER'S
-   0279    FO   FE          BEQ KEY    GET A KEY
-   0278    CS   OA          CMP #SOA   OVER 9?
-   0270   80   F7         BCS KEY   GET ANOTHER
-   027F   AA            TAX    USE IT AS AN INDEX
-   0280   54   SF         LOY DSPL,X   SEE IF SQUARE1S OPEN
-   0282   DO   F2         ENE KEY   NO, TRY AGAIN
-   0284   AS   40         LDA #$40   YES, MARK IT FOR..
-   0286   20   47   Ol      JSR UPDATE   PLAYER
-   0289   EG   DB          INC tcDE   KIM'S NEXT
-   0288    DO   M         SNE PVAL   BUT FIRST CK FOR 'dIN
-   0280   20   4C   03   WAIT   JSR DISPLAY   HOLD KIM BACK
-   0290   E6   Dl          INC LPCNT   A LITTLE
-   0292   DO   F9         ENE WAIT   UPDATE AND..
-   0294   A9   OS         LDA #SoS   THEN CHECK ThE..
-   0296   20   C8   03      JSR PSLD   BOARD
-   0299   AS   02         LDA #$02
-   0298   20   CS   03      JSR PSLD
-   029E   AS   04         LDA if$04
-   02A0   20   C8   03      JSR PSLD
-   02A3   A9   Ol         LDA 4$01
-   02A5   20   CS   03      JSR PSLD
-   02A8   AS   CO         LDA #$CO   WINNING PLAY FOR KIM
-   02AA   20   30   Ol      JSR GETPLA
-   O2AD   Do   43         SNE PLAY   YES - MAKE IT
-   O2AF   A9   30         LDA 4$S30   2 IN A ROW FOR..
-   0281   20   30   Ol      JSR GETPLA   PLAYER
-   0284   DO   3C         SNE PLAY   YES - BLOCK IT
-   0286   AS   OS         LDA #Soa   POSSIBLE SQUEEZE
-   0258   20   30   Ol      JSR GETPLA   PLAY FOR KIM
-   0288   DO   35         BNE PLAY   YES - oo IT
-   0280   20   83   03   IPLA   JSR RAND   HOW MUCH SMARTS?
-   02C0   29   OF         AND #$OF   NEEDED?
-   02C2   CS   D2         CMP IQ   KIN'S I.Q.
-   02C4   So   iF         BCS OLtIB   TOO LOW - BAD MOVES
-   02C6   A4   85         LOY PLAC   SMART
-
+        JSR     BLNK            ; BLINK #3
+        JMP     MTST            ; CHECK THE WINNER
+DRAW:   LDX     #$09
+OPEN:   LDA     #$C0            ; OPEN SQUARE?
+        AND     DSPL,X
+        BEQ     TURN            ; YES - CONTINUE GAME
+        DEX                     ; NO - CK NEXT SQUARE
+        BNE     OPEN            ; ALL DONE?
+        LDX     #$09
+NXBL:   JSR     BLNK            ; NO OPEN SQUARES
+        DEX                     ; 1T'S A DRAW
+        BNE     NXBL            ; SLINK 'EM ALL
+        JMP     DONE            ; GAME'S OVER
+TURN:   INC     PLA4            ; COUNT THE PLAYS
+        LDA     MODE            ; WHO'S TURN?
+        BNE     WAIT            ; KIM'S
+KEY:    JSR     KEYS            ; PLAYER'S
+        BEQ     KEY             ; GET A KEY
+        CMP     #$0A            ; OVER 9?
+        BCS     KEY             ; GET ANOTHER
+        TAX                     ; USE IT AS AN INDEX
+        LDY     DSPL,X          ; SEE IF SQUARE'S OPEN
+        BNE     KEY             ; NO, TRY AGAIN
+        LDA     #$40            ; YES, MARK IT FOR..
+        JSR     UPDATE          ; PLAYER
+        INC     MODE            ; KIM'S NEXT
+        BNE     PVAL            ; BUT FIRST CK FOR WIN
+WAIT:   JSR     DISPLAY         ; HOLD KIM BACK
+        INC     LPCNT           ; A LITTLE
+        BNE     WAIT            ; UPDATE AND..
+        LDA     #$08            ; THEN CHECK THE..
+        JSR     PSLD            ; BOARD
+        LDA     #$02
+        JSR     PSLD
+        LDA     #$04
+        JSR     PSLD
+        LDA     #$01
+        JSR     PSLD
+        LDA     #$C0            ; WINNING PLAY FOR KIM
+        JSR     GETPLA
+        BNE     PLAY            ; YES - MAKE IT
+        LDA     #$30            ; 2 IN A ROW FOR..
+        JSR     GETPLA          ; PLAYER
+        BNE     PLAY            ; YES - BLOCK IT
+        LDA     #$08            ; POSSIBLE SQUEEZE
+        JSR     GETPLA          ; PLAY FOR KIM
+        BNE     PLAY            ; YES - DO IT
+IPLA:   JSR     RAND            ; HOW MUCH SMARTS?
+        AND     #$0F            ; NEEDED?
+        CMP     IQ              ; KIM'S I.Q.
+        BCS     DUMB            ; TOO LOW - BAD MOVES
+        LDY     PLAC            ; SMART
 
 
    02C8   Co   Ol         cry   #$01   1ST PLAY?
