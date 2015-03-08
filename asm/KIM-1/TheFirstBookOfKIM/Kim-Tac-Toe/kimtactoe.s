@@ -1,8 +1,9 @@
 ; ***** ZERO PAGE USAGE *****
 
         T       = $00
-        PLA4    = $B5
+        PLAC    = $B5
         ODEV    = $B6
+        RPLA    = $B6
         RODD    = $B6
         REVN    = $BB
         DSPL    = $BF
@@ -48,13 +49,16 @@ BLNK:   LDA     #$20            ; BLINK FLAG
 
 ; ***** TABLE - SEGMENTS ZZ ***
 
-SEGS:   .BYTE   $08,$08,$08,$40,$40,$40,$01,$01,$01
+SEGS:   .BYTE   $08,$08,$08,$40,$40,$40,$01,$01
+SQ1:    .BYTE   $01
 
 ; ***** TABLE - ROWS *****
 
-SQ1:    .BYTE   $01,$04,$07,$01,$02,$03,$01,$03
-SQ2:    .BYTE   $02,$05,$08,$04,$05,$06,$05,$05
-SQ3:    .BYTE   $03,$06,$09,$07,$08,$09,$09,$07
+        .BYTE   $01,$04,$07,$01,$02,$03,$01
+SQ2:    .BYTE   $03
+        .BYTE   $02,$05,$08,$04,$05,$06,$05
+SQ3:    .BYTE   $05
+        .BYTE   $03,$06,$09,$07,$08,$09,$09,$07
 
 ; *** SUBROUTINE "GET PLAY" ***
 
@@ -91,13 +95,17 @@ UPLP:   LDA     #$00            ; CLEAR THE REGISTER
         DEY
         BNE     UPLP            ; LOOP TILL DONE
         RTS
+
+        .RES    154
+        .ORG    $0200
+
 NEW:    LDA     #$00
         LDX     #$1D            ; CLEAR REGISTERS
 INLP:   STA     $00B4,X
         DEX
         BNE     INLP
         LDA     #$05            ; INITALIZE ORDER OF..
-        STA     $00B8           ; NON-CALCULATED PLAYS
+        STA     $00BB           ; NON-CALCULATED PLAYS
         LDY     #$04            ; CENTER - FIXED ORDER
 ELP1:   JSR     RPLA
         LDX     #$04
@@ -144,7 +152,7 @@ NXBL:   JSR     BLNK            ; NO OPEN SQUARES
         DEX                     ; 1T'S A DRAW
         BNE     NXBL            ; SLINK 'EM ALL
         JMP     DONE            ; GAME'S OVER
-TURN:   INC     PLA4            ; COUNT THE PLAYS
+TURN:   INC     PLAC            ; COUNT THE PLAYS
         LDA     MODE            ; WHO'S TURN?
         BNE     WAIT            ; KIM'S
 KEY:    JSR     KEYS            ; PLAYER'S
@@ -191,11 +199,11 @@ FOUR:   CPY     #$04            ; 4TH PLAY?
         BNE     SPLA            ; NO, SKIP
         BIT     SQST+5          ; YES, CK WHO HAS CENTER
         BMI     DUMB            ; KIM - PLAY A SIDE
-        BVS     PLAC            ; PLAYER-PLAY A CORNER
+        BVS     PLAC1           ; PLAYER-PLAY A CORNER
 SPLA:   LDA     #$02            ; CAN PLAYER MAKE A.
         JSR     GETPLA          ; SQUEEZE PLAY?
         BNE     PLAY            ; YES - BLOCK IT
-PLAC:   LDY     #$05
+PLAC1:  LDY     #$05
         BNE     TPLA            ; START WITH THE CENTER
 DUMB:   LDY     #$09            ; START WITH THE SIDES
 TPLA:   LDX     RPLA,Y          ; USE THE RANDOM PLAY
@@ -348,10 +356,10 @@ NOCT:   DEY
 
 ; SUBROUTINE "RANDOM PLAYS"
 
-RPLA:   JSR      RAND           ; GET RANDOM NUMBER
+RPLAY:  JSR      RAND           ; GET RANDOM NUMBER
         AND      #$0E           ; 0 - E (EVEN)
         ORA      ODEV           ; MAKE IT ODD IF Ol
-        BEQ      RPLA           ; NO ZEROS
+        BEQ      RPLAY          ; NO ZEROS
         CMP      #$0A
-        BCS      RPLA           ; LOOP TILL DONE
+        BCS      RPLAY          ; LOOP TILL DONE
         RTS
