@@ -1,6 +1,5 @@
 ; ***** ZERO PAGE USAGE *****
 
-        T       = $00
         PLAC    = $B5
         ODEV    = $B6
         RPLA    = $B6
@@ -17,17 +16,17 @@
         RATE    = $DA           ; FLICKER / BLINK RATE
         MODE    = $DB           ; PLAY MODE
         PS      = $DB
-        SQST    = $BF
         SS      = $BF
+        SQST    = $BF
         INH     = $F9
         POINTL  = $FA
         POINTH  = $FB
         SAVE    = $FC           ; SAVE
 
+        PADD    = $1741
         SCANDS  = $1F1F
         KEYPR   = $1F40
         ANYK    = $1F40
-        PADD    = $1F41
         CONVD   = $1F48
         GETKEY  = $1F6A
 
@@ -47,7 +46,7 @@ BLNK:   LDA     #$20            ; BLINK FLAG
         NOP                     ; NOP'S
         NOP
 
-; ***** TABLE - SEGMENTS ZZ ***
+; ***** TABLE - SEGMENTS ZZ***
 
 SEGS:   .BYTE   $08,$08,$08,$40,$40,$40,$01,$01
 SQ1:    .BYTE   $01
@@ -75,7 +74,7 @@ OUT:    RTS                     ; SQUARE VALUE IN X
 
 ; ***** SUBROUTINE "TEST AND INCREMENT" *****
 
-        LDA     SS,X
+TANDI:  LDA     SS,X
         BNE     OUT1            ; COUNT OPEN SQUARES
         INC     PS,X            ; ONLY
 OUT1:   RTS
@@ -107,7 +106,7 @@ INLP:   STA     $00B4,X
         LDA     #$05            ; INITALIZE ORDER OF..
         STA     $00BB           ; NON-CALCULATED PLAYS
         LDY     #$04            ; CENTER - FIXED ORDER
-ELP1:   JSR     RPLA
+ELP1:   JSR     RPLAY
         LDX     #$04
 ELP2:   CMP     REVN,X
         BEQ     ELP1
@@ -118,7 +117,7 @@ ELP2:   CMP     REVN,X
         BNE     ELP1
         INC     ODEV
         LDY     #$04
-OLP1:   JSR     RPLA
+OLP1:   JSR     RPLAY
         LDX     #$05
 OLP2:   CMP     RODD,X
         BEQ     OLP1
@@ -129,8 +128,8 @@ OLP2:   CMP     RODD,X
         BNE     OLP1
 PVAL:   LDA     #$03
 TEST:   LDY     #$08            ; TEST FOR 3 IN A ROW
-WNLP:   CMP     ROWS,Y          ; 03=PLAYER WIN/OCZKIM WIN
-        BEQ     WIN             ; GAME WON-BLINK ThE ROW
+WNLP:   CMP     ROWS,Y          ; 03=PLAYER WIN/OC=KIM WIN
+        BEQ     WIN             ; GAME WON-BLINK THE ROW
         DEY
         BNE     WNLP            ; NOT YET-CK NEXT ROW
         BEQ     DRAW            ; NO WINNER-CK FOR DRAW
@@ -263,7 +262,7 @@ DISPLAY: LDA    #$7F
         INC     RATE
         LDY     #$00
 DIGX:   LDX     #$0B            ; INDEX DIGIT
-SEGY:   LDA     SQST,Y          ; GET CONTROL BYTE
+SEGY:   LDA     SQST+1,Y        ; GET CONTROL BYTE
         STA     SAVE            ; SAVE IT
         BEQ     OFF             ; OPEN SQUARE
         AND     #$20            ; BLINK FLAG
@@ -285,7 +284,7 @@ DIGT:   STY     SAVE            ; SAVE FROM LOSS IN SUBR
         CPY     #$09            ; LAST SQUARE
         BEQ     LAST            ; YES - DONE
         CPX     #$11            ; NO, LAST DIGIT?
-        BNE     DIGX            ; YES - REPEAT DIGITS
+        BEQ     DIGX            ; YES - REPEAT DIGITS
         BNE     SEGY            ; NO - NEXT DIGIT
 LAST:   RTS
 
@@ -312,7 +311,7 @@ KEYS:
 BACK:   JSR     DISPLAY         ; DISPLAY LOOP
         JSR     ANYK            ; UNLESS
         BEQ     BACK            ; A KEY IS PRESSED
-        JSR     KEYS            ; THEN GET A NUMBER
+        JSR     GETKEY          ; THEN GET A NUMBER
         TAX                     ; RECOVER THE FLAGS
         RTS
 
@@ -345,11 +344,11 @@ YLP:    LDA      TEMP
         CMP      RS,Y           ; COUNT THE TIMES AN OPEN..
         BNE      NOCT           ; SQUARE FITS THE..
         LDX      SQ1,Y          ; TEST PARAMETER
-        JSR      T+1
+        JSR      TANDI
         LDX      SQ2,Y
-        JSR      T+1
+        JSR      TANDI
         LDX      SQ3,Y
-        JSR      T+1
+        JSR      TANDI
 NOCT:   DEY
         BNE YLP
         RTS
@@ -358,7 +357,7 @@ NOCT:   DEY
 
 RPLAY:  JSR      RAND           ; GET RANDOM NUMBER
         AND      #$0E           ; 0 - E (EVEN)
-        ORA      ODEV           ; MAKE IT ODD IF Ol
+        ORA      ODEV           ; MAKE IT ODD IF O1
         BEQ      RPLAY          ; NO ZEROS
         CMP      #$0A
         BCS      RPLAY          ; LOOP TILL DONE
