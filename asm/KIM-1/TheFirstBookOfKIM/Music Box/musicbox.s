@@ -129,12 +129,12 @@ SEX:    RTS
 ; INITIAL CONSTANTS
 
 INIT:  .BYTE    $30, 2, 1
-       .BYTE    $FF, 0, 0
+       .BYTE    $FF, <SONGS, >SONGS     ; modified to put songs after program rather than at $0000
+
 
 ; SAMPLE MUSIC FOR MUSIC BOX PROGRAM
 
-       .ORG    $0000
-
+SONGS:
       .BYTE    $FB,$18,$FE,$FF,$44,$51,$E6,$E6,$66,$5A,$51,$4C,$C4,$C4,$C4,$D1
       .BYTE    $BD,$BD,$BD,$00,$44,$BD,$00,$44,$3D,$36,$33,$2D,$A8,$80,$80,$33
       .BYTE    $44,$B3,$80,$80,$44,$51,$C4,$80,$80,$5A,$51,$E6,$80,$80,$FA
@@ -146,7 +146,7 @@ INIT:  .BYTE    $30, 2, 1
       .BYTE    $FE
       .BYTE    $FF,$5A,$5A,$5A,$5A,$5A,$5A,$66,$72,$79,$E6,$E6,$80,$00,$56,$56
       .BYTE    $56,$56,$56,$56,$5A,$66,$F2,$80,$80,$4C,$4B,$4C,$4C,$4C,$4C,$56
-      .BYTE    $5A,$56,$4C,$00,$C4,$44,$4C,$56,$5A,$5A,$56,$5A,$66,$56,$6A,$66
+      .BYTE    $5A,$56,$4C,$00,$C4,$44,$4C,$56,$5A,$5A,$56,$5A,$66,$56,$5A,$66
       .BYTE    $F2,$80,$FE,$00,$00,$72,$5A,$CC,$72,$5A,$CC,$72,$5A,$CC,$80,$B8
       .BYTE    $80,$4C,$56,$5A,$56,$5A,$E6,$F2,$80,$FA,$FF,$00
 
@@ -165,15 +165,13 @@ INIT:  .BYTE    $30, 2, 1
 
 ; ***** Extra Datafile for Music Box *****
 
-       .ORG    $0000
-
-       .BYTE   $FE,$00,$56,$52,$AD,$AF,$AD,$AF,$AD,$FC,$06,$AF,$FC,$02,$FE,$FF
-       .BYTE   $2F,$29,$26,$24,$2F,$29,$AA,$32,$A9,$FC,$06,$AF,$FC,$02,$FE,$00
-       .BYTE   $56,$52,$AD,$AF,$5D,$AF,$AD,$FC,$06,$AF,$FC,$02,$FE,$FF,$39,$40
-       .BYTE   $44,$39,$2F,$AF,$29,$2F,$39,$A9,$B0,$80,$FE,$00,$56,$52,$AD,$AF
-       .BYTE   $AD,$AF,$0D,$FC,$06,$AF,$FC,$02,$FE,$FF,$2F,$29,$26,$24,$2F,$29
-       .BYTE   $AA,$32,$A9,$AF,$B0,$80,$2F,$29,$24,$2F,$29,$A4,$2F,$29,$2F,$24
-       .BYTE   $2F,$29,$AA,$2F,$29,$2F,$2A,$2F,$29,$A4,$32,$A9,$AF,$80,$80,$FA
-       .BYTE   $FF,$00
+;       .BYTE   $FE,$00,$56,$52,$AD,$AF,$AD,$AF,$AD,$FC,$06,$AF,$FC,$02,$FE,$FF
+;       .BYTE   $2F,$29,$26,$24,$2F,$29,$AA,$32,$A9,$FC,$06,$AF,$FC,$02,$FE,$00
+;       .BYTE   $56,$52,$AD,$AF,$5D,$AF,$AD,$FC,$06,$AF,$FC,$02,$FE,$FF,$39,$40
+;       .BYTE   $44,$39,$2F,$AF,$29,$2F,$39,$A9,$B0,$80,$FE,$00,$56,$52,$AD,$AF
+;       .BYTE   $AD,$AF,$0D,$FC,$06,$AF,$FC,$02,$FE,$FF,$2F,$29,$26,$24,$2F,$29
+;       .BYTE   $AA,$32,$A9,$AF,$B0,$80,$2F,$29,$24,$2F,$29,$A4,$2F,$29,$2F,$24
+;       .BYTE   $2F,$29,$AA,$2F,$29,$2F,$2A,$2F,$29,$A4,$32,$A9,$AF,$80,$80,$FA
+;       .BYTE   $FF,$00
 
 ; Note: be sure to set the break vector 17FE,FF (00,1C)
