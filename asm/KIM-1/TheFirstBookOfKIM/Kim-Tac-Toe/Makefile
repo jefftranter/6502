@@ -12,6 +12,6 @@ $(PROGRAM).o:	$(PROGRAM).s
 	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
 
 clean:
-	$(RM) *.o *.lst *.map *.bin *.ptp
+	$(RM) *.o *.lst *.map *.bin
 
 distclean: clean
