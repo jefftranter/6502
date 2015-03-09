@@ -1,0 +1,12 @@
+MULTI-MAZE
+BY JIM BUTTERFIELD
+
+Description:  Find your way out of the maze.  You are the
+flashing light in the centre of the display.  As you move
+up (key 9), down (1), left (4) or right (6), KIM will keep
+you in the central display;  you'll see the walls of the maze
+moving by as you travel.  Like walking through a real maze,
+you'll only see a small part of the maze as you pass through.
+If you can get out, you'll find yourself in a large open
+area; that means you've won.  Press GO at any time for
+a new maze.  Program starts at address 0200.
