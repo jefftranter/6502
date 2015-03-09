@@ -42,7 +42,7 @@ NOGO:   CMP     #$10            ; key 0 to F?
         BNE     NOKEY           ; neither - skip
 KEY:    EOR     PLACE           ; check vs ball postn
         TAY
-        AND     $4              ; ball off screen?
+        AND     #4              ; ball off screen?
         BNE     NOKEY
         TXA                     ; restore key
         EOR     DIRECT          ; ball going away?
@@ -97,7 +97,7 @@ FREEZE: LDA     #$7F
         TAX
 HOOP:   LDA     TABLE,X
         JSR     SHOW
-        LDA     ARG
+        LDX     ARG             ; error in printed listing?
         DEC     DIGIT
         BPL     HOOP
         LDX     #3
@@ -169,7 +169,7 @@ OVER:   STX    PLACE
         LDY    #0               ; end game, kill ball
 TLP:    TAX
         AND    #$F               ; get one score
-        CMP    #$11              ; 11 points?
+        CMP    #11               ; 11 points?
         BNE    SKI
         STY    DIRECT            ; kill ball
 SKI:    TXA
