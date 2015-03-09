@@ -1,4 +1,4 @@
-SUBDIRS = Addition Asteroid Bagels Bandit Bitz "Black Match" Blackjack "Card Dealer" "Chess Clock" Clock "Code Test" Craps Duel "Farmer Brown" Hi-Lo Horserace "Key Train" "Kim Nim" Kim-Tac-Toe "Lunar Lander" "Memory Test" Multi-Maze "Music Box"
+SUBDIRS = Addition Asteroid Bagels Bandit Bitz "Black Match" Blackjack "Card Dealer" "Chess Clock" Clock "Code Test" Craps Duel "Farmer Brown" Hi-Lo Horserace "Key Train" "Kim Nim" Kim-Tac-Toe "Lunar Lander" "Memory Test" Multi-Maze "Music Box" "Ping Pong"
 
 all:
 	@for i in $(SUBDIRS); do \
