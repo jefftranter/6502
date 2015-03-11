@@ -1,8 +1,9 @@
-These are source code and text for programs from "The First Book of
-KIM" by Jim Butterfield, Stan Ockers, and Eric Rehnke.
+These are the source code, documentation, and paper tape download
+files for the programs from "The First Book of KIM" by Jim
+Butterfield, Stan Ockers, and Eric Rehnke.
 
-This book is out of print but is availale from soures such as eBay and
-scanned versions can be found on the Internet.
+This book is out of print but is available from sources such as eBay
+and scanned versions can be found on the Internet.
 
 The source code is intended to be assembled using the CC65 tools
 (http://www.cc65.org/).
