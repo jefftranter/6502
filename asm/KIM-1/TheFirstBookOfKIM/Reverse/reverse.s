@@ -68,7 +68,7 @@ PLAY:   LDA     #$7F            ; directional
         STA     SADD            ;            registers
         LDY     #$09
         LDX     #$FA            ; negative 5
-SHOW:   LDA     WINDOW,X        ; light
+SHOW:   LDA     WINDOW+6,X      ; light (Note error in published listing)
         STA     SAD             ; display
         STY     SBD
 ST1:    DEC     MOD
@@ -76,7 +76,7 @@ ST1:    DEC     MOD
         INY
         INY
         INX
-        BMI     SHOW
+        BMI     SHOW            ; Note error in published listing
         JSR     KEYIN
         JSR     GETKEY
         CMP     #$13            ; GO key?
