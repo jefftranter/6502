@@ -316,9 +316,9 @@ ROOM1:  LDY    #$00             ; PITCH CAN AND SEE..
         CMP    $00CA            ; DID HE MOVE INTO YOUR ROOM?
         BEQ    $03A8            ; YES
         JMP    $02DE            ;  DISPLAY CANS LEFT MESSAGE
+        NOP
+        NOP
 WIN:    LDY    #$01             ; GREAT& ETC. MESSAGE
-        NOP
-        NOP
         LDA    #$80
         JSR    SCAN
         BEQ    WIN              ; REPEAT
