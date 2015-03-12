@@ -1,4 +1,6 @@
-SUBDIRS = Games Utilities
+SUBDIRS = "Memory Test"
+
+#SUBDIRS = Branch Browse Directory Hypertape "Memory Test" "Mini Dis" Movit "PLL Set" Relocate Sort Super-Dupe "Verify Tape" VU-Tape
 
 all:
 	@for i in $(SUBDIRS); do \
