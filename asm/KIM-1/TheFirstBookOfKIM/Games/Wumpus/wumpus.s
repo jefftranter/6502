@@ -1,4 +1,5 @@
         PADD    = $1741
+        INIT1   = $1E8C
         GETKEY  = $1F6A
 
 ; ***** Messages *****
@@ -82,7 +83,7 @@ LITE:   JSR     DISP            ; JUMP TO DISPLAY SUBR.
 
 ; **** BASIC DISPLAY SUBROUTINE ****
 
-        LDA     #$7F            ; CHANGE SEGMENTS..
+DISP:   LDA     #$7F            ; CHANGE SEGMENTS..
         STA     PADD            ; TO OUTPUT
         LDY     #$00            ; INIT. RECALL INDEX
         LDX     #$09            ; INIT. DIGIT NUMBER
@@ -97,7 +98,7 @@ SIX:    LDA     $00E8,Y         ; GET CHARACTER
 
 ; ****  DEBOUNCE SUBROUTINE ****
 
-DEBO:   JSR     INITI
+DEBO:   JSR     INIT1
         JSR     DISP            ; WAIT FOR PREVIOUS KEY
         BNE     DEBO            ; TO BE RELEASED
 SHOW:   JSR     DISP            ; WAIT FOR NEW KEY TO
@@ -129,6 +130,7 @@ NXTN:   LDA     $0040,X
         TAX
         LDA     $00C0
         RTS
+        NOP
 
 ; **** COMPARE SUBROUTINE ****
 
@@ -156,7 +158,7 @@ NOCH:   LDA    $00CB            ; WUMPUS ROOM N ACC.
 
 ; **** LOAD NEXT ROOMS SUBROUTINE ****
 
-        LDX    $00CA            ; YOUR ROOM AS INDEX
+NEXT:   LDX    $00CA            ; YOUR ROOM AS INDEX
         LDA    $0050,X          ; ... NEXT ROOMS ARE LOADED
         STA    $00C6            ; INTO 00C6-00C9 FROM
         LDA    $0060,X          ; TABLES ...
@@ -174,13 +176,13 @@ NXTV:   CMP    $00C6,X           ; MATCHS 00C6-00C9 ...
         BEQ    YVAL              ; YES, VALID ROOM
         DEX
         BPL    NXTV
-YVALL:  RTS
+YVAL:   RTS
 
 ; **** LOSE SUBROUTINE ****
 
 LOSE:   LDY    #$01             ; ...DISPLAY REASON LOST,
         JSR    SCAN             ; THEN "YOU LOSE" ...
-        LDY    #$00
+REPT:   LDY    #$00
         LDA    #$AC
         JSR    SCAN
         JMP    REPT
@@ -195,7 +197,7 @@ LOSE:   LDY    #$01             ; ...DISPLAY REASON LOST,
         JSR    SCAN             ; LEFT MESSAGE
         JMP    ADJR
 
-        .RES   18
+        .RES   17
         .ORG   $0300
 
         NOP
@@ -211,8 +213,8 @@ INIT:   STA    $00C1,X          ; INIT. TO FF
         LDA    #$03             ; GIVE THREE CANS OF GAS
         STA    $00E0
         LDY    #$05             ; ...RANDOMIZE...
-        BPL    GETM             ; YOU,WUMPUS,PITS AND BATS
-        LDY    #$00             ; (ONLY YOU ENTRY)
+        BPL    GETN             ; YOU,WUMPUS,PITS AND BATS
+CHNG:   LDY    #$00             ; (ONLY YOU ENTRY)
 GETN:   LDX    #$05
         JSR    RAND
         AND    #$0F
@@ -234,7 +236,7 @@ NXTR:   LDA    $00C6,Y
         BMI    SKP1             ; NO
         LDA    #$19             ; (BATS NEARBY MESSAGE)
         BPL    MESS
-SKPI:   CPX    #$01             ; PIT?
+SKP1:   CPX    #$01             ; PIT?
         BMI    SKP2             ; NO
         LDA    #$0E             ; (PIT CLOSE MESSAGE)
         BPL    MESS
@@ -248,7 +250,7 @@ NOMA:   DEC    $00E1            ; TRY NEXT ADJ. ROOM
         LDA    $1FE7,Y          ; "YOU ARE IN ... TUNNELS"
         STA    $000C            ; LEAD TO ...." MESSAGE..
         LDX    #$03             ; (FOUR NEXT ROOMS)
-XROL:   LDY    $00C6,X
+XRO:    LDY    $00C6,X
         LDA    $1FE7,Y          ; CONVERSION
         STA    $0020,X          ; PUT IN MESSAGE
         DEX                     ; FINISHED?
@@ -262,63 +264,63 @@ ROOM:   LDY    #$00             ; LOCATION AND..
         JSR    VALID            ; AN ACJACENT ROOM?
         STA    $00CA            ; UPDATE YOUR ROOM
         TXA
-        BMI    ROOMS            ; IF X=FF, NOT VALID ROOM
+        BMI    ROOM             ; IF X=FF, NOT VALID ROOM
         LDA    $00CA            ; CHECK FOR GAS IN ROOM
         LDX    #$04             ; 5 POSSIBLE (EXPANSION)
 NXTG:   CMP    $00C1,X
-        BEQ    GASM              ; GASSED!!
-        DEX                      ; ALL CHECKED?
-        BPL    NXTG              ; NO
-        JSR    COMP              ; CHECK YOUR NEW
-        TXA                      ; ROOM FOR HAZARDS.
-   0390   30   9A          SMI    ADJR    NO MATCH, NO HAZARDS
-   0392   EO   03         CPX   #$03
-   0394   10   17         BPL   BATh   BATS
-   0396   EO   Ol         CPX   #$Oi
-   0398   10   iD         SPL   PITH   PIT!!!
-   OSSA   AO   oc         LDY   #t$00
-   039C   Ag   26         LDA   #$26   MUST HAVE BUMPED WUMPUS
-   039E   20   00   02      JSR   SCAN   DISPLAY MESSAGE
-   03A1   20   99   02      LJSR   MOVE   . SEE IF HE MOVES..
-   03A4   CS   CA         CMP   OOCA   STILL IN YOUR ROOM?
-   03A6   DO   84         SNE   ADJR   NO, YOUrRE O.K.
-   03A8   AS   26         LDA   #S26   HE GOT YOU!
-   03AA   4C   CF   02      JMP   LOSE
-   O3AD   AO   Ol      BATH   LDY   #$oi   SAT MESSAGE
-   O3AF   AS   3D         LDA   #$3D
-   0381   20   00   02      JSR   SCAN
-   O3S~   4C   16   93      JMP   CHNG   CHANGE YOUR ROOM
-   03B7   A9   4F      PITH   LDA   ~$4F   FELL rN PIT!
-   0359   4C   CF   92      JSR   LOSE
-   O3BC   AS   65      GASM   LDA   it$GS   GAS IN ROOM!
-   035E   L+C   CF   92      JMP   LOSE
-   03C1   AO   90      ROOM   LDY   it$00   PITCH CAN AND SEE..
-   03C3   AS   87         LDA   #SB7   IF YOU GET HIM
-   03C5   20   00   92      JSR   SCAN   ROOM?
-   03C8   20   58   92      JSR   DEBO
-   03C8   20   CS   92      JSR   VALID   VALID ROOM?
-   O3CE   85   Dl         STA   OOD1
-   03D0   SA            TXA
-   03D1   30   EE         SHI   ROOM   IF XZFF, NOT VALID
-   03D3   A5   Dl         LDA   OOD1
-   O3DS   AS   EO         LDX   OOEO   CANS OF GAS LEFT
-   03D7   95   CO         STA   OOCO,X    . IS WUMPUS IN
-   03D9   CS   CS         CMP   00C8   ROOM GASSED?
-   03DS   FO   15         SEQ   WIN   YES, YOU GOT HIM
-   O3DD   CS   EO         DEC   OOEO   DECREASE CAN COUNT
-   O3DF   FO   IA         BEQ   OUT   GAS IS GONE
-   OSEl   AG   CS         LDX   OOCS     MOVE WUMPUS TO AN
-   03E3   20   Bk   92      JSR   NEXT   ADJACENT ROOM (FOR HIM)
-   OSES   20   AS   02      JSR   MOVE
+        BEQ    GASM             ; GASSED!!
+        DEX                     ; ALL CHECKED?
+        BPL    NXTG             ; NO
+        JSR    COMP             ; CHECK YOUR NEW
+        TXA                     ; ROOM FOR HAZARDS.
+        BMI    ADJR             ; NO MATCH, NO HAZARDS
+        CPX    #$03
+        BPL    BATM             ; BATS
+        CPX    #$01
+        BPL    PITM             ; PIT!!!
+        LDY    #$00
+        LDA    #$26             ; MUST HAVE BUMPED WUMPUS
+        JSR    SCAN             ; DISPLAY MESSAGE
+        JSR    MOVE             ; ..SEE IF HE MOVES..
+        CMP    $00CA            ; STILL IN YOUR ROOM?
+        BNE    ADJR             ; NO, YOU'RE O.K.
+        LDA    #$26             ; HE GOT YOU!
+        JMP    LOSE
+BATM:   LDY    #01              ; BAT MESSAGE
+        LDA    #$3D
+        JSR    SCAN
+        JMP    CHNG             ; CHANGE YOUR ROOM
+PITM:   LDA    #$4F             ; FELL IN PIT!
+        JSR    LOSE
+GASM:   LDA    #$65             ; GAS IN ROOM!
+        JMP    LOSE
+ROOM1:  LDY    #$00             ; PITCH CAN AND SEE..
+        LDA    #$B7             ; IF YOU GET HIM
+        JSR    SCAN             ; ROOM?
+        JSR    DEBO
+        JSR    VALID            ; VALID ROOM?
+        STA    $00D1
+        TXA
+        BMI    ROOM1            ; IF X=FF, NOT VALID
+        LDA    $00D1
+        LDX    $00E0            ; CANS OF GAS LEFT
+        STA    $00C0,X          ; ..IS WUMPUS IN
+        CMP    $00C8            ; ROOM GASSED?
+        BEQ    WIN              ; YES, YOU GOT HIM
+        DEC    $00E0            ; DECREASE CAN COUNT
+        BEQ    OUT1             ; GAS IS GONE
+        LDX    $00CB            ; MOVE WUMPUS TO AN
+        JSR    NEXT             ; ADJACENT ROOM (FOR HIM)
+        JSR    MOVE
 
-
-
-   03E9   C5   CA         CMP   OCCA   DID HE rcw INTO YOUR ROOM?
-   0~Es   FO   SB         BEQ   03A8   YES
-0350  4C CE 02   JMP O2DE        DISPLAY CANS LEFT MESSAGE
-03F2  AO Ol   LDY #Soi        GREATS ETC. MESSAGE
-03F4  A9 80   LDA ~$80
-03F6  20 Co 32   JSR SCAN
-03F9  FO F7   SEQ WIN         REPEAT
-O3FB  AS 73     OUT   LDA 4$$73       OUT OF GAS!
-O3FD  4C CF 02   JMP LOSE
+        CMP    $00CA            ; DID HE MOVE INTO YOUR ROOM?
+        BEQ    $03A8            ; YES
+        JMP    $02DE            ;  DISPLAY CANS LEFT MESSAGE
+WIN:    LDY    #$01             ; GREAT& ETC. MESSAGE
+        NOP
+        NOP
+        LDA    #$80
+        JSR    SCAN
+        BEQ    WIN              ; REPEAT
+OUT1:   LDA    #$73             ; OUT OF GAS!
+        JMP LOSE
