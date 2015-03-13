@@ -32,14 +32,14 @@
         .BYTE   $80,$9C,$BE,$B7,$F3,$BE,$ED,$80,$B9,$B8,$DC,$ED,$F9,$00,$80,$F3
         .BYTE   $84,$F8,$80,$B9,$B8,$DC,$ED,$F9,$00,$80,$FC,$F7,$F8,$ED,$80,$B9
         .BYTE   $B8,$DC,$ED,$F9,$80,$00,$80,$F6,$F7,$80,$F6,$F7,$80,$9C,$BE,$B7
-        .BYTE   $F5,$BE,$ED,$80,$BD,$DC,$F8,$80,$EE,$DC,$BE,$80,$00,$80,$ED,$BE
-        .BYTE   $F5,$F9,$D0,$FC,$F7,$F8,$80,$ED,$D4,$F7,$F8,$B9,$F6,$80,$00,$80
+        .BYTE   $F3,$BE,$ED,$80,$BD,$DC,$F8,$80,$EE,$DC,$BE,$80,$00,$80,$ED,$BE
+        .BYTE   $F3,$F9,$D0,$FC,$F7,$F8,$80,$ED,$D4,$F7,$F8,$B9,$F6,$80,$00,$80
         .BYTE   $EE,$EE,$84,$84,$F9,$F9,$F9,$80,$F1,$F9,$B8,$B8,$80,$84,$D4,$80
-        .BYTE   $F5,$84,$F8,$80,$00,$80,$BD,$F7,$ED,$80,$84,$D4,$80,$D0,$DC,$DC
+        .BYTE   $F3,$84,$F8,$80,$00,$80,$BD,$F7,$ED,$80,$84,$D4,$80,$D0,$DC,$DC
         .BYTE   $B7,$80,$00,$80,$DC,$BE,$F8,$80,$DC,$F1,$80,$BD,$F7,$ED,$80,$00
         .BYTE   $80,$80,$80,$80,$80,$BD,$D0,$F9,$F7,$F8,$C0,$80,$EE,$DC,$BE,$80
         .BYTE   $BD,$F9,$F8,$80,$F7,$80,$F6,$BE,$BD,$80,$F1,$D0,$DC,$B7,$80,$9C
-        .BYTE   $BE,$B7,$F5,$BE,$ED,$80,$00
+        .BYTE   $BE,$B7,$F3,$BE,$ED,$80,$00
 
         .RES    89
 
@@ -55,8 +55,8 @@ CHAR:   LDA     ($00DD),Y       ; GET CHARACTER
         CMP     #$00            ; LAST CHARACTER?
         BNE     MORE            ; IF NOT, CONTINUE
         RTS
-        STA     $00E8,X         ; STORE IT
-MORE:   DEY                     ; SET UP NEXT CHARACTER
+MORE:   STA     $00E8,X         ; STORE IT
+        DEY                     ; SET UP NEXT CHARACTER
         DEX                     ; SET UP NEXT STORE LOC.
         BPL     CHAR            ; LOOP IF NOT 6TH CHAR.
         CLD                     ; BINARY MODE
@@ -70,7 +70,7 @@ MORE:   DEY                     ; SET UP NEXT CHARACTER
 
 ; **** DELAY DISPLAY SUBROUTINE ****
 
-        LDX     #$0A            ; SET RATE
+        LDX     #$0A            ; SET RATE (listing has 0A, binary has 03)
         STX     $00DB           ; PUT IN DECR. LOC.
 TIME:   LDA     #$52            ; LOAD TIMER
         STA     $1707           ; START TIMER
@@ -130,7 +130,7 @@ NXTN:   LDA     $0040,X
         TAX
         LDA     $00C0
         RTS
-        NOP
+        RTS                     ; To match binary listing in book
 
 ; **** COMPARE SUBROUTINE ****
 
@@ -148,7 +148,7 @@ MOVE:   JSR     RAND            ; GET A RANDOM #
         CMP     #$04            ; CHANGE ROOMS 75%
         BMI     NOCH            ; OF THE TIME
         JSR     NEXT            ; GET ADJ. ROOMS (TO WUMPUS)
-        LDA     $1706           ; GET RANDOM #, 0-3
+MOVE1:  LDA     $1706           ; GET RANDOM #, 0-3
         AND     #$03
         TAX                     ; USE AS INDEX
         LDA    $00C6,X          ; GET AN ADJ. ROOM
@@ -159,7 +159,7 @@ NOCH:   LDA    $00CB            ; WUMPUS ROOM N ACC.
 ; **** LOAD NEXT ROOMS SUBROUTINE ****
 
 NEXT:   LDX    $00CA            ; YOUR ROOM AS INDEX
-        LDA    $0050,X          ; ... NEXT ROOMS ARE LOADED
+NEXT1:  LDA    $0050,X          ; ... NEXT ROOMS ARE LOADED
         STA    $00C6            ; INTO 00C6-00C9 FROM
         LDA    $0060,X          ; TABLES ...
         STA    $00C7
@@ -171,7 +171,7 @@ NEXT:   LDX    $00CA            ; YOUR ROOM AS INDEX
 
 ; ***** CHECK VALID SUBROUTINE *****
 
-VALID:  LDX    #$05              ; ... CHECK IF ACC.
+VALID:  LDX    #$03              ; ... CHECK IF ACC.
 NXTV:   CMP    $00C6,X           ; MATCHS 00C6-00C9 ...
         BEQ    YVAL              ; YES, VALID ROOM
         DEX
@@ -205,7 +205,7 @@ REPT:   LDY    #$00
         NOP
         NOP
         NOP
-        LDA    #$FE             ; ...INITIALIZATION...
+        LDA    #$FF             ; ...INITIALIZATION...
         LDX    #$0E             ; ..CLEAN OUT ROOMS..
 INIT:   STA    $00C1,X          ; INIT. TO FF
         DEX                     ; FINISHED?
@@ -225,7 +225,7 @@ CKNO:   CMP    $00CA,X          ; ..MAKING SURE ALL
         STA    $00CA,Y         ; STORE IN 00CA-00CF
         DEY
         BPL    GETN
-ADJR:   JSR    NXTR             ; SET UP ADJACENT ROOM LIST
+ADJR:   JSR    NEXT             ; SET UP ADJACENT ROOM LIST
         LDY    #$03             ; HAZARDS IN ADJ. ROOMS?
         STY    $00E1
 NXTR:   LDA    $00C6,Y
@@ -260,8 +260,8 @@ ROOM:   LDY    #$00             ; LOCATION AND..
         JSR    SCAN             ; DISPLAY MESSAGE
         JSR    DEBO             ; DEBOUNCE KEY
         CMP    #$14             ; PC PUSHED?
-        BEQ    ROOM             ; YES
-        JSR    VALID            ; AN ACJACENT ROOM?
+        BEQ    ROOM1            ; YES
+        JSR    VALID            ; AN ADJACENT ROOM?
         STA    $00CA            ; UPDATE YOUR ROOM
         TXA
         BMI    ROOM             ; IF X=FF, NOT VALID ROOM
@@ -291,7 +291,7 @@ BATM:   LDY    #01              ; BAT MESSAGE
         JSR    SCAN
         JMP    CHNG             ; CHANGE YOUR ROOM
 PITM:   LDA    #$4F             ; FELL IN PIT!
-        JSR    LOSE
+        JMP    LOSE
 GASM:   LDA    #$65             ; GAS IN ROOM!
         JMP    LOSE
 ROOM1:  LDY    #$00             ; PITCH CAN AND SEE..
@@ -305,17 +305,16 @@ ROOM1:  LDY    #$00             ; PITCH CAN AND SEE..
         LDA    $00D1
         LDX    $00E0            ; CANS OF GAS LEFT
         STA    $00C0,X          ; ..IS WUMPUS IN
-        CMP    $00C8            ; ROOM GASSED?
+        CMP    $00CB            ; ROOM GASSED?
         BEQ    WIN              ; YES, YOU GOT HIM
         DEC    $00E0            ; DECREASE CAN COUNT
         BEQ    OUT1             ; GAS IS GONE
         LDX    $00CB            ; MOVE WUMPUS TO AN
-        JSR    NEXT             ; ADJACENT ROOM (FOR HIM)
-        JSR    MOVE
-
+        JSR    NEXT1            ; ADJACENT ROOM (FOR HIM)
+        JSR    MOVE1
         CMP    $00CA            ; DID HE MOVE INTO YOUR ROOM?
         BEQ    $03A8            ; YES
-        JMP    $02DE            ;  DISPLAY CANS LEFT MESSAGE
+        JMP    $02DE            ; DISPLAY CANS LEFT MESSAGE
         NOP
         NOP
 WIN:    LDY    #$01             ; GREAT& ETC. MESSAGE
