@@ -106,8 +106,8 @@ DISP:   LDA     #$7F            ; SEGMENTS TO OUTPUT
         STA     PADD
         LDX     #$08            ; INITIALIZE
         LDY     #$00
-DISP1:  STY     $00FC
-        LDA     $00E6,Y         ; GET CHARACTER
+        STY     $00FC
+DISP1:  LDA     $00E6,Y         ; GET CHARACTER
         JSR     $1F4E           ; DISPLAY CHARACTER
         INY                     ; NEXT CHARACTER
         CPY     #$06
