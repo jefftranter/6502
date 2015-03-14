@@ -357,7 +357,7 @@ NOCT:   DEY
 
 RPLAY:  JSR      RAND           ; GET RANDOM NUMBER
         AND      #$0E           ; 0 - E (EVEN)
-        ORA      ODEV           ; MAKE IT ODD IF O1
+        ORA      ODEV           ; MAKE IT ODD IF 01
         BEQ      RPLAY          ; NO ZEROS
         CMP      #$0A
         BCS      RPLAY          ; LOOP TILL DONE

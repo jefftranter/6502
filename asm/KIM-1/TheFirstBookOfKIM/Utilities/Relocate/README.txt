@@ -144,7 +144,7 @@ addresses 00E8 and 00E9 respectively.
 
 We're ready to go.  Be sure your vectors have been set
 properly (at addresses 17FA to 17FF).  Then set address
-0110, the ~tart address of RELOCATE, and press GO.
+0110, the start address of RELOCATE, and press GO.
 
 The display will stop showing 0114 EA, confirming that
 RELOCATE ran properly.  Now check to see the whole program

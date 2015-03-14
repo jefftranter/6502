@@ -27,16 +27,16 @@ LENGTH: LDA     (POINTL),Y      ; GET OPCODE, FIND LENGTH
         TAY                     ; STORE TEMPORARILY
         AND     #$1D
         CMP     #$19
-        BEQ     N3BYTE          ; %xxx110x1 ; 3 BYTES (59,B9)
+        BEQ     N3BYTE          ; %XXX110X1 ; 3 BYTES (59,B9)
         AND     #$0D
         CMP     #$08
-        BEQ     N1BYTE          ; %xxxxxoxo ; 1 BYTE (D8,4A)
+        BEQ     N1BYTE          ; %XXXXX0X0 ; 1 BYTE (D8,4A)
         AND     #$0C
         CMP     #$0C
-        BEQ     N3BYTE          ; %xxxx11xx  ; 3 BYTES (4C,EE)
+        BEQ     N3BYTE          ; %XXXX11XX  ; 3 BYTES (4C,EE)
         TYA                     ; RESTORE
         AND     #$8F
-        CMP     #$02            ; %OXXXOO1O ; ILLEGAL (22,52)
+        CMP     #$02            ; %0XXX0010 ; ILLEGAL (22,52)
         BNE     N2BYTE          ; ALL LEFTOVERS ; 2 BYTES
 FLASH:  INC     $00EC           ; FLIP BIT 0
         LDA     #$FF            ; LOOP FOR 1/4 SEC.
@@ -44,7 +44,7 @@ FLASH:  INC     $00EC           ; FLIP BIT 0
 FLASH1: LDA     $00EC           ; SLINK ON OR OFF
         AND     #$01
         BEQ     FLASH2          ; SIT 0-0 ; BLINK OFF
-        JSR     SCAND           ; BIT On  ; BLINK ON
+        JSR     SCAND           ; BIT ON  ; BLINK ON
 FLASH2: BIT     $1707
         BMI     FLASH
         BPL     FLASH1
