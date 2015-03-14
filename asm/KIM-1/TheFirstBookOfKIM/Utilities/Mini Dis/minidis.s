@@ -8,7 +8,7 @@
 
         .ORG    $0300
 
-START:  CLD                     ; NOTE ERROR IN PRINTED LISTED
+START:  CLD                     ; NOTE ERROR IN PRINTED LISTING
         LDX     #$FF            ; INITIALIZE STACK
         TXS                     ; POINTER
 INIT:   LDY     #$00            ; (E6-EE)=0
@@ -53,9 +53,9 @@ N2BYTE: INX
 N3BYTE: TXA                     ; CENTER CODE
         EOR     #$07
         STA     $00ED
-CONVRT: LDY     $EE            ; LOOP FOR EACH BYTE
+CONVRT: LDY     $EE             ; LOOP FOR EACH BYTE
         LDA     (POINTL),Y      ; CONVERT AND STORE
-        PHA                     ; IN ES - FE
+        PHA                     ; IN E6 - EB
         LSR     A               ; LSR's
         LSR     A
         LSR     A
@@ -106,8 +106,8 @@ DISP:   LDA     #$7F            ; SEGMENTS TO OUTPUT
         STA     PADD
         LDX     #$08            ; INITIALIZE
         LDY     #$00
-        STY     $00FC
-DISP1:  LDA     $00E6,Y         ; GET CHARACTER
+DISP1:  STY     $00FC
+        LDA     $00E6,Y         ; GET CHARACTER
         JSR     $1F4E           ; DISPLAY CHARACTER
         INY                     ; NEXT CHARACTER
         CPY     #$06
