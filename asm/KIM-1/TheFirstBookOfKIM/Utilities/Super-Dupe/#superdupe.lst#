@@ -1,0 +1,136 @@
+ca65 V2.14 - Git cbb6f82
+Main file   : superdupe.s
+Current file: superdupe.s
+
+000000r 1                       POINTL  = $FA
+000000r 1                       POINTH  = $FB
+000000r 1                       POINT   = $E0
+000000r 1                       POINT2  = $E2
+000000r 1                       GANG    = $F5
+000000r 1                       CHKSUM  = $F6
+000000r 1                       CHKHI   = $F7
+000000r 1                       INH     = $F9
+000000r 1               
+000000r 1                       EXIT    = $0154
+000000r 1                       HIC     = $0161
+000000r 1                       OUTBT   = $0170
+000000r 1                       OUTCHT  = $0188
+000000r 1                       NPUL    = $01BE
+000000r 1                       SBD     = $1742
+000000r 1                       PBDD    = $1743
+000000r 1                       LOADT9  = $1929
+000000r 1                       RDBYT   = $19F3
+000000r 1                       PACKT   = $1A00
+000000r 1                       RDCHT   = $1A24
+000000r 1                       RDBIT   = $1A41
+000000r 1                       SCANDS  = $1F1F
+000000r 1                       GETKEY  = $1F6A
+000000r 1                       CHK     = $1F91
+000000r 1                       TIMG    = $C000
+000000r 1               
+000000r 1                       .ORG    $0000
+000000  1               
+000000  1  A2 03        START:  LDX     #3
+000002  1  B5 E2        LOOP:   LDA     POINT2,X
+000004  1  95 E0                STA     POINT,X
+000006  1  CA                   DEX
+000007  1  10 F9                BPL     LOOP
+000009  1  A9 00                LDA     #0
+00000B  1  85 F6                STA     CHKSUM
+00000D  1  85 F7                STA     CHKHI
+00000F  1  D8                   CLD
+000010  1  A9 07                LDA     #7
+000012  1  8D 42 17             STA     SBD
+000015  1  20 41 1A     SYN:    JSR     RDBIT
+000018  1  46 F9                LSR     INH
+00001A  1  05 F9                ORA     INH
+00001C  1  85 F9                STA     INH
+00001E  1  C9 16        TST:    CMP     #$16            ; sync?
+000020  1  D0 F3                BNE     SYN
+000022  1  20 24 1A             JSR     RDCHT
+000025  1  C6 F9                DEC     INH
+000027  1  10 F5                BPL     TST
+000029  1  C9 2A                CMP     #$2A
+00002B  1  D0 F1                BNE     TST
+00002D  1  20 F3 19             JSR     RDBYT
+000030  1  85 F9                STA     INH
+000032  1  A2 FE                LDX     #$FE            ; neg 2
+000034  1  20 F3 19     ADDR:   JSR     RDBYT
+000037  1  95 FC                STA     POINTH+1,X
+000039  1  20 91 1F             JSR     CHK
+00003C  1  E8                   INX
+00003D  1  30 F5                BMI     ADDR
+00003F  1  A2 02        BYTE:   LDX     #2
+000041  1  20 24 1A     DUBL:   JSR     RDCHT
+000044  1  C9 2F                CMP     #$2F            ; eot?
+000046  1  F0 15                BEQ     WIND
+000048  1  20 00 1A             JSR     PACKT
+00004B  1  D0 1C                BNE     ELNK            ; error?
+00004D  1  CA                   DEX
+00004E  1  D0 F1                BNE     DUBL
+000050  1  81 E0                STA     (POINT,X)
+000052  1  20 91 1F             JSR     CHK
+000055  1  E6 E0                INC     POINT
+000057  1  D0 02                BNE     OVER
+000059  1  E6 E1                INC     POINT+1
+00005B  1  D0 E2        OVER:   BNE     BYTE
+00005D  1  20 F3 19     WIND:   JSR     RDBYT
+000060  1  C5 F7                CMP     CHKHI
+000062  1  D0 05                BNE     ELNK            ; error?
+000064  1  20 F3 19             JSR     RDBYT
+000067  1  C5 F6                CMP     CHKSUM
+000069  1  D0 95        ELNK:   BNE     START           ; (or 65?)
+00006B  1  20 1F 1F     FLSH:   JSR     SCANDS
+00006E  1  F0 FB                BEQ     FLSH            ; display SA,ID
+000070  1  20 6A 1F             JSR     GETKEY
+000073  1  85 F5                STA     GANG
+000075  1  0A                   ASL     A
+000076  1  F0 88                BEQ     START
+000078  1  8D BE 01             STA     NPUL
+00007B  1  65 F5                ADC     GANG
+00007D  1  8D 01 C0             STA     TIMG+1
+000080  1  A9 27                LDA     #$27            ; register mask
+000082  1  85 F5                STA     GANG
+000084  1  A9 BF                LDA     #$BF
+000086  1  8D 43 17             STA     PBDD
+000089  1  A2 64                LDX     #$64
+00008B  1  A9 16                LDA     #$16            ; sync
+00008D  1  A2 64                LDX     #$64            ; send 100
+00008F  1  A9 16                LDA     #$16            ; sync
+000091  1  20 61 01             JSR     HIC
+000094  1  A9 2A                LDA     #$2A
+000096  1  20 88 01             JSR     OUTCHT
+000099  1  A5 F9                LDA     INH
+00009B  1  20 70 01             JSR     OUTBT
+00009E  1  A5 FA                LDA     POINTL
+0000A0  1  20 70 01             JSR     OUTBT
+0000A3  1  A5 FB                LDA     POINTH
+0000A5  1  20 70 01             JSR     OUTBT
+0000A8  1  A0 00        DATA:   LDY     #0
+0000AA  1  B1 E2                LDA     (POINT2),Y
+0000AC  1  20 70 01             JSR     OUTBT
+0000AF  1  E6 E2                INC     POINT2
+0000B1  1  D0 02                BNE     SAMP
+0000B3  1  E6 E1                INC     POINT2+1
+0000B5  1  A5 E2        SAMP:   LDA     POINT2
+0000B7  1  C5 E0                CMP     POINT
+0000B9  1  A5 E3                LDA     POINT2+1
+0000BB  1  E5 E1                SBC     POINT+1
+0000BD  1  90 E9                BCC     DATA
+0000BF  1  A9 2F                LDA     #$2F            ; eot
+0000C1  1  20 88 01             JSR     OUTCHT
+0000C4  1  A5 F7                LDA     CHKHI
+0000C6  1  20 70 01             JSR     OUTBT
+0000C9  1  A5 F6                LDA     CHKSUM
+0000CB  1  4C 54 01             JMP     EXIT
+0000CE  1               
+0000CE  1  xx xx                .RES    2
+0000D0  1                       .ORG    $00D0
+0000D0  1  4C 29 19             JMP     LOADT9
+0000D3  1               
+0000D3  1  xx xx xx xx          .RES    15
+0000D7  1  xx xx xx xx  
+0000DB  1  xx xx xx xx  
+0000E2  1                       .ORG    $00E2
+0000E2  1  00 02 00 02          .BYTE   $00, $02, $00, $02
+0000E5  1               

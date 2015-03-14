@@ -1,4 +1,4 @@
-SUBDIRS = Branch Browse Directory Hypertape "Memory Test" "Mini Dis" Movit "PLL Set" Relocate Sort
+SUBDIRS = Branch Browse Directory Hypertape "Memory Test" "Mini Dis" Movit "PLL Set" Relocate Sort Super-Dupe
 
 #SUBDIRS = Branch Browse Directory Hypertape "Memory Test" "Mini Dis" Movit "PLL Set" Relocate Sort Super-Dupe "Verify Tape" VU-Tape
 
