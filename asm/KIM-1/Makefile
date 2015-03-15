@@ -1,4 +1,4 @@
-SUBDIRS = "ROMs" "TheFirstBookOfKIM"
+SUBDIRS = "ROMs" "TheFirstBookOfKIM" Microchess
 
 all:
 	@for i in $(SUBDIRS); do \
