@@ -79,6 +79,22 @@ ELNK:   BNE     START           ; (or 65?)
 FLSH:   JSR     SCANDS
         BEQ     FLSH            ; display SA,ID
         JSR     GETKEY
+
+; Below is code matching published binary:
+;       CMP     #$07
+;       BCS     FLSH
+;       STA     GANG
+;       ASL     A
+;       BEQ     START
+;       STA     NPUL
+;       ADC     GANG
+;       STA     NPUL+2
+;       LDA     #$27
+;       STA     GANG
+;       LDA     #$BF
+;       STA     PBDD
+
+; Below is code in published listing:
         STA     GANG
         ASL     A
         BEQ     START
@@ -91,6 +107,7 @@ FLSH:   JSR     SCANDS
         STA     PBDD
         LDX     #$64
         LDA     #$16            ; sync
+
         LDX     #$64            ; send 100
         LDA     #$16            ; sync
         JSR     HIC
