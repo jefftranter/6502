@@ -106,15 +106,17 @@ NOMV:   JMP     INPUT
         .ORG    $0070
 
 SETW:   .BYTE   $03, $04, $00, $07, $02, $05, $01, $06, $10, $17, $11, $16, $12, $15, $14, $13
-        .BYTE   $73, $74, $70, $77, $72, $75, $71, $76, $60, $67, $61, $66, $62, $65, $64, $63
+        .BYTE   $73, $74, $70, $77, $72, $75, $71, $76, $60, $67, $61, $66, $62, $65, $64
 
-MOVEX:  .BYTE   $F0, $FF, $01, $10, $11, $0F, $EF, $F1, $DF, $E1, $EE, $F2, $12, $0E, $1F, $21
+MOVEX:  .BYTE   $63
+        .BYTE   $F0, $FF, $01, $10, $11, $0F, $EF, $F1, $DF, $E1, $EE, $F2, $12, $0E, $1F, $21
 
 POINTS: .BYTE   $0B, $0A, $06, $06, $04, $04, $04, $04, $02, $02, $02, $02, $02, $02, $02, $02
 
         .RES    16
-OPNING: .BYTE   $99, $25, $0B, $25, $01, $00, $33, $25, $07, $36, $34, $0D, $34, $34, $0E, $52
+        .BYTE   $99, $25, $0B, $25, $01, $00, $33, $25, $07, $36, $34, $0D, $34, $34, $0E, $52
         .BYTE   $25, $0D, $45, $35, $04, $55, $22, $06, $43, $33, $0F, $CC
+OPNING:
 
 ; NOTE THAT 00B7 TO 00BF, 00F4 TO 00F8, AND 00FC TO 00FF ARE
 ; AVAILABLE FOR USER EXPANSION AND I/O ROUTINES.
@@ -247,6 +249,8 @@ ERROR:   JMP     CHESS
 ;      SIDE, CALL JANUS AFTER EACH
 ;      ONE FOR NEXT STEP
 ;
+        .RES    81
+        .ORG    $0200
 
 GNMZ:    LDX     #$10           ; CLEAR
 GNMX:    LDA     #$00           ; COUNTERS
@@ -612,7 +616,8 @@ ROLL:    ASL     DIS3           ; KEY
 ;       CONSIDERATION AND RETURNS IT IN
 ;         THE ACCUMULATOR
 ;
-        .ORG $1780
+        .RES     4998
+        .ORG     $1780
 
 STRATGY: CLC
          LDA     #$80
