@@ -318,175 +318,156 @@ P3:      JSR     CMOVE          ; AHEAD
          CMP     #$20
          BEQ     P3             ; DO DOUBLE
          JMP     NEWP
-
-251                    ;
-252                    ;      CALCULATE SINGLE STEP MOVES
-253                    ;      FOR K, N
-254                    ;
-255 028E 20 CA 02      SNGMV     JSR       CMOVE          CALC MOVE
-256 0291 30 03                   BMI       ILL1            -IF LEGAL
-257 0293 20 00 0l                JSR       JANUS           -EVALUATE
-258 0296 20 1E 03      ILL1      JSR       RESET
-259 0299 C6 B6                   DECZ      .MOVEN
-260 029B 60                      RTS
-261                    ;
-262                    ;     CALCULATE ALL MOVES DOWN A
-263                    ;     STRAIGHT LINE FOR Q,B,R
-264                    ;
-265 029C 20 CA 02      LINE      JSR       CMOVE          CALC MOVE
-266 029F 90 02                   BCC       OVL             NO CHK
-267 02A1 50 F9                   BVC       LINE            CH,NOCAP
-268 02A3 30 07         OVL       BMI       ILL             RETURN
-269 02A5 08                      PHP
-270 02A6 20 00 0l                JSR       JANUS          EVALUATE POSN
-271 02A9 28                      PLP
-272 02AA 50 F0                   BVC       LINE           NOT A CAP
-273 02AC 20 1E 03      ILL       JSR       RESET          LINE STOPPED
-274 02AF C6 B6                   DECZ      .MOVEN          NEXT DIR
-275 02B1 60                      RTS
-276                    ;
-277                    ;      EXCHANGE SIDES FOR REPLY
-278                    ;      ANALYSIS
-279                    ;
-280 02B2 A2 0F         REVERSE   LDX #     0F
-281 02B4 38            ETC       SEC
-282 02B5 B4 60                   LDYZX    .BK             SUBTRACT
-283 02B7 A9 77                   LDA #    77              POSITION
-284 02B9 F5 50                   SBCZX    .BOARD          FROM 77
-285 02BB 95 60                   STAX    .BK
-286 02BD 94 50                   STYZX    .BOARD            AND
-287 02BF 38                      SEC
-288 02C0 A9 77                   LDA #    77              EXCHANGE
-289 02C2 F5 50                   SBCZX    .BOARD          PIECES
-290 02C4 95 50                   STAX    .BOARD
-291 02C6 CA                      DEX
-292 02C7 10 EB                   BPL      ETC
-293 02C9 60                      RTS
-294                    ;
-295                    ;
-296                    ;
-297                    ;
-298                    ;
-299                    ;
-300                    ;
-
-
-CHESS                   PAGE  7
-
-
-
-301                    ;        CMOVE CALCULATES THE TO SQUARE
-302                    ;        USING .SQUARE AND THE MOVE
-303                    ;       TABLE.  FLAGS SET AS FOLLOWS:
-304                    ;       N - ILLEGAL MOVE
-305                    ;       V - CAPTURE (LEGAL UNLESS IN CH)
-306                    ;       C - ILLEGAL BECAUSE OF CHECK
-307                    ;       [MY THANKS TO JIM BUTTERFIELD
-308                    ;        WHO WROTE THIS MORE EFFICIENT
-309                    ;        VERSION OF CMOVE]
-310                    ;
-311 02CA A5 B1         CMOVE     LDA      .SQUARE        GET SQUARE
-312 02CC A6 B6                   LDX      .MOVEN         MOVE POINTER
-313 02CE 18                      CLC
-314 02CF 75 8F                   ADCZX     .MOVEX         MOVE LIST
-315 02D1 85 B1                   STA      .SQUARE        NEW POS'N
-316 02D3 29 88                   ANDIM     88
-317 02D5 D0 42                   BNE       ILLEGAL        OFF BOARD
-318 02D7 A5 B1                   LDA      .SQUARE
-319                    ;
-320 02D9 A2 20                   LDX #     20
-321 02DB CA            LOOP      DEX                      IS TO
-322 02DC 30 0E                   BMI       NO             SQUARE
-323 02DE D5 50                   CMPZX    .BOARD          OCCUPIED?
-324 02E0 D0 F9                   BNE      LOOP
-325                    ;
-326 02E2 E0 10                   CPX #    10              BY SELF?
-327 02E4 30 33                   BMI      ILLEGAL
-328                    ;
-329 02E6 A9 7F                   LDA #    7F              MUST BE CAP!
-330 02E8 69 01                   ADCIM    01              SET V FLAG
-331 02EA 70 01                   BVS      SPX             (JMP)
-332                    ;
-333 02EC 88            NO        CLV                      NO CAPTURE
-334                    ;
-335 02ED A5 B5         SPX       LDA     .STATE          SHOULD WE
-336 02EF 30 24                   BMI      RETL            DO THE
-337 02F1 C9 08                   CMP #    08              CHECK CHECK?
-338 02F3 10 20                   BPL      RETL
-339                    ;
-340                    ;        CHKCHK REVERSES SIDES
-341                    ;       AND LOOKS FOR A KING
-342                    ;       CAPTURE TO INDICATE
-343                    ;       ILLEGAL MOVE BECAUSE OF
-344                    ;       CHECK.  SINCE THIS IS
-345                    ;       TIME CONSUMING, IT IS NOT
-346                    ;       ALWAYS DONE.
-347                    ;
-348 02F5 48            CHKCHK    PHA                      STATE
-349 02F6 08                      PHP
-350 02F7 A9 F9                   LDA #    F9
-
-
-CHESS                   PAGE  8
-
-
-
-351  02F9 85 B5                  STA      .STATE         GENERATE
-352  02FB 85 B4                  STA      .INCHEK        ALL REPLY
-353  02FD 20 4B 03               JSR       MOVE           MOVES TO
-354  0300 20 B2 02               JSR       REVERSE        SEE IF KING
-355  0303 20 09 02               JSR       GNM            IS IN
-356  0306 20 2E 03               JSR       RUM            CHECK
-357  0309 28                     PLP
-358  030A 68                     PLA
-359  030B 85 B5                  STA      .STATE
-360  030D A5 B4                  LDA      .INCHEK
-361  030F 30 04                  BMI       RETL           NO - SAFE
-362  0311 38                     SEC                      YES - IN CHK
-363  0312 A9 FF                  LDA #     FF
-364  0314 60                     RTS
-365                    ;
-366  0315 18           RETL      CLC                      LEGAL
-367  0316 A9 00                  LDA #     00             RETURN
-368  0318 60                     RTS
-369                    ;
-370  0319 A9 FF        ILLEGAL   LDA #     FF
-371  031B 18                     CLC                      ILLEGAL
-372  031C B8                     CLV                      RETURN
-373  031D 60                     RTS
-374                    ;
-375                    ;       REPLACE .PIECE ON CORRECT .SQUARE
-376                    ;
-377  031E A6 B0        RESET     LDX      .PIECE         GET LOGAT.
-378  0320 B5 50                  LDAX     .BOARD         FOR PIECE
-379  0322 85 B1                  STA      .SQUARE        FROM BOARD
-380  0324 60                     RTS
-381                    ;
-382                    ;
-383                    ;
-384  0325 20 4B 03     GENRM     JSR       MOVE           MAKE MOVE
-385  0328 20 B2 02     GENR2     JSR       REVERSE        REVERSE BOARD
-386  032B 20 09 02               JSR       GNM            GENERATE MOVES
-387  032E 20 B2 02     RUM       JSR       REVERSE        REVERSE BACK
-388                    ;
-389                    ;       ROUTINE TO UNMAKE A MOVE MADE BY
-390                    ;                MOVE
-391                    ;
-392  0331 BA           UMOVE     TSX                      UNMAKE MOVE
-393  0332 86 B3                  STXZ      .SP1
-394  0334 A6 B2                  LDX      .SP2           EXCHANGE
-395  0336 9A                     TXS                      STACKS
-396  0337 68                     PLA                      MOVEN
-397  0338 85 B6                  STA      .MOVEN
-398  033A 68                     PLA                      CAPTURED
-399  033B 85 B0                  STA      .PIECE         PIECE
-400  033D AA                     TAX
-
-
-CHESS                   PAGE  9
-
-
-
+;
+;      CALCULATE SINGLE STEP MOVES
+;      FOR K, N
+;
+SNGMV:   JSR     CMOVE          ; CALC MOVE
+         BMI     ILL1           ; -IF LEGAL
+         JSR     JANUS          ; -EVALUATE
+ILL1:    JSR     RESET
+         DEC     MOVEN
+         RTS
+;
+;     CALCULATE ALL MOVES DOWN A
+;     STRAIGHT LINE FOR Q,B,R
+;
+LINE:    JSR     CMOVE          ; CALC MOVE
+         BCC     OVL            ; NO CHK
+         BVC     LINE           ; CH,NOCAP
+OVL:     BMI     ILL            ; RETURN
+         PHP
+         JSR     JANUS          ; EVALUATE POSN
+         PLP
+         BVC     LINE           ; NOT A CAP
+ILL:     JSR     RESET          ; LINE STOPPED
+         DEC     MOVEN          ; NEXT DIR
+         RTS
+;
+;      EXCHANGE SIDES FOR REPLY
+;      ANALYSIS
+;
+REVERSE: LDX     #$0F
+ETC:     SEC
+         LDY     BK,X            ; SUBTRACT
+         LDA     #$77            ; POSITION
+         SBC     BOARD,X         ; FROM 77
+         STA     BK,X
+         STY     BOARD,X         ; AND
+         SEC
+         LDA     #$77            ; EXCHANGE
+         SBC     BOARD,X         ; PIECES
+         STA     BOARD,X
+         DEX
+         BPL     ETC
+         RTS
+;
+;
+;
+;
+;
+;
+;
+;        CMOVE CALCULATES THE TO SQUARE
+;        USING .SQUARE AND THE MOVE
+;       TABLE.  FLAGS SET AS FOLLOWS:
+;       N - ILLEGAL MOVE
+;       V - CAPTURE (LEGAL UNLESS IN CH)
+;       C - ILLEGAL BECAUSE OF CHECK
+;       [MY THANKS TO JIM BUTTERFIELD
+;        WHO WROTE THIS MORE EFFICIENT
+;        VERSION OF CMOVE]
+;
+CMOVE:   LDA     SQUARE          ; GET SQUARE
+         LDX     MOVEN           ; MOVE POINTER
+         CLC
+         ADC     MOVEX,X         ; MOVE LIST
+         STA     SQUARE          ; NEW POS'N
+         AND     #$88
+         BNE     ILLEGAL         ; OFF BOARD
+         LDA     SQUARE
+;
+         LDX     #$20
+LOOP:    DEX                     ; IS TO
+         BMI     NO              ; SQUARE
+         CMP     BOARD,X         ; OCCUPIED?
+         BNE     LOOP
+;
+         CPX     #$10            ; BY SELF?
+         BMI     ILLEGAL
+;
+         LDA     #$7F            ; MUST BE CAP!
+         ADC     #$01            ; SET V FLAG
+         BVS     SPX             ; (JMP)
+;
+NO:      CLV                     ; NO CAPTURE
+;
+SPX:     LDA     STATE           ; SHOULD WE
+         BMI     RETL            ; DO THE
+         CMP     #$08            ; CHECK CHECK?
+         BPL     RETL
+;
+;        CHKCHK REVERSES SIDES
+;       AND LOOKS FOR A KING
+;       CAPTURE TO INDICATE
+;       ILLEGAL MOVE BECAUSE OF
+;       CHECK.  SINCE THIS IS
+;       TIME CONSUMING, IT IS NOT
+;       ALWAYS DONE.
+;
+CHKCHK:  PHA                     ; STATE
+         PHP
+         LDA     #$F9
+         STA     STATE          ; GENERATE
+         STA     INCHEK         ; ALL REPLY
+         JSR     MOVE           ; MOVES TO
+         JSR     REVERSE        ; SEE IF KING
+         JSR     GNM            ; IS IN
+         JSR     RUM            ; CHECK
+         PLP
+         PLA
+         STA     STATE
+         LDA     INCHEK
+         BMI     RETL           ; NO - SAFE
+         SEC                    ; YES - IN CHK
+         LDA     #$FF
+         RTS
+;
+RETL:    CLC                    ; LEGAL
+         LDA     #$00           ; RETURN
+         RTS
+;
+ILLEGAL: LDA     #$FF
+         CLC                    ; ILLEGAL
+         CLV                    ; RETURN
+         RTS
+;
+;       REPLACE .PIECE ON CORRECT .SQUARE
+;
+RESET:   LDX     PIECE          ; GET LOGAT.
+         LDA     BOARD,X        ; FOR PIECE
+         STA     SQUARE         ; FROM BOARD
+         RTS
+;
+;
+;
+GENRM:   JSR     MOVE           ; MAKE MOVE
+GENR2:   JSR     REVERSE        ; REVERSE BOARD
+         JSR     GNM            ; GENERATE MOVES
+RUM:     JSR     REVERSE        ; REVERSE BACK
+;
+;       ROUTINE TO UNMAKE A MOVE MADE BY
+;                MOVE
+;
+UMOVE:   TSX                    ; UNMAKE MOVE
+         STX     SP1
+         LDX     SP2            ; EXCHANGE
+         TXS                    ; STACKS
+         PLA                    ; MOVEN
+         STA     MOVEN
+         PLA                    ; CAPTURED
+         STA     PIECE          ; PIECE
+         TAX
 401  033E 68                     PLA                      FROM SQUARE
 402  033F 95 50                  STAX     .BOARD
 403  0341 68                     PLA                      PIECE
