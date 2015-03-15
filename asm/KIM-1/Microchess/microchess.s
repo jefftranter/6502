@@ -70,7 +70,8 @@ OUT:    JSR     SCANDS          ; DISPLAY AND
         CMP     #$0C            ; [C]
         BNE     NOSET           ; SET UP
         LDX     #$1F            ; BOARD
-WHSET:  LDA     SETW,X          ; FROM
+        .GLOBALZP SETW
+WHSET:  LDA     SETW,X        ; FROM
         STA     BOARD,X         ; SETW
         DEX
         BPL     WHSET
@@ -89,7 +90,7 @@ NOREV:  CMP     #$14            ; [PC]
         JSR     GO
 CLDSP:  STA     DIS1            ; DISPLAY
         STA     DIS2            ; ACROSS
-        STA     D1S3            ; DISPLAY
+        STA     DIS3            ; DISPLAY
         BNE     CHESS
 ;
 NOGO:   CMP     #$0F            ; [F]
@@ -179,7 +180,7 @@ ON4:     LDA     XMAXC          ; SAVE ACTUAL
          STA     STATE
          JSR     MOVE           ; GENERATE
          JSR     REVERSE        ; IMMEDIATE
-         JSR     GNMHZ          ; REPLY MOVES
+         JSR     GNMZ           ; REPLY MOVES
          JSR     REVERSE
 ;
          LDA     #$08           ; STATE=8
@@ -305,7 +306,7 @@ P1:      JSR     CMOVE          ; RIGHT CAP?
          BMI     P2
          JSR     JANUS          ; YES
 P2:      JSR     RESET
-         DEC     M0VEN          ; LEFT CAP?
+         DEC     MOVEN          ; LEFT CAP?
          LDA     MOVEN
          CMP     #$05
          BEQ     P1
@@ -483,7 +484,7 @@ UMOVE:   TSX                    ; UNMAKE MOVE
 ;       THE MOVE LATER
 ;
 MOVE:    TSX
-         STX     SPI            ; SWITCH
+         STX     SP1            ; SWITCH
          LDX     SP2            ; STACKS
          TXS
          LDA     SQUARE
@@ -508,7 +509,7 @@ TAKE:    LDA     #$CC
          PHA                    ; MOVEN
 STRV:    TSX
          STX     SP2            ; SWITCH
-         LDX     SPI            ; STACKS
+         LDX     SP1            ; STACKS
          TXS                    ; BACK
          RTS
 ;
@@ -575,7 +576,7 @@ NOOPEN:  LDX     #$0C           ; FINISHED
          JSR     GNMZ           ; TEST AVAILABLE
 ;                                 MOVES
 ;
-         LDX     BFSTV          ; GET BEST MOVE
+         LDX     BESTV          ; GET BEST MOVE
          CPX     #$0F           ; IF NONE
          BCC     MATE           ; OH OH!
 ;
@@ -609,6 +610,7 @@ ROLL:    ASL     DIS3           ; KEY
 ;       CONSIDERATION AND RETURNS IT IN
 ;         THE ACCUMULATOR
 ;
+        .ORG $1780
 
 STRATGY: CLC
          LDA     #$80
@@ -620,7 +622,7 @@ STRATGY: CLC
          SEC
          SBC     PMAXC
          SBC     PCC
-         SBC     BCAPO
+         SBC     BCAP0
          SBC     BCAP1
          SBC     BCAP2
          SBC     PMOB
@@ -637,8 +639,8 @@ POS:     LSR     A
          LSR     A              ;  **************
          CLC
          ADC     #$90
-         ADC     WCAPO          ; PARAMETERS
-         ADC     WCAPO          ; WITH WEIGHT
+         ADC     WCAP0          ; PARAMETERS
+         ADC     WCAP0          ; WITH WEIGHT
          ADC     WCAP0          ; OF 1.0
          ADC     WCAP0
          ADC     WCAP1
