@@ -479,7 +479,7 @@ UMOVE:   TSX                    ; UNMAKE MOVE
          STA     BOARD,X
          PLA                    ; PIECE
          TAX
-         PLA                    ; TO SOUARE
+         PLA                    ; TO SQUARE
          STA     SQUARE
          STA     BOARD,X
          JMP     STRV
