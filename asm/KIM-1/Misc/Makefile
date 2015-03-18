@@ -1,4 +1,4 @@
-SUBDIRS = "ROMs" "TheFirstBookOfKIM" Microchess Misc
+SUBDIRS = clock
 
 all:
 	@for i in $(SUBDIRS); do \
