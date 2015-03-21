@@ -22,14 +22,16 @@ out just how the processor tracks the input tape.
 
      VUTAPE starts at location 0000 and is fully relocatable (so you can
 load it anyplace it fits).
+
 Checking Out Tapes/Recorders
+----------------------------
 
      Make a test tape containing an endless stream of SYNC characters
 with the following program:
 
 0050   A0  BF       GO     LDY #$BF           directional..
 0052   8C  45  17          STY PBOD           ...registers
-0055   A9  16       LP     LDA #$l6           SYNC
+0055   A9  16       LP     LDA #$16           SYNC
 0057   20  7A  19          JST OUTCH          ...out to tape
 005A   D0  F9              BNE LP
 
