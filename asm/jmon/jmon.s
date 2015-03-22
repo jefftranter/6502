@@ -82,10 +82,10 @@
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica1, OSI for Ohio Scientific
-; SuperBoard ///, or KIM for KIM-1 platform.
+; SuperBoard ///, or KIM1 for KIM-1 platform.
 ; APPLE1  = 1
 ; OSI     = 1
-  KIM = 1
+  KIM1 = 1
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -124,7 +124,7 @@
   IN      = $0200               ; Buffer from $0200 through $027F (shared with Woz Mon)
 .elseif .defined(OSI)
   IN      = $0300               ; Buffer from $0300 through $037F (shared with OSI BASIC)
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
   IN      = $0200               ; Buffer from $0200 through $027F
 .endif
 
@@ -137,7 +137,7 @@
 .elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
   KIMMON  = $1C00              ; KIM monitor entry point
 .endif
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
@@ -148,7 +148,7 @@
   .org $0280
 .elseif .defined(OSI)
   .org $0380
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
   .org $0280
 .endif
 
@@ -251,7 +251,7 @@ Monitor:
         JMP PrintString         ; Return via caller
 .elseif .defined(OSI)
         JMP OSIMON              ; Jump into OSI Monitor
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
         JMP KIMMON              ; Jump into KIM Monitor
 .endif
 
@@ -675,7 +675,7 @@ Verify:
 
 ; Dump Memory
 
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         BYTESPERLINE = 8
 .elseif .defined(OSI)
         BYTESPERLINE = 4
@@ -1490,7 +1490,7 @@ GetKey:
         RTS
 .elseif .defined(OSI)
         JMP $FD00               ; Call OSI input routine
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
         JMP $1E5A               ; Call KIM GETCH routine. Returns char in A. Changes Y.
 .endif
 
@@ -1829,7 +1829,7 @@ PrintChar:
         PLP             ; Restore status
         RTS             ; Return.
 
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
 
         PHP             ; Save status
         STA     T1      ; Save A
@@ -2043,7 +2043,7 @@ MATCHFL:
         .byte "$?ABCDEFGHIKLMNORSTUV:=."
 .elseif .defined(OSI)
         .byte "$?ABCDFGHIKLNORSTUV:=."
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
         .byte "$?ABCDFGHKLNORSTUV:=."
 .endif
 
@@ -2254,7 +2254,7 @@ CLR1:   STA $D000,X
         TAX
         PLA             ; restore A
         RTS
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
 ; Clear screen by printing 24 carriage returns.
         PHA             ; save A
         TXA             ; save X
@@ -2478,7 +2478,7 @@ WelcomeMessage:
 .endif
 
 PromptString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "? "
 .elseif .defined(OSI)
         .asciiz "?"     ; Smaller on OSI due to smaller screen
@@ -2545,7 +2545,7 @@ HelpString:
         .byte "Help       ?", CR
         .byte 0
 
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
         .byte "Assemble    A <address>", CR
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
@@ -2571,14 +2571,14 @@ HelpString:
 .endif
 
 ContinueString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "  <Space> to continue, <ESC> to stop"
 .elseif .defined(OSI)
         .asciiz " <SP> cont <ESC> stop"
 .endif
 
 InvalidRange:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .byte "Error: start must be <= end", CR, 0
 .elseif .defined(OSI)
         .byte "Start must be <= end!", CR, 0
@@ -2594,7 +2594,7 @@ MismatchString:
         .asciiz "Mismatch: "
 
 TestString1:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "Testing memory from $"
 .elseif .defined(OSI)
         .byte "Testing memory from", CR, "$", 0
@@ -2653,7 +2653,7 @@ HighBitString:
   .byte "Set high bit in characters (Y/N)?", 0
 
 CPUTypeString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
   .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
 .elseif .defined(OSI)
   .byte "CPU type 1-6502 2-65C02", CR, "3-65816?", 0
@@ -2685,7 +2685,7 @@ NoWozMonString:
 .endif
 
 CPUString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "         CPU type: "
 .elseif .defined(OSI)
         .asciiz "      CPU type: "
@@ -2701,21 +2701,21 @@ Type65816String:
         .asciiz "65816"
 
 ResetVectorString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "     RESET vector: $"
 .elseif .defined(OSI)
         .asciiz "  RESET vector: $"
 .endif
 
 IRQVectorString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "   IRQ/BRK vector: $"
 .elseif .defined(OSI)
         .asciiz "IRQ/BRK vector: $"
 .endif
 
 NMIVectorString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "       NMI vector: $"
 .elseif .defined(OSI)
         .asciiz "    NMI vector: $"
@@ -2760,7 +2760,7 @@ WozMonString:
 .endif
 
 RAMString:
-.if .defined(APPLE1) .or .defined(KIM)
+.if .defined(APPLE1) .or .defined(KIM1)
         .asciiz "RAM detected from: $0000 to "
 .elseif .defined(OSI)
         .byte "RAM found from: $0000", CR, "            to: ", 0

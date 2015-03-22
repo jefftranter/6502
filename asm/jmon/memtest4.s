@@ -181,7 +181,7 @@ KeyPressed:
         JMP        REPEAT
 KeyPressed:
         JMP        FINISHED
-.elseif .defined(KIM)
+.elseif .defined(KIM1)
 ; Note that this checks for front panel key press, not TTY.
         JSR        $1EFE
         BEQ        FINISHED           ; key pressed
