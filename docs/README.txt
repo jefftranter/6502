@@ -32,6 +32,8 @@ KIM-1QuickReference.odt - Quick Reference for the KIM-1 Microcomputer.
 
 KIM-1QuickReference.odt - Quick Reference for the KIM-1 Microcomputer (PDF format).
 
+FirstBookOfKimReference.pdf - KIM-1 reference from the inside back cover of The First Book of KIM.
+
 ---
 
 Files written by me are released under the following license:
