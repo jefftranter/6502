@@ -78,12 +78,14 @@
 ;                      Check if RAM test spans two pages.
 ;                      Optimize JSR / RTS to JMP
 ; 1.1.0  30-Jan-2015   Added support for Superboard /// platform
+; 1.2.0  22-Mar-2015   Added support for KIM-1 computer platform (untested)
 
 ; Platform
-; Define either APPLE1 for Apple 1 Replica1 or OSI for Ohio Scientific
-; SuperBoard ///.
+; Define either APPLE1 for Apple 1 Replica1, OSI for Ohio Scientific
+; SuperBoard ///, or KIM for KIM-1 platform.
 ; APPLE1  = 1
   OSI     = 1
+; KIM = 1
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -118,30 +120,36 @@
   BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
 
 ; Non page zero locations
-.ifdef APPLE1
+.if .defined(APPLE1)
   IN      = $0200               ; Buffer from $0200 through $027F (shared with Woz Mon)
-.else
+.elseif .defined(OSI)
   IN      = $0300               ; Buffer from $0300 through $037F (shared with OSI BASIC)
+.elseif .defined(KIM)
+  IN      = $0200               ; Buffer from $0200 through $027F
 .endif
 
 ; External Routines
-.ifdef APPLE1
+.if .defined(APPLE1)
   BASIC   = $E000               ; BASIC
   WOZMON  = $FF00               ; Woz monitor entry point
   MENU    = $9006               ; CFFA1 menu entry point
   ACI     = $C100               ; ACI (Apple Cassette Interface) firmware entry point
-.else
+.elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
+.elseif .defined(KIM)
+  KIMMON  = $1C00              ; KIM monitor entry point
 .endif
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 
 ; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
-.ifdef APPLE1
+.if .defined(APPLE1)
 ; .org $A000
   .org $0280
-.else
+.elseif .defined(OSI)
   .org $0380
+.elseif .defined(KIM)
+  .org $0280
 .endif
 
 ; JMON Entry point
@@ -233,7 +241,7 @@ NoACI:
 
 ; Go to Woz Monitor or OSI Monitor.
 Monitor:
-.ifdef APPLE1
+.if .defined(APPLE1)
         JSR WozMonPresent
         BEQ @NoWozMon
         JMP WOZMON
@@ -241,8 +249,10 @@ Monitor:
         LDX #<NoWozMonString    ; Display error that no Woz Monitor is present.
         LDY #>NoWozMonString
         JMP PrintString         ; Return via caller
-.else
+.elseif .defined(OSI)
         JMP OSIMON              ; Jump into OSI Monitor
+.elseif .defined(KIM)
+        JMP KIMMON              ; Jump into KIM Monitor
 .endif
 
 ; Go to Mini Assembler
@@ -256,15 +266,16 @@ Assemble:
         JMP AssembleLine        ; Call asssembler
 
 ; Go to BASIC
-
+.if .defined(APPLE1) .or .defined(OSI)
 Basic:
-        JSR BASICPresent       ; Is BASIC ROM present?
+        JSR BASICPresent        ; Is BASIC ROM present?
         BEQ NoBasic
         JMP BASIC               ; Jump to BASIC (no facility to return).
 NoBasic:
         LDX #<NoBASICString     ; Display error that no BASIC is present.
         LDY #>NoBASICString
         JMP PrintString
+.endif
 
 ; Handle breakpoint
 ; B ?                    <- list status of all breakpoints
@@ -2040,7 +2051,9 @@ JMPFL:
         .word Fill-1
         .word Go-1
         .word Hex-1
+.if .defined(APPLE1) .or .defined(OSI)
         .word Basic-1
+.endif
         .word Checksum-1
         .word ClearScreen-1
 .ifdef APPLE1
@@ -2362,15 +2375,17 @@ MultiIOPresent:
 ; Looks for the first three bytes of ROM.
 ; It is unlikely but it could possibly not be present (e.g. when running in an Emulator)
 
-.ifdef APPLE1
+.if .defined(APPLE1)
   BASIC0 = $4C
   BASIC1 = $B0
   BASIC2 = $E2
-.else
+.elseif .defined(OSI)
   BASIC0 = $A2
   BASIC1 = $FF
   BASIC2 = $86
 .endif
+
+.if .defined(APPLE1) .or .defined(OSI)
 
 BASICPresent:
         LDA BASIC               ; First firmware byte
@@ -2387,6 +2402,8 @@ BASICPresent:
 @NoBasic:
         LDA #0
         RTS
+
+.endif
 
 ; Determines if Krusader ROM present.
 ; Returns in A 1 if present, 0 if not.
@@ -2430,10 +2447,10 @@ WozMonPresent:
 ; Strings
 
 WelcomeMessage:
-.ifdef APPLE1
-        .byte CR,"JMON monitor 1.1.0 by Jeff Tranter", CR, 0
-.else
-        .byte CR,"JMON 1.1.0 by J. Tranter", CR, 0
+.if .defined(APPLE1) .or .defined(KIM1)
+        .byte CR,"JMON monitor 1.2.0 by Jeff Tranter", CR, 0
+.elseif .defined(OSI)
+        .byte CR,"JMON 1.2.0 by J. Tranter", CR, 0
 .endif
 
 PromptString:
@@ -2452,7 +2469,7 @@ InvalidCommand:
 
 ; Help string.
 HelpString:
-.ifdef APPLE1
+.if .defined(APPLE1)
         .byte "Assemble    A <address>", CR
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
@@ -2478,7 +2495,8 @@ HelpString:
         .byte "Trace       .", CR
         .byte "Help        ?", CR
         .byte 0
-.else
+
+.elseif .defined(OSI)
         .byte "Assemble   A <a>", CR
         .byte "Breakpoint B <n><a>", CR
         .byte "Copy       C <s><e><d>", CR
@@ -2501,6 +2519,30 @@ HelpString:
         .byte "Math       = <a>+/-<a>", CR
         .byte "Trace      .", CR
         .byte "Help       ?", CR
+        .byte 0
+
+.elseif .defined(KIM)
+        .byte "Assemble    A <address>", CR
+        .byte "Breakpoint  B <n or ?> <address>", CR
+        .byte "Copy        C <start> <end> <dest>", CR
+        .byte "Dump        D <start>", CR
+        .byte "Fill        F <start> <end> <data>...", CR
+        .byte "Go          G <address>", CR
+        .byte "Hex to dec  H <address>", CR
+        .byte "Checksum    K <start> <end>",CR
+        .byte "Clr screen  L", CR
+        .byte "Info        N", CR
+        .byte "Options     O", CR
+        .byte "Registers   R", CR
+        .byte "Search      S <start> <end> <data>...", CR
+        .byte "Test        T <start> <end>", CR
+        .byte "Unassemble  U <start>", CR
+        .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Monitor     $", CR
+        .byte "Write       : <address> <data>...", CR
+        .byte "Math        = <address> +/- <address>", CR
+        .byte "Trace       .", CR
+        .byte "Help        ?", CR
         .byte 0
 .endif
 
@@ -2608,8 +2650,10 @@ BranchOutOfRangeString:
 UnableToWriteString:
   .byte "Unable to write to $", 0
 
+.if .defined(APPLE1) .or .defined(OSI)
 NoBASICString:
   .byte "BASIC not found!", CR, 0
+.endif
 
 .ifdef APPLE1
 NoWozMonString:
@@ -2675,9 +2719,9 @@ MultiIOCardString:
 .endif
 
 BASICString:
-.ifdef APPLE1
+.if .defined(APPLE1)
         .asciiz "        BASIC ROM: "
-.else
+.elseif .defined(OSI)
         .asciiz "     BASIC ROM: "
 .endif
 

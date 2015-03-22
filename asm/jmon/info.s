@@ -150,12 +150,14 @@ Info:
         JSR PrintCR
 .endif
 
+.if .defined(APPLE) .or .defined(OSI)
         LDX #<BASICString
         LDY #>BASICString
         JSR PrintString
         JSR BASICPresent
         JSR PrintPresent
         JSR PrintCR
+.endif
        
 .ifdef APPLE1
         LDX #<KrusaderString

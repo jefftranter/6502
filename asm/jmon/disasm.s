@@ -304,15 +304,15 @@ PRADDR:
   LDY ADDR+1
   .ifndef SOURCEONLY
   JSR PrintAddress      ; print address
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDX #3
   JSR PrintSpaces       ; then three spaces
-.else
+.elseif .defined(OSI)
   JSR PrintSpace
 .endif
   LDA OPCODE            ; get instruction op code
   JSR PrintByte         ; display the opcode byte
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   JSR PrintSpace
 .endif
   LDA LEN               ; how many bytes in the instruction?
@@ -322,9 +322,9 @@ PRADDR:
   BEQ THREE
   CMP #2
   BEQ TWO
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDX #5
-.else
+.elseif .defined(OSI)
   LDX #4
 .endif
   JSR PrintSpaces
@@ -333,9 +333,9 @@ TWO:
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte
   JSR PrintByte         ; display it
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDX #3
-.else
+.elseif .defined(OSI)
   LDX #2
 .endif
   JSR PrintSpaces
@@ -344,7 +344,7 @@ THREE:
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte
   JSR PrintByte         ; display it
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   JSR PrintSpace
 .endif
   LDY #2
@@ -355,13 +355,13 @@ FOUR:
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte
   JSR PrintByte         ; display it
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   JSR PrintSpace
 .endif
   LDY #2
   LDA (ADDR),Y          ; get 2nd operand byte
   JSR PrintByte         ; display it
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   JSR PrintSpace
 .endif
   LDY #3
@@ -371,9 +371,9 @@ FOUR:
   BNE SPC
 ONE:
   .endif                ; .ifndef SOURCEONLY
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDX #4
-.else
+.elseif .defined(OSI)
   LDX #1
 .endif
 SPC:
@@ -423,9 +423,9 @@ DOMB:
   LSR
   LSR
   JSR PRHEX
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDX #2
-.else
+.elseif .defined(OSI)
   LDX #1
 .endif
   JSR PrintSpaces
@@ -448,9 +448,9 @@ DOBB:                   ; handle special BBRn and BBSn instructions
   LSR
   LSR
   JSR PRHEX
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDX #2
-.else
+.elseif .defined(OSI)
   LDX #1
 .endif
   JSR PrintSpaces
@@ -458,7 +458,7 @@ DOBB:                   ; handle special BBRn and BBSn instructions
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte (address)
   JSR PrintByte         ; display it
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDA #','
   JSR PrintChar
   JSR PrintDollar
@@ -503,9 +503,9 @@ TRYINV:
   BNE TRYACC
   JMP DONEOPS           ; no operands
 TRYACC:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   LDX #3
-.else
+.elseif .defined(OSI)
   LDX #1
 .endif
   JSR PrintSpaces

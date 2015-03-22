@@ -163,7 +163,7 @@ TESTDONE:                        ; print done and stop
         LDA        PASSES
         JSR        PrintByte
         JSR        PrintCR
-.ifdef APPLE1
+.if .defined(APPLE1)
 ; Stop if key pressed
         BIT        $D011 ; Keyboard CR
         BMI        KeyPressed
@@ -171,7 +171,7 @@ TESTDONE:                        ; print done and stop
 KeyPressed:
         LDA        $D010 ; Keyboard data
         JMP        FINISHED
-.else ; OSI keyboard code
+.elseif .defined(OSI)
         LDA        #$00
         STA        $DF00  ; Select all keyboard rows
         LDA        $DF00  ; Read columns
@@ -181,6 +181,11 @@ KeyPressed:
         JMP        REPEAT
 KeyPressed:
         JMP        FINISHED
+.elseif .defined(KIM)
+; Note that this checks for front panel key press, not TTY.
+        JSR        $1EFE
+        BEQ        FINISHED           ; key pressed
+        JMP        REPEAT
 .endif
 
 ; OUTPUT THE ERROR INFO and STOP
