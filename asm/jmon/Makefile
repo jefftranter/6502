@@ -1,7 +1,12 @@
 all: jmon.mon jmon.lod
 
+# OSI version binary
 jmon.lod: jmon.bin
 	~/git/6502/asm/OSI/bintolod -s 0380 -l 0380 jmon.bin >jmon.lod
+
+# KIM-1 version binary
+jmon.ptp: jmon.bin
+	srec_cat jmon.bin -binary -offset 0x0280 -o jmon.ptp -MOS_Technologies
 
 send:	jmon.lod
 	ascii-xfr -s jmon.lod  >/dev/ttyUSB0

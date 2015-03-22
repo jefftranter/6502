@@ -84,8 +84,8 @@
 ; Define either APPLE1 for Apple 1 Replica1, OSI for Ohio Scientific
 ; SuperBoard ///, or KIM for KIM-1 platform.
 ; APPLE1  = 1
-  OSI     = 1
-; KIM = 1
+; OSI     = 1
+  KIM = 1
 
 ; Constants
   CR      = $0D                 ; Carriage Return
@@ -239,7 +239,7 @@ NoACI:
         JMP PrintString         ; Return via caller
 .endif
 
-; Go to Woz Monitor or OSI Monitor.
+; Go to Woz Monitor, OSI Monitor, or KIM-1 Monitor.
 Monitor:
 .if .defined(APPLE1)
         JSR WozMonPresent
@@ -674,6 +674,13 @@ Verify:
         JMP @verify
 
 ; Dump Memory
+
+.if .defined(APPLE1) .or .defined(KIM)
+        BYTESPERLINE = 8
+.elseif .defined(OSI)
+        BYTESPERLINE = 4
+.endif
+
 Dump:
 ; echo 'D' and space, wait for start address
         JSR PrintChar
@@ -686,11 +693,7 @@ Dump:
 @loop:  JSR DumpLine            ; display line of output
         LDA SL                  ; add 8 (4 for OSI) to start address
         CLC
-.ifdef APPLE1
-        ADC #8
-.else
-        ADC #4
-.endif
+        ADC #BYTESPERLINE
         STA SL
         BCC @NoCarry
         INC SH
@@ -1056,11 +1059,7 @@ Okay:
         BCC nocarry
         INC SH
 nocarry:
-.ifdef APPLE1
-        LDA #$07                ; Is address a multiple of 8?
-.else
-        LDA #$03                ; Is address a multiple of 4?
-.endif
+        LDA #BYTESPERLINE-1     ; Is address a multiple of 8/4?
         BIT SL
         BNE writeLoop           ; If not, keep getting data
         JSR PrintCR             ; Otherwise start new line
@@ -1461,22 +1460,14 @@ DumpLine:
         JSR PrintByte           ; Display it in hex
         JSR PrintSpace          ; Followed by space
         INY
-.ifdef APPLE1
-        CPY #8                  ; Print 8 bytes per line
-.else
-        CPY #4                  ; Print 4 bytes per line
-.endif
+        CPY #BYTESPERLINE       ; Print 8/4 bytes per line
         BNE @loop1
         JSR PrintSpace
         LDY #0
 @loop2: LDA (SL),Y              ; Now get the same data
         JSR PrintAscii          ; Display it in ASCII
         INY
-.ifdef APPLE1
-        CPY #8                  ; 8 characters per line
-.else
-        CPY #4                  ; 4 characters per line
-.endif
+        CPY #BYTESPERLINE       ; 8/4 characters per line
         BNE @loop2
         JSR PrintCR             ; new line
         PLA                     ; Restore Y
@@ -1491,14 +1482,16 @@ DumpLine:
 ; Clears high bit to be valid ASCII
 ; Registers changed: A
 GetKey:
-.ifdef APPLE1
+.if .defined(APPLE1)
         LDA KBDCR               ; Read keyboard control register
         BPL GetKey              ; Loop until key pressed (bit 7 goes high)
         LDA KBD                 ; Get keyboard data
         AND #%01111111          ; Clear most significant bit to convert to standard ASCII
         RTS
-.else
+.elseif .defined(OSI)
         JMP $FD00               ; Call OSI input routine
+.elseif .defined(KIM)
+        JMP $1E5A               ; Call KIM GETCH routine. Returns char in A. Changes Y.
 .endif
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
@@ -1797,10 +1790,10 @@ PRHEX:
 
 ; Output a character
 ; Pass byte in A
-; Based on Woz Monitor ECHO routine ($FFEF).
 ; Registers changed: none
 PrintChar:
-.ifdef APPLE1
+.if .defined(APPLE1)
+                        ; Based on Woz Monitor ECHO routine ($FFEF).
         PHP             ; Save status
         PHA             ; Save A as it may be changed
 @Loop:
@@ -1822,7 +1815,8 @@ PrintChar:
         PLA             ; Restore A
         PLP             ; Restore status
         RTS             ; Return.
-.else
+
+.elseif .defined(OSI)
         PHP             ; Save status
         PHA             ; Save A as it may be changed
         JSR $BF2D       ; Call OSI character out routine
@@ -1832,6 +1826,20 @@ PrintChar:
         JSR $BF2D       ; Else print Linefeed too
 @ret:
         PLA             ; Restore A
+        PLP             ; Restore status
+        RTS             ; Return.
+
+.elseif .defined(KIM)
+
+        PHP             ; Save status
+        STA     T1      ; Save A
+        TYA             ; Save Y
+        PHA
+        LDA     T1      ; Get A back
+        JSR     $1EA0   ; Call monitor OUTCH character out routine. Changes A and Y.
+        PLA             ; Restore Y
+        TAY
+        LDA     T1      ; Restore A
         PLP             ; Restore status
         RTS             ; Return.
 .endif
@@ -2031,10 +2039,12 @@ GOTMCH: INX                     ; Makes zero a miss
         MATCHN = JMPFL-MATCHFL
 
 MATCHFL:
-.ifdef APPLE1
+.if .defined(APPLE1)
         .byte "$?ABCDEFGHIKLMNORSTUV:=."
-.else
+.elseif .defined(OSI)
         .byte "$?ABCDFGHIKLNORSTUV:=."
+.elseif .defined(KIM)
+        .byte "$?ABCDFGHKLNORSTUV:=."
 .endif
 
 JMPFL:
@@ -2210,10 +2220,11 @@ P1:     LDX #7
         RTS
 @3: .byte "CZIDB-VN"
 
-; Clear screen by printing 24 carriage returns.
+; Clear screen (platform dependent).
 ; Registers changed: none
 ClearScreen:
-.ifdef APPLE1
+.if .defined(APPLE1)
+; Clear screen by printing 24 carriage returns.
         PHA             ; save A
         TXA             ; save X
         PHA
@@ -2224,7 +2235,8 @@ ClearScreen:
         TAX
         PLA             ; restore A
         RTS
-.else
+.elseif .defined(OSI)
+; Clear screen by write spaces to all video memory.
         PHA             ; save A
         TXA             ; save X
         PHA
@@ -2238,6 +2250,18 @@ CLR1:   STA $D000,X
         BNE CLR1
         LDA #$65        ; Set cursor position to home
         STA $0200
+        PLA             ; restore X
+        TAX
+        PLA             ; restore A
+        RTS
+.elseif .defined(KIM)
+; Clear screen by printing 24 carriage returns.
+        PHA             ; save A
+        TXA             ; save X
+        PHA
+        LDA #CR
+        LDX #24
+        JSR PrintChars
         PLA             ; restore X
         TAX
         PLA             ; restore A
@@ -2454,16 +2478,16 @@ WelcomeMessage:
 .endif
 
 PromptString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "? "
-.else
+.elseif .defined(OSI)
         .asciiz "?"     ; Smaller on OSI due to smaller screen
 .endif
 
 InvalidCommand:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM1)
         .byte "Invalid command. Type '?' for help", CR, 0
-.else
+.elseif .defined(OSI)
         .byte "Invalid command.", CR, "Type '?' for help", CR, 0
 .endif
 
@@ -2547,16 +2571,16 @@ HelpString:
 .endif
 
 ContinueString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "  <Space> to continue, <ESC> to stop"
-.else
+.elseif .defined(OSI)
         .asciiz " <SP> cont <ESC> stop"
 .endif
 
 InvalidRange:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .byte "Error: start must be <= end", CR, 0
-.else
+.elseif .defined(OSI)
         .byte "Start must be <= end!", CR, 0
 .endif
 
@@ -2570,9 +2594,9 @@ MismatchString:
         .asciiz "Mismatch: "
 
 TestString1:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "Testing memory from $"
-.else
+.elseif .defined(OSI)
         .byte "Testing memory from", CR, "$", 0
 .endif
 
@@ -2629,9 +2653,9 @@ HighBitString:
   .byte "Set high bit in characters (Y/N)?", 0
 
 CPUTypeString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
   .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
-.else
+.elseif .defined(OSI)
   .byte "CPU type 1-6502 2-65C02", CR, "3-65816?", 0
 .endif
 
@@ -2661,9 +2685,9 @@ NoWozMonString:
 .endif
 
 CPUString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "         CPU type: "
-.else
+.elseif .defined(OSI)
         .asciiz "      CPU type: "
 .endif
 
@@ -2677,23 +2701,23 @@ Type65816String:
         .asciiz "65816"
 
 ResetVectorString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "     RESET vector: $"
-.else
+.elseif .defined(OSI)
         .asciiz "  RESET vector: $"
 .endif
 
 IRQVectorString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "   IRQ/BRK vector: $"
-.else
+.elseif .defined(OSI)
         .asciiz "IRQ/BRK vector: $"
 .endif
 
 NMIVectorString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "       NMI vector: $"
-.else
+.elseif .defined(OSI)
         .asciiz "    NMI vector: $"
 .endif
 
@@ -2736,9 +2760,9 @@ WozMonString:
 .endif
 
 RAMString:
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(KIM)
         .asciiz "RAM detected from: $0000 to "
-.else
+.elseif .defined(OSI)
         .byte "RAM found from: $0000", CR, "            to: ", 0
 .endif
 
