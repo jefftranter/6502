@@ -81,11 +81,22 @@
 ; 1.2.0  22-Mar-2015   Added support for KIM-1 computer platform (untested)
 
 ; Platform
-; Define either APPLE1 for Apple 1 Replica1, OSI for Ohio Scientific
-; SuperBoard ///, or KIM1 for KIM-1 platform.
+; Define either APPLE1 for Apple 1 Replica 1, OSI for Ohio Scientific
+; SuperBoard II or ///, or KIM1 for KIM-1 platform. Normally this is
+; set in the Makefile.
 ; APPLE1  = 1
 ; OSI     = 1
-  KIM1 = 1
+; KIM1 = 1
+
+.if .defined(APPLE1)
+    .out "Building for Apple 1/Replica 1"
+.elseif .defined(OSI)
+    .out "Building for Ohio Scientific Superboard"
+.elseif .defined(KIM1)
+    .out "Building for KIM-1"
+.else
+    .error "Platform not defined"
+.endif
 
 ; Constants
   CR      = $0D                 ; Carriage Return
