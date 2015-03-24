@@ -1563,6 +1563,12 @@ GetHex:
         CLC                     ; Normal return
         RTS
 @next1:
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'x' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
         CMP #'0'
         BMI GetHex              ; Invalid, ignore and try again
         CMP #'9'+1
