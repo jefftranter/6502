@@ -202,13 +202,6 @@ MainLoop:
 
 ; Get first character of command
         JSR GetKey
-                                ; Convert to upper case so that lowercase commands are accepted
-        CMP #'a'                ; Is it 'a' or higher?
-        BMI @NotLower
-        CMP #'z'+1              ; Is it 'x' or lower?
-        BPL @NotLower
-        AND #%11011111          ; Convert to upper case by clearing bit 5
-@NotLower:
 
 ; Call option picker to run appropriate command
         JSR OPICK
@@ -2043,6 +2036,13 @@ RequireStartNotAfterEnd:
 ; Registers affected: X
 OPICK:
         TAY                     ; save A
+; Convert to upper case so that lowercase commands are accepted
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'x' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
         LDX #MATCHN             ; Get legal number of matches
 SCAN:   CMP MATCHFL,X           ; Search for a match
         BEQ GOTMCH              ; Found

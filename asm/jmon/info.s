@@ -226,7 +226,7 @@ PrintPresent:
 ; RAM address in X (low), Y (high).
 
  LIMIT = $FFFF        ; Highest address we want to test
- TOP   = $00          ; Holds current highest addresse of RAM (two bytes)
+ TOP   = $00          ; Holds current highest address of RAM (two bytes)
 
 FindTopOfRAM:
 
