@@ -1505,7 +1505,14 @@ GetKey:
 .elseif .defined(OSI)
         JMP $FD00               ; Call OSI input routine
 .elseif .defined(KIM1)
-        JMP $1E5A               ; Call KIM GETCH routine. Returns char in A. Changes Y.
+        TYA                     ; Save Y on stack
+        PHA
+        JSR $1E5A               ; Call KIM GETCH routine. Returns char in A. Changes Y.
+        STA T3                  ; Save A
+        PLA                     ; Restore Y from stack
+        TAY
+        LDA T3                  ; Restore A
+        RTS
 .endif
 
 ; Gets a hex digit (0-9,A-F). Echoes character as typed.
@@ -2269,12 +2276,12 @@ CLR1:   STA $D000,X
         PLA             ; restore A
         RTS
 .elseif .defined(KIM1)
-; Clear screen by printing 24 carriage returns.
+; Clear screen by printing 40 carriage returns.
         PHA             ; save A
         TXA             ; save X
         PHA
         LDA #CR
-        LDX #24
+        LDX #40
         JSR PrintChars
         PLA             ; restore X
         TAX

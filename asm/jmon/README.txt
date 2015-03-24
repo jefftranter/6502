@@ -227,5 +227,4 @@ handler code (three bytes starting at $0100).
 The Fill, Search, and ":" commands accept characters as well as hex
 values. Type ' to enter a single character.
 
-KIM-1 support is currently untested. You will need a system with at
-least 16K of RAM.
+Running on a KIM-1 requires a system with at least 16K of RAM.
