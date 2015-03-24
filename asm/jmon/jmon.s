@@ -161,7 +161,7 @@
 .elseif .defined(OSI)
   .org $0380
 .elseif .defined(KIM1)
-  .org $2380
+  .org $2080
 .endif
 
 ; JMON Entry point

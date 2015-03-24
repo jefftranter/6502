@@ -15,7 +15,7 @@ jmon.lod: jmon.bin
 
 # KIM-1 version binary
 jmon.ptp: jmon.bin
-	srec_cat jmon.bin -binary -offset 0x2380 -o jmon.ptp -MOS_Technologies
+	srec_cat jmon.bin -binary -offset 0x2080 -o jmon.ptp -MOS_Technologies
 
 send:	jmon.lod
 	ascii-xfr -s jmon.lod  >/dev/ttyUSB0
