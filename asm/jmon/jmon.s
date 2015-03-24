@@ -150,7 +150,7 @@
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
 .elseif .defined(KIM1)
-  KIMMON  = $1C00              ; KIM monitor entry point
+  KIMMON  = $1C00               ; KIM monitor entry point
 .endif
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 
@@ -202,6 +202,13 @@ MainLoop:
 
 ; Get first character of command
         JSR GetKey
+                                ; Convert to upper case so that lowercase commands are accepted
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'x' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
 
 ; Call option picker to run appropriate command
         JSR OPICK
