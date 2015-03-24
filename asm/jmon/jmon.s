@@ -129,6 +129,7 @@
   PASSES  = $3D                 ; Memory test - number of passes
   VECTOR  = $3E                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
   BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
+  T3      = $48                 ; Temp variable 3 (1 byte)
 
 ; Non page zero locations
 .if .defined(APPLE1)
@@ -160,7 +161,7 @@
 .elseif .defined(OSI)
   .org $0380
 .elseif .defined(KIM1)
-  .org $0280
+  .org $2380
 .endif
 
 ; JMON Entry point
@@ -686,10 +687,12 @@ Verify:
 
 ; Dump Memory
 
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1)
         BYTESPERLINE = 8
 .elseif .defined(OSI)
         BYTESPERLINE = 4
+.elseif .defined(KIM1)
+        BYTESPERLINE = 16
 .endif
 
 Dump:
@@ -1843,14 +1846,14 @@ PrintChar:
 .elseif .defined(KIM1)
 
         PHP             ; Save status
-        STA     T1      ; Save A
+        STA     T3      ; Save A
         TYA             ; Save Y
         PHA
-        LDA     T1      ; Get A back
+        LDA     T3      ; Get A back
         JSR     $1EA0   ; Call monitor OUTCH character out routine. Changes A and Y.
         PLA             ; Restore Y
         TAY
-        LDA     T1      ; Restore A
+        LDA     T3      ; Restore A
         PLP             ; Restore status
         RTS             ; Return.
 .endif
