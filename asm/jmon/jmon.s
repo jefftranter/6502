@@ -1618,12 +1618,7 @@ GetHex:
         CLC                     ; Normal return
         RTS
 @next1:
-        CMP #'a'                ; Is it 'a' or higher?
-        BMI @NotLower
-        CMP #'z'+1              ; Is it 'z' or lower?
-        BPL @NotLower
-        AND #%11011111          ; Convert to upper case by clearing bit 5
-@NotLower:
+        JSR ToUpper
         CMP #'0'
         BMI GetHex              ; Invalid, ignore and try again
         CMP #'9'+1
@@ -1890,12 +1885,7 @@ PrintChar:
 
         BIT OUPPER      ; Check value of option
         BPL @NotLower   ; Skip conversion if not set
-
-        CMP #'a'        ; Is it 'a' or higher?
-        BMI @NotLower
-        CMP #'z'+1      ; Is it 'z' or lower?
-        BPL @NotLower
-        AND #%11011111  ; Convert to upper case by clearing bit 5
+        JSR ToUpper
 @NotLower:
         STA DSP         ; Output character. Sets DA.
         PLA             ; Restore A
@@ -2102,12 +2092,7 @@ RequireStartNotAfterEnd:
 OPICK:
         TAY                     ; save A
 ; Convert to upper case so that lowercase commands are accepted
-        CMP #'a'                ; Is it 'a' or higher?
-        BMI @NotLower
-        CMP #'z'+1              ; Is it 'z' or lower?
-        BPL @NotLower
-        AND #%11011111          ; Convert to upper case by clearing bit 5
-@NotLower:
+        JSR ToUpper
         LDX #MATCHN             ; Get legal number of matches
 SCAN:   CMP MATCHFL,X           ; Search for a match
         BEQ GOTMCH              ; Found
@@ -2562,6 +2547,16 @@ WozMonPresent:
         LDA #1
         RTS
 .endif
+
+; Convert A to uppercase if it is a lowercase letter.
+ToUpper:
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'z' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
+        RTS
 
 ; Strings
 
