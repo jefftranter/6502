@@ -79,6 +79,7 @@
 ;                      Optimize JSR / RTS to JMP
 ; 1.1.0  30-Jan-2015   Added support for Superboard /// platform
 ; 1.2.0  22-Mar-2015   Added support for KIM-1 computer platform
+; 1.2.1  25-Mar-2015   All features now working on KIM-1 platform
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, OSI for Ohio Scientific
@@ -147,15 +148,17 @@
   MENU    = $9006               ; CFFA1 menu entry point
   ACI     = $C100               ; ACI (Apple Cassette Interface) firmware entry point
   ECHO    = 1                   ; Need to echo commands
+  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
   ECHO    = 1                   ; Need to echo commands
+  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .elseif .defined(KIM1)
   KIMMON  = $1C00               ; KIM monitor entry point
+  BRKVECTOR = $17FE             ; Break/interrupt vector (2 bytes
 ; Note: ECHO not defined because KIM-1 always echoes characters back.
 .endif
-  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 
 ; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
 .if .defined(APPLE1)
@@ -849,6 +852,11 @@ Fill:
 
 ; Do setup so we can support breakpoints
 BPSETUP:
+.if .defined(APPLE1) .or .defined(OSI)
+
+; On the Apple 1 and OSI platforms the BRK vector is in RAM and we
+; write a JMP instruction to our handler there.
+
         LDA BRKVECTOR           ; get address of BRK vector
         STA VECTOR              ; and save in page zero
         LDA BRKVECTOR+1
@@ -861,9 +869,22 @@ BPSETUP:
         LDA #<BRKHANDLER        ; handler address low byte
         INY
         STA (VECTOR),Y          ; write it after JMP
-        LDA #>BRKHANDLER        ; handler address low byte
+        LDA #>BRKHANDLER        ; handler address high byte
         INY
         STA (VECTOR),Y          ; write it after JMP
+
+.elseif .defined(KIM1)
+
+; On the KIM-1, the BRK vector is in ROM but the handler goes through
+; a vector in RAM at $17FE,$17FF.
+
+        LDA #<BRKHANDLER        ; handler address low byte
+        STA BRKVECTOR
+        CMP BRKVECTOR           ; if we don't read back what we wrote
+        BNE VNOTINRAM           ; ...then vector address is not writable (shouldn't happen, but...)
+        LDA #>BRKHANDLER        ; handler address high byte
+        STA BRKVECTOR+1
+.endif
         LDA #0                  ; Mark all breakpoints as cleared (BPA and BPD set to 0)
         LDX #0
         LDY #0
@@ -2562,9 +2583,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(KIM1)
-        .byte CR,"JMON monitor 1.2.0 by Jeff Tranter", CR, 0
+        .byte CR,"JMON monitor 1.2.1 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.2.0 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.2.1 by J. Tranter", CR, 0
 .endif
 
 PromptString:
