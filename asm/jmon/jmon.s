@@ -2171,7 +2171,7 @@ JMPFL:
 
 ; List of characters to accept. First byte is the length of the list.
 FilterChars:
-        .byte 22, "0123456789ABCDEF#(),XY"
+        .byte 30, "0123456789ABCDEFabcdef#(),XYxy"
 
 GetLine:
         LDX #0                  ; Initialize index into buffer

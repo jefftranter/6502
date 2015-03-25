@@ -118,6 +118,7 @@ GetOperands:
         CMP #1                        ; Is it 1?
         BNE TryImm
         LDA IN+1                      ; Get first char of operand
+        JSR ToUpper
         CMP #'A'                      ; Is it 'A'?
         BNE TryImm
         LDA #AM_ACCUMULATOR           ; Yes, is is accumulator mode
@@ -230,6 +231,7 @@ TryZeroPageX:
         CMP #','                      ; Is it a comma?
         BNE TryZeroPageY
         LDA IN+4                      ; Get fourth char of operand
+        JSR ToUpper
         CMP #'X'                      ; Is it an X?
         BNE TryZeroPageY
         LDA #AM_ZEROPAGE_X            ; Yes, this is zero page X
@@ -256,6 +258,7 @@ TryZeroPageY:
         CMP #','                      ; Is it a comma?
         BNE TryAbsoluteX
         LDA IN+4                      ; Get fourth char of operand
+        JSR ToUpper
         CMP #'Y'                      ; Is it an Y?
         BNE TryAbsoluteX
         LDA #AM_ZEROPAGE_Y            ; Yes, this is zero page Y
@@ -288,6 +291,7 @@ TryAbsoluteX:
         CMP #','
         BNE TryAbsoluteY
         LDA IN+6
+        JSR ToUpper
         CMP #'X'
         BNE TryAbsoluteY
         LDA #AM_ABSOLUTE_X
@@ -324,6 +328,7 @@ TryAbsoluteY:
         CMP #','
         BNE TryIndexedIndirect
         LDA IN+6
+        JSR ToUpper
         CMP #'Y'
         BNE TryIndexedIndirect
         LDA #AM_ABSOLUTE_Y
@@ -356,6 +361,7 @@ TryIndexedIndirect:
         CMP #','                      ; Is it a comma?
         BNE TryIndirectIndexed
         LDA IN+5                      ; Get fifth char of operand
+        JSR ToUpper
         CMP #'X'                      ; Is it an X?
         BNE TryIndirectIndexed
         LDA IN+6                      ; Get sixth char of operand
@@ -390,6 +396,7 @@ TryIndirectIndexed:
         CMP #','                      ; Is it a comma?
         BNE TryIndirect
         LDA IN+6                      ; Get sixth char of operand
+        JSR ToUpper
         CMP #'Y'                      ; Is it a Y?
         BNE TryIndirect
         LDA #AM_INDIRECT_INDEXED      ; Yes, this is indirect indexed
@@ -487,12 +494,13 @@ TryAbsIndInd:
         CMP #','                      ; Is it a ,?
         BNE InvalidOp
         LDA IN+7                      ; Get 7th char of operand
+        JSR ToUpper
         CMP #'X'                      ; Is it a X?
         BNE InvalidOp
         LDA IN+8                      ; Get 8th char of operand
         CMP #')'                      ; Is it a )?
         BNE InvalidOp
-        LDA #AM_ABSOLUTE_INDEXED_INDIRECT ; Yes, this is abolue indexed indirect
+        LDA #AM_ABSOLUTE_INDEXED_INDIRECT ; Yes, this is abolute indexed indirect
         STA AM                        ; Save it
 
         LDX IN+2                      ; Get operand characters
