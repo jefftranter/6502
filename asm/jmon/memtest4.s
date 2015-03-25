@@ -182,10 +182,12 @@ KeyPressed:
 KeyPressed:
         JMP        FINISHED
 .elseif .defined(KIM1)
-; Note that this checks for front panel key press, not TTY.
-        JSR        $1EFE              ; AK
-        BEQ        FINISHED           ; key pressed
-        JMP        REPEAT
+
+; Can't find any way to detect keypress on KIM-1 without blocking, so
+; just prompt user.
+        JSR        PromptToContinue
+        BCS        FINISHED           ; done
+        JMP        REPEAT             ; continue
 .endif
 
 ; OUTPUT THE ERROR INFO and STOP
