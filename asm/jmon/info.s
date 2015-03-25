@@ -332,14 +332,14 @@ MeasureCPUSpeed:
 
         LDA #'A'  ; Character to send
         LDX #0    ; Counter
-        JSR ECHO
-        JSR ECHO
-        JSR ECHO
+        JSR Echo
+        JSR Echo
+        JSR Echo
         TXA
         RTS
 
 ; Send character in A out serial port
-ECHO:
+Echo:
         PHA
         LDA #$10
 TXFULL: INX
