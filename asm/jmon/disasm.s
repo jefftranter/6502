@@ -36,20 +36,18 @@
 ; D65816 = 1
 
 ; Define this if you want 65C02 instructions to be disassembled.
-  D65C02 = 1
+; D65C02 = 1
 
 ; Define this if you want the WDC and Rockwell-specific bit instructions
 ; to be disassembled (BBR, BBS, RMB, SMB). This is mutually exclusive
 ; with the 65816 option.
-  ROCKWELL = 1
+; ROCKWELL = 1
 
 ; Uncomment next line to link with start address of $A000 for Multi I/0 Board EEPROM.
 ; .org $A000
 
-.ifdef ROCKWELL
-.ifdef D65816
+.if .defined(ROCKWELL) .and .defined(D65816)
 .error "The 65816 and ROCKWELL options are mutually exclusive."
-.endif
 .endif
 
 ; Instructions. Match indexes into entries in table MNEMONICS1/MENMONICS2.
