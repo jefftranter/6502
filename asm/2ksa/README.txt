@@ -6,9 +6,17 @@ tools. Because the code was modified it is not able to assemble
 itself, due to the different assembler syntax.
 
 The code can be conditionally assembled to produce the original KIM-1
-version as well as a port to the Apple 1/Replica 1.
+and SYM-1 versions as well as a port to the Apple 1/Replica 1.
 
-I have not tested it on a KIM-1 as I do not have one.
+Start addresses are as follows:
+
+Start    Link     Platform
+Address  Address
+-------  -------  --------
+$05B8    $0200    KIM-1
+$23B8    $2000    KIM-1
+$05B8    $0200    SYM-1
+$0300    $02E2    Replica 1
 
 Sample Session
 --------------
