@@ -78,7 +78,7 @@
 ;                      Check if RAM test spans two pages.
 ;                      Optimize JSR / RTS to JMP
 ; 1.1.0  30-Jan-2015   Added support for Superboard /// platform
-; 1.2.0  22-Mar-2015   Added support for KIM-1 computer platform (untested)
+; 1.2.0  22-Mar-2015   Added support for KIM-1 computer platform
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, OSI for Ohio Scientific
@@ -164,7 +164,7 @@
 .elseif .defined(OSI)
   .org $0380
 .elseif .defined(KIM1)
-  .org $2080
+  .org $2000
 .endif
 
 ; JMON Entry point
@@ -2110,11 +2110,11 @@ GOTMCH: INX                     ; Makes zero a miss
         TYA                     ; restore A
         RTS                     ; Jump via forced subroutine return
 
-; Matchn holds the number of matches.
+; Matchn holds the number of matches less one.
 ; Matchfl holds the legal characters.
 ; JMPFL holds the jump vectors (minus 1).
 
-        MATCHN = JMPFL-MATCHFL
+        MATCHN = JMPFL-MATCHFL-1
 
 MATCHFL:
 .if .defined(APPLE1)
