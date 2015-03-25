@@ -69,13 +69,20 @@ GetMnem:
         JSR GetKey              ; Get a character
         CMP #ESC                ; <Esc> key?
         BEQ EscPressed          ; If so, handle it
-
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'z' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
         CMP #'A'
         BMI GetMnem             ; Ignore if less than 'A'
         CMP #'Z'+1
         BPL GetMnem             ; or greater than 'Z'
         STA MNEM,X              ; Valid, so store it.
+.ifdef ECHO
         JSR PrintChar           ; Echo it
+.endif
         INX                     ; Advance index
         CPX #3                  ; Done?
         BNE GetMnem             ; If not, continue until we get 3 chars
@@ -761,11 +768,17 @@ OpNotFound:                     ; End of table reached
         LDA #0                  ; Set false return value
         RTS
 
-; Return if a character is a valid hex digit (0-9 or A-F).
+; Return if a character is a valid hex digit (0-9, A-F, or a-f).
 ; Pass character in A.
 ; Returns 1 in A if valid, 0 if not valid.
 ; Registers affected: A
 IsHexDigit:
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'z' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
         CMP #'0'
         BMI @Invalid
         CMP #'9'+1
@@ -805,6 +818,12 @@ TwoCharsToBin:
 ; e.g. A='A' Returns A=$0A
 ; Does not check that character is valid hex digit.
 CharToBin:
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'z' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
         CMP #'9'+1              ; Is it '0'-'9'?
         BMI @Digit              ; Branch if so
         SEC                     ; Otherwise must be 'A'-'F'

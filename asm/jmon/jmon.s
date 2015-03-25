@@ -146,11 +146,14 @@
   WOZMON  = $FF00               ; Woz monitor entry point
   MENU    = $9006               ; CFFA1 menu entry point
   ACI     = $C100               ; ACI (Apple Cassette Interface) firmware entry point
+  ECHO    = 1                   ; Need to echo commands
 .elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
+  ECHO    = 1                   ; Need to echo commands
 .elseif .defined(KIM1)
   KIMMON  = $1C00               ; KIM monitor entry point
+; Note: ECHO not defined because KIM-1 always echoes characters back.
 .endif
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 
@@ -215,7 +218,9 @@ Invalid:
 
 ; Display help
 Help:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         LDX #<WelcomeMessage
         LDY #>WelcomeMessage
         JSR PrintString
@@ -269,7 +274,9 @@ Monitor:
 
 ; Go to Mini Assembler
 Assemble:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         JSR PrintSpace          ; print a space
         JSR GetAddress          ; Get start address
         STX ADDR                ; Save it
@@ -295,7 +302,9 @@ NoBasic:
 ; B <n> 0000             <- remove breakpoint <n>
 ; <n> is 0 through 3.
 Breakpoint:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         JSR PrintSpace          ; print space
 IGN:    JSR GetKey              ; get breakpoint number
         CMP #'?'                ; ? lists breakpoints
@@ -310,7 +319,9 @@ Num:    CMP #'0'                ; is it 0 through 3?
         BMI VALIDBP
         JMP IGN
 VALIDBP:
+.ifdef ECHO
         JSR PrintChar           ; echo number
+.endif
         SEC
         SBC #'0'                ; convert to number
         PHA                     ; save it
@@ -325,7 +336,9 @@ LISTB:  JSR PrintCR
 
 ; Hex to decimal conversion command
 Hex:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         JSR PrintSpace          ; print space
         JSR GetAddress          ; prompt for address
         STX BIN                 ; store address
@@ -370,7 +383,9 @@ Hex:
 
 ; Run at address
 Go:
+.ifdef ECHO
         JSR PrintChar   ; echo command
+.endif
         JSR PrintSpace  ; print space
         LDA #1
         STA RETOK
@@ -418,7 +433,9 @@ RetPressed:
 
 ; Copy Memory
 Copy:
+.ifdef ECHO
         JSR PrintChar   ; echo command
+.endif
         JSR PrintSpace  ; print space
         JSR GetAddress  ; prompt for start address
         STX SL          ; store address
@@ -524,7 +541,9 @@ Copy:
 
 ; Search Memory
 Search:
+.ifdef ECHO
         JSR PrintChar   ; echo command
+.endif
         JSR PrintSpace
         JSR GetAddress  ; get start address
         STX SL
@@ -611,7 +630,9 @@ Search:
 
 ; Verify Memory
 Verify:
+.ifdef ECHO
         JSR PrintChar   ; echo command
+.endif
         JSR PrintSpace  ; print space
         JSR GetAddress  ; prompt for start address
         STX SL          ; store address
@@ -697,7 +718,9 @@ Verify:
 
 Dump:
 ; echo 'D' and space, wait for start address
+.ifdef ECHO
         JSR PrintChar
+.endif
         JSR PrintSpace
         JSR GetAddress          ; Get start address
         STX SL
@@ -722,7 +745,9 @@ Dump:
 ; Unassemble Memory
 Unassemble:
 ; echo 'U' and space, wait for start address
+.ifdef ECHO
         JSR PrintChar
+.endif
         JSR PrintSpace
         JSR GetAddress          ; Get start address
         STX ADDR
@@ -741,7 +766,9 @@ Unassemble:
 
 ; Test Memory
 Test:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         JSR PrintSpace
         JSR GetAddress          ; get start address
         STX START
@@ -770,7 +797,9 @@ Test:
 
 ; Memory fill command
 Fill:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         JSR PrintSpace
         JSR GetAddress          ; get start address
         STX SL
@@ -1044,7 +1073,9 @@ RESTORE:
 ; eg:
 ; : A000 12 34 56 78
 Memory:
+.ifdef ECHO
         JSR PrintChar           ; Echo command
+.endif
         JSR PrintCR
         JSR GetAddress          ; Get start address (ESC will exit)
         STX SL
@@ -1097,7 +1128,9 @@ nocarry:
 ; <Esc> cancels at any time.
 
 Registers:
+.ifdef ECHO
         JSR PrintChar           ; Echo command
+.endif
         JSR PrintCR
 
         JSR PrintRegisters      ; Print current values
@@ -1265,12 +1298,16 @@ Options:
         JMP PrintCR             ; new line
 
 @Yes:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         LDA #$FF
         STA OUPPER
         BNE @Next
 @No:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         LDA #0
         STA OUPPER
 @Next:
@@ -1303,12 +1340,16 @@ Options:
         BEQ @No1
         BNE @Retry
 @Yes1:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         LDA #$FF
         STA OHIGHASCII
         BNE @Next1
 @No1:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         LDA #0
         STA OHIGHASCII
 @Next1:
@@ -1330,7 +1371,9 @@ Options:
         BEQ @Okay
         BNE @Retry2
 @Okay:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         AND #%00000011          ; Convert ASCII number to binary number
         STA OCPU
 .ifndef APPLE1
@@ -1344,7 +1387,9 @@ Options:
 ; = 1234 + 0077 = 12AB
 ; = FF00 - 0002 = FEFE
 Math:
+.ifdef ECHO
         JSR PrintChar           ; Echo command
+.endif
         JSR PrintSpace
         JSR GetAddress          ; Get first number
         STX SL
@@ -1359,7 +1404,9 @@ Math:
         JMP @PlusOrMinus        ; If not, try again
 @Okay:
         STA OP
+.ifdef ECHO
         JSR PrintChar
+.endif
         JSR PrintSpace
         JSR GetAddress          ; Get second number
         STX EL
@@ -1401,7 +1448,9 @@ Math:
 ; e.g.
 ; K C100 C1FF 1234
 Checksum:
+.ifdef ECHO
         JSR PrintChar           ; echo command
+.endif
         JSR PrintSpace          ; print space
         JSR GetAddress          ; prompt for start address
         STX SL                  ; store address
@@ -1545,8 +1594,10 @@ GetHex:
         BNE @next1
         LDA CHAROK              ; Are we accepting character input?
         BEQ GetHex              ; If not, ignore character
+.ifdef ECHO
         LDA #'''                ; Echo a quote
         JSR PrintChar
+.endif
         LDA #1                  ; Set flag that we are in character input mode
         STA CHARMODE
         JSR GetKey              ; Get a character
@@ -1555,17 +1606,21 @@ GetHex:
         BPL @NoConv
         ORA #%10000000
 @NoConv:
+.ifdef ECHO
         JSR PrintChar           ; Echo it
+.endif
+.ifdef ECHO
         PHA                     ; Save the character
         LDA #'''                ; Echo a quote
         JSR PrintChar
         PLA                     ; Restore the character
+.endif
         CLC                     ; Normal return
         RTS
 @next1:
         CMP #'a'                ; Is it 'a' or higher?
         BMI @NotLower
-        CMP #'z'+1              ; Is it 'x' or lower?
+        CMP #'z'+1              ; Is it 'z' or lower?
         BPL @NotLower
         AND #%11011111          ; Convert to upper case by clearing bit 5
 @NotLower:
@@ -1579,13 +1634,17 @@ GetHex:
         BMI @Letter
         JMP GetHex              ; Invalid, ignore and try again
 @Digit:
+.ifdef ECHO
         JSR PrintChar           ; echo
+.endif
         SEC
         SBC #'0'                ; convert to value
         CLC
         RTS
 @Letter:
+.ifdef ECHO
         JSR PrintChar           ; echo
+.endif
         SEC
         SBC #'A'-10             ; convert to value
         CLC
@@ -1834,7 +1893,7 @@ PrintChar:
 
         CMP #'a'        ; Is it 'a' or higher?
         BMI @NotLower
-        CMP #'z'+1      ; Is it 'x' or lower?
+        CMP #'z'+1      ; Is it 'z' or lower?
         BPL @NotLower
         AND #%11011111  ; Convert to upper case by clearing bit 5
 @NotLower:
@@ -2045,7 +2104,7 @@ OPICK:
 ; Convert to upper case so that lowercase commands are accepted
         CMP #'a'                ; Is it 'a' or higher?
         BMI @NotLower
-        CMP #'z'+1              ; Is it 'x' or lower?
+        CMP #'z'+1              ; Is it 'z' or lower?
         BPL @NotLower
         AND #%11011111          ; Convert to upper case by clearing bit 5
 @NotLower:
@@ -2150,7 +2209,9 @@ Filter:
         BEQ loop                ; End reached, ignore the character
 
 CharOkay:
+.ifdef ECHO
         JSR PrintChar           ; Echo the key pressed
+.endif
         STA IN+1,X              ; Store character in buffer (skip first length byte)
         INX                     ; Advance index into buffer
         CPX #$7E                ; Buffer full?
