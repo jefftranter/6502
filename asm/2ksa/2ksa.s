@@ -5,13 +5,23 @@
 ; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
 ;
 
-; Uncomment one of the following lines or define on the assembker
+; Uncomment one of the following lines or define on the assembler
 ; command line, to define whether to build for KIM-1, SYM-1 or Apple
 ; 1/Replica 1.
 
 ;KIM1 = 1
 ;SYM1 = 1
 ;REPLICA1 = 1
+
+.if .defined(REPLICA1)
+    .out "Building for Apple 1/Replica 1"
+.elseif .defined(KIM1)
+    .out "Building for KIM-1"
+.elseif .defined(SYM1)
+    .out "Building for SYM-1"
+.else
+    .error "Platform not defined"
+.endif
 
 ; Uncoment if you want the address assignment bug fix. See P.57 of manual
 ADDRESSASSIGNBUG = 1
