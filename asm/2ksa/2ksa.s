@@ -5,10 +5,13 @@
 ; Apple 1/Replica 1 port by Jeff Tranter <tranter@pobox.com>
 ;
 
-; Uncomment one of the following lines to define whether to build for KIM-1, SYM-1 or Apple 1/Replica 1.
+; Uncomment one of the following lines or define on the assembker
+; command line, to define whether to build for KIM-1, SYM-1 or Apple
+; 1/Replica 1.
+
 ;KIM1 = 1
 ;SYM1 = 1
-REPLICA1 = 1
+;REPLICA1 = 1
 
 ; Uncoment if you want the address assignment bug fix. See P.57 of manual
 ADDRESSASSIGNBUG = 1
@@ -96,6 +99,9 @@ WOZMON   = $FF00
 
 ; Note: Program must be linked starting at a page boundary.
 
+.ifdef STARTADDRESS
+       .org STARTADDRESS
+.else
         .ifdef KIM1
 ; The original KIM-1 version links at $0200 or alternatively at $2000
         .org $0200
@@ -109,6 +115,7 @@ ORG:
         .else
         .error "Must define KIM1, SYM1, or REPLICA1"
         .endif
+.endif
 
         .ifdef REPLICA1
 
