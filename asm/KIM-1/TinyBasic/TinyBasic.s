@@ -1,6 +1,7 @@
          GETCH    = $1E5A           ; KIM-1 character input routine
          OUTCH    = $1EA0           ; KIM-1 character output routine
          KTTY     = $1740           ; KIM-1 TTY port
+         FREERAM   = $2000          ; Start of free RAM for program storage
 
          .org     $0100
 
@@ -108,13 +109,13 @@ LBL002   .word  ILTBL                ; Address of IL program table
 ;
 ; Begin Cold Start
 ;
-; Load start of free ram ($0200) into locations $20 and $21
+; Load start of free RAM into locations $20 and $21
 ; and initialize the address for end of free ram ($22 & $23)
 ;
-COLD_S   lda #$00                   ; Load accumulator with $00
+COLD_S   lda #<FREERAM              ; Load accumulator with $00
          sta $20                    ; Store $00 in $20
          sta $22                    ; Store $00 in $22
-         lda #$02                   ; Load accumulator with $02
+         lda #>FREERAM              ; Load accumulator with $02
          sta $21                    ; Store $02 in $21
          sta $23                    ; Store $02 in $23
 ;

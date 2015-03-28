@@ -1,3 +1,5 @@
+all:	TinyBasic.ptp
+
 TinyBasic.ptp: TinyBasic.bin
 	srec_cat TinyBasic.bin -binary -offset 0x0100 -o TinyBasic.ptp -MOS_Technologies
 
