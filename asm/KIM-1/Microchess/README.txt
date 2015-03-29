@@ -39,10 +39,10 @@ Computer's Move Display:
 
 P - piece (see below)  FF - from square  TT - to square
 
-0 - King        3 - King Bishop   8 - K R Pawn  C - K B Pawn     
+0 - King        4 - King Bishop   8 - K R Pawn  C - K B Pawn     
 1 - Queen       5 - Queen Bishop  9 - Q R Pawn  D - Q B Pawn
 2 - King Rook   6 - King Knight   A - K N Pawn  E - Q Pawn
-3 - Queen Rook  7 - Queen Knight  B - Q N Pawn  F - L Pawn
+3 - Queen Rook  7 - Queen Knight  B - Q N Pawn  F - K Pawn
 
 Entering Player's Move: FF (from square) TT (to square)
 
