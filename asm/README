@@ -13,7 +13,9 @@ cc65 - Patches for the CC65 assembler/compiler tools to add support for the Appl
 disasm -  6502/65C02 disassembler (see jmon for a newer version).
 ehbasic - Port of Enhanced BASIC 2.22 to the Replica 1.
 jmon - A machine language monitor program for the Replica 1.
+KIM-1 - programs for the MOS Technology KIM-1 microcomputer.
 msbasic - Patches for Microsoft BASIC for the 6502 to run on the Replica 1.
+OSI - programs for the Ohio Scientific Superboard II and compatibles.
 sweet16 - Port of the SWEET16 interpreter to the Replica 1 and CC65 assembler.
 tinybasic - Port of Tiny BASIC to the Replica 1.
 wozaci - Source code for the Cassette Interface the Apple 1.
