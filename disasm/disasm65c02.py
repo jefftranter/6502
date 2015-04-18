@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 #
-# Disassembler for 6502 microprocessor.
+# Disassembler for 65C02 microprocessor.
 # Copyright (c) 2013-2015 by Jeff Tranter <tranter@pobox.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,8 @@ relative    = 9  # e.g. bne $1234
 zeroPage    = 10 # e.g. lda #12
 zeroPageX   = 11 # e.g. lda $12,x
 zeroPageY   = 12 # e.g. lda $12,y
+indirectZeroPage = 13 # e.g. lda ($12)
+absoluteIndexedIndirect = 14 # e.g. jmp ($1234,x)
 
 # Lookup table - given addressing mode, returns length of instruction in bytes.
 lengthTable = [
@@ -52,7 +54,9 @@ lengthTable = [
   2, # 9 - relative
   2, # 10 - zero page
   2, # 11 - zero page X
-  2  # 12 - zero page Y
+  2, # 12 - zero page Y
+  2, # 13 - indirect zero page
+  3  # 14 - absolute indexed indirect
 ]
 
 # Lookup table - given opcode byte as index, return mnemonic of instruction and addressing mode.
@@ -77,7 +81,7 @@ opcodeTable = [
 
   [ "bpl", relative ],    # 10
   [ "ora", indirectY ],   # 11
-  [ "???", implicit ],    # 12
+  [ "ora", indirectZeroPage ],    # 12
   [ "???", implicit ],    # 13
   [ "???", implicit ],    # 14
   [ "ora", zeroPageX ],   # 15
@@ -111,7 +115,7 @@ opcodeTable = [
 
   [ "bmi", relative ],    # 30
   [ "and", indirectY ],   # 31
-  [ "???", implicit ],    # 32
+  [ "and", indirectZeroPage ],    # 32
   [ "???", implicit ],    # 33
   [ "???", implicit ],    # 34
   [ "and", zeroPageX ],   # 35
@@ -145,7 +149,7 @@ opcodeTable = [
 
   [ "bvc", relative ],    # 50
   [ "eor", indirectY ],   # 51
-  [ "???", implicit ],    # 52
+  [ "eor", indirectZeroPage ],    # 52
   [ "???", implicit ],    # 53
   [ "???", implicit ],    # 54
   [ "eor", zeroPageX ],   # 55
@@ -179,7 +183,7 @@ opcodeTable = [
 
   [ "bvs", relative ],    # 70
   [ "adc", indirectY ],   # 71
-  [ "???", implicit ],    # 72
+  [ "adc", indirectZeroPage ],    # 72
   [ "???", implicit ],    # 73
   [ "???", implicit ],    # 74
   [ "adc", zeroPageX ],   # 75
@@ -213,7 +217,7 @@ opcodeTable = [
 
   [ "bcc", relative ],    # 90
   [ "sta", indirectY ],   # 91
-  [ "???", implicit ],    # 92
+  [ "sta", indirectZeroPage ],    # 92
   [ "???", implicit ],    # 93
   [ "sty", zeroPageX ],   # 94
   [ "sta", zeroPageX ],   # 95
@@ -247,7 +251,7 @@ opcodeTable = [
 
   [ "bcs", relative ],    # B0
   [ "lda", indirectY ],   # B1
-  [ "???", implicit ],    # B2
+  [ "lda", indirectZeroPage ],    # B2
   [ "???", implicit ],    # B3
   [ "ldy", zeroPageX ],   # B4
   [ "lda", zeroPageX ],   # B5
@@ -281,7 +285,7 @@ opcodeTable = [
 
   [ "bne", relative ],    # D0
   [ "cmp", indirectY ],   # D1
-  [ "???", implicit ],    # D2
+  [ "cmp", indirectZeroPage ],    # D2
   [ "???", implicit ],    # D3
   [ "???", implicit ],    # D4
   [ "cmp", zeroPageX ],   # D5
@@ -315,7 +319,7 @@ opcodeTable = [
 
   [ "beq", relative ],    # F0
   [ "sbc", indirectY ],   # F1
-  [ "???", implicit ],    # F2
+  [ "sbc", indirectZeroPage ],    # F2
   [ "???", implicit ],    # F3
   [ "???", implicit ],    # F4
   [ "sbc", zeroPageX ],   # F5
