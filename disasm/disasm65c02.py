@@ -616,13 +616,18 @@ while True:
                 line += "    (%s%s,%s)" % (formatByte(op2), formatByte(op1), case("x"))
 
         elif (mode == zeroPageRelative):
-            # TODO: Show destination address rather than relative offset.
-            if args.format == 1:
-                line += "   $%s,$%s" % (formatByte(op1), formatByte(op2))
-            elif args.format == 2:
-                line += "    %s%s,%s%s" % (formatByte(op1), case("h"), formatByte(op2), case("h"))
+            if (op2 < 128):
+                dest = address + op2 + 3
             else:
-                line += "    %s,%s" % (formatByte(op1), formatByte(op2))
+                dest = address - (256 - op2) + 3
+            if (dest < 0):
+                dest = 65536 + dest
+            if args.format == 1:
+                line += "   $%s,$%s" % (formatByte(op1), formatAddress(dest))
+            elif args.format == 2:
+                line += "    %s%s,%s%s" % (formatByte(op1), case("h"), formatAddress(dest), case("h"))
+            else:
+                line += "    %s,%s" % (formatByte(op1), formatAddress(dest))
 
         else:
             print("Internal error: unknown addressing mode:", mode, file=sys.stderr)
