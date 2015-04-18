@@ -471,7 +471,7 @@ while True:
             line += " "
 
         # Special check for invalid op code.
-        if (mode == implicit and mnem == "???" and not args.invalid):
+        if (mnem == "???" and not args.invalid):
             if isprint(chr(op)):
                 line += "%s  '%c'" % (case(".byte"), op)
             else:
@@ -484,7 +484,10 @@ while True:
         else:
             line += mnem
 
-        if (mode == absolute):
+        if (mode == implicit):
+            pass
+
+        elif (mode == absolute):
             if args.format == 1:
                 line += "    $%s%s" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
@@ -583,6 +586,10 @@ while True:
                 line += "    %s%s,%s" % (formatByte(op1), case("h"), case("y"))
             else:
                 line += "    %s,%s" % (formatByte(op1), case("y"))
+
+        else:
+            print("Internal error: unknown addressing mode:", mode, file=sys.stderr)
+            sys.exit(1);
 
         # Update address
         address += n

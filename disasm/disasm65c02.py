@@ -39,6 +39,7 @@ zeroPageX   = 11 # e.g. lda $12,x
 zeroPageY   = 12 # e.g. lda $12,y
 indirectZeroPage = 13 # e.g. lda ($12)
 absoluteIndexedIndirect = 14 # e.g. jmp ($1234,x)
+zeroPageRelative = 15 # e.g. bbs1 $12, $3456
 
 # Lookup table - given addressing mode, returns length of instruction in bytes.
 lengthTable = [
@@ -56,7 +57,8 @@ lengthTable = [
   2, # 11 - zero page X
   2, # 12 - zero page Y
   2, # 13 - indirect zero page
-  3  # 14 - absolute indexed indirect
+  3, # 14 - absolute indexed indirect
+  3  # 15 - zero page relative
 ]
 
 # Lookup table - given opcode byte as index, return mnemonic of instruction and addressing mode.
@@ -66,35 +68,35 @@ opcodeTable = [
   [ "ora", indirectX ],   # 01
   [ "???", implicit ],    # 02
   [ "???", implicit ],    # 03
-  [ "???", implicit ],    # 04
+  [ "tsb", zeroPage ],    # 04
   [ "ora", zeroPage ],    # 05
   [ "asl", zeroPage ],    # 06
-  [ "???", implicit ],    # 07
+  [ "rmb0", zeroPage ],   # 07
   [ "php", implicit ],    # 08
   [ "ora", immediate ],   # 09
   [ "asl", accumulator ], # 0A
   [ "???", implicit ],    # 0B
-  [ "???", implicit ],    # 0C
+  [ "tsb", absolute ],    # 0C
   [ "ora", absolute ],    # 0D
   [ "asl", absolute ],    # 0E
-  [ "???", implicit ],    # 0F
+  [ "bbr0", zeroPageRelative ], # 0F
 
   [ "bpl", relative ],    # 10
   [ "ora", indirectY ],   # 11
-  [ "ora", indirectZeroPage ],    # 12
+  [ "ora", indirectZeroPage ], # 12
   [ "???", implicit ],    # 13
-  [ "???", implicit ],    # 14
+  [ "trb", zeroPage ],    # 14
   [ "ora", zeroPageX ],   # 15
   [ "asl", zeroPageX ],   # 16
-  [ "???", implicit ],    # 17
+  [ "rmb1", zeroPage ],   # 17
   [ "clc", implicit ],    # 18
   [ "ora", absoluteY ],   # 19
-  [ "???", implicit ],    # 1A
+  [ "inc", accumulator ], # 1A
   [ "???", implicit ],    # 1B
-  [ "???", implicit ],    # 1C
+  [ "trb", absolute ],    # 1C
   [ "ora", absoluteX ],   # 1D
   [ "asl", absoluteX],    # 1E
-  [ "???", implicit ],    # 1F
+  [ "bbr1", zeroPageRelative ], # 1F
 
   [ "jsr", absolute ],    # 20
   [ "and", indirectX ],   # 21
@@ -103,7 +105,7 @@ opcodeTable = [
   [ "bit", zeroPage ],    # 24
   [ "and", zeroPage ],    # 25
   [ "rol", zeroPage ],    # 26
-  [ "???", implicit ],    # 27
+  [ "rmb2", zeroPage ],   # 27
   [ "plp", implicit ],    # 28
   [ "and", immediate ],   # 29
   [ "rol", accumulator ], # 2A
@@ -111,24 +113,24 @@ opcodeTable = [
   [ "bit", absolute ],    # 2C
   [ "and", absolute ],    # 2D
   [ "rol", absolute ],    # 2E
-  [ "???", implicit ],    # 2F
+  [ "bbr2", zeroPageRelative ], # 2F
 
   [ "bmi", relative ],    # 30
   [ "and", indirectY ],   # 31
-  [ "and", indirectZeroPage ],    # 32
+  [ "and", indirectZeroPage ], # 32
   [ "???", implicit ],    # 33
-  [ "???", implicit ],    # 34
+  [ "bit", zeroPageX ],   # 34
   [ "and", zeroPageX ],   # 35
   [ "rol", zeroPageX ],   # 36
-  [ "???", implicit ],    # 37
+  [ "rmb3", zeroPage ],   # 37
   [ "sec", implicit ],    # 38
   [ "and", absoluteY ],   # 39
-  [ "???", implicit ],    # 3A
+  [ "dec", accumulator ], # 3A
   [ "???", implicit ],    # 3B
-  [ "???", implicit ],    # 3C
+  [ "bit", absoluteX ],   # 3C
   [ "and", absoluteX ],   # 3D
   [ "rol", absoluteX ],   # 3E
-  [ "???", implicit ],    # 3F
+  [ "bbr3", zeroPageRelative ], # 3F
 
   [ "rti", implicit ],    # 40
   [ "eor", indirectX ],   # 41
@@ -137,7 +139,7 @@ opcodeTable = [
   [ "???", implicit ],    # 44
   [ "eor", zeroPage ],    # 45
   [ "lsr", zeroPage ],    # 46
-  [ "???", implicit ],    # 47
+  [ "rmb4", zeroPage ],   # 47
   [ "pha", implicit ],    # 48
   [ "eor", immediate ],   # 49
   [ "lsr", accumulator ], # 4A
@@ -145,33 +147,33 @@ opcodeTable = [
   [ "jmp", absolute ],    # 4C
   [ "eor", absolute ],    # 4D
   [ "lsr", absolute ],    # 4E
-  [ "???", implicit ],    # 4F
+  [ "bbr4", zeroPageRelative ], # 4F
 
   [ "bvc", relative ],    # 50
   [ "eor", indirectY ],   # 51
-  [ "eor", indirectZeroPage ],    # 52
+  [ "eor", indirectZeroPage ], # 52
   [ "???", implicit ],    # 53
   [ "???", implicit ],    # 54
   [ "eor", zeroPageX ],   # 55
   [ "lsr", zeroPageX ],   # 56
-  [ "???", implicit ],    # 57
+  [ "rmb5", zeroPage ],   # 57
   [ "cli", implicit ],    # 58
   [ "eor", absoluteY ],   # 59
-  [ "???", implicit ],    # 5A
+  [ "phy", implicit ],    # 5A
   [ "???", implicit ],    # 5B
   [ "???", implicit ],    # 5C
   [ "eor", absoluteX ],   # 5D
   [ "lsr", absoluteX ],   # 5E
-  [ "???", implicit ],    # 5F
+  [ "bbr5", zeroPageRelative ], # 5F
 
   [ "rts", implicit ],    # 60
   [ "adc", indirectX ],   # 61
   [ "???", implicit ],    # 62
   [ "???", implicit ],    # 63
-  [ "???", implicit ],    # 64
+  [ "stz", zeroPage ],    # 64
   [ "adc", zeroPage ],    # 65
   [ "ror", zeroPage ],    # 66
-  [ "???", implicit ],    # 67
+  [ "rmb6", zeroPage ],   # 67
   [ "pla", implicit ],    # 68
   [ "adc", immediate ],   # 69
   [ "ror", accumulator ], # 6A
@@ -179,58 +181,58 @@ opcodeTable = [
   [ "jmp", indirect ],    # 6C
   [ "adc", absolute ],    # 6D
   [ "ror", absolute ],    # 6E
-  [ "???", implicit ],    # 6F
+  [ "bbr6", zeroPageRelative ], # 6F
 
   [ "bvs", relative ],    # 70
   [ "adc", indirectY ],   # 71
-  [ "adc", indirectZeroPage ],    # 72
+  [ "adc", indirectZeroPage ], # 72
   [ "???", implicit ],    # 73
-  [ "???", implicit ],    # 74
+  [ "stz", zeroPageX ],   # 74
   [ "adc", zeroPageX ],   # 75
   [ "ror", zeroPageX ],   # 76
-  [ "???", implicit ],    # 77
+  [ "rmb7", zeroPage ],   # 77
   [ "sei", implicit ],    # 78
   [ "adc", absoluteY ],   # 79
-  [ "???", implicit ],    # 7A
+  [ "ply", implicit ],    # 7A
   [ "???", implicit ],    # 7B
-  [ "???", implicit ],    # 7C
+  [ "jmp", absoluteIndexedIndirect ], # 7C
   [ "adc", absoluteX ],   # 7D
   [ "ror", absoluteX ],   # 7E
-  [ "???", implicit ],    # 7F
+  [ "bbr7", zeroPageRelative ], # 7F
 
-  [ "???", implicit ],    # 80
+  [ "bra", relative ],    # 80
   [ "sta", indirectX ],   # 81
   [ "???", implicit ],    # 82
   [ "???", implicit ],    # 83
   [ "sty", zeroPage ],    # 84
   [ "sta", zeroPage ],    # 85
   [ "stx", zeroPage ],    # 86
-  [ "???", implicit ],    # 87
+  [ "smb0", zeroPage ],   # 87
   [ "dey", implicit ],    # 88
-  [ "???", implicit ],    # 89
+  [ "bit", immediate ],   # 89
   [ "txa", implicit ],    # 8A
   [ "???", implicit ],    # 8B
   [ "sty", absolute ],    # 8C
   [ "sta", absolute ],    # 8D
   [ "stx", absolute ],    # 8E
-  [ "???", implicit ],    # 8F
+  [ "bbs0", zeroPageRelative ], # 8F
 
   [ "bcc", relative ],    # 90
   [ "sta", indirectY ],   # 91
-  [ "sta", indirectZeroPage ],    # 92
+  [ "sta", indirectZeroPage ], # 92
   [ "???", implicit ],    # 93
   [ "sty", zeroPageX ],   # 94
   [ "sta", zeroPageX ],   # 95
   [ "stx", zeroPageY ],   # 96
-  [ "???", implicit ],    # 97
+  [ "smb1", zeroPage ],   # 97
   [ "tya", implicit ],    # 98
   [ "sta", absoluteY ],   # 99
   [ "txs", implicit ],    # 9A
   [ "???", implicit ],    # 9B
-  [ "???", implicit ],    # 9C
+  [ "stz", absolute ],    # 9C
   [ "sta", absoluteX ],   # 9D
-  [ "???", implicit ],    # 9E
-  [ "???", implicit ],    # 9F
+  [ "stz", absoluteX ],   # 9E
+  [ "bbs1", zeroPageRelative ], # 9F
 
   [ "ldy", immediate ],   # A0
   [ "lda", indirectX ],   # A1
@@ -239,7 +241,7 @@ opcodeTable = [
   [ "ldy", zeroPage ],    # A4
   [ "lda", zeroPage ],    # A5
   [ "ldx", zeroPage ],    # A6
-  [ "???", implicit ],    # A7
+  [ "smb2", zeroPage ],   # A7
   [ "tay", implicit ],    # A8
   [ "lda", immediate ],   # A9
   [ "tax", implicit ],    # AA
@@ -247,16 +249,16 @@ opcodeTable = [
   [ "ldy", absolute ],    # AC
   [ "lda", absolute ],    # AD
   [ "ldx", absolute ],    # AE
-  [ "???", implicit ],    # AF
+  [ "bbs2", zeroPageRelative ], # AF
 
   [ "bcs", relative ],    # B0
   [ "lda", indirectY ],   # B1
-  [ "lda", indirectZeroPage ],    # B2
+  [ "lda", indirectZeroPage ], # B2
   [ "???", implicit ],    # B3
   [ "ldy", zeroPageX ],   # B4
   [ "lda", zeroPageX ],   # B5
   [ "ldx", zeroPageY ],   # B6
-  [ "???", implicit ],    # B7
+  [ "smb3", zeroPage ],   # B7
   [ "clv", implicit ],    # B8
   [ "lda", absoluteY ],   # B9
   [ "tsx", implicit ],    # BA
@@ -264,7 +266,7 @@ opcodeTable = [
   [ "ldy", absoluteX ],   # BC
   [ "lda", absoluteX ],   # BD
   [ "ldx", absoluteY],    # BE
-  [ "???", implicit ],    # BF
+  [ "bbs3", zeroPageRelative ], # BF
 
   [ "cpy", immediate ],   # C0
   [ "cmp", indirectX ],   # C1
@@ -273,32 +275,32 @@ opcodeTable = [
   [ "cpy", zeroPage ],    # C4
   [ "cmp", zeroPage ],    # C5
   [ "dec", zeroPage ],    # C6
-  [ "???", implicit ],    # C7
+  [ "smb4", zeroPage ],   # C7
   [ "iny", implicit ],    # C8
   [ "cmp", immediate ],   # C9
   [ "dex", implicit ],    # CA
-  [ "???", implicit ],    # CB
+  [ "wai", implicit ],    # CB
   [ "cpy", absolute ],    # CC
   [ "cmp", absolute ],    # CD
   [ "dec", absolute ],    # CE
-  [ "???", implicit ],    # CF
+  [ "bbs4", zeroPageRelative ], # CF
 
   [ "bne", relative ],    # D0
   [ "cmp", indirectY ],   # D1
-  [ "cmp", indirectZeroPage ],    # D2
+  [ "cmp", indirectZeroPage ], # D2
   [ "???", implicit ],    # D3
   [ "???", implicit ],    # D4
   [ "cmp", zeroPageX ],   # D5
   [ "dec", zeroPageX ],   # D6
-  [ "???", implicit ],    # D7
+  [ "smb5", zeroPage ],   # D7
   [ "cld", implicit ],    # D8
   [ "cmp", absoluteY ],   # D9
-  [ "???", implicit ],    # DA
-  [ "???", implicit ],    # DB
+  [ "phx", implicit ],    # DA
+  [ "stp", implicit ],    # DB
   [ "???", implicit ],    # DC
   [ "cmp", absoluteX ],   # DD
   [ "dec", absoluteX ],   # DE
-  [ "???", implicit ],    # DF
+  [ "bbs5", zeroPageRelative ], # DF
 
   [ "cpx", immediate ],   # E0
   [ "sbc", indirectX ],   # E1
@@ -307,7 +309,7 @@ opcodeTable = [
   [ "cpx", zeroPage ],    # E4
   [ "sbc", zeroPage ],    # E5
   [ "inc", zeroPage ],    # E6
-  [ "???", implicit ],    # E7
+  [ "smb6", zeroPage ],   # E7
   [ "inx", implicit ],    # E8
   [ "sbc", immediate ],   # E9
   [ "nop", implicit ],    # EA
@@ -315,24 +317,24 @@ opcodeTable = [
   [ "cpx", absolute ],    # EC
   [ "sbc", absolute ],    # ED
   [ "inc", absolute ],    # EE
-  [ "???", implicit ],    # EF
+  [ "bbs6", zeroPageRelative ], # EF
 
   [ "beq", relative ],    # F0
   [ "sbc", indirectY ],   # F1
-  [ "sbc", indirectZeroPage ],    # F2
+  [ "sbc", indirectZeroPage ], # F2
   [ "???", implicit ],    # F3
   [ "???", implicit ],    # F4
   [ "sbc", zeroPageX ],   # F5
   [ "inc", zeroPageX ],   # F6
-  [ "???", implicit ],    # F7
+  [ "smb7", zeroPage ],   # F7
   [ "sed", implicit ],    # F8
   [ "sbc", absoluteY ],   # F9
-  [ "???", implicit ],    # FA
+  [ "plx", implicit ],    # FA
   [ "???", implicit ],    # FB
   [ "???", implicit ],    # FC
   [ "sbc", absoluteX ],   # FD
   [ "inc", absoluteX ],   # FE
-  [ "???", implicit ],    # FF
+  [ "bbs7", zeroPageRelative ], # FF
 
 ]
 
@@ -475,7 +477,7 @@ while True:
             line += " "
 
         # Special check for invalid op code.
-        if (mode == implicit and mnem == "???" and not args.invalid):
+        if (mnem == "???" and not args.invalid):
             if isprint(chr(op)):
                 line += "%s  '%c'" % (case(".byte"), op)
             else:
@@ -488,7 +490,10 @@ while True:
         else:
             line += mnem
 
-        if (mode == absolute):
+        if (mode == implicit):
+            pass
+
+        elif (mode == absolute):
             if args.format == 1:
                 line += "    $%s%s" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
@@ -565,6 +570,7 @@ while True:
                 line += "    %s%s" % (formatAddress(dest), formatByte(op1))
 
         elif (mode == zeroPage):
+            # TODO: Check for 4 character mnemonics (rmb/smb)
             if args.format == 1:
                 line += "    $%s" % formatByte(op1)
             elif args.format == 2:
@@ -587,6 +593,36 @@ while True:
                 line += "    %s%s,%s" % (formatByte(op1), case("h"), case("y"))
             else:
                 line += "    %s,%s" % (formatByte(op1), case("y"))
+
+
+        elif (mode == indirectZeroPage):
+            if args.format == 1:
+                line += "    ($%s)" % formatByte(op1)
+            elif args.format == 2:
+                line += "    (%s%s)" % (formatByte(op1), case("h"))
+            else:
+                line += "    (%s)" % formatByte(op1)
+
+        elif (mode == absoluteIndexedIndirect):
+            if args.format == 1:
+                line += "    ($%s%s,%s)" % (formatByte(op2), formatByte(op1), case("x"))
+            elif args.format == 2:
+                line += "    (%s%s,%s%s)" % (formatByte(op2), formatByte(op1), case("x"), case("h"))
+            else:
+                line += "    (%s%s,%s)" % (formatByte(op2), formatByte(op1), case("x"))
+
+        elif (mode == zeroPageRelative):
+            # TODO: Show destination address rather than relative offset.
+            if args.format == 1:
+                line += "   $%s,$%s" % (formatByte(op1), formatByte(op2))
+            elif args.format == 2:
+                line += "    %s%s,%s%s" % (formatByte(op1), case("h"), formatByte(op2), case("h"))
+            else:
+                line += "    %s,%s" % (formatByte(op1), formatByte(op2))
+
+        else:
+            print("Internal error: unknown addressing mode:", mode, file=sys.stderr)
+            sys.exit(1);
 
         # Update address
         address += n
