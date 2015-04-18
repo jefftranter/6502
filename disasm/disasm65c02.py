@@ -279,7 +279,7 @@ opcodeTable = [
   [ "iny", implicit ],    # C8
   [ "cmp", immediate ],   # C9
   [ "dex", implicit ],    # CA
-  [ "wai", implicit ],    # CB
+  [ "wai", implicit ],    # CB - WDC 65C02 only (not Rockwell)
   [ "cpy", absolute ],    # CC
   [ "cmp", absolute ],    # CD
   [ "dec", absolute ],    # CE
@@ -296,7 +296,7 @@ opcodeTable = [
   [ "cld", implicit ],    # D8
   [ "cmp", absoluteY ],   # D9
   [ "phx", implicit ],    # DA
-  [ "stp", implicit ],    # DB
+  [ "stp", implicit ],    # DB - WDC 65C02 only (not Rockwell)
   [ "???", implicit ],    # DC
   [ "cmp", absoluteX ],   # DD
   [ "dec", absoluteX ],   # DE
