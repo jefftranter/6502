@@ -570,13 +570,17 @@ while True:
                 line += "    %s%s" % (formatAddress(dest), formatByte(op1))
 
         elif (mode == zeroPage):
-            # TODO: Check for 4 character mnemonics (rmb/smb)
-            if args.format == 1:
-                line += "    $%s" % formatByte(op1)
-            elif args.format == 2:
-                line += "    %s%s" % (formatByte(op1), case("h"))
+            # Check for 3 or 4 character mnemonics
+            if (len(mnem) == 4):
+                line += "   "
             else:
-                line += "    %s" % formatByte(op1)
+                line += "    "
+            if args.format == 1:
+                line += "$%s" % formatByte(op1)
+            elif args.format == 2:
+                line += "%s%s" % (formatByte(op1), case("h"))
+            else:
+                line += "%s" % formatByte(op1)
 
         elif (mode == zeroPageX):
             if args.format == 1:
