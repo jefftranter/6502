@@ -59,4 +59,32 @@ head -1000 < /dev/urandom >TESTFILE
 ./disasm65c02.py -n -a 1000 -f 4 TESTFILE >/dev/null
 ./disasm65c02.py -u -n -a 1000 -f 4 TESTFILE >/dev/null
 
+./disasm65816.py /dev/null >/dev/null
+./disasm65816.py TESTFILE >/dev/null
+./disasm65816.py -a 0 TESTFILE >/dev/null
+./disasm65816.py -a 1000 TESTFILE >/dev/null
+./disasm65816.py -a 60000 TESTFILE >/dev/null
+./disasm65816.py -f 1 TESTFILE >/dev/null
+./disasm65816.py -f 2 TESTFILE >/dev/null
+./disasm65816.py -f 3 TESTFILE >/dev/null
+./disasm65816.py -n TESTFILE >/dev/null
+./disasm65816.py -n -f 1 TESTFILE >/dev/null
+./disasm65816.py -n -f 2 TESTFILE >/dev/null
+./disasm65816.py -n -f 3 TESTFILE >/dev/null
+./disasm65816.py -a 1000 -f 1 TESTFILE >/dev/null
+./disasm65816.py -a 1000 -f 2 TESTFILE >/dev/null
+./disasm65816.py -a 1000 -f 3 TESTFILE >/dev/null
+./disasm65816.py -n -a 1000 -f 1 TESTFILE >/dev/null
+./disasm65816.py -n -a 1000 -f 2 TESTFILE >/dev/null
+./disasm65816.py -n -a 1000 -f 3 TESTFILE >/dev/null
+./disasm65816.py -u TESTFILE >/dev/null
+./disasm65816.py -u -f 3 TESTFILE >/dev/null
+./disasm65816.py -u -a 1000 TESTFILE >/dev/null
+./disasm65816.py -u TESTFILE >/dev/null
+./disasm65816.py -u -n -a 1000 -f 3 TESTFILE >/dev/null
+./disasm65816.py -f 4 TESTFILE >/dev/null
+./disasm65816.py -a 1000 -f 4 TESTFILE >/dev/null
+./disasm65816.py -n -a 1000 -f 4 TESTFILE >/dev/null
+./disasm65816.py -u -n -a 1000 -f 4 TESTFILE >/dev/null
+
 rm TESTFILE

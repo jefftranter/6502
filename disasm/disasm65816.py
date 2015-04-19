@@ -716,7 +716,7 @@ while True:
             if args.format == 1:
                 line += "    $%s%s%s,%s" % (formatByte(op3), formatByte(op2), formatByte(op1), case("x"))
             elif args.format == 2:
-                line += "    %s%s%s$s,%s" % (formatByte(op3), formatByte(op2), formatByte(op2), case("h"), case("x"))
+                line += "    %s%s%s%s,%s" % (formatByte(op3), formatByte(op2), formatByte(op2), case("h"), case("x"))
             else:
                 line += "    %s%s%s,%s" % (formatByte(op3), formatByte(op2), formatByte(op1), case("x"))
 
