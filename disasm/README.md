@@ -5,6 +5,7 @@ any platform that supports Python. See the source code for more
 details.
 
 The version disasm65c02.py supports the 65C02 microprocessor.
+The version disasm65816.py supports the 65816 microprocessor.
 
 usage: disasm6502.py [-h] [-n] [-u] [-a ADDRESS] [-f {1,2,3,4}] [-i] filename
 
