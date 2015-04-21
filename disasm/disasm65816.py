@@ -527,8 +527,7 @@ while True:
                 op1 = 0  # Fake it to recover from EOF
                 op2 = 0
             if args.nolist is False:
-                line += "%s %s %s     "
-                % (formatByte(op), formatByte(op1), formatByte(op2))
+                line += "%s %s %s     " % (formatByte(op), formatByte(op1), formatByte(op2))
         elif n == 4:
             try:  # Possible to get exception here if EOF reached.
                 op1 = ord(f.read(1))
@@ -539,9 +538,7 @@ while True:
                 op2 = 0
                 op3 = 0
             if args.nolist is False:
-                line += "%s %s %s %s  "
-                % (formatByte(op), formatByte(op1),
-                    formatByte(op2), formatByte(op3))
+                line += "%s %s %s %s  " % (formatByte(op), formatByte(op1), formatByte(op2), formatByte(op3))
         if args.nolist is True:
             line += " "
 
@@ -553,8 +550,7 @@ while True:
                 if args.format == 1:
                     line += "%s  $%s" % (case(".byte"), formatByte(op))
                 elif args.format == 2:
-                    line += "%s  %s%s"
-                    % (case(".byte"), formatByte(op), case("h"))
+                    line += "%s  %s%s" % (case(".byte"), formatByte(op), case("h"))
                 else:
                     line += "%s  %s" % (case(".byte"), formatByte(op))
         else:
@@ -567,32 +563,25 @@ while True:
             if args.format == 1:
                 line += "    $%s%s" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
-                line += "    %s%s%s"
-                % (formatByte(op2), formatByte(op1), case("h"))
+                line += "    %s%s%s" % (formatByte(op2), formatByte(op1), case("h"))
             else:
                 line += "    %s%s" % (formatByte(op2), formatByte(op1))
 
         elif mode == absoluteX:
             if args.format == 1:
-                line += "    $%s%s,%s"
-                % (formatByte(op2), formatByte(op1), case("x"))
+                line += "    $%s%s,%s" % (formatByte(op2), formatByte(op1), case("x"))
             elif args.format == 2:
-                line += "    %s%s,%s"
-                % (formatByte(op2), formatByte(op1), case("x"))
+                line += "    %s%s,%s" % (formatByte(op2), formatByte(op1), case("x"))
             else:
-                line += "    %s%s,%s"
-                % (formatByte(op2), formatByte(op1), case("x"))
+                line += "    %s%s,%s" % (formatByte(op2), formatByte(op1), case("x"))
 
         elif mode == absoluteY:
             if args.format == 1:
-                line += "    $%s%s,%s"
-                % (formatByte(op2), formatByte(op1), case("y"))
+                line += "    $%s%s,%s" % (formatByte(op2), formatByte(op1), case("y"))
             elif args.format == 2:
-                line += "    %s%s,%s"
-                % (formatByte(op2), formatByte(op1), case("y"))
+                line += "    %s%s,%s" % (formatByte(op2), formatByte(op1), case("y"))
             else:
-                line += "    %s%s,%s"
-                % (formatByte(op2), formatByte(op1), case("y"))
+                line += "    %s%s,%s" % (formatByte(op2), formatByte(op1), case("y"))
 
         elif mode == accumulator:
                 line += "    %s" % (("a"))
@@ -617,14 +606,11 @@ while True:
             if ((mbit == 0) and (op in variableAccInstructions)) or ((xbit == 0) and (op in variableIndexInstructions)):
                 comment = "    ; Note: 16-bit instruction"
                 if args.format == 1:
-                    line += "    #$%s%s"
-                    % (formatByte(op2), formatByte(op1))
+                    line += "    #$%s%s" % (formatByte(op2), formatByte(op1))
                 elif args.format == 2:
-                    line += "    #%s%s%s"
-                    % (formatByte(op2), formatByte(op1), case("h"))
+                    line += "    #%s%s%s" % (formatByte(op2), formatByte(op1), case("h"))
                 else:
-                    line += "    #%s%s"
-                    % (formatByte(op2), formatByte(op1))
+                    line += "    #%s%s" % (formatByte(op2), formatByte(op1))
             else:
                 if isprint(chr(op1)):
                     line += "    #'%c'" % op1
@@ -638,36 +624,27 @@ while True:
 
         elif mode == indirectX:
             if args.format == 1:
-                line += "    ($%s,%s)"
-                % (formatByte(op1), case("x"))
+                line += "    ($%s,%s)" % (formatByte(op1), case("x"))
             elif args.format == 2:
-                line += "    (%s%s,%s)"
-                % (formatByte(op1), case("h"), case("x"))
+                line += "    (%s%s,%s)" % (formatByte(op1), case("h"), case("x"))
             else:
-                line += "    (%s,%s)"
-                % (formatByte(op1), case("x"))
+                line += "    (%s,%s)" % (formatByte(op1), case("x"))
 
         elif mode == indirectY:
             if args.format == 1:
-                line += "    ($%s),%s"
-                % (formatByte(op1), case("y"))
+                line += "    ($%s),%s" % (formatByte(op1), case("y"))
             elif args.format == 2:
-                line += "    (%s%s),%s"
-                % (formatByte(op1), case("h"), case("y"))
+                line += "    (%s%s),%s" % (formatByte(op1), case("h"), case("y"))
             else:
-                line += "    (%s),%s"
-                % (formatByte(op1), case("y"))
+                line += "    (%s),%s" % (formatByte(op1), case("y"))
 
         elif mode == indirect:
             if args.format == 1:
-                line += "    ($%s%s)"
-                % (formatByte(op2), formatByte(op1))
+                line += "    ($%s%s)" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
-                line += "    (%s%s%s)"
-                % (formatByte(op2), formatByte(op1), case("h"))
+                line += "    (%s%s%s)" % (formatByte(op2), formatByte(op1), case("h"))
             else:
-                line += "    (%s%s)"
-                % (formatByte(op2), formatByte(op1))
+                line += "    (%s%s)" % (formatByte(op2), formatByte(op1))
 
         elif mode == relative:
             if op1 < 128:
@@ -800,14 +777,11 @@ while True:
 
         elif mode == absoluteLongIndexedX:
             if args.format == 1:
-                line += "    $%s%s%s,%s"
-                % (formatByte(op3), formatByte(op2), formatByte(op1), case("x"))
+                line += "    $%s%s%s,%s" % (formatByte(op3), formatByte(op2), formatByte(op1), case("x"))
             elif args.format == 2:
-                line += "    %s%s%s%s,%s"
-                % (formatByte(op3), formatByte(op2), formatByte(op2), case("h"), case("x"))
+                line += "    %s%s%s%s,%s" % (formatByte(op3), formatByte(op2), formatByte(op2), case("h"), case("x"))
             else:
-                line += "    %s%s%s,%s"
-                % (formatByte(op3), formatByte(op2), formatByte(op1), case("x"))
+                line += "    %s%s%s,%s" % (formatByte(op3), formatByte(op2), formatByte(op1), case("x"))
 
         else:
             print("Internal error: unknown addressing mode:",
