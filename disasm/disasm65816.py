@@ -287,7 +287,7 @@ opcodeTable = [
   [ "cpy", immediate ],   # C0
   [ "cmp", indirectX ],   # C1
   [ "rep", immediate ],   # C2
-  [ "cmp", stackRelative ],    # C3
+  [ "cmp", stackRelative ], # C3
   [ "cpy", zeroPage ],    # C4
   [ "cmp", zeroPage ],    # C5
   [ "dec", zeroPage ],    # C6
@@ -351,11 +351,23 @@ opcodeTable = [
   [ "sbc", absoluteX ],   # FD
   [ "inc", absoluteX ],   # FE
   [ "sbc", absoluteLongIndexedX ], # FF
-
 ]
+
+# Handle 16-bit modes of 65816
+# When M=0 (16-bit accumulator) the following instructions take an extra byte:
+variableAccInstructions = set([0x09, 0x29, 0x49, 0x69, 0x89, 0xA9, 0xC9, 0xE9]);
+
+# When X=0 (16-bit index) the following instructions take an extra byte:
+variableIndexInstructions = set([0xA0, 0xA2, 0xC0, 0xE0]);
 
 # Indicates if uppercase option is in effect.
 upperOption = False
+
+# Tracks the state of the M bit.
+mbit = 1;
+
+# Tracks the state of the X bit.
+xbit = 1;
 
 # Functions
 
@@ -412,6 +424,9 @@ upperOption = args.uppercase
 # Contains a line of output
 line = ""
 
+# Contains optional comment
+comment =""
+
 # Open input file.
 # Display error and exit if filename does not exist.
 try:
@@ -423,13 +438,13 @@ except FileNotFoundError:
 # Print initial origin address
 if args.nolist == False:
     if args.format == 1:
-        print("%04X            %s   $%04X" % (address, case(".org"), address))
+        print("%04X              %s   $%04X" % (address, case(".org"), address))
     elif args.format == 2:
-        print("%04X            %s   %04X%s" % (address, case(".org"), address, case("h")))
+        print("%04X              %s   %04X%s" % (address, case(".org"), address, case("h")))
     elif args.format == 3:
-        print("%04X            %s   %04X" % (address, case(".org"), address))
+        print("%04X              %s   %04X" % (address, case(".org"), address))
     else:
-        print("%06o               %s   %06o" % (address, case(".org"), address))
+        print("%06o                 %s   %06o" % (address, case(".org"), address))
 else:
     if args.format == 1:
         print(" %s   $%04X" % (case(".org"), address))
@@ -463,14 +478,18 @@ while True:
 
         n = lengthTable[mode] # Look up number of instruction bytes
 
+        # Check for 16-bit instruction in 16-bit mode.
+        if ((mbit == 0) and (op in variableAccInstructions)) or ((xbit == 0) and (op in variableIndexInstructions)):
+            n = n + 1;
+
         # Print instruction bytes
-        if (n == 1):
+        if n == 1:
             if args.nolist == False:
                 if args.format == 4:
                     line += "%03o             " % op
                 else:
                     line += "%02X           " % op
-        elif (n == 2):
+        elif n == 2:
             try: # Possible to get exception here if EOF reached.
                 op1 = ord(f.read(1))
             except TypeError:
@@ -480,7 +499,7 @@ while True:
                     line += "%03o %03o         " % (op, op1)
                 else:
                     line += "%02X %02X        " % (op, op1)
-        elif (n == 3):
+        elif n == 3:
             try: # Possible to get exception here if EOF reached.
                 op1 = ord(f.read(1))
                 op2 = ord(f.read(1))
@@ -489,7 +508,7 @@ while True:
                 op2 = 0
             if args.nolist == False:
                 line += "%s %s %s     " % (formatByte(op), formatByte(op1), formatByte(op2))
-        elif (n == 4):
+        elif n == 4:
             try: # Possible to get exception here if EOF reached.
                 op1 = ord(f.read(1))
                 op2 = ord(f.read(1))
@@ -517,10 +536,10 @@ while True:
         else:
             line += mnem
 
-        if (mode == implicit):
+        if mode == implicit:
             pass
 
-        elif (mode == absolute):
+        elif mode == absolute:
             if args.format == 1:
                 line += "    $%s%s" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
@@ -528,7 +547,7 @@ while True:
             else:
                 line += "    %s%s" % (formatByte(op2), formatByte(op1))
 
-        elif (mode == absoluteX):
+        elif mode == absoluteX:
             if args.format == 1:
                 line += "    $%s%s,%s" % (formatByte(op2), formatByte(op1), case("x"))
             elif args.format == 2:
@@ -536,7 +555,7 @@ while True:
             else:
                 line += "    %s%s,%s" % (formatByte(op2), formatByte(op1), case("x"))
 
-        elif (mode == absoluteY):
+        elif mode == absoluteY:
             if args.format == 1:
                 line += "    $%s%s,%s" % (formatByte(op2), formatByte(op1), case("y"))
             elif args.format == 2:
@@ -544,21 +563,46 @@ while True:
             else:
                 line += "    %s%s,%s" % (formatByte(op2), formatByte(op1), case("y"))
 
-        elif (mode == accumulator):
+        elif mode == accumulator:
                 line += "    %s" % (("a"))
 
-        elif (mode == immediate):
-            if isprint(chr(op1)):
-                line += "    #'%c'" % op1
-            else:
-                if args.format == 1:
-                    line += "    #$%s" % formatByte(op1)
-                elif args.format == 2:
-                    line += "    #%s%s" % (formatByte(op1), case("h"))
-                else:
-                    line += "    #%s" % formatByte(op1)
+        elif mode == immediate:
 
-        elif (mode == indirectX):
+            # Special check for REP and SEP instructions. These set or clear the M
+            # and X bits which change the length of some instructions.
+
+            if mnem == "rep":
+                mbit = (~op1 & 0x20) >> 5;
+                xbit = (~op1 & 0x10) >> 4;
+                comment = "      ; Note: m=%d, x=%d" % (mbit, xbit)
+
+            if mnem == "sep":
+                mbit = (op1 & 0x20) >> 5;
+                xbit = (op1 & 0x10) >> 4;
+                comment = "      ; Note: m=%d, x=%d" % (mbit, xbit)
+
+            # Handle 16-bit mode of 65816
+
+            if ((mbit == 0) and (op in variableAccInstructions)) or ((xbit == 0) and (op in variableIndexInstructions)):
+                comment = "    ; Note: 16-bit instruction"
+                if args.format == 1:
+                    line += "    #$%s%s" % (formatByte(op2), formatByte(op1))
+                elif args.format == 2:
+                    line += "    #%s%s" % (formatByte(op2), formatByte(op1), case("h"))
+                else:
+                    line += "    #%s%s" % (formatByte(op2), formatByte(op1))
+            else:
+                if isprint(chr(op1)):
+                    line += "    #'%c'" % op1
+                else:
+                    if args.format == 1:
+                        line += "    #$%s" % formatByte(op1)
+                    elif args.format == 2:
+                        line += "    #%s%s" % (formatByte(op1), case("h"))
+                    else:
+                        line += "    #%s" % formatByte(op1)
+
+        elif mode == indirectX:
             if args.format == 1:
                 line += "    ($%s,%s)" % (formatByte(op1), case("x"))
             elif args.format == 2:
@@ -566,7 +610,7 @@ while True:
             else:
                 line += "    (%s,%s)" % (formatByte(op1), case("x"))
 
-        elif (mode == indirectY):
+        elif mode == indirectY:
             if args.format == 1:
                 line += "    ($%s),%s" % (formatByte(op1), case("y"))
             elif args.format == 2:
@@ -574,7 +618,7 @@ while True:
             else:
                 line += "    (%s),%s" % (formatByte(op1), case("y"))
 
-        elif (mode == indirect):
+        elif mode == indirect:
             if args.format == 1:
                 line += "    ($%s%s)" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
@@ -582,12 +626,12 @@ while True:
             else:
                 line += "    (%s%s)" % (formatByte(op2), formatByte(op1))
 
-        elif (mode == relative):
-            if (op1 < 128):
+        elif mode == relative:
+            if op1 < 128:
                 dest = address + op1 + 2
             else:
                 dest = address - (256 - op1) + 2
-            if (dest < 0):
+            if dest < 0:
                 dest = 65536 + dest
             if args.format == 1:
                 line += "    $%s" % formatAddress(dest)
@@ -596,9 +640,9 @@ while True:
             else:
                 line += "    %s%s" % (formatAddress(dest), formatByte(op1))
 
-        elif (mode == zeroPage):
+        elif mode == zeroPage:
             # Check for 3 or 4 character mnemonics
-            if (len(mnem) == 4):
+            if len(mnem) == 4:
                 line += "   "
             else:
                 line += "    "
@@ -609,7 +653,7 @@ while True:
             else:
                 line += "%s" % formatByte(op1)
 
-        elif (mode == zeroPageX):
+        elif mode == zeroPageX:
             if args.format == 1:
                 line += "    $%s,%s" % (formatByte(op1), case("x"))
             elif args.format == 2:
@@ -617,7 +661,7 @@ while True:
             else:
                 line += "    %s,%s" % (formatByte(op1), case("x"))
 
-        elif (mode == zeroPageY):
+        elif mode == zeroPageY:
             if args.format == 1:
                 line += "    $%s,%s" % (formatByte(op1), case("y"))
             elif args.format == 2:
@@ -626,7 +670,7 @@ while True:
                 line += "    %s,%s" % (formatByte(op1), case("y"))
 
 
-        elif (mode == indirectZeroPage):
+        elif mode == indirectZeroPage:
             if args.format == 1:
                 line += "    ($%s)" % formatByte(op1)
             elif args.format == 2:
@@ -634,7 +678,7 @@ while True:
             else:
                 line += "    (%s)" % formatByte(op1)
 
-        elif (mode == absoluteIndexedIndirect):
+        elif mode == absoluteIndexedIndirect:
             if args.format == 1:
                 line += "    ($%s%s,%s)" % (formatByte(op2), formatByte(op1), case("x"))
             elif args.format == 2:
@@ -642,12 +686,12 @@ while True:
             else:
                 line += "    (%s%s,%s)" % (formatByte(op2), formatByte(op1), case("x"))
 
-        elif (mode == zeroPageRelative):
-            if (op2 < 128):
+        elif mode == zeroPageRelative:
+            if op2 < 128:
                 dest = address + op2 + 3
             else:
                 dest = address - (256 - op2) + 3
-            if (dest < 0):
+            if dest < 0:
                 dest = 65536 + dest
             if args.format == 1:
                 line += "   $%s,$%s" % (formatByte(op1), formatAddress(dest))
@@ -656,7 +700,7 @@ while True:
             else:
                 line += "    %s,%s" % (formatByte(op1), formatAddress(dest))
 
-        elif (mode == stackRelative):
+        elif mode == stackRelative:
             if args.format == 1:
                 line += "    $%s,%s" % (formatByte(op1), case("s"))
             elif args.format == 2:
@@ -664,7 +708,7 @@ while True:
             else:
                 line += "    %s,%s" % (formatByte(op1), case("s"))
 
-        elif (mode == absoluteLong):
+        elif mode == absoluteLong:
             if args.format == 1:
                 line += "    $%s%s%s" % (formatByte(op3), formatByte(op2), formatByte(op1))
             elif args.format == 2:
@@ -672,7 +716,7 @@ while True:
             else:
                 line += "    %s%s%s" % (formatByte(op3), formatByte(op2), formatByte(op1))
 
-        elif (mode == srIndirectIndexedY):
+        elif mode == srIndirectIndexedY:
             if args.format == 1:
                 line += "    ($%s,%s),%s" % (formatByte(op1), case("s"), case("y"))
             elif args.format == 2:
@@ -680,7 +724,7 @@ while True:
             else:
                 line += "    (%s,%s),%s" % (formatByte(op1), case("s"), case("y"))
 
-        elif (mode == blockMove):
+        elif mode == blockMove:
             if args.format == 1:
                 line += "    $%s,$%s" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
@@ -688,7 +732,7 @@ while True:
             else:
                 line += "    %s,%s" % (formatByte(op2), formatByte(op1))
 
-        elif (mode == directPageIndirectLong):
+        elif mode == directPageIndirectLong:
             if args.format == 1:
                 line += "    [$%s]" % formatByte(op1)
             elif args.format == 2:
@@ -696,7 +740,7 @@ while True:
             else:
                 line += "    [%s]" % formatByte(op1)
 
-        elif (mode == directPageIndirectLongIndexedY):
+        elif mode == directPageIndirectLongIndexedY:
             if args.format == 1:
                 line += "    [$%s],%s" % (formatByte(op1), case("y"))
             elif args.format == 2:
@@ -704,7 +748,7 @@ while True:
             else:
                 line += "    [%s],%s" % (formatByte(op1), case("y"))
 
-        elif (mode == absoluteIndirectLong):
+        elif mode == absoluteIndirectLong:
             if args.format == 1:
                 line += "    [$%s%s]" % (formatByte(op2), formatByte(op1))
             elif args.format == 2:
@@ -712,7 +756,7 @@ while True:
             else:
                 line += "    [%s%s]" % (formatByte(op2), formatByte(op1))
 
-        elif (mode == absoluteLongIndexedX):
+        elif mode == absoluteLongIndexedX:
             if args.format == 1:
                 line += "    $%s%s%s,%s" % (formatByte(op3), formatByte(op2), formatByte(op1), case("x"))
             elif args.format == 2:
@@ -728,12 +772,17 @@ while True:
         address += n
 
         # Check for address exceeding 0xFFFF, if so wrap around.
-        if (address > 0xffff):
+        if address > 0xffff:
             address = address & 0xffff
+
+        # Check for comment
+        if (comment != ""):
+            line += comment
 
         # Finished a line of disassembly
         print(line)
         line = ""
+        comment = ""
 
     except KeyboardInterrupt:
         print("Interrupted by Control-C", file=sys.stderr)
