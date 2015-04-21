@@ -15,6 +15,16 @@ DEMO3:
 ; Examples of all 65816 instructions. This is a test case for my
 ; disassembler. It is not intended to run or do anything useful.
 
+  brl DEMO3
+here:
+  brl here
+  brl next
+next:
+  brl here
+  brl DEMO3
+  brl $1234
+  brl $2468
+  nop
   COP $12
   ORA 3,S
   ORA [$44]
