@@ -452,16 +452,16 @@ except FileNotFoundError:
 # Print initial origin address
 if args.nolist is False:
     if args.format == 1:
-        print("%04X              %s   $%04X"
+        print("%04X               %s   $%04X"
               % (address, case(".org"), address))
     elif args.format == 2:
-        print("%04X              %s   %04X%s"
+        print("%04X               %s   %04X%s"
               % (address, case(".org"), address, case("h")))
     elif args.format == 3:
-        print("%04X              %s   %04X"
+        print("%04X               %s   %04X"
               % (address, case(".org"), address))
     else:
-        print("%06o                 %s   %06o"
+        print("%06o                  %s   %06o"
               % (address, case(".org"), address))
 else:
     if args.format == 1:
@@ -560,12 +560,22 @@ while True:
             pass
 
         elif mode == absolute:
-            if args.format == 1:
-                line += "    $%s%s" % (formatByte(op2), formatByte(op1))
-            elif args.format == 2:
-                line += "    %s%s%s" % (formatByte(op2), formatByte(op1), case("h"))
+            # Handle special case of brl which is a long relative branch
+            if mnem == "brl":
+                dest = (address + op1 + 256 * op2 + 3) & 0xffff
+                if args.format == 1:
+                    line += "    $%s" % formatAddress(dest)
+                elif args.format == 2:
+                    line += "    %s%s" % (formatAddress(dest), case("h"))
+                else:
+                    line += "    %s" % formatAddress(dest)
             else:
-                line += "    %s%s" % (formatByte(op2), formatByte(op1))
+                if args.format == 1:
+                    line += "    $%s%s" % (formatByte(op2), formatByte(op1))
+                elif args.format == 2:
+                    line += "    %s%s%s" % (formatByte(op2), formatByte(op1), case("h"))
+                else:
+                    line += "    %s" % formatByte(op2)
 
         elif mode == absoluteX:
             if args.format == 1:
@@ -658,7 +668,7 @@ while True:
             elif args.format == 2:
                 line += "    %s%s" % (formatAddress(dest), case("h"))
             else:
-                line += "    %s%s" % (formatAddress(dest), formatByte(op1))
+                line += "    %s" % formatAddress(dest)
 
         elif mode == zeroPage:
             # Check for 3 or 4 character mnemonics
