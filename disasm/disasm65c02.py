@@ -24,318 +24,317 @@ import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 # Addressing modes. Used as indices into opcode table.
-implicit    = 0  # e.g. rts
-absolute    = 1  # e.g. lda $1234
-absoluteX   = 2  # e.g. lda $1234,x
-absoluteY   = 3  # e.g. lda $1234,y
-accumulator = 4  # e.g. asl a
-immediate   = 5  # e.g. lda #$12
-indirectX   = 6  # e.g. lda ($12,x)
-indirectY   = 7  # e.g. lda ($12),y
-indirect    = 8  # e.g. jmp ($1234)
-relative    = 9  # e.g. bne $1234
-zeroPage    = 10 # e.g. lda #12
-zeroPageX   = 11 # e.g. lda $12,x
-zeroPageY   = 12 # e.g. lda $12,y
-indirectZeroPage = 13 # e.g. lda ($12)
-absoluteIndexedIndirect = 14 # e.g. jmp ($1234,x)
-zeroPageRelative = 15 # e.g. bbs1 $12, $3456
+implicit = 0                  # e.g. rts
+absolute = 1                  # e.g. lda $1234
+absoluteX = 2                 # e.g. lda $1234,x
+absoluteY = 3                 # e.g. lda $1234,y
+accumulator = 4               # e.g. asl a
+immediate = 5                 # e.g. lda #$12
+indirectX = 6                 # e.g. lda ($12,x)
+indirectY = 7                 # e.g. lda ($12),y
+indirect = 8                  # e.g. jmp ($1234)
+relative = 9                  # e.g. bne $1234
+zeroPage = 10                 # e.g. lda #12
+zeroPageX = 11                # e.g. lda $12,x
+zeroPageY = 12                # e.g. lda $12,y
+indirectZeroPage = 13         # e.g. lda ($12)
+absoluteIndexedIndirect = 14  # e.g. jmp ($1234,x)
+zeroPageRelative = 15         # e.g. bbs1 $12, $3456
 
 # Lookup table - given addressing mode, returns length of instruction in bytes.
 lengthTable = [
-  1, # 0 - implicit
-  3, # 1 - absolute
-  3, # 2 - absolute X
-  3, # 3 - absolute Y
-  1, # 4 - accumulator
-  2, # 5 - immediate
-  2, # 6 - indirect X
-  2, # 7 - indirect Y
-  3, # 8 - indirect
-  2, # 9 - relative
-  2, # 10 - zero page
-  2, # 11 - zero page X
-  2, # 12 - zero page Y
-  2, # 13 - indirect zero page
-  3, # 14 - absolute indexed indirect
-  3  # 15 - zero page relative
+    1,  # 0 - implicit
+    3,  # 1 - absolute
+    3,  # 2 - absolute X
+    3,  # 3 - absolute Y
+    1,  # 4 - accumulator
+    2,  # 5 - immediate
+    2,  # 6 - indirect X
+    2,  # 7 - indirect Y
+    3,  # 8 - indirect
+    2,  # 9 - relative
+    2,  # 10 - zero page
+    2,  # 11 - zero page X
+    2,  # 12 - zero page Y
+    2,  # 13 - indirect zero page
+    3,  # 14 - absolute indexed indirect
+    3   # 15 - zero page relative
 ]
 
 # Lookup table - given opcode byte as index, return mnemonic of instruction and addressing mode.
 # Invalid opcodes are listed as "???".
 opcodeTable = [
-  [ "brk", implicit ],    # 00
-  [ "ora", indirectX ],   # 01
-  [ "???", implicit ],    # 02
-  [ "???", implicit ],    # 03
-  [ "tsb", zeroPage ],    # 04
-  [ "ora", zeroPage ],    # 05
-  [ "asl", zeroPage ],    # 06
-  [ "rmb0", zeroPage ],   # 07
-  [ "php", implicit ],    # 08
-  [ "ora", immediate ],   # 09
-  [ "asl", accumulator ], # 0A
-  [ "???", implicit ],    # 0B
-  [ "tsb", absolute ],    # 0C
-  [ "ora", absolute ],    # 0D
-  [ "asl", absolute ],    # 0E
-  [ "bbr0", zeroPageRelative ], # 0F
+    ["brk", implicit],           # 00
+    ["ora", indirectX],          # 01
+    ["???", implicit],           # 02
+    ["???", implicit],           # 03
+    ["tsb", zeroPage],           # 04
+    ["ora", zeroPage],           # 05
+    ["asl", zeroPage],           # 06
+    ["rmb0", zeroPage],          # 07
+    ["php", implicit],           # 08
+    ["ora", immediate],          # 09
+    ["asl", accumulator],        # 0A
+    ["???", implicit],           # 0B
+    ["tsb", absolute],           # 0C
+    ["ora", absolute],           # 0D
+    ["asl", absolute],           # 0E
+    ["bbr0", zeroPageRelative],  # 0F
 
-  [ "bpl", relative ],    # 10
-  [ "ora", indirectY ],   # 11
-  [ "ora", indirectZeroPage ], # 12
-  [ "???", implicit ],    # 13
-  [ "trb", zeroPage ],    # 14
-  [ "ora", zeroPageX ],   # 15
-  [ "asl", zeroPageX ],   # 16
-  [ "rmb1", zeroPage ],   # 17
-  [ "clc", implicit ],    # 18
-  [ "ora", absoluteY ],   # 19
-  [ "inc", accumulator ], # 1A
-  [ "???", implicit ],    # 1B
-  [ "trb", absolute ],    # 1C
-  [ "ora", absoluteX ],   # 1D
-  [ "asl", absoluteX],    # 1E
-  [ "bbr1", zeroPageRelative ], # 1F
+    ["bpl", relative],           # 10
+    ["ora", indirectY],          # 11
+    ["ora", indirectZeroPage],   # 12
+    ["???", implicit],           # 13
+    ["trb", zeroPage],           # 14
+    ["ora", zeroPageX],          # 15
+    ["asl", zeroPageX],          # 16
+    ["rmb1", zeroPage],          # 17
+    ["clc", implicit],           # 18
+    ["ora", absoluteY],          # 19
+    ["inc", accumulator],        # 1A
+    ["???", implicit],           # 1B
+    ["trb", absolute],           # 1C
+    ["ora", absoluteX],          # 1D
+    ["asl", absoluteX],          # 1E
+    ["bbr1", zeroPageRelative],  # 1F
 
-  [ "jsr", absolute ],    # 20
-  [ "and", indirectX ],   # 21
-  [ "???", implicit ],    # 22
-  [ "???", implicit ],    # 23
-  [ "bit", zeroPage ],    # 24
-  [ "and", zeroPage ],    # 25
-  [ "rol", zeroPage ],    # 26
-  [ "rmb2", zeroPage ],   # 27
-  [ "plp", implicit ],    # 28
-  [ "and", immediate ],   # 29
-  [ "rol", accumulator ], # 2A
-  [ "???", implicit ],    # 2B
-  [ "bit", absolute ],    # 2C
-  [ "and", absolute ],    # 2D
-  [ "rol", absolute ],    # 2E
-  [ "bbr2", zeroPageRelative ], # 2F
+    ["jsr", absolute],           # 20
+    ["and", indirectX],          # 21
+    ["???", implicit],           # 22
+    ["???", implicit],           # 23
+    ["bit", zeroPage],           # 24
+    ["and", zeroPage],           # 25
+    ["rol", zeroPage],           # 26
+    ["rmb2", zeroPage],          # 27
+    ["plp", implicit],           # 28
+    ["and", immediate],          # 29
+    ["rol", accumulator],        # 2A
+    ["???", implicit],           # 2B
+    ["bit", absolute],           # 2C
+    ["and", absolute],           # 2D
+    ["rol", absolute],           # 2E
+    ["bbr2", zeroPageRelative],  # 2F
 
-  [ "bmi", relative ],    # 30
-  [ "and", indirectY ],   # 31
-  [ "and", indirectZeroPage ], # 32
-  [ "???", implicit ],    # 33
-  [ "bit", zeroPageX ],   # 34
-  [ "and", zeroPageX ],   # 35
-  [ "rol", zeroPageX ],   # 36
-  [ "rmb3", zeroPage ],   # 37
-  [ "sec", implicit ],    # 38
-  [ "and", absoluteY ],   # 39
-  [ "dec", accumulator ], # 3A
-  [ "???", implicit ],    # 3B
-  [ "bit", absoluteX ],   # 3C
-  [ "and", absoluteX ],   # 3D
-  [ "rol", absoluteX ],   # 3E
-  [ "bbr3", zeroPageRelative ], # 3F
+    ["bmi", relative],           # 30
+    ["and", indirectY],          # 31
+    ["and", indirectZeroPage],   # 32
+    ["???", implicit],           # 33
+    ["bit", zeroPageX],          # 34
+    ["and", zeroPageX],          # 35
+    ["rol", zeroPageX],          # 36
+    ["rmb3", zeroPage],          # 37
+    ["sec", implicit],           # 38
+    ["and", absoluteY],          # 39
+    ["dec", accumulator],        # 3A
+    ["???", implicit],           # 3B
+    ["bit", absoluteX],          # 3C
+    ["and", absoluteX],          # 3D
+    ["rol", absoluteX],          # 3E
+    ["bbr3", zeroPageRelative],  # 3F
 
-  [ "rti", implicit ],    # 40
-  [ "eor", indirectX ],   # 41
-  [ "???", implicit ],    # 42
-  [ "???", implicit ],    # 43
-  [ "???", implicit ],    # 44
-  [ "eor", zeroPage ],    # 45
-  [ "lsr", zeroPage ],    # 46
-  [ "rmb4", zeroPage ],   # 47
-  [ "pha", implicit ],    # 48
-  [ "eor", immediate ],   # 49
-  [ "lsr", accumulator ], # 4A
-  [ "???", implicit ],    # 4B
-  [ "jmp", absolute ],    # 4C
-  [ "eor", absolute ],    # 4D
-  [ "lsr", absolute ],    # 4E
-  [ "bbr4", zeroPageRelative ], # 4F
+    ["rti", implicit],           # 40
+    ["eor", indirectX],          # 41
+    ["???", implicit],           # 42
+    ["???", implicit],           # 43
+    ["???", implicit],           # 44
+    ["eor", zeroPage],           # 45
+    ["lsr", zeroPage],           # 46
+    ["rmb4", zeroPage],          # 47
+    ["pha", implicit],           # 48
+    ["eor", immediate],          # 49
+    ["lsr", accumulator],        # 4A
+    ["???", implicit],           # 4B
+    ["jmp", absolute],           # 4C
+    ["eor", absolute],           # 4D
+    ["lsr", absolute],           # 4E
+    ["bbr4", zeroPageRelative],  # 4F
 
-  [ "bvc", relative ],    # 50
-  [ "eor", indirectY ],   # 51
-  [ "eor", indirectZeroPage ], # 52
-  [ "???", implicit ],    # 53
-  [ "???", implicit ],    # 54
-  [ "eor", zeroPageX ],   # 55
-  [ "lsr", zeroPageX ],   # 56
-  [ "rmb5", zeroPage ],   # 57
-  [ "cli", implicit ],    # 58
-  [ "eor", absoluteY ],   # 59
-  [ "phy", implicit ],    # 5A
-  [ "???", implicit ],    # 5B
-  [ "???", implicit ],    # 5C
-  [ "eor", absoluteX ],   # 5D
-  [ "lsr", absoluteX ],   # 5E
-  [ "bbr5", zeroPageRelative ], # 5F
+    ["bvc", relative],           # 50
+    ["eor", indirectY],          # 51
+    ["eor", indirectZeroPage],   # 52
+    ["???", implicit],           # 53
+    ["???", implicit],           # 54
+    ["eor", zeroPageX],          # 55
+    ["lsr", zeroPageX],          # 56
+    ["rmb5", zeroPage],          # 57
+    ["cli", implicit],           # 58
+    ["eor", absoluteY],          # 59
+    ["phy", implicit],           # 5A
+    ["???", implicit],           # 5B
+    ["???", implicit],           # 5C
+    ["eor", absoluteX],          # 5D
+    ["lsr", absoluteX],          # 5E
+    ["bbr5", zeroPageRelative],  # 5F
 
-  [ "rts", implicit ],    # 60
-  [ "adc", indirectX ],   # 61
-  [ "???", implicit ],    # 62
-  [ "???", implicit ],    # 63
-  [ "stz", zeroPage ],    # 64
-  [ "adc", zeroPage ],    # 65
-  [ "ror", zeroPage ],    # 66
-  [ "rmb6", zeroPage ],   # 67
-  [ "pla", implicit ],    # 68
-  [ "adc", immediate ],   # 69
-  [ "ror", accumulator ], # 6A
-  [ "???", implicit ],    # 6B
-  [ "jmp", indirect ],    # 6C
-  [ "adc", absolute ],    # 6D
-  [ "ror", absolute ],    # 6E
-  [ "bbr6", zeroPageRelative ], # 6F
+    ["rts", implicit],           # 60
+    ["adc", indirectX],          # 61
+    ["???", implicit],           # 62
+    ["???", implicit],           # 63
+    ["stz", zeroPage],           # 64
+    ["adc", zeroPage],           # 65
+    ["ror", zeroPage],           # 66
+    ["rmb6", zeroPage],          # 67
+    ["pla", implicit],           # 68
+    ["adc", immediate],          # 69
+    ["ror", accumulator],        # 6A
+    ["???", implicit],           # 6B
+    ["jmp", indirect],           # 6C
+    ["adc", absolute],           # 6D
+    ["ror", absolute],           # 6E
+    ["bbr6", zeroPageRelative],  # 6F
 
-  [ "bvs", relative ],    # 70
-  [ "adc", indirectY ],   # 71
-  [ "adc", indirectZeroPage ], # 72
-  [ "???", implicit ],    # 73
-  [ "stz", zeroPageX ],   # 74
-  [ "adc", zeroPageX ],   # 75
-  [ "ror", zeroPageX ],   # 76
-  [ "rmb7", zeroPage ],   # 77
-  [ "sei", implicit ],    # 78
-  [ "adc", absoluteY ],   # 79
-  [ "ply", implicit ],    # 7A
-  [ "???", implicit ],    # 7B
-  [ "jmp", absoluteIndexedIndirect ], # 7C
-  [ "adc", absoluteX ],   # 7D
-  [ "ror", absoluteX ],   # 7E
-  [ "bbr7", zeroPageRelative ], # 7F
+    ["bvs", relative],           # 70
+    ["adc", indirectY],          # 71
+    ["adc", indirectZeroPage],   # 72
+    ["???", implicit],           # 73
+    ["stz", zeroPageX],          # 74
+    ["adc", zeroPageX],          # 75
+    ["ror", zeroPageX],          # 76
+    ["rmb7", zeroPage],          # 77
+    ["sei", implicit],           # 78
+    ["adc", absoluteY],          # 79
+    ["ply", implicit],           # 7A
+    ["???", implicit],           # 7B
+    ["jmp", absoluteIndexedIndirect],  # 7C
+    ["adc", absoluteX],          # 7D
+    ["ror", absoluteX],          # 7E
+    ["bbr7", zeroPageRelative],  # 7F
 
-  [ "bra", relative ],    # 80
-  [ "sta", indirectX ],   # 81
-  [ "???", implicit ],    # 82
-  [ "???", implicit ],    # 83
-  [ "sty", zeroPage ],    # 84
-  [ "sta", zeroPage ],    # 85
-  [ "stx", zeroPage ],    # 86
-  [ "smb0", zeroPage ],   # 87
-  [ "dey", implicit ],    # 88
-  [ "bit", immediate ],   # 89
-  [ "txa", implicit ],    # 8A
-  [ "???", implicit ],    # 8B
-  [ "sty", absolute ],    # 8C
-  [ "sta", absolute ],    # 8D
-  [ "stx", absolute ],    # 8E
-  [ "bbs0", zeroPageRelative ], # 8F
+    ["bra", relative],           # 80
+    ["sta", indirectX],          # 81
+    ["???", implicit],           # 82
+    ["???", implicit],           # 83
+    ["sty", zeroPage],           # 84
+    ["sta", zeroPage],           # 85
+    ["stx", zeroPage],           # 86
+    ["smb0", zeroPage],          # 87
+    ["dey", implicit],           # 88
+    ["bit", immediate],          # 89
+    ["txa", implicit],           # 8A
+    ["???", implicit],           # 8B
+    ["sty", absolute],           # 8C
+    ["sta", absolute],           # 8D
+    ["stx", absolute],           # 8E
+    ["bbs0", zeroPageRelative],  # 8F
 
-  [ "bcc", relative ],    # 90
-  [ "sta", indirectY ],   # 91
-  [ "sta", indirectZeroPage ], # 92
-  [ "???", implicit ],    # 93
-  [ "sty", zeroPageX ],   # 94
-  [ "sta", zeroPageX ],   # 95
-  [ "stx", zeroPageY ],   # 96
-  [ "smb1", zeroPage ],   # 97
-  [ "tya", implicit ],    # 98
-  [ "sta", absoluteY ],   # 99
-  [ "txs", implicit ],    # 9A
-  [ "???", implicit ],    # 9B
-  [ "stz", absolute ],    # 9C
-  [ "sta", absoluteX ],   # 9D
-  [ "stz", absoluteX ],   # 9E
-  [ "bbs1", zeroPageRelative ], # 9F
+    ["bcc", relative],           # 90
+    ["sta", indirectY],          # 91
+    ["sta", indirectZeroPage],   # 92
+    ["???", implicit],           # 93
+    ["sty", zeroPageX],          # 94
+    ["sta", zeroPageX],          # 95
+    ["stx", zeroPageY],          # 96
+    ["smb1", zeroPage],          # 97
+    ["tya", implicit],           # 98
+    ["sta", absoluteY],          # 99
+    ["txs", implicit],           # 9A
+    ["???", implicit],           # 9B
+    ["stz", absolute],           # 9C
+    ["sta", absoluteX],          # 9D
+    ["stz", absoluteX],          # 9E
+    ["bbs1", zeroPageRelative],  # 9F
 
-  [ "ldy", immediate ],   # A0
-  [ "lda", indirectX ],   # A1
-  [ "ldx", immediate ],   # A2
-  [ "???", implicit ],    # A3
-  [ "ldy", zeroPage ],    # A4
-  [ "lda", zeroPage ],    # A5
-  [ "ldx", zeroPage ],    # A6
-  [ "smb2", zeroPage ],   # A7
-  [ "tay", implicit ],    # A8
-  [ "lda", immediate ],   # A9
-  [ "tax", implicit ],    # AA
-  [ "???", implicit ],    # AB
-  [ "ldy", absolute ],    # AC
-  [ "lda", absolute ],    # AD
-  [ "ldx", absolute ],    # AE
-  [ "bbs2", zeroPageRelative ], # AF
+    ["ldy", immediate],          # A0
+    ["lda", indirectX],          # A1
+    ["ldx", immediate],          # A2
+    ["???", implicit],           # A3
+    ["ldy", zeroPage],           # A4
+    ["lda", zeroPage],           # A5
+    ["ldx", zeroPage],           # A6
+    ["smb2", zeroPage],          # A7
+    ["tay", implicit],           # A8
+    ["lda", immediate],          # A9
+    ["tax", implicit],           # AA
+    ["???", implicit],           # AB
+    ["ldy", absolute],           # AC
+    ["lda", absolute],           # AD
+    ["ldx", absolute],           # AE
+    ["bbs2", zeroPageRelative],  # AF
 
-  [ "bcs", relative ],    # B0
-  [ "lda", indirectY ],   # B1
-  [ "lda", indirectZeroPage ], # B2
-  [ "???", implicit ],    # B3
-  [ "ldy", zeroPageX ],   # B4
-  [ "lda", zeroPageX ],   # B5
-  [ "ldx", zeroPageY ],   # B6
-  [ "smb3", zeroPage ],   # B7
-  [ "clv", implicit ],    # B8
-  [ "lda", absoluteY ],   # B9
-  [ "tsx", implicit ],    # BA
-  [ "???", implicit ],    # BB
-  [ "ldy", absoluteX ],   # BC
-  [ "lda", absoluteX ],   # BD
-  [ "ldx", absoluteY],    # BE
-  [ "bbs3", zeroPageRelative ], # BF
+    ["bcs", relative],           # B0
+    ["lda", indirectY],          # B1
+    ["lda", indirectZeroPage],   # B2
+    ["???", implicit],           # B3
+    ["ldy", zeroPageX],          # B4
+    ["lda", zeroPageX],          # B5
+    ["ldx", zeroPageY],          # B6
+    ["smb3", zeroPage],          # B7
+    ["clv", implicit],           # B8
+    ["lda", absoluteY],          # B9
+    ["tsx", implicit],           # BA
+    ["???", implicit],           # BB
+    ["ldy", absoluteX],          # BC
+    ["lda", absoluteX],          # BD
+    ["ldx", absoluteY],          # BE
+    ["bbs3", zeroPageRelative],  # BF
 
-  [ "cpy", immediate ],   # C0
-  [ "cmp", indirectX ],   # C1
-  [ "???", implicit ],    # C2
-  [ "???", implicit ],    # C3
-  [ "cpy", zeroPage ],    # C4
-  [ "cmp", zeroPage ],    # C5
-  [ "dec", zeroPage ],    # C6
-  [ "smb4", zeroPage ],   # C7
-  [ "iny", implicit ],    # C8
-  [ "cmp", immediate ],   # C9
-  [ "dex", implicit ],    # CA
-  [ "wai", implicit ],    # CB - WDC 65C02 only (not Rockwell)
-  [ "cpy", absolute ],    # CC
-  [ "cmp", absolute ],    # CD
-  [ "dec", absolute ],    # CE
-  [ "bbs4", zeroPageRelative ], # CF
+    ["cpy", immediate],          # C0
+    ["cmp", indirectX],          # C1
+    ["???", implicit],           # C2
+    ["???", implicit],           # C3
+    ["cpy", zeroPage],           # C4
+    ["cmp", zeroPage],           # C5
+    ["dec", zeroPage],           # C6
+    ["smb4", zeroPage],          # C7
+    ["iny", implicit],           # C8
+    ["cmp", immediate],          # C9
+    ["dex", implicit],           # CA
+    ["wai", implicit],           # CB - WDC 65C02 only (not Rockwell)
+    ["cpy", absolute],           # CC
+    ["cmp", absolute],           # CD
+    ["dec", absolute],           # CE
+    ["bbs4", zeroPageRelative],  # CF
 
-  [ "bne", relative ],    # D0
-  [ "cmp", indirectY ],   # D1
-  [ "cmp", indirectZeroPage ], # D2
-  [ "???", implicit ],    # D3
-  [ "???", implicit ],    # D4
-  [ "cmp", zeroPageX ],   # D5
-  [ "dec", zeroPageX ],   # D6
-  [ "smb5", zeroPage ],   # D7
-  [ "cld", implicit ],    # D8
-  [ "cmp", absoluteY ],   # D9
-  [ "phx", implicit ],    # DA
-  [ "stp", implicit ],    # DB - WDC 65C02 only (not Rockwell)
-  [ "???", implicit ],    # DC
-  [ "cmp", absoluteX ],   # DD
-  [ "dec", absoluteX ],   # DE
-  [ "bbs5", zeroPageRelative ], # DF
+    ["bne", relative],           # D0
+    ["cmp", indirectY],          # D1
+    ["cmp", indirectZeroPage],   # D2
+    ["???", implicit],           # D3
+    ["???", implicit],           # D4
+    ["cmp", zeroPageX],          # D5
+    ["dec", zeroPageX],          # D6
+    ["smb5", zeroPage],          # D7
+    ["cld", implicit],           # D8
+    ["cmp", absoluteY],          # D9
+    ["phx", implicit],           # DA
+    ["stp", implicit],           # DB - WDC 65C02 only (not Rockwell)
+    ["???", implicit],           # DC
+    ["cmp", absoluteX],          # DD
+    ["dec", absoluteX],          # DE
+    ["bbs5", zeroPageRelative],  # DF
 
-  [ "cpx", immediate ],   # E0
-  [ "sbc", indirectX ],   # E1
-  [ "???", implicit ],    # E2
-  [ "???", implicit ],    # E3
-  [ "cpx", zeroPage ],    # E4
-  [ "sbc", zeroPage ],    # E5
-  [ "inc", zeroPage ],    # E6
-  [ "smb6", zeroPage ],   # E7
-  [ "inx", implicit ],    # E8
-  [ "sbc", immediate ],   # E9
-  [ "nop", implicit ],    # EA
-  [ "???", implicit ],    # EB
-  [ "cpx", absolute ],    # EC
-  [ "sbc", absolute ],    # ED
-  [ "inc", absolute ],    # EE
-  [ "bbs6", zeroPageRelative ], # EF
+    ["cpx", immediate],          # E0
+    ["sbc", indirectX],          # E1
+    ["???", implicit],           # E2
+    ["???", implicit],           # E3
+    ["cpx", zeroPage],           # E4
+    ["sbc", zeroPage],           # E5
+    ["inc", zeroPage],           # E6
+    ["smb6", zeroPage],          # E7
+    ["inx", implicit],           # E8
+    ["sbc", immediate],          # E9
+    ["nop", implicit],           # EA
+    ["???", implicit],           # EB
+    ["cpx", absolute],           # EC
+    ["sbc", absolute],           # ED
+    ["inc", absolute],           # EE
+    ["bbs6", zeroPageRelative],  # EF
 
-  [ "beq", relative ],    # F0
-  [ "sbc", indirectY ],   # F1
-  [ "sbc", indirectZeroPage ], # F2
-  [ "???", implicit ],    # F3
-  [ "???", implicit ],    # F4
-  [ "sbc", zeroPageX ],   # F5
-  [ "inc", zeroPageX ],   # F6
-  [ "smb7", zeroPage ],   # F7
-  [ "sed", implicit ],    # F8
-  [ "sbc", absoluteY ],   # F9
-  [ "plx", implicit ],    # FA
-  [ "???", implicit ],    # FB
-  [ "???", implicit ],    # FC
-  [ "sbc", absoluteX ],   # FD
-  [ "inc", absoluteX ],   # FE
-  [ "bbs7", zeroPageRelative ], # FF
-
+    ["beq", relative],           # F0
+    ["sbc", indirectY],          # F1
+    ["sbc", indirectZeroPage],   # F2
+    ["???", implicit],           # F3
+    ["???", implicit],           # F4
+    ["sbc", zeroPageX],          # F5
+    ["inc", zeroPageX],          # F6
+    ["smb7", zeroPage],          # F7
+    ["sed", implicit],           # F8
+    ["sbc", absoluteY],          # F9
+    ["plx", implicit],           # FA
+    ["???", implicit],           # FB
+    ["???", implicit],           # FC
+    ["sbc", absoluteX],          # FD
+    ["inc", absoluteX],          # FE
+    ["bbs7", zeroPageRelative],  # FF
 ]
 
 # Indicates if uppercase option is in effect.
@@ -343,12 +342,14 @@ upperOption = False
 
 # Functions
 
+
 def isprint(c):
     "Return if character is printable ASCII"
     if c >= '@' and c <= '~':
         return True
     else:
         return False
+
 
 def case(s):
     "Return string or uppercase version of string if option is set."
@@ -358,20 +359,22 @@ def case(s):
     else:
         return s
 
+
 def formatByte(data):
     "Format an 8-bit byte using the current display format (e.g. hex or octal)"
     global args
-    if args.format == 4: # Octal
+    if args.format == 4:  # Octal
         return "%03o" % data
-    else: # Hex
+    else:  # Hex
         return "%02X" % data
+
 
 def formatAddress(data):
     "Format a 16-bit address using the current display format (e.g. hex or octal)"
     global args
-    if args.format == 4: # Octal
+    if args.format == 4:  # Octal
         return "%06o" % data
-    else: # Hex
+    else:  # Hex
         return "%04X" % data
 
 # Parse command line options
@@ -405,7 +408,7 @@ except FileNotFoundError:
     sys.exit(1)
 
 # Print initial origin address
-if args.nolist == False:
+if args.nolist is False:
     if args.format == 1:
         print("%04X            %s   $%04X" % (address, case(".org"), address))
     elif args.format == 2:
@@ -426,54 +429,54 @@ else:
 
 while True:
     try:
-        b = f.read(1) # Get binary byte from file
+        b = f.read(1)  # Get binary byte from file
 
-        if len(b) == 0: # EOF
-            if args.nolist == False:
+        if len(b) == 0:  # EOF
+            if args.nolist is False:
                 if args.format == 4:
-                    print("%06o               %s" % (address, case("end"))) # Exit if end of file reached.
+                    print("%06o               %s" % (address, case("end")))  # Exit if end of file reached.
                 else:
-                    print("%04X            %s" % (address, case("end"))) # Exit if end of file reached.
+                    print("%04X            %s" % (address, case("end")))  # Exit if end of file reached.
             break
 
-        if args.nolist == False:
-            line = "%s  " % formatAddress(address) # Print current address
+        if args.nolist is False:
+            line = "%s  " % formatAddress(address)  # Print current address
 
-        op = ord(b) # Get opcode byte
+        op = ord(b)  # Get opcode byte
 
-        mnem = case(opcodeTable[op][0]) # Get mnemonic
+        mnem = case(opcodeTable[op][0])  # Get mnemonic
 
-        mode = opcodeTable[op][1] # Get addressing mode
+        mode = opcodeTable[op][1]  # Get addressing mode
 
-        n = lengthTable[mode] # Look up number of instruction bytes
+        n = lengthTable[mode]  # Look up number of instruction bytes
 
         # Print instruction bytes
         if (n == 1):
-            if args.nolist == False:
+            if args.nolist is False:
                 if args.format == 4:
                     line += "%03o          " % op
                 else:
                     line += "%02X        " % op
         elif (n == 2):
-            try: # Possible to get exception here if EOF reached.
+            try:  # Possible to get exception here if EOF reached.
                 op1 = ord(f.read(1))
             except TypeError:
-                op1 = 0 # Fake it to recover from EOF
-            if args.nolist == False:
+                op1 = 0  # Fake it to recover from EOF
+            if args.nolist is False:
                 if args.format == 4:
                     line += "%03o %03o      " % (op, op1)
                 else:
                     line += "%02X %02X     " % (op, op1)
         elif (n == 3):
-            try: # Possible to get exception here if EOF reached.
+            try:  # Possible to get exception here if EOF reached.
                 op1 = ord(f.read(1))
                 op2 = ord(f.read(1))
             except TypeError:
-                op1 = 0 # Fake it to recover from EOF
+                op1 = 0  # Fake it to recover from EOF
                 op2 = 0
-            if args.nolist == False:
+            if args.nolist is False:
                 line += "%s %s %s  " % (formatByte(op), formatByte(op1), formatByte(op2))
-        if args.nolist == True:
+        if args.nolist is True:
             line += " "
 
         # Special check for invalid op code.
@@ -598,7 +601,6 @@ while True:
             else:
                 line += "    %s,%s" % (formatByte(op1), case("y"))
 
-
         elif (mode == indirectZeroPage):
             if args.format == 1:
                 line += "    ($%s)" % formatByte(op1)
@@ -631,7 +633,7 @@ while True:
 
         else:
             print("Internal error: unknown addressing mode:", mode, file=sys.stderr)
-            sys.exit(1);
+            sys.exit(1)
 
         # Update address
         address += n
@@ -647,7 +649,7 @@ while True:
     except KeyboardInterrupt:
         print("Interrupted by Control-C", file=sys.stderr)
         if args.format == 4:
-            print("%s               %s" % (formatAddress(address), case("end"))) # Exit if end of file reached.
+            print("%s               %s" % (formatAddress(address), case("end")))  # Exit if end of file reached.
         else:
-            print("%s            %s" % (formatAddress(address), case("end"))) # Exit if end of file reached.
+            print("%s            %s" % (formatAddress(address), case("end")))  # Exit if end of file reached.
         break
