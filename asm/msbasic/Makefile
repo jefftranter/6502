@@ -1,3 +1,5 @@
+all: default
+
 default:
 	cd msbasic ; ./make.sh
 

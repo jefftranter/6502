@@ -538,7 +538,7 @@ MAKEHEX: SEP #M+IX      ; ALL EIGHT BIT
                         ; FALL THROUGH TO CONVERT
 
 FORMNIB: CMP #$A        ; IF GREATER THAN OR EQUAL TO
- BGE HEXDIG             ; 10, USE DIGITS A..F
+ BCS HEXDIG             ; 10, USE DIGITS A..F
  CLC                    ; ELSE SIMPLY ADD ‘0' TO
  ADC #'0'               ; CONVERT TO ASCII
  RTS
@@ -625,7 +625,7 @@ UPDATE:
  BIT #$F+2              ; IS LSD+2 ZERO?
  BNE CHKA               ; CHECK ACCUMULATOR OPCODES
  CMP #PREG              ; MUST = LDY# OR GREATER
- BLT CHKA               ; NO, MAYBE ACCUMULATOR
+ BCC CHKA               ; NO, MAYBE ACCUMULATOR
  LDA PREG               ; IF IT IS, WHAT IS FLAG SETTING?
  AND #IX
  BEQ LONG               ; CLEAR – 16 BIT MODE
@@ -745,7 +745,7 @@ TRACE:
 
  LDX BRKN+1             ; FIND OUT WHERE BRKN POINTS TO
  CPX #$C000             ; MAKE SURE IT'S RAM ON AN APPLE
- BLT @OK
+ BCC @OK
  JMP QUIT               ; MIGHT AS WELL GIVE UP NOW...
 @OK: STX USRBRKN
 
@@ -984,7 +984,7 @@ HIT: SEP #IX
 
  TXA                    ; IF INDEX WAS LESS THAN 9, IT'S
  CMP #9                 ; A BRANCH
- BGE NOTBR
+ BCS NOTBR
 
  LSR A                  ; SEE IF ‘ODD OR EVEN'
  TAX

@@ -1,4 +1,7 @@
 # Adjust the run address to match the .org in the source code
+
+all: TinyBasic.mon
+
 TinyBasic.mon: TinyBasic.bin
 	bintomon -v -l 0x7600 TinyBasic.bin >TinyBasic.mon
 

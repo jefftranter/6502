@@ -43,7 +43,7 @@ WOZACI: LDA #$AA                ; Print the Tape prompt '*'
         LDA #CR                 ; And drop the cursor one line
         JSR ECHO
 
-        LDY #-1                 ; Reset the input buffer index
+        LDY #<-1                ; Reset the input buffer index
 NEXTCHAR: INY
 KBDWAIT: LDA KBDCR              ; Wait for a key
         BPL KBDWAIT             ; Still no key!
@@ -56,7 +56,7 @@ KBDWAIT: LDA KBDCR              ; Wait for a key
         CMP #CR
         BNE NEXTCHAR            ; Read keys until CR
 
-        LDX #-1                 ; Initialize parse buffer pointer
+        LDX #<-1                ; Initialize parse buffer pointer
 
 ;-------------------------------------------------------------------------
 ; Start parsing first or a new tape command
@@ -198,7 +198,7 @@ WHEADER: STX SAVEINDEX          ; Save index in input line
 HCOUNT: LDY #66                 ; Extra long delay
         JSR WDELAY              ; CY is constantly 1, writing a 1
         BNE HCOUNT              ; Do this 64 * 256 time!
-        ADC #-2                 ; Decrement A (CY=1 all the time)
+        ADC #<-2                ; Decrement A (CY=1 all the time)
         BCS HCOUNT              ; Not all done!
         LDY #30                 ; Write a final short bit (start)
 ;
