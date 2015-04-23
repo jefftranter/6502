@@ -1,6 +1,8 @@
 # "make native" will build for local machine (e.g. Linux desktop).
 # "make adventure.mon" will build for Replica 1 using CC65.
 
+all: default
+
 #default: native
 default: adventure.mon
 
