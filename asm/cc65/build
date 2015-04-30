@@ -13,6 +13,6 @@ patch -p0  <cc65-2.13.3-replica1.patch
 cd cc65-2.13.3
 echo "*** Building"
 make -s -f make/gcc.mak
-#echo "*** Installing"
-#sudo make -s -f make/gcc.mak install
+echo "*** Installing"
+sudo make -s -f make/gcc.mak install prefix=/usr/local/replica1
 echo "*** Done"

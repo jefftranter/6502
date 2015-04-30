@@ -1,7 +1,7 @@
 # "make native" will build for local machine (e.g. Linux desktop).
 # "make yum.mon" will build for Replica 1 using CC65.
 
-all: default:
+all: default
 
 #default: native
 default: yum.mon
