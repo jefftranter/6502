@@ -6,6 +6,7 @@ details.
 
 The version disasm65c02.py supports the 65C02 microprocessor.
 The version disasm65816.py supports the 65816 microprocessor.
+The version disasm6800.py supports the 6800 microprocessor.
 
 usage: disasm6502.py [-h] [-n] [-u] [-a ADDRESS] [-f {1,2,3,4}] [-i] filename
 
