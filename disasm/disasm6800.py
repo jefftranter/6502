@@ -188,7 +188,7 @@ opcodeTable = [
     ["and", immediate],    # 84
     ["bit", immediate],    # 85
     ["lda", immediate],    # 86
-    ["???", implied],      # 87
+    ["???", implied],      # 87 STA #
     ["eor", immediate],    # 88
     ["adc", immediate],    # 89
     ["ora", immediate],    # 8A
@@ -196,7 +196,7 @@ opcodeTable = [
     ["cpx", immediate],    # 8C
     ["bsr", immediate],    # 8D
     ["lds", immediate],    # 8E
-    ["???", implied],      # 8F
+    ["???", implied],      # 8F STS #
 
     ["sub", direct],       # 90
     ["cmp", direct],       # 91
@@ -211,7 +211,7 @@ opcodeTable = [
     ["ora", direct],       # 9A
     ["add", direct],       # 9B
     ["cpx", direct],       # 9C
-    ["???", implied],      # 9D
+    ["???", implied],      # 9D HCF
     ["lds", direct],       # 9E
     ["sts", direct],       # 9F
 
@@ -256,7 +256,7 @@ opcodeTable = [
     ["andb", immediate],   # C4
     ["bitb", immediate],   # C5
     ["ldab", immediate],   # C6
-    ["???", implied],      # C7
+    ["???", implied],      # C7 STA #
     ["eorb", immediate],   # C8
     ["adcb", immediate],   # C9
     ["orab", immediate],   # CA
@@ -264,7 +264,7 @@ opcodeTable = [
     ["???", implied],      # CC
     ["???", implied],      # CD
     ["ldx", immediate],    # CE
-    ["???", implied],      # CF
+    ["???", implied],      # CF STX #
 
     ["subb", direct],      # D0
     ["cmpb", direct],      # D1
@@ -279,7 +279,7 @@ opcodeTable = [
     ["orab", direct],      # DA
     ["addb", direct],      # DB
     ["???", implied],      # DC
-    ["???", implied],      # DD
+    ["???", implied],      # DD HCF
     ["ldx", direct],       # DE
     ["stx", direct],       # DF
 
@@ -301,21 +301,21 @@ opcodeTable = [
     ["stx", indexed],      # EF
 
     ["subb", extended],    # F0
-    ["cmpb", extended],      # F1
-    ["sbcb", extended],      # F2
+    ["cmpb", extended],    # F1
+    ["sbcb", extended],    # F2
     ["???", implied],      # F3
-    ["andb", extended],      # F4
-    ["bitb", extended],      # F5
-    ["ldab", extended],      # F6
-    ["stab", extended],      # F7
-    ["eorb", extended],      # F8
-    ["adcb", extended],      # F9
-    ["orab", extended],      # FA
-    ["addb", extended],      # FB
+    ["andb", extended],    # F4
+    ["bitb", extended],    # F5
+    ["ldab", extended],    # F6
+    ["stab", extended],    # F7
+    ["eorb", extended],    # F8
+    ["adcb", extended],    # F9
+    ["orab", extended],    # FA
+    ["addb", extended],    # FB
     ["???", implied],      # FC
     ["???", implied],      # FD
-    ["ldx", extended],      # FE
-    ["stx", extended],      # FF
+    ["ldx", extended],     # FE
+    ["stx", extended],     # FF
 ]
 
 # Indicates if uppercase option is in effect.
