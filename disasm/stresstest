@@ -3,6 +3,34 @@
 
 head -1000 < /dev/urandom >TESTFILE
 
+./disasm6800.py /dev/null >/dev/null
+./disasm6800.py TESTFILE >/dev/null
+./disasm6800.py -a 0 TESTFILE >/dev/null
+./disasm6800.py -a 1000 TESTFILE >/dev/null
+./disasm6800.py -a 60000 TESTFILE >/dev/null
+./disasm6800.py -f 1 TESTFILE >/dev/null
+./disasm6800.py -f 2 TESTFILE >/dev/null
+./disasm6800.py -f 3 TESTFILE >/dev/null
+./disasm6800.py -n TESTFILE >/dev/null
+./disasm6800.py -n -f 1 TESTFILE >/dev/null
+./disasm6800.py -n -f 2 TESTFILE >/dev/null
+./disasm6800.py -n -f 3 TESTFILE >/dev/null
+./disasm6800.py -a 1000 -f 1 TESTFILE >/dev/null
+./disasm6800.py -a 1000 -f 2 TESTFILE >/dev/null
+./disasm6800.py -a 1000 -f 3 TESTFILE >/dev/null
+./disasm6800.py -n -a 1000 -f 1 TESTFILE >/dev/null
+./disasm6800.py -n -a 1000 -f 2 TESTFILE >/dev/null
+./disasm6800.py -n -a 1000 -f 3 TESTFILE >/dev/null
+./disasm6800.py -u TESTFILE >/dev/null
+./disasm6800.py -u -f 3 TESTFILE >/dev/null
+./disasm6800.py -u -a 1000 TESTFILE >/dev/null
+./disasm6800.py -u TESTFILE >/dev/null
+./disasm6800.py -u -n -a 1000 -f 3 TESTFILE >/dev/null
+./disasm6800.py -f 4 TESTFILE >/dev/null
+./disasm6800.py -a 1000 -f 4 TESTFILE >/dev/null
+./disasm6800.py -n -a 1000 -f 4 TESTFILE >/dev/null
+./disasm6800.py -u -n -a 1000 -f 4 TESTFILE >/dev/null
+
 ./disasm6502.py /dev/null >/dev/null
 ./disasm6502.py TESTFILE >/dev/null
 ./disasm6502.py -a 0 TESTFILE >/dev/null
