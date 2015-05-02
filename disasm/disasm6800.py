@@ -431,6 +431,11 @@ while True:
 
         n = lengthTable[mode]  # Look up number of instruction bytes
 
+        # Handle special case of immediate instructions that are three
+        # bytes long.
+        if mnem in set(["cpx", "ldx", "lds"]):
+            n = 3
+
         # Print instruction bytes
         if n == 1:
             if args.nolist is False:
@@ -480,15 +485,23 @@ while True:
             pass
 
         elif mode == immediate:
-            if isprint(chr(op1)):
-                line += "    #'%c'" % op1
-            else:
-                if args.format == 1:
-                    line += "    #$%s" % formatByte(op1)
-                elif args.format == 2:
-                    line += "    #%s%s" % (formatByte(op1), case("h"))
+            if (n == 2):
+                if isprint(chr(op1)):
+                    line += "    #'%c'" % op1
                 else:
-                    line += "    #%s" % formatByte(op1)
+                    if args.format == 1:
+                        line += "    #$%s" % formatByte(op1)
+                    elif args.format == 2:
+                        line += "    #%s%s" % (formatByte(op1), case("h"))
+                    else:
+                        line += "    #%s" % formatByte(op1)
+            elif (n == 3):
+                if args.format == 1:
+                    line += "    #$%s%s" % (formatByte(op1), formatByte(op2))
+                elif args.format == 2:
+                    line += "    #%s%s%s" % (formatByte(op1), formatByte(op2), case("h"))
+                else:
+                    line += "    #%s%s" % (formatByte(op1), formatByte(op2))
 
         elif mode == direct:
             if args.format == 1:
