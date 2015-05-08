@@ -2,7 +2,8 @@
 ;
 ; Write to 4 bit D/A converter on port A.
 ; With 2MHz CPU clock sine wave is 7.245 KHz
-       
+
+       .org $0280
        .include "6522.inc"
 
        SAMPLES = 16    ; Number of samples in table

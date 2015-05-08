@@ -4,7 +4,7 @@
 ; Read pulses on PB6 line.
 ; Output value to screen.
 ; Timer counts down so for fun we complement the bits to get a count that goes up.
-
+       .org $0280
        .include "6522.inc"
 
         ECHO    = $FFEF ; Woz monitor

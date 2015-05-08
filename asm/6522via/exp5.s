@@ -11,10 +11,13 @@
 ; Once it runs it returns and is all interrupt driven.
 ; Could use from BASIC and PEEK the time values. Have to make sure
 ; program did not use memory used by BASIC.  Also risk of clobbering IRQ
-; vector because it is set to $0100 which in in the stack (programmed in
+; vector because it is set to $0100 which is in the stack (programmed in
 ; EEPROM so we can't change it at run time).
+;
+; Try running program time.bas to display the time.
 
- .include "6522.inc"
+    .org $0280
+    .include "6522.inc"
 
     ECHO     = $FFEF    ; Woz monitor
     COUNT    = 19998    ; 100 Hz sample rate (10 msec interrupts) assuming 2 MHz CPU clock

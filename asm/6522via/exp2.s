@@ -64,7 +64,7 @@
 ; Good choice for a real-time clock might be 100Hz.
 ; Will do this in a later experiment.
 ;
-
+       .org $0280
        .include "6522.inc"
 
         COUNT = $4119

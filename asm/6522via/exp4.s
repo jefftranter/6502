@@ -12,7 +12,8 @@
 ; If wanted to convert to Hz, good sample are might be 16,32, 64 since could multiply by shifting it.
 ; input was an audio signal generator and then through a 74LS04 inverter to make sure levels were TTL.
 
- .include "6522.inc"
+    .org $0280
+    .include "6522.inc"
 
     ECHO     = $FFEF    ; Woz monitor
     PRBYTE   = $FFDC    ; Woz monitor
