@@ -52,7 +52,7 @@ hit, puts original instruction back and jumps into JMON and saves the
 values of the current registers. From there you can single step,
 change registers, etc. Once hit, a breakpoint is cleared and needs to
 be set again. Breakpoints must be in RAM and the IRQ/BRK vector must
-be in RAM (AN error is displayed if it is not). If the break handler
+be in RAM (an error is displayed if it is not). If the break handler
 is called from an interrupt rather than a BRK instruction, a message
 is displayed and a return from interrupt executed. If JMON is
 restarted, breakpoints are cleared. If a BRK instruction is encountered
