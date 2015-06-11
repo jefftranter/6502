@@ -1,6 +1,6 @@
 ; Replica 1 SpeakJet Chip Demo
 
-  .org    $1000
+    .org    $1000
 
 ; Defines
 
@@ -31,21 +31,22 @@ next:
 ; Write data out serial port, wait until sent and then return.
 PutChar:
     pha                 ; Save A
-    sta  ACIA_DATA       ; Send character
-    lda  #%00010000      ; TDRE bit
+    sta  ACIA_DATA      ; Send character
+    lda  #%00010000     ; TDRE bit
 loop:
-    bit  ACIA_STATUS     ; Check status register
-    beq  loop            ; Branch until TDRE is true
+    bit  ACIA_STATUS    ; Check status register
+    beq  loop           ; Branch until TDRE is true
     pla                 ; Restore A
     rts                 ; Return
 
-; Delay loopl
+; Delay loop.
 Delay:
     ldy  #0
 outer:
     ldx  #0
 inner:
     inx
+    nop
     bne  inner
     iny
     bne  outer
