@@ -34,13 +34,24 @@ rnd = $00               ; Uses 5 bytes
 
 play:
     jsr  Random         ; Get random number
-    ora  #%10000000     ; Want >= 128
-    jsr  PutChar        ; Send it
+    ora  #%10000000     ; Want >= 128 for phoneme
 
+    pha                 ; Save A
+    jsr  Random         ; Get random number
+    and  #%00000011     ; Put in range 0-3
+    tax                 ; Save it (will be number of times to play sound)
+    inx                 ; Put in range 1-4
+    pla                 ; Restore A (phoneme)
+rept:
+    jsr  PutChar        ; Send it
+    pha
     lda  #%00000001     ; Look at bit 0...
 playing:
     bit  VIA_PORTA      ; of PA0
     bne  playing        ; Loop until not playing
+    pla
+    dex
+    bne rept          ; keep playing it
 
     jmp  play
 
