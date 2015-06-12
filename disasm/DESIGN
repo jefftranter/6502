@@ -1,0 +1,185 @@
+Universal Table Driven Disassembler
+-----------------------------------
+
+Features:
+- all code independent of CPU
+- driven by data/config files
+- support for hex, octal, with or w/o $ prefix of h suffix PROBABLY REMOVE THIS! Handle per-cpu
+- also other options from previous Python versions
+- standard format, maybe with some exceptions
+- 65xx 68xx, 68xxx, 8080, Z-80, etc.
+- little or big-endian addresses
+
+Per-CPU Data file:
+
+- data width (bytes)
+- address width (bytes)
+
+# Relevant for, e.g. 68HC11 and Z80.
+leadInBytes = [0x18, 0x1a, 0xcd]
+
+- table:
+
+opcode bytes, total instruction length, mnemonic, operand Python format string
+0xea, 1, "nop", ""
+0x4c, 3, "jmp", "%2%1"
+
+[0x1b],       1, "aba", ""
+[0x18, 0x3a], 2, "aby", ""
+[0x18, 0xa9], 3, "adca", "(${0:02X},y"
+
+
+6502 examples:
+
+opcodeTable = [
+[ [0x00], 1, "brk", ""                 ],
+[ [0x01], 2, "ora", "(${0:02X}),x"     ],
+[ [0x05], 2, "ora", "${0:02X}"         ],
+[ [0x4c], 3, "jmp", "${1:02X}{0:02X}"  ],
+]
+
+Pseudode:
+
+Parse command line options and input file name.
+
+address = 0;
+leadIn = false;
+
+while not eof do:
+  Get opcode byte (or whatever data size is).
+
+  if opcode is in leadin data:
+    if leadIn was already true:
+      invalid opcode, show as ??? or .byte
+      leadin = False
+    else:
+      leadIn = true
+      leadInData = opcode
+      continue
+  else
+
+
+------------------------------------------------------------------------
+
+<mnam> <s1><arg1>
+
+https://docs.python.org/2/library/string.html?highlight=string%20formatting#format-specification-mini-language
+http://www.python-course.eu/python3_formatted_output.php
+
+"jsr ${:02X}{:02X}".format(123,12)
+
+e.g. 
+
+%1d <- as data
+%2a <- as address
+%1r <- address relative to PC
+(%1,%2)a
+(%1,%2)a
+
+$%1,s
+$%1%2
+($%1,s),y
+($%1,x)
+[$%1]
+a
+a,(hl)
+m
+$%1,x
+$%1%2%3,x
+$%1%2
+
+
+adc $0D,s
+adc $8EF0
+adc ($53,s),y
+adc ($CA,x)
+adc [$92]
+adc a
+adc a,(hl)
+ana m
+and $0D,x
+asl $123456,x
+asl a
+bbs1 $12, $3456
+bbs1 $12, $3456
+beq $0077
+bne $1234
+bra $1234
+cld
+cmp b
+cnz $4E5F
+dcx b
+dec $EE07
+eor $E3
+eor ($5F,x)
+inca
+inr m
+inr m
+inx sp
+jmp $60B6
+jmp $7B17
+jmp ($1234)
+jmp ($1234,x)
+jmp ($1234,x)
+jmp ($436F)
+jmp [$1234]
+jsl $123456
+jsl $90000A
+jz $BB2E
+ld a,(hl)
+ld d,b
+ld hl,($A0D4)
+lda #$12
+lda #12
+lda $12,x
+lda $12,y
+lda $1234
+lda $1234,x
+lda $1234,y
+lda ($12)
+lda ($12),y
+lda ($12,x)
+lda ($4F,s),y
+ldaa #$12
+ldaa $12
+ldaa $12,x
+ldaa $1234
+ldx $C86C,y
+ldy $75,x
+lsr $6F2A
+lsr $73
+lxi b,$CB27
+mov a,b
+mov a,h
+mov a,m
+mov b,d
+mov e,a
+mov e,d
+mov h,a
+mov h,e
+mvp $12,$34
+ora ($12,s),y
+ora ($6A)
+ora 1,s
+ora [$10]
+ora [$10],y
+ora b
+plp
+push d
+rc
+ror $26
+rst 0
+rst 0
+rts
+rts
+sbb h
+sbc #$D4
+sbc [$14]
+sbc a,$BE
+sta $1E,s
+sta $D2,s
+sta ($ED),y
+stax b
+sub c
+tay
+tdc
