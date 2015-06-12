@@ -1,7 +1,8 @@
 ; Replica 1 SpeakJet Chip Demo
 
-; Uses the DO/Speaking pin to determine when phoneme has completed
-; playing. You need to connect D0 (pin 16) to PA0 of the 6522 VIA.
+; Plays random phonemes a random number of times. Uses the D0/Speaking
+; pin to determine when phoneme has completed playing. You need to
+; connect D0 (pin 16) to PA0 of the 6522 VIA.
 
     .org    $1000
 
@@ -14,23 +15,19 @@ ACIA_CMD     = $C302    ; Command Register
 ACIA_CONTROL = $C303    ; Control Register
 
 ; 6522 VIA
-VIA_PORTB = $C200
 VIA_PORTA = $C201
-VIA_DDRB  = $C202
-VIA_DDRA  = $C203
 
 ; For Random routine
-rnd = $00               ; Uses 5 bytes
+rnd = $00               ; Uses 5 sequential bytes
 
 ; Set ACIA to 9600 BPS 8N1
+
     lda  #%00011110     ; 2 stop bits, 8 data bits, internal clock, 9600 baud
     sta  ACIA_CONTROL
     lda  #%00001011     ; no parity, no echo, no interrupts, RTS low, DTR low
     sta  ACIA_CMD
 
 ; Assume 6522 is initialized to reset defaults (all pins inputs).
-
-; Play all sound effect phonemes from 200 to 255
 
 play:
     jsr  Random         ; Get random number
@@ -53,7 +50,7 @@ playing:
     dex
     bne rept          ; keep playing it
 
-    jmp  play
+    jmp  play         ; Loop forever.
 
 ; Wait for ACIA to be ready to send, then write data out serial port.
 PutChar:
@@ -67,6 +64,7 @@ loop:
     rts                 ; Return
 
 ; Jim Butterfield's random number generator routine.
+; Returns random number in A.
 Random:
     cld
     sec

@@ -1,9 +1,10 @@
 ; Replica 1 SpeakJet Chip Demo
 
-; Uses the DO/Speaking pin to determine when phoneme has completed
-; playing. You need to connect D0 (pin 16) to PA0 of the 6522 VIA.
+; Plays each sound effect phoneme four times in sequence. Uses the
+; D0/Speaking pin to determine when phoneme has completed playing. You
+; need to connect D0 (pin 16) to PA0 of the 6522 VIA.
 
-    .org    $1000
+    .org $1000
 
 ; Defines
 
@@ -14,25 +15,23 @@ ACIA_CMD     = $C302    ; Command Register
 ACIA_CONTROL = $C303    ; Control Register
 
 ; 6522 VIA
-VIA_PORTB = $C200
 VIA_PORTA = $C201
-VIA_DDRB  = $C202
-VIA_DDRA  = $C203
 
 ; Set ACIA to 9600 BPS 8N1
+
     lda  #%00011110     ; 2 stop bits, 8 data bits, internal clock, 9600 baud
     sta  ACIA_CONTROL
     lda  #%00001011     ; no parity, no echo, no interrupts, RTS low, DTR low
     sta  ACIA_CMD
 
-; Assume 6522 is initialized to reset defaults (all pins inputs).
+; Assume 6522 VIA is initialized to reset defaults (all pins inputs).
 
 ; Play all sound effect phonemes from 200 to 255
 
     ldx  #200           ; First phoneme
 next:
     txa
-    jsr  PutChar        ; Send it
+    jsr  PutChar        ; Send it 4 times.
     jsr  PutChar
     jsr  PutChar
     jsr  PutChar
