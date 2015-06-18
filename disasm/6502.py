@@ -18,17 +18,17 @@ leadInBytes = []
 addressModeTable = {
 "implicit"    : "",
 "absolute"    : "${1:02X}{0:02X}",
-"absolutex"   : "${1:02X}{0:02X},X",
-"absolutey"   : "${1:02X}{0:02X},Y",
+"absolutex"   : "${1:02X}{0:02X},x",
+"absolutey"   : "${1:02X}{0:02X},y",
 "accumulator" : "a",
 "immediate"   : "#${0:02X}",
-"indirectx"   : "(${0:02X},X)",
-"indirecty"   : "(${0:02X}),Y",
+"indirectx"   : "(${0:02X},x)",
+"indirecty"   : "(${0:02X}),y",
 "indirect"    : "(${1:02X}{0:02X})",
 "relative"    : "${0:04X}",
 "zeropage"    : "${0:02X}",
-"zeropagex"   : "${0:02X},X",
-"zeropagey"   : "${0:02X},Y",
+"zeropagex"   : "${0:02X},x",
+"zeropagey"   : "${0:02X},y",
 }
 
 # Op Code Table
@@ -51,8 +51,8 @@ opcodeTable = {
 
 0x10 : [ 2, "bpl", "relative", pcr   ],
 0x11 : [ 2, "ora", "indirecty"       ],
-0x15 : [ 3, "ora", "absolutex"       ],
-0x16 : [ 3, "asl", "absolutey"       ],
+0x15 : [ 2, "ora", "zeropagex"       ],
+0x16 : [ 2, "asl", "zeropagex"       ],
 0x18 : [ 1, "clc", "implicit"        ],
 0x19 : [ 3, "ora", "absolutey"       ],
 0x1d : [ 3, "ora", "absolutex"       ],
@@ -125,7 +125,7 @@ opcodeTable = {
 0x86 : [ 2, "stx", "zeropage"        ],
 0x88 : [ 1, "dey", "implicit"        ],
 0x8a : [ 1, "txa", "implicit"        ],
-0x8c : [ 1, "sty", "absolute"        ],
+0x8c : [ 3, "sty", "absolute"        ],
 0x8d : [ 3, "sta", "absolute"        ],
 0x8e : [ 3, "stx", "absolute"        ],
 
@@ -136,7 +136,7 @@ opcodeTable = {
 0x96 : [ 2, "stx", "zeropagey"       ],
 0x98 : [ 1, "tya", "implicit"        ],
 0x99 : [ 3, "sta", "absolutey"       ],
-0x9a : [ 2, "txs", "implicit"        ],
+0x9a : [ 1, "txs", "implicit"        ],
 0x9d : [ 3, "sta", "absolutex"       ],
 
 0xa0 : [ 2, "ldy", "immediate"       ],

@@ -98,6 +98,8 @@ while True:
         b = f.read(1)  # Get binary byte from file
 
         if len(b) == 0:  # handle EOF
+            if args.nolist is False:
+                print("{0:04X}            end".format(address))  # Exit if end of file reached.
             break
 
         opcode = ord(b)
