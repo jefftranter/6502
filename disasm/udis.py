@@ -132,22 +132,23 @@ while True:
 # With --nolist option:
 # nop    ($1234,X)
 
-# TODO: Implement --nolist option
-
-        if leadin is True:
-            line += "{0:04X}  {1:02X} {2:02X}".format(address, opcode // 256, opcode % 256)
-            length -= 1
-        else:
-            line += "{0:04X}  {1:02X}".format(address, opcode)
+        if args.nolist is False:
+            if leadin is True:
+                line += "{0:04X}  {1:02X} {2:02X}".format(address, opcode // 256, opcode % 256)
+                length -= 1
+            else:
+                line += "{0:04X}  {1:02X}".format(address, opcode)
 
         op = {}  # Array to hold operands
 
         for i in range(1, maxLength):
             if (i < length):
                 op[i] = ord(f.read(1))  # Get operand bytes
-                line += " {0:02X}".format(op[i])
+                if args.nolist is False:
+                    line += " {0:02X}".format(op[i])
             else:
-                line += "   "
+                if args.nolist is False:
+                    line += "   "
 
         # Handle relative addresses (flag)
         if flags == pcr:
@@ -177,10 +178,13 @@ while True:
             else:
                 mnemonic = ".byte  ${0:02X}".format(opcode)
 
+        if args.nolist is False:
+            line += " "
+
         if operand == "":
-            line += "  {0:s}".format(mnemonic)
+            line += " {0:s}".format(mnemonic)
         else:
-            line += "  {0:s}    {1:s}".format(mnemonic, operand)
+            line += " {0:s}    {1:s}".format(mnemonic, operand)
 
         print(line)
 
