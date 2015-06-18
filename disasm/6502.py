@@ -42,7 +42,7 @@ opcodeTable = {
 0x00 : [ 1, "brk", "implicit"        ],
 0x01 : [ 2, "ora", "indirectx"       ],
 0x05 : [ 2, "ora", "zeropage"        ],
-0x10 : [ 2, "bpl", "relative", "pcr" ],
+0x10 : [ 2, "bpl", "relative", pcr   ],
 0x20 : [ 3, "jsr", "absolute"        ],
 0x4c : [ 3, "jmp", "absolute"        ],
 0x6c : [ 3, "jmp", "indirect"        ],

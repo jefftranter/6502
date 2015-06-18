@@ -20,6 +20,12 @@ import fileinput
 import argparse
 import signal
 
+# Flags
+
+
+pcr = 1
+str = 2
+
 # Functions
 
 
@@ -29,7 +35,6 @@ def isprint(c):
         return True
     else:
         return False
-
 
 # TODO: Fix any PEP8 warnings
 
@@ -59,7 +64,10 @@ filename = args.filename
 # Current instruction address. Silently force it to be in valid range.
 address = args.address & 0xffff
 
-# Contains a line of output
+# Any flags for current instruction.
+flags = 0
+
+# Contains a line of output.
 line = ""
 
 # Open input file.
@@ -99,6 +107,10 @@ while True:
             length = opcodeTable[opcode][0]
             mnemonic = opcodeTable[opcode][1]
             mode = opcodeTable[opcode][2]
+            if len(opcodeTable[opcode]) > 3:
+                flags = opcodeTable[opcode][3]
+            else:
+                flags = 0
             if mode in addressModeTable:
                 format = addressModeTable[mode]
             else:
@@ -112,7 +124,7 @@ while True:
 # Disassembly format:
 # XXXX  XX XX XX XX XX  nop    ($1234,X)
 # With --nolist option:
-# nop  ($1234,X)
+# nop    ($1234,X)
 
 # TODO: Implement --nolist option
 
@@ -133,8 +145,16 @@ while True:
             else:
                 line += "   "
 
-        # TODO: Handle relative addresses (flag)
+        # Handle relative addresses (flag)
+        if flags == pcr:
+            if op[1] < 128:
+                op[1] = address + op[1] + 2
+            else:
+                op[1] = address - (256 - op[1]) + 2
+            if op[1] < 0:
+                op[1] = 65536 + op[1]
 
+        # Format the operand using format string and any operands.
         if length == 1:
             operand = ""
         elif length == 2:
@@ -149,17 +169,17 @@ while True:
         # Special check for invalid op code.
         if mnemonic == "???" and not args.invalid:
             if isprint(chr(opcode)):
-                 mnemonic = ".byte  '{0:c}'".format(opcode)
+                mnemonic = ".byte  '{0:c}'".format(opcode)
             else:
-                 mnemonic = ".byte  ${0:02X}".format(opcode)
+                mnemonic = ".byte  ${0:02X}".format(opcode)
 
-        # Magic happens here: format the operand.
         line += "  %s    %s" % (mnemonic, operand)
 
         print(line)
 
         address = (address + length) & 0xffff
         line = ""
+        flags = 0
 
     except KeyboardInterrupt:
         print("Interrupted by Control-C", file=sys.stderr)
