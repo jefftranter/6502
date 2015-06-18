@@ -24,7 +24,6 @@ import signal
 
 
 pcr = 1
-str = 2
 
 # Functions
 
@@ -36,10 +35,11 @@ def isprint(c):
     else:
         return False
 
-# TODO: Fix any PEP8 warnings
 
 # Avoids an error when output piped, e.g. to "less"
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+# TODO: Add command line option to show available CPUs.
 
 # Parse command line options
 parser = argparse.ArgumentParser()
@@ -99,11 +99,13 @@ while True:
 
         if len(b) == 0:  # handle EOF
             if args.nolist is False:
-                print("{0:04X}            end".format(address))  # Exit if end of file reached.
+                print("{0:04X}            end".format(address))
             break
 
+        # Get op code
         opcode = ord(b)
 
+        # Handle if opcode is a leadin byte
         if opcode in leadInBytes:
             b = f.read(1)  # Get next byte of extended opcode
             opcode = (opcode << 8) + ord(b)
@@ -111,12 +113,13 @@ while True:
         else:
             leadin = False
 
+        # Given opcode, get data from opcode table and address mode table for CPU.
         if opcode in opcodeTable:
             length = opcodeTable[opcode][0]
             mnemonic = opcodeTable[opcode][1]
             mode = opcodeTable[opcode][2]
             if len(opcodeTable[opcode]) > 3:
-                flags = opcodeTable[opcode][3]
+                flags = opcodeTable[opcode][3]  # Get optional flags
             else:
                 flags = 0
             if mode in addressModeTable:
@@ -134,6 +137,7 @@ while True:
 # With --nolist option:
 # nop    ($1234,X)
 
+        # Add current address to output line
         if args.nolist is False:
             if leadin is True:
                 line += "{0:04X}  {1:02X} {2:02X}".format(address, opcode // 256, opcode % 256)
@@ -143,6 +147,7 @@ while True:
 
         op = {}  # Array to hold operands
 
+        # Get any operands and stor in an array
         for i in range(1, maxLength):
             if (i < length):
                 op[i] = ord(f.read(1))  # Get operand bytes
@@ -152,7 +157,8 @@ while True:
                 if args.nolist is False:
                     line += "   "
 
-        # Handle relative addresses (flag)
+        # Handle relative addresses. Indicated by the flag pcr being set.
+        # TODO: Needs changes if more flags are added.
         if flags == pcr:
             if op[1] < 128:
                 op[1] = address + op[1] + 2
@@ -172,25 +178,35 @@ while True:
             operand = format.format(op[1], op[2], op[3])
         elif length == 5:
             operand = format.format(op[1], op[2], op[3], op[4])
+        elif length == 6:
+            operand = format.format(op[1], op[2], op[3], op[4], op[5])
+        elif length == 7:
+            operand = format.format(op[1], op[2], op[3], op[4], op[5], op[6])
 
-        # Special check for invalid op code.
+        # Special check for invalid op code. Display as ??? or .byte depending on command line option.
         if mnemonic == "???" and not args.invalid:
             if isprint(chr(opcode)):
                 mnemonic = ".byte  '{0:c}'".format(opcode)
             else:
                 mnemonic = ".byte  ${0:02X}".format(opcode)
 
+        # Need one more space if not in no list mode.
         if args.nolist is False:
             line += " "
 
+        # Add mnemonic and any operands to the output line.
         if operand == "":
             line += " {0:s}".format(mnemonic)
         else:
             line += " {0:s}    {1:s}".format(mnemonic, operand)
 
+        # Print line of output
         print(line)
 
+        # Update address, handlng wraparound at 64K.
         address = (address + length) & 0xffff
+
+        # Reset variables for next line of output.
         line = ""
         flags = 0
 
