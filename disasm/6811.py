@@ -30,7 +30,7 @@ addressModeTable = {
 #   # bytes
 #   mnemonic
 #   addressing mode.
-#   flags (e.g. pcr, char)
+#   flags (e.g. pcr)
 opcodeTable = {
 0x00   :  [ 1, "test", "inherent"        ],
 0x01   :  [ 1, "nop",  "inherent"        ],

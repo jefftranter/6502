@@ -161,7 +161,7 @@ while True:
 
         # Format the operand using format string and any operands.
         if length == 1:
-            operand = ""
+            operand = format
         elif length == 2:
             operand = format.format(op[1])
         elif length == 3:
