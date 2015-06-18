@@ -87,6 +87,12 @@ except FileNotFoundError:
 # line - line to output
 # leadin - extended opcode (true/false)
 
+# Print initial origin address
+if args.nolist is False:
+    print("{0:04X}            .org   ${1:04X}".format(address, address))
+else:
+    print(" .org    ${0:04X}".format(address))
+
 while True:
     try:
         b = f.read(1)  # Get binary byte from file
@@ -128,20 +134,18 @@ while True:
 
 # TODO: Implement --nolist option
 
-# TODO: Replace all % operators with format()
-
         if leadin is True:
-            line += "%04X  %02X %02X" % (address, opcode / 256, opcode % 256)
+            line += "{0:04X}  {1:02X} {2:02X}".format(address, opcode // 256, opcode % 256)
             length -= 1
         else:
-            line += "%04X  %02X" % (address, opcode)
+            line += "{0:04X}  {1:02X}".format(address, opcode)
 
         op = {}  # Array to hold operands
 
         for i in range(1, maxLength):
             if (i < length):
                 op[i] = ord(f.read(1))  # Get operand bytes
-                line += " %02X" % op[i]
+                line += " {0:02X}".format(op[i])
             else:
                 line += "   "
 
@@ -173,7 +177,10 @@ while True:
             else:
                 mnemonic = ".byte  ${0:02X}".format(opcode)
 
-        line += "  %s    %s" % (mnemonic, operand)
+        if operand == "":
+            line += "  {0:s}".format(mnemonic)
+        else:
+            line += "  {0:s}    {1:s}".format(mnemonic, operand)
 
         print(line)
 
