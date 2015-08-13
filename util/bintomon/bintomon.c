@@ -1,7 +1,7 @@
 /*
  * Convert binary file to Woz monitor format.
  *
- * Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+ * Copyright (C) 2012-2015 by Jeff Tranter <tranter@pobox.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * usage: bintomon [-v] [-f] [-l <LoadAddress>] [-r <RunAddress>] <filename>
+ * usage: bintomon [-v] [-f] [-1] [-2] [-l <LoadAddress>] [-r <RunAddress>] <filename>
  *
  * The -l option and <LoadAddress> argument specifies the starting
  * memory address to load. The -r option and <RunAddress> argument
  * specifies the memory address to start execution. With the -f option
  * the LoadAddress and program length are read from the first 4 bytes
- * of the file. If no <LoadAddress> is specified, it defaults to
+ * of the file. A -1 option specifies to use Apple 1 Woz Monitor
+ * format. The -2 option specifies to use the Apple II Monitor format.
+ * If no <LoadAddress> is specified, it defaults to
  * 0x280. If no <RunAddess> is specified, it defaults to the
  * <LoadAddress>. Addresses can be specified in decimal or hex
- * (prefixed with "0x"). A monitor 'R' command is sent at the end of
+ * (prefixed with "0x"). A monitor run or go command is sent at the end of
  * the file. If <RunAddress> is "-" then the run command is not
  * generated in the output.
  * With the -v option verbose output is sent to standard error listing
@@ -46,7 +48,7 @@
 
 /* print command usage */
 void usage(char *name) {
-    fprintf(stderr, "usage: %s [-v] [-f] [-l <LoadAddress>] [-r <RunAddress>] <filename>\n", name);
+    fprintf(stderr, "usage: %s [-v] [-f] [-1] [-2] [-l <LoadAddress>] [-r <RunAddress>] <filename>\n", name);
 }
 
 int main(int argc, char *argv[])
@@ -62,14 +64,21 @@ int main(int argc, char *argv[])
     size_t size;
     int fromFile = 0;
     int verbose = 0;
+    int version = 1; // Use Apple 1 or Apple 2 foramt
 
-    while ((opt = getopt(argc, argv, "vfl:r:")) != -1) {
+    while ((opt = getopt(argc, argv, "v12fl:r:")) != -1) {
         switch (opt) {
         case 'f':
             fromFile = 1;
             break;
         case 'v':
             verbose = 1;
+            break;
+        case '1':
+            version = 1;
+            break;
+        case '2':
+            version = 2;
             break;
         case 'l':
             loadAddress = strtol(optarg, 0, 0);
@@ -134,7 +143,12 @@ int main(int argc, char *argv[])
 
     // Add run address
     if (runAddress != -1) {
-        printf("%04XR\n", runAddress);
+        if (version == 1) {
+            printf("%04XR\n", runAddress);
+        }
+        if (version == 2) {
+            printf("%04XG\n", runAddress);
+        }
     }
 
     if (verbose) {
