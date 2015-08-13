@@ -80,17 +80,21 @@
 ; 1.1.0  30-Jan-2015   Added support for Superboard /// platform
 ; 1.2.0  22-Mar-2015   Added support for KIM-1 computer platform
 ; 1.2.1  25-Mar-2015   All features now working on KIM-1 platform
+; 1.3.0  12-Aug-2015   Added support for Apple II platform.
 
 ; Platform
-; Define either APPLE1 for Apple 1 Replica 1, OSI for Ohio Scientific
-; SuperBoard II or ///, or KIM1 for KIM-1 platform. Normally this is
-; set in the Makefile.
+; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
+; OSI for Ohio Scientific SuperBoard II or ///, or KIM1 for KIM-1 platform.
+; Normally this is set in the Makefile.
 ; APPLE1  = 1
+; APPLE2  = 1
 ; OSI     = 1
-; KIM1 = 1
+; KIM1    = 1
 
 .if .defined(APPLE1)
     .out "Building for Apple 1/Replica 1"
+.elseif .defined(APPLE2)
+    .out "Building for Apple II"
 .elseif .defined(OSI)
     .out "Building for Ohio Scientific Superboard"
 .elseif .defined(KIM1)
@@ -117,28 +121,31 @@
 ; Krusader uses $F8, $F9, $FE, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
 ; OSI monitor uses $FB, $FC, $FE, $FF.
-  T1      = $30                 ; Temp variable 1 (2 bytes)
-  SL      = $32                 ; Start address low byte
-  SH      = $33                 ; Start address high byte
-  EL      = $34                 ; End address low byte
-  EH      = $35                 ; End address high byte
-  DL      = $36                 ; Destination address low byte
-  DH      = $37                 ; Destination address high byte
-  ADDR    = $38                 ; Instruction address, 2 bytes (low/high)
-  ADDRS   = $3A                 ; Memory test - 2 bytes - address of memory
-  TEST_PATRN = $3C              ; Memory test - 1 byte - current test pattern
-  PASSES  = $3D                 ; Memory test - number of passes
-  VECTOR  = $3E                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
-  BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
-  T3      = $48                 ; Temp variable 3 (1 byte)
+.ifdef APPLE2
+  BASE = $60
+.else
+  BASE = $30
+.endif
+  T1      = BASE+$00            ; Temp variable 1 (2 bytes)
+  SL      = BASE+$02            ; Start address low byte
+  SH      = BASE+$03            ; Start address high byte
+  EL      = BASE+$04            ; End address low byte
+  EH      = BASE+$05            ; End address high byte
+  DL      = BASE+$06            ; Destination address low byte
+  DH      = BASE+$07            ; Destination address high byte
+  ADDR    = BASE+$08            ; Instruction address, 2 bytes (low/high)
+  ADDRS   = BASE+$0A            ; Memory test - 2 bytes - address of memory
+  TEST_PATRN = BASE+$0C         ; Memory test - 1 byte - current test pattern
+  PASSES  = BASE+$0D            ; Memory test - number of passes
+  VECTOR  = BASE+$0E            ; Holds adddress of IRQ/BREAK entry point (2 bytes)
+  BPA     = BASE+$10            ; Address of breakpoint (2 bytes * 4 breakpoints)
+  T3      = BASE+$18            ; Temp variable 3 (1 byte)
 
 ; Non page zero locations
-.if .defined(APPLE1)
-  IN      = $0200               ; Buffer from $0200 through $027F (shared with Woz Mon)
-.elseif .defined(OSI)
-  IN      = $0300               ; Buffer from $0300 through $037F (shared with OSI BASIC)
-.elseif .defined(KIM1)
+.if .defined(APPLE1) .or .defined(KIM1)
   IN      = $0200               ; Buffer from $0200 through $027F
+.elseif .defined(OSI) .or .defined(APPLE2)
+  IN      = $0300               ; Buffer from $0300 through $037F
 .endif
 
 ; External Routines
@@ -147,6 +154,11 @@
   WOZMON  = $FF00               ; Woz monitor entry point
   MENU    = $9006               ; CFFA1 menu entry point
   ACI     = $C100               ; ACI (Apple Cassette Interface) firmware entry point
+  ECHO    = 1                   ; Need to echo commands
+  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
+.elseif .defined(APPLE2)
+  BASIC   = $D001               ; BASIC
+  MONITOR = $FF69               ; Apple monitor entry point
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .elseif .defined(OSI)
@@ -160,10 +172,13 @@
 ; Note: ECHO not defined because KIM-1 always echoes characters back.
 .endif
 
-; Start address. $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
+; Start address.
 .if .defined(APPLE1)
+; $0280 works well for running out of RAM. Use start address of $A000 for Multi I/0 Board EEPROM
 ; .org $A000
   .org $0280
+.elseif .defined(APPLE2)
+  .org $2000
 .elseif .defined(OSI)
   .org $0380
 .elseif .defined(KIM1)
@@ -269,6 +284,8 @@ Monitor:
         LDX #<NoWozMonString    ; Display error that no Woz Monitor is present.
         LDY #>NoWozMonString
         JMP PrintString         ; Return via caller
+.elseif .defined(APPLE2)
+        JMP MONITOR             ; Assume it is always present
 .elseif .defined(OSI)
         JMP OSIMON              ; Jump into OSI Monitor
 .elseif .defined(KIM1)
@@ -288,7 +305,7 @@ Assemble:
         JMP AssembleLine        ; Call asssembler
 
 ; Go to BASIC
-.if .defined(APPLE1) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
 Basic:
         JSR BASICPresent        ; Is BASIC ROM present?
         BEQ NoBasic
@@ -712,6 +729,8 @@ Verify:
 ; Dump Memory
 
 .if .defined(APPLE1)
+        BYTESPERLINE = 8
+.elseif .defined(APPLE2)
         BYTESPERLINE = 8
 .elseif .defined(OSI)
         BYTESPERLINE = 4
@@ -1302,7 +1321,7 @@ Options:
         LDX #<OptionsString
         LDY #>OptionsString
         JSR PrintString
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(APPLE2)
         LDX #<UppercaseString
         LDY #>UppercaseString
         JSR PrintString
@@ -1347,7 +1366,7 @@ Options:
         STA OWDELAY
         JSR PrintCR             ; new line
 
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(APPLE2)
         LDX #<HighBitString
         LDY #>HighBitString
         JSR PrintString
@@ -1397,7 +1416,7 @@ Options:
 .endif
         AND #%00000011          ; Convert ASCII number to binary number
         STA OCPU
-.ifndef APPLE1
+.if .defined(OSI) .or .defined(KIM)
 @Return:
 .endif
         JMP PrintCR             ; new line
@@ -1572,6 +1591,8 @@ GetKey:
         LDA KBD                 ; Get keyboard data
         AND #%01111111          ; Clear most significant bit to convert to standard ASCII
         RTS
+.elseif .defined(APPLE2)
+        JMP $FD1B               ; Apple II KEYIN
 .elseif .defined(OSI)
         JMP $FD00               ; Call OSI input routine
 .elseif .defined(KIM1)
@@ -1879,7 +1900,7 @@ PRBYTE:
 ; Registers changed: A
 PRHEX:
         AND #$0F        ; Mask LSD for hex print.
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(APPLE2)
         ORA #'0'+$80    ; Add "0".
         CMP #$BA        ; Digit?
 .else
@@ -1912,6 +1933,9 @@ PrintChar:
         PLA             ; Restore A
         PLP             ; Restore status
         RTS             ; Return.
+
+.elseif .defined(APPLE2)
+        JMP $FDF0       ; Apple II COUT1
 
 .elseif .defined(OSI)
         PHP             ; Save status
@@ -2140,6 +2164,8 @@ GOTMCH: INX                     ; Makes zero a miss
 MATCHFL:
 .if .defined(APPLE1)
         .byte "$?ABCDEFGHIKLMNORSTUV:=."
+.elseif .defined(APPLE2)
+        .byte "$?ABCDFGHIKLNORSTUV:=."
 .elseif .defined(OSI)
         .byte "$?ABCDFGHIKLNORSTUV:=."
 .elseif .defined(KIM1)
@@ -2160,7 +2186,7 @@ JMPFL:
         .word Fill-1
         .word Go-1
         .word Hex-1
-.if .defined(APPLE1) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
         .word Basic-1
 .endif
         .word Checksum-1
@@ -2336,6 +2362,8 @@ ClearScreen:
         TAX
         PLA             ; restore A
         RTS
+.elseif .defined(APPLE2)
+        JMP $FC58       ; Apple II HOME
 .elseif .defined(OSI)
 ; Clear screen by write spaces to all video memory.
         PHA             ; save A
@@ -2504,13 +2532,17 @@ MultiIOPresent:
   BASIC0 = $4C
   BASIC1 = $B0
   BASIC2 = $E2
+.elseif .defined(APPLE2)
+  BASIC0 = $D8
+  BASIC1 = $65
+  BASIC2 = $D7
 .elseif .defined(OSI)
   BASIC0 = $A2
   BASIC1 = $FF
   BASIC2 = $86
 .endif
 
-.if .defined(APPLE1) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
 
 BASICPresent:
         LDA BASIC               ; First firmware byte
@@ -2582,21 +2614,21 @@ ToUpper:
 ; Strings
 
 WelcomeMessage:
-.if .defined(APPLE1) .or .defined(KIM1)
-        .byte CR,"JMON monitor 1.2.1 by Jeff Tranter", CR, 0
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .byte CR,"JMON monitor 1.3.0 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.2.1 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.0 by J. Tranter", CR, 0
 .endif
 
 PromptString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "? "
 .elseif .defined(OSI)
         .asciiz "?"     ; Smaller on OSI due to smaller screen
 .endif
 
 InvalidCommand:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .byte "Invalid command. Type '?' for help", CR, 0
 .elseif .defined(OSI)
         .byte "Invalid command.", CR, "Type '?' for help", CR, 0
@@ -2625,6 +2657,30 @@ HelpString:
         .byte "Unassemble  U <start>", CR
         .byte "Verify      V <start> <end> <dest>", CR
         .byte "Woz mon     $", CR
+        .byte "Write       : <address> <data>...", CR
+        .byte "Math        = <address> +/- <address>", CR
+        .byte "Trace       .", CR
+        .byte "Help        ?", CR
+        .byte 0
+.elseif .defined(APPLE2)
+        .byte "Assemble    A <address>", CR
+        .byte "Breakpoint  B <n or ?> <address>", CR
+        .byte "Copy        C <start> <end> <dest>", CR
+        .byte "Dump        D <start>", CR
+        .byte "Fill        F <start> <end> <data>...", CR
+        .byte "Go          G <address>", CR
+        .byte "Hex to dec  H <address>", CR
+        .byte "BASIC       I", CR
+        .byte "Checksum    K <start> <end>",CR
+        .byte "Clr screen  L", CR
+        .byte "Info        N", CR
+        .byte "Options     O", CR
+        .byte "Registers   R", CR
+        .byte "Search      S <start> <end> <data>...", CR
+        .byte "Test        T <start> <end>", CR
+        .byte "Unassemble  U <start>", CR
+        .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Monitor     $", CR
         .byte "Write       : <address> <data>...", CR
         .byte "Math        = <address> +/- <address>", CR
         .byte "Trace       .", CR
@@ -2682,14 +2738,14 @@ HelpString:
 .endif
 
 ContinueString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "  <Space> to continue, <ESC> to stop"
 .elseif .defined(OSI)
         .asciiz " <SP> cont <ESC> stop"
 .endif
 
 InvalidRange:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .byte "Error: start must be <= end", CR, 0
 .elseif .defined(OSI)
         .byte "Start must be <= end!", CR, 0
@@ -2705,7 +2761,7 @@ MismatchString:
         .asciiz "Mismatch: "
 
 TestString1:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "Testing memory from $"
 .elseif .defined(OSI)
         .byte "Testing memory from", CR, "$", 0
@@ -2764,7 +2820,7 @@ HighBitString:
   .byte "Set high bit in characters (Y/N)?", 0
 
 CPUTypeString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
   .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
 .elseif .defined(OSI)
   .byte "CPU type 1-6502 2-65C02", CR, "3-65816?", 0
@@ -2785,7 +2841,7 @@ BranchOutOfRangeString:
 UnableToWriteString:
   .byte "Unable to write to $", 0
 
-.if .defined(APPLE1) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
 NoBASICString:
   .byte "BASIC not found!", CR, 0
 .endif
@@ -2796,7 +2852,7 @@ NoWozMonString:
 .endif
 
 CPUString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "         CPU type: "
 .elseif .defined(OSI)
         .asciiz "      CPU type: "
@@ -2812,21 +2868,21 @@ Type65816String:
         .asciiz "65816"
 
 ResetVectorString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "     RESET vector: $"
 .elseif .defined(OSI)
         .asciiz "  RESET vector: $"
 .endif
 
 IRQVectorString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "   IRQ/BRK vector: $"
 .elseif .defined(OSI)
         .asciiz "IRQ/BRK vector: $"
 .endif
 
 NMIVectorString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "       NMI vector: $"
 .elseif .defined(OSI)
         .asciiz "    NMI vector: $"
@@ -2854,7 +2910,7 @@ MultiIOCardString:
 .endif
 
 BASICString:
-.if .defined(APPLE1)
+.if .defined(APPLE1) .or .defined(APPLE2)
         .asciiz "        BASIC ROM: "
 .elseif .defined(OSI)
         .asciiz "     BASIC ROM: "
@@ -2871,7 +2927,7 @@ WozMonString:
 .endif
 
 RAMString:
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .asciiz "RAM detected from: $0000 to "
 .elseif .defined(OSI)
         .byte "RAM found from: $0000", CR, "            to: ", 0
