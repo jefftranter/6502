@@ -157,10 +157,10 @@
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .elseif .defined(APPLE2)
-  BASIC   = $D001               ; BASIC
+  BASIC   = $E000               ; BASIC (cold start)
   MONITOR = $FF69               ; Apple monitor entry point
   ECHO    = 1                   ; Need to echo commands
-  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
+  BRKVECTOR = $03F0             ; Break/interrupt vector (2 bytes)
 .elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
@@ -193,7 +193,7 @@ JMON:
         CLD                     ; clear decimal mode
         CLI                     ; clear interrupt disable
         LDX #$80                ; initialize stack pointer to $0180
-        TXS                     ; so we are less likely to clobber BRK vector at $0100
+        TXS                     ; so we are less likely to clobber BRK vector at $0100 on OSI
         LDA #0
         STA OWDELAY             ; initialize write delay to zero
         STA RETOK               ; Don't accept <Return> by default
@@ -206,7 +206,7 @@ JMON:
         STA XBIT                ; Default 65816 to 8-bit modes
         STA MBIT
         LDA #$40                ; Default stack pointer for running program
-        STA SAVE_S              ; ($00 is bad choice since BRK vector is at $0100)
+        STA SAVE_S              ; ($00 is bad choice since BRK vector is at $0100 on OSI)
         JSR BPSETUP             ; initialization for breakpoints
         JSR ClearScreen
 
@@ -892,10 +892,10 @@ BPSETUP:
         INY
         STA (VECTOR),Y          ; write it after JMP
 
-.elseif .defined(KIM1)
+.elseif .defined(KIM1) .or .defined(APPLE2)
 
-; On the KIM-1, the BRK vector is in ROM but the handler goes through
-; a vector in RAM at $17FE,$17FF.
+; On the KIM-1 and Apple II, the BRK vector is in ROM but the handler
+; goes through a vector in RAM.
 
         LDA #<BRKHANDLER        ; handler address low byte
         STA BRKVECTOR
