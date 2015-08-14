@@ -1592,7 +1592,13 @@ GetKey:
         AND #%01111111          ; Clear most significant bit to convert to standard ASCII
         RTS
 .elseif .defined(APPLE2)
-        JMP $FD1B               ; Apple II KEYIN
+        LDA $C000               ; Read keyboard register
+        BPL GetKey              ; Loop until key pressed (bit 7 goes high)
+        AND #%01111111          ; Clear most significant bit to convert to standard ASCII
+        PHA
+        LDA $C010               ; Clear keyboard strobe
+        PLA
+        RTS
 .elseif .defined(OSI)
         JMP $FD00               ; Call OSI input routine
 .elseif .defined(KIM1)
@@ -1935,7 +1941,13 @@ PrintChar:
         RTS             ; Return.
 
 .elseif .defined(APPLE2)
-        JMP $FDF0       ; Apple II COUT1
+        PHP             ; Save status
+        PHA             ; Save A as it may be changed
+        ORA #%10000000  ; Make sure high bit is set
+        JSR $FDF0       ; Apple II COUT1
+        PLA             ; Restore A
+        PLP             ; Restore status
+        RTS             ; Return
 
 .elseif .defined(OSI)
         PHP             ; Save status
@@ -2615,7 +2627,7 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte CR,"JMON monitor 1.3.0 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.0 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
         .byte CR,"JMON 1.3.0 by J. Tranter", CR, 0
 .endif
