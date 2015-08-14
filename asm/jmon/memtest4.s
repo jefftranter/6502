@@ -171,6 +171,14 @@ TESTDONE:                        ; print done and stop
 KeyPressed:
         LDA        $D010 ; Keyboard data
         JMP        FINISHED
+.elseif .defined(APPLE2)
+; Stop if key pressed
+        BIT        $C000 ; Keyboard register
+        BMI        KeyPressed
+        JMP        REPEAT
+KeyPressed:
+        LDA        $C010 ; Clear keyboard strobe
+        JMP        FINISHED
 .elseif .defined(OSI)
         LDA        #$00
         STA        $DF00  ; Select all keyboard rows
