@@ -142,9 +142,9 @@
   T3      = BASE+$18            ; Temp variable 3 (1 byte)
 
 ; Non page zero locations
-.if .defined(APPLE1) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
   IN      = $0200               ; Buffer from $0200 through $027F
-.elseif .defined(OSI) .or .defined(APPLE2)
+.elseif .defined(OSI)
   IN      = $0300               ; Buffer from $0300 through $037F
 .endif
 
@@ -168,7 +168,7 @@
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .elseif .defined(KIM1)
   KIMMON  = $1C00               ; KIM monitor entry point
-  BRKVECTOR = $17FE             ; Break/interrupt vector (2 bytes
+  BRKVECTOR = $17FE             ; Break/interrupt vector (2 bytes)
 ; Note: ECHO not defined because KIM-1 always echoes characters back.
 .endif
 
@@ -178,7 +178,12 @@
 ; .org $A000
   .org $0280
 .elseif .defined(APPLE2)
-  .org $2000
+; $0800 should work for DOS 3.3 but conflict with Applesoft.
+; $2000 should work but conflict with ProDOS.
+; $6000 should work with ProDOS, need to first do HIMEM:24575 from Applesoft.
+; .org $0800
+; .org $2000
+  .org $6000
 .elseif .defined(OSI)
   .org $0380
 .elseif .defined(KIM1)
@@ -2545,9 +2550,9 @@ MultiIOPresent:
   BASIC1 = $B0
   BASIC2 = $E2
 .elseif .defined(APPLE2)
-  BASIC0 = $D8
-  BASIC1 = $65
-  BASIC2 = $D7
+  BASIC0 = $4C
+  BASIC1 = $28
+  BASIC2 = $F1
 .elseif .defined(OSI)
   BASIC0 = $A2
   BASIC1 = $FF
