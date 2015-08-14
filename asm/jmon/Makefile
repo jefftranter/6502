@@ -6,9 +6,9 @@ PLATFORM=APPLE2
 
 all: jmon.mon jmon.lod jmon.ptp
 
-# Apple 1/Replica 1 version binary
+# Apple 1/Replica 1/Apple 2 version binary
 jmon.mon: jmon.bin
-	bintomon -v `./getaddress` jmon.bin >jmon.mon
+	bintomon -v -2 `./getaddress` jmon.bin >jmon.mon
 
 # OSI version binary
 jmon.lod: jmon.bin
