@@ -224,6 +224,8 @@ The breakpoint feature may interfere with any other interrupt handlers
 that might be installed. It will fail if code writes over the break
 handler code (three bytes starting at $0100).
 
+Breakpoints are not yet working on the Apple II platform.
+
 The Fill, Search, and ":" commands accept characters as well as hex
 values. Type ' to enter a single character.
 
