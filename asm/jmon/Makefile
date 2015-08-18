@@ -31,7 +31,7 @@ archive: jmon.mon
 	zip jmon-0.4.zip jmon.s disasm.s miniasm.s trace.s info.s memtest4.s README.txt jmon.mon Makefile
 
 clean:
-	$(RM) *.o *.lst *.map *.bin *.lod *.mon *.ptp
+	$(RM) jmon.o jmon.lst jmon.map jmon.bin jmon.lod jmon.mon jmon.ptp
 
 distclean: clean
-	$(RM) *.mon *.lod *.ptp
+	$(RM) jmon.mon jmon.lod jmon.ptp
