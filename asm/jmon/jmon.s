@@ -1032,6 +1032,35 @@ OK:
 
 ; Breakpoint handler
 BRKHANDLER:
+.if .defined(APPLE2)
+
+; On the Apple II platform the ROM interrupt handler has already
+; determined that a BRK intruction was executed and has saved the
+; register values in RAM.
+
+        SEC                     ; subtract 2 from return address to get actual instruction address
+        LDA $3A
+        SBC #2
+        STA SAVE_PC             ; PC low
+        LDA $3B
+        SBC #0
+        STA SAVE_PC+1           ; PC high
+        LDA $45
+        STA SAVE_A              ; A
+        LDA $46
+        STA SAVE_X              ; X
+        LDA $47
+        STA SAVE_Y              ; Y
+        LDA $48
+        STA SAVE_P              ; P
+        JMP CHECKADDR
+
+.else
+
+; On other platforms, save registers. Then look at processor status to
+; see if it was BRK or an IRQ. If IRQ, display a message and return
+; from interrupt. Otherwise handle as a BRK statement.
+
         STA SAVE_A              ; save registers
         STX SAVE_X
         STY SAVE_Y
@@ -1060,6 +1089,7 @@ BREAK:
         SBC #0
         STA $0103,X
         STA SAVE_PC+1
+.endif
         LDX #0
 CHECKADDR:
         LDA SAVE_PC             ; see if PC matches address of a breakpoint
