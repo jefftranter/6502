@@ -81,6 +81,7 @@
 ; 1.2.0  22-Mar-2015   Added support for KIM-1 computer platform
 ; 1.2.1  25-Mar-2015   All features now working on KIM-1 platform
 ; 1.3.0  12-Aug-2015   Added support for Apple II platform.
+; 1.3.1  19-Aug-2015   Breakpoints working. Added Computer type to info cmd.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -2662,9 +2663,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte CR,"JMON Monitor 1.3.0 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.1 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.0 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.1 by J. Tranter", CR, 0
 .endif
 
 PromptString:
@@ -2985,6 +2986,35 @@ CPUSpeedString:
 
 MHzString:
         .asciiz " MHz"
+
+ComputerString:
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "         Computer: "
+.elseif .defined(OSI)
+        .asciiz "      Computer: "
+.endif
+
+.if .defined(APPLE1)
+TypeApple1String:
+        .asciiz "Apple 1"
+.elseif .defined(APPLE2)
+TypeAppleIIString:
+        .asciiz "Apple II"
+TypeAppleIIplusString:
+        .asciiz "Apple II+"
+TypeAppleIIeString:
+        .asciiz "Apple //e"
+TypeAppleIIcString:
+        .asciiz "Apple //c"
+TypeAppleUnknown:
+        .asciiz "Unknown"
+.elseif .defined(KIM1)
+TypeKim1String:
+        .asciiz "KIM-1"
+.elseif .defined(OSI)
+TypeOSIString:
+        .asciiz "OSI"
+.endif
 
   .include "disasm.s"
   .include "miniasm.s"

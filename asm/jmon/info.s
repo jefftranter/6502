@@ -22,6 +22,7 @@
 ;
 ; Sample Output:
 ;
+;         COMPUTER: Apple //c
 ;         CPU TYPE: 65C02
 ;        CPU SPEED: 2.0 MHZ
 ;RAM DETECTED FROM: $0000 TO $7FFF
@@ -38,6 +39,78 @@
 Info:
         JSR PrintChar           ; Echo command
         JSR PrintCR
+
+        LDX #<ComputerString    ; Display computer type
+        LDY #>ComputerString
+        JSR PrintString
+
+.if .defined(APPLE1)
+        LDX #<TypeApple1String
+        LDY #>TypeApple1String
+
+.elseif .defined(APPLE2)
+
+; Identify model of Apple computer. Algorithm is from Apple //c
+; Reference Manual.
+; ID1 = FBB3
+; ID2 = FBC0
+; if (ID1) = 38
+;   then id = Apple II
+; else if (ID1) = EA
+;   then id = Apple II+
+; else if (ID1) = 06
+;   if (ID2) = EA
+;     then id = Apple //e
+;   else if (ID2) = 00
+;     then id = Apple //c
+; else
+;   id = Unknown
+
+        ID1 = $FBB3
+        ID2 = $FBC0
+        LDA ID1
+        CMP #$38
+        BNE Next1
+        LDX #<TypeAppleIIString
+        LDY #>TypeAppleIIString
+        JMP PrintType
+Next1:
+        CMP #$EA
+        BNE Next2
+        LDX #<TypeAppleIIplusString
+        LDY #>TypeAppleIIplusString
+        JMP PrintType
+Next2:
+        CMP #$06
+        BNE Unknown
+        LDA ID2
+        CMP #$EA
+        BNE Next3
+        LDX #<TypeAppleIIeString
+        LDY #>TypeAppleIIeString
+        JMP PrintType
+Next3:
+        CMP #$00
+        BNE Unknown
+        LDX #<TypeAppleIIcString
+        LDY #>TypeAppleIIcString
+        JMP PrintType
+Unknown:
+        LDX #<TypeAppleUnknown
+        LDY #>TypeAppleUnknown
+
+.elseif .defined(KIM1)
+        LDX #<TypeKim1String
+        LDY #>TypeKim1String
+.elseif .defined(OSI)
+        LDX #<TypeOSIString
+        LDY #>TypeOSIString
+.endif
+
+PrintType:
+        JSR PrintString
+        JSR PrintCR
+
         LDX #<CPUString         ; Display CPU type
         LDY #>CPUString
         JSR PrintString
