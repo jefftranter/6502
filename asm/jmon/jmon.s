@@ -122,25 +122,39 @@
 ; Krusader uses $F8, $F9, $FE, $FF.
 ; Mini-monitor uses $0F, $10, $11, $E0-$E8, $F0-$F6.
 ; OSI monitor uses $FB, $FC, $FE, $FF.
+
 .ifdef APPLE2
-  BASE = $60
+; Below were chosen to avoid locations used by Applesoft, Integer
+; BASIC, DOS, or ProDOS.
+  T1      = $06                 ; Temp variable 1 (2 bytes)
+  SL      = $08                 ; Start address low byte
+  SH      = $09                 ; Start address high byte
+  EL      = $19                 ; End address low byte
+  EH      = $1A                 ; End address high byte
+  DL      = $1B                 ; Destination address low byte
+  DH      = $1C                 ; Destination address high byte
+  ADDR    = $1D                 ; Instruction address, 2 bytes (low/high)
+  ADDRS   = $EB                 ; Memory test - 2 bytes - address of memory
+  TEST_PATRN = $1F              ; Memory test - 1 byte - current test pattern
+  PASSES  = $ED                 ; Memory test - number of passes
+  VECTOR  = $EE                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
+  BPA     = $F8                 ; Address of breakpoint (2 bytes * 4 breakpoints)
 .else
-  BASE = $30
+  T1      = $30                 ; Temp variable 1 (2 bytes)
+  SL      = $32                 ; Start address low byte
+  SH      = $33                 ; Start address high byte
+  EL      = $34                 ; End address low byte
+  EH      = $35                 ; End address high byte
+  DL      = $36                 ; Destination address low byte
+  DH      = $37                 ; Destination address high byte
+  ADDR    = $38                 ; Instruction address, 2 bytes (low/high)
+  ADDRS   = $3A                 ; Memory test - 2 bytes - address of memory
+  TEST_PATRN = $3C              ; Memory test - 1 byte - current test pattern
+  PASSES  = $3D                 ; Memory test - number of passes
+  VECTOR  = $3E                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
+  BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
+  T3      = $48                 ; Temp variable 3 (1 byte)
 .endif
-  T1      = BASE+$00            ; Temp variable 1 (2 bytes)
-  SL      = BASE+$02            ; Start address low byte
-  SH      = BASE+$03            ; Start address high byte
-  EL      = BASE+$04            ; End address low byte
-  EH      = BASE+$05            ; End address high byte
-  DL      = BASE+$06            ; Destination address low byte
-  DH      = BASE+$07            ; Destination address high byte
-  ADDR    = BASE+$08            ; Instruction address, 2 bytes (low/high)
-  ADDRS   = BASE+$0A            ; Memory test - 2 bytes - address of memory
-  TEST_PATRN = BASE+$0C         ; Memory test - 1 byte - current test pattern
-  PASSES  = BASE+$0D            ; Memory test - number of passes
-  VECTOR  = BASE+$0E            ; Holds adddress of IRQ/BREAK entry point (2 bytes)
-  BPA     = BASE+$10            ; Address of breakpoint (2 bytes * 4 breakpoints)
-  T3      = BASE+$18            ; Temp variable 3 (1 byte)
 
 ; Non page zero locations
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
