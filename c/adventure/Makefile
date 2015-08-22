@@ -12,6 +12,7 @@ adventure.mon: adventure
 
 adventure: adventure.c
 	cl65 -O -l -vm -m adventure.map -t replica1 adventure.c
+#	cl65 -O -l adventure.lst -vm -m adventure.map -t apple2 adventure.c
 
 # SEND is a script I wrote.
 upload: adventure.mon
