@@ -1,123 +1,31 @@
  .setcpu "65c02"
  .org   $C000
- bvc    $C067
- stz    $65,x
- adc    ($20)
- eor    ($75),y
- adc    #$6E
- ror    $202C
- eor    ($69)
- .byte  'c'
- .byte  'k'
- jsr    $6952
- .byte  'c'
- adc    $2C
- jsr    $6F4A
- adc    $20
- eor    $6E
- ror    $7369
- bit    $4A20
- jsr    $614D
- .byte  'c'
- .byte  'D'
- bbr6   $75,$C093
- adc    ($6C,x)
- jmp    ($202C)
- .byte  'K'
- adc    $6E
- jsr    $6956
- .byte  'c'
- stz    $6F,x
- adc    ($2C)
- jsr    $2045
- .byte  'B'
- adc    $65
- adc    ($6E)
- adc    #$6E
- .byte  'k'
- bit    $4A20
- eor    ($20)
- pha
- adc    $73,x
- stz    $6F,x
- ror    $202C
- eor    ($43)
- jsr    $6957
- jmp    ($696C)
- adc    ($6D,x)
- .byte  's'
- bit    $5320
- jsr    $6544
- .byte  's'
- lsr    a
- adc    ($72,x)
- stz    $69
- ror    $202C
- eor    ($61)
- ror    $7964
- jsr    $6C42
- adc    $73
- .byte  'k'
- adc    $2C
- jsr    $6F52
- .byte  'b'
- jsr    $6547
- adc    $656D
- jmp    ($2C6C)
- jsr    $7453
- adc    ($6E,x)
- jsr    $6F52
- .byte  'b'
- .byte  'b'
- adc    #$6E
- .byte  's'
- bit    $4420
- bbr6   $6E,$C109
- adc    ($20,x)
- .byte  'K'
- adc    $79
- adc    $73
- bit    $4420
- bbr6   $75,$C10F
- jsr    $6146
- adc    ($72)
- adc    ($72,x)
- bit    $5220
- adc    #$63
- pla
- jsr    $6F4A
- adc    ($64)
- adc    ($6E,x)
- bit    $4A20
- adc    $72
- adc    ($79)
- jsr    $6544
- ror    $6C,x
- adc    #$6E
- bit    $4A20
- bbr6   $68,$C13E
- jsr    $654D
- stz    $69
- .byte  'c'
- adc    ($2C,x)
- jsr    $2042
- eor    $74
- pla
- adc    $72
- adc    $64
- rmb6   $65
- bit    $4420
- adc    ($76,x)
- adc    $20
- .byte  'D'
- bbr6   $77,$C15D
- adc    $79
- bit    $4320
- bbr6   $6E,$C169
- adc    ($64,x)
- jsr    $6F52
- rmb6   $65
- adc    ($73)
+
+; The first 256 bytes of the ROM ($C000-$C0FF) are normally not mapped
+; in to memory. They contain an Easter egg of the the designer's
+; names.
+
+ .byte   "Peter Quinn, "
+ .byte   "Rick Rice, "
+ .byte   "Joe Ennis, "
+ .byte   "J MacDougall, "
+ .byte   "Ken Victor, "
+ .byte   "E Beernink, "
+ .byte   "JR Huston, "
+ .byte   "RC Williams, "
+ .byte   "S DesJardin, "
+ .byte   "Randy Bleske, "
+ .byte   "Rob Gemmell, "
+ .byte   "Stan Robbins, "
+ .byte   "Donna Keyes, "
+ .byte   "Doug Farrar, "
+ .byte   "Rich Jordan, "
+ .byte   "Jerry Devlin, "
+ .byte   "John Medica, "
+ .byte   "B Etheredge, "
+ .byte   "Dave Downey, "
+ .byte   "Conrad Rogers"
+
  bit    $FF58
  bvs    $C111
  sec
@@ -1246,8 +1154,12 @@
  .byte  $C3
  ldy    $98,x
  cmp    $54
- bbr7   $BF,$C996
- bbr7   $FF,$C95A
+ .byte  $7F
+ .byte  $BF
+ .byte  $BF
+ .byte  $7F
+ .byte  $FF
+ .byte  $80
  brk
  rti
  brk
@@ -8341,9 +8253,6 @@
  cmp    #$FA
  bcs    $FF8A
  rts
- .byte  $FB
- .byte  $03
- .byte  'b'
- plx
- .byte  $03
- iny
+ .word  $03FB
+ .word  $FA62
+ .word  $C803
