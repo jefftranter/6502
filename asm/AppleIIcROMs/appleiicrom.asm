@@ -538,7 +538,9 @@
  dec    $48,x
  clc
  bra    $C4F1
- bbs7   $20,$C550
+ .byte  $FF
+ .byte  $20
+ .byte  $4D
  dec    $FFA2
  jsr    $CB24
  bpl    $C506
@@ -643,8 +645,12 @@
  pla
  sta    $0200,y
  rts
- bbs5   $67,$C622
- trb    $0C07
+ .byte  $DF
+ .byte  $67
+ .byte  $37
+ .byte  $1C
+ .byte  $07
+ .byte  $0C
  eor    $62
  ror    $3B7E
  asl    a
@@ -782,7 +788,9 @@
  jmp    $C60B
  brk
  brk
- bbs7   $A9,$C6E3
+ .byte  $FF
+ .byte  $A9
+ .byte  $E0
  ldy    #$01
  ldx    #$60
  bra    $C6FB
@@ -1584,10 +1592,16 @@
  sta    $88
  dey
  txa
- bbs1   $9C,$CC9C
- bbs1   $9C,$CC9D
+ .byte  $9F
+ .byte  $9C
+ .byte  $8A
+ .byte  $9F
+ .byte  $9C
+ .byte  $88
  txa
- bbs1   $9C,$CCA5
+ .byte  $9F
+ .byte  $9C
+ .byte  $8C
  sta    $918B,x
  sta    ($95)
  tsb    $05
@@ -1612,7 +1626,9 @@
  cmp    $CDB7
  bmi    $CD15
  and    $CB,x
- bbs1   $CD,$CCF4
+ .byte  $9F
+ .byte  $CD
+ .byte  $A5   
  cmp    $FCA0
  sta    $2CCD,y
  cmp    ($CB,x)
@@ -1957,8 +1973,12 @@
  lda    ($DB),y
  bmi    $CFFF
  cld
- bbs5   $E1,$CFEB
- bbs0   $F3,$CFAB
+ .byte  $DF
+ .byte  $E1
+ .byte  $DB
+ .byte  $8F
+ .byte  $F3
+ .byte  $98
  .byte  $F3
  cpx    $F1
  cmp    $D4F1,x
@@ -2017,7 +2037,9 @@
  sta    $D8,x
  ldy    $D6
  adc    #$D6
- bbs1   $DB,$D0C7
+ .byte  $9F
+ .byte  $DB
+ .byte  $48
  dec    $90,x
  .byte  $EB
  .byte  $23
@@ -2029,10 +2051,14 @@
  cmp    $FFDF
  .byte  $E2
  sta    $AEEE
- bbs6   $41,$D07F
+ .byte  $EF
+ .byte  $41
+ .byte  $E9
  ora    #$EF
  nop
- bbs6   $F1,$D08B
+ .byte  $EF
+ .byte  $F1
+ .byte  $EF
  dec    a
  beq    $D03D
  beq    $D105
@@ -2055,11 +2081,17 @@
  nop
  adc    $EE96,x
  bvc    $D117
- bbs5   $46,$D114
- bbs5   $7F,$D098
+ .byte  $DF
+ .byte  $46
+ .byte  $4E
+ .byte  $DF
+ .byte  $7F
+ .byte  $CF
  inc    $977F
  dec    $6464,x
- bbs5   $45,$D120
+ .byte  $DF
+ .byte  $45
+ .byte  $4E
  cpy    $46
  bbr4   $D2,$D125
  eor    $58
@@ -2164,7 +2196,9 @@
  .byte  $D4
  rmb4   $4F
  .byte  'T'
- bbs4   $52,$D1EE
+ .byte  $CF
+ .byte  $52
+ .byte  $55
  dec    $C649
  eor    ($45)
  .byte  'S'
@@ -2203,7 +2237,9 @@
  eor    ($42,x)
  tay
  .byte  'T'
- bbs4   $46,$D1B9
+ .byte  $CF
+ .byte  $46
+ .byte  $CE
  .byte  'S'
  bvc    $D231
  tay
@@ -2338,7 +2374,9 @@
  lsr    $4220
  eor    $5A20,y
  eor    $52
- bbs4   $49,$D343
+ .byte  $CF
+ .byte  $49
+ .byte  $4C
  jmp    $4745
  eor    ($4C,x)
  jsr    $4944
@@ -5959,21 +5997,31 @@
  bbr1   $00,$EE6E
  tya
  stx    $80,y
- bbs7   $F0,$EE31
+ .byte  $FF
+ .byte  $F0
+ .byte  $BD
  cpy    #$00
  ora    ($86,x)
  ldy    #$FF
- bbs7   $D8,$EE6D
+ .byte  $FF
+ .byte  $D8
+ .byte  $F0
  brk
  brk
  .byte  $03
  inx
- bbs7   $FF,$EE83
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
  stz    a:$0000
  brk
  asl    a
- bbs7   $FF,$EE8B
- bbs7   $20,$EEF2
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+ .byte  $20
+ .byte  $63
  .byte  $EB
  lda    #$64
  ldy    #$EE
@@ -6901,7 +6949,9 @@
  sty    $88
  bcc    $F558
  cpy    #$1C
- bbs7   $FE,$F5B7
+ .byte  $FF
+ .byte  $FE
+ .byte  $FA
  .byte  $F4
  cpx    $D4E1
  cmp    $B4
@@ -6909,7 +6959,9 @@
  sei
  adc    ($49,x)
  and    ($18),y
- bbs7   $A5,$F5F3
+ .byte  $FF
+ .byte  $A5
+ .byte  $26
  asl    a
  lda    $27
  and    #$03
@@ -7335,7 +7387,9 @@
  dey
  bne    $F8BE
  rts
- bbs7   $FF,$F8CF
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
  jsr    $F882
  pha
  lda    ($3A),y
@@ -7416,34 +7470,54 @@
  .byte  $33
  .byte  $CB
  .byte  'b'
- bbs7   $73,$F96E
+ .byte  $FF
+ .byte  $73
+ .byte  $03
  .byte  $22
- bbs7   $33,$F93A
+ .byte  $FF
+ .byte  $33
+ .byte  $CB
  ror    $FF
  rmb7   $0F
  jsr    $33FF
  .byte  $CB
  rts
- bbs7   $70,$F98A
+ .byte  $FF
+ .byte  $70
+ .byte  $0F
  .byte  $22
- bbs7   $39,$F94A
+ .byte  $FF
+ .byte  $39
+ .byte  $CB
  ror    $FF
  adc    $220B,x
- bbs7   $33,$F952
+ .byte  $FF
+ .byte  $33
+ .byte  $CB
  ldx    $FF
  .byte  's'
  ora    ($22),y
- bbs7   $33,$F95A
+ .byte  $FF
+ .byte  $33
+ .byte  $CB
  ldx    $FF
  smb0   $01
  .byte  $22
- bbs7   $33,$F962
+ .byte  $FF
+ .byte  $33
+ .byte  $CB
  rts
- bbs7   $70,$F99C
+ .byte  $FF
+ .byte  $70
+ .byte  $01
  .byte  $22
- bbs7   $33,$F96A
+ .byte  $FF
+ .byte  $33
+ .byte  $CB
  rts
- bbs7   $70,$F9C7
+ .byte  $FF
+ .byte  $70
+ .byte  $24
  and    ($65),y
  sei
  brk
@@ -7538,7 +7612,9 @@
  pla
  pla
  jmp    $C806
- bbs7   $85,$FA8D
+ .byte  $FF
+ .byte  $85
+ .byte  $44
  ply
  plx
  pla
@@ -7631,7 +7707,9 @@
  sta    $01
  jsr    $FB60
  jmp    ($0000)
- bbs7   $FF,$FB6B
+ .byte  $FF
+ .byte  $FF
+ .byte  $4C
  dec    $A0C7,x
  brk
  nop
@@ -7698,13 +7776,17 @@
  sta    $047B
  sta    $24
  bra    $FBF8
- bbs7   $06,$FBC5
+ .byte  $FF
+ .byte  $06
+ .byte  $10
  asl    $C9
  ldy    #$90
  .byte  $02
  and    $32
  jmp    $FDF6
- bbs7   $00,$FC0A
+ .byte  $FF
+ .byte  $00
+ .byte  $48
  lsr    a
  and    #$03
  ora    #$04
@@ -7772,7 +7854,9 @@
  dex
  bpl    $FC38
  rts
- bbs7   $80,$FC5D
+ .byte  $FF
+ .byte  $80
+ .byte  $19
  lda    $25
  pha
  jsr    $FC24
@@ -7783,7 +7867,9 @@
  cmp    $23
  bcc    $FC46
  bcs    $FC22
- bbs7   $20,$FBFF
+ .byte  $FF
+ .byte  $20
+ .byte  $A5
  cmp    $E780
  jsr    $CC9D
  bra    $FC44
@@ -7818,7 +7904,9 @@
  ldy    #$00
  bra    $FC90
  jmp    ($CD2A,x)
- bbs7   $38,$FCF2
+ .byte  $FF
+ .byte  $38
+ .byte  $48
  sbc    #$01
  bne    $FCAA
  pla
@@ -7868,7 +7956,9 @@
  cmp    ($F0,x)
  beq    $FCF3
  sbc    $A0
- bbs2   $AF,$FCEF
+ .byte  $AF
+ .byte  $AF
+ .byte  $E3
  ldy    $24
  lda    ($28),y
  nop
@@ -8220,7 +8310,9 @@
  cmp    #$0A
  bcc    $FF8A
  bra    $FFF3
- bbs7   $41,$FF68
+ .byte  $FF
+ .byte  $41
+ .byte  $A9
  inc    $B948,x
  cpx    #$FF
  pha
@@ -8230,7 +8322,9 @@
  rts
  nop
  ldy    $BEB2,x
- bbs6   $C4,$FF7C
+ .byte  $EF
+ .byte  $C4
+ .byte  $A9
  .byte  $BB
  ldx    $A4
  asl    $95
