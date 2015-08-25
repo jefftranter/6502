@@ -284,7 +284,8 @@
  stz    $03B8,x
  rts
  .byte  $03
- rmb0   $00
+ .byte  $07
+ .byte  $00
  brk
  pha
  phx
@@ -656,7 +657,8 @@
  asl    a
  .byte  $0B
  pha
- rmb7   $7B
+ .byte  $77
+ .byte  $7B
  ror    $2B
  tsb    $1608
  .byte  'S'
@@ -1607,7 +1609,8 @@
  tsb    $05
  sta    $86
  stx    $968F
- smb1   $98
+ .byte  $97
+ .byte  $98
  sta    $9B9A,y
  ror    $FC
  inc    a
@@ -1964,7 +1967,8 @@
  brk
  brk
  brk
- rmb6   $6F
+ .byte  $67
+ .byte  $6F
  cld
  adc    $D7
  sed
@@ -1991,12 +1995,16 @@
  inx
  inc    $FD,x
  inc    $68,x
- smb7   $6E
- smb7   $E6
- smb7   $57
+ .byte  $F7
+ .byte  $6E
+ .byte  $F7
+ .byte  $E6
+ .byte  $F7
+ .byte  $57
  .byte  $FC
  jsr    $26F7
- smb7   $F4
+ .byte  $F7
+ .byte  $F4
  .byte  $03
  jmp    ($6EF2)
  sbc    ($72)
@@ -2032,7 +2040,8 @@
  .byte  $03
  ora    ($E3)
  ply
- smb6   $D4
+ .byte  $E7
+ .byte  $D4
  phx
  sta    $D8,x
  ldy    $D6
@@ -2062,10 +2071,12 @@
  dec    a
  beq    $D03D
  beq    $D105
- smb6   $D6
+ .byte  $E7
+ .byte  $D6
  inc    $C5
  .byte  $E3
- rmb0   $E7
+ .byte  $07
+ .byte  $E7
  sbc    $E6
  lsr    $E6
  phy
@@ -2093,7 +2104,9 @@
  .byte  $45
  .byte  $4E
  cpy    $46
- bbr4   $D2,$D125
+ .byte  $4F
+ .byte  $D2
+ .byte  $4E
  eor    $58
  .byte  $D4
  .byte  'D'
@@ -2107,7 +2120,8 @@
  eor    #$CD
  eor    ($45)
  eor    ($C4,x)
- rmb4   $D2
+ .byte  $47
+ .byte  $D2
  .byte  'T'
  eor    $58
  .byte  $D4
@@ -2118,30 +2132,41 @@
  .byte  'C'
  eor    ($4C,x)
  cpy    $4C50
- bbr4   $D4,$D14A
+ .byte  $4F
+ .byte  $D4
+ .byte  $48
  jmp    $CE49
  lsr    $4C,x
  eor    #$CE
  pha
- rmb4   $52
+ .byte  $47
+ .byte  $52
  lda    ($48)
- rmb4   $D2
+ .byte  $47
+ .byte  $D2
  pha
  .byte  'C'
- bbr4   $4C,$D164
+ .byte  $4F
+ .byte  $4C
+ .byte  $4F
  eor    ($BD)
  pha
  bvc    $D166
- bbr4   $D4,$D161
+ .byte  $4F
+ .byte  $D4
+ .byte  $44
  eor    ($41)
- smb5   $58
+ .byte  $D7
+ .byte  $58
  .byte  'D'
  eor    ($41)
  smb5   $48
  .byte  'T'
  eor    ($C2,x)
  pha
- bbr4   $4D,$D0F2
+ .byte  $4F
+ .byte  $4D
+ .byte  $C5
  eor    ($4F)
  .byte  'T'
  lda    $4353,x
@@ -2154,10 +2179,14 @@
  eor    ($41)
  .byte  'C'
  cmp    $4E
- bbr4   $54,$D198
+ .byte  $4F
+ .byte  $54
+ .byte  $52
  eor    ($43,x)
  cmp    $4E
- bbr4   $52,$D19A
+ .byte  $4F
+ .byte  $52
+ .byte  $4D
  eor    ($CC,x)
  eor    #$4E
  lsr    $45,x
@@ -2166,7 +2195,9 @@
  jmp    $5341
  iny
  .byte  'C'
- bbr4   $4C,$D1AE
+ .byte  $4F
+ .byte  $4C
+ .byte  $4F
  eor    ($BD)
  bvc    $D1B2
  bne    $D1BB
@@ -2179,7 +2210,9 @@
  jmp    $4D4F
  eor    $4D
  tsx
- bbr4   $4E,$D1BC
+ .byte  $4F
+ .byte  $4E
+ .byte  $45
  eor    ($D2)
  eor    ($45)
  .byte  'S'
@@ -2188,13 +2221,16 @@
  eor    $43
  eor    ($4C,x)
  cpy    $5453
- bbr4   $52,$D14F
+ .byte  $4F
+ .byte  $52
+ .byte  $C5
  .byte  'S'
  bvc    $D1D2
  eor    $44
  lda    $454C,x
  .byte  $D4
- rmb4   $4F
+ .byte  $47
+ .byte  $4F
  .byte  'T'
  .byte  $CF
  .byte  $52
@@ -2257,7 +2293,8 @@
  cpy    $4F
  cmp    ($BE)
  lda    $53BC,x
- rmb4   $CE
+ .byte  $47
+ .byte  $CE
  eor    #$4E
  .byte  $D4
  eor    ($42,x)
@@ -2331,7 +2368,8 @@
  .byte  'T'
  cmp    ($49,x)
  jmp    $454C
- rmb4   $41
+ .byte  $47
+ .byte  $41
  jmp    $5120
  eor    $41,x
  lsr    $4954
@@ -2347,7 +2385,8 @@
  cmp    $4E55,y
  .byte  'D'
  eor    $46
- rmb2   $44
+ .byte  $27
+ .byte  $44
  jsr    $5453
  eor    ($54,x)
  eor    $4D
@@ -2364,7 +2403,8 @@
  eor    ($45)
  .byte  'D'
  eor    #$4D
- rmb2   $44
+ .byte  $27
+ .byte  $44
  jsr    $5241
  eor    ($41)
  cmp    $4944,y
@@ -2408,14 +2448,16 @@
  jmp    $D845
  .byte  'C'
  eor    ($4E,x)
- rmb2   $54
+ .byte  $27
+ .byte  $54
  jsr    $4F43
  lsr    $4954
  lsr    $C555
  eor    $4E,x
  .byte  'D'
  eor    $46
- rmb2   $44
+ .byte  $27
+ .byte  $44
  jsr    $5546
  lsr    $5443
  eor    #$4F
@@ -2428,7 +2470,8 @@
  .byte  'B'
  eor    ($45)
  eor    ($4B,x)
- rmb0   $00
+ .byte  $07
+ .byte  $00
  tsx
  inx
  inx
@@ -5817,7 +5860,8 @@
  rol    $1FBC,x
  sbc    $6E9E,x
  .byte  'k'
- rmb2   $FD
+ .byte  $27
+ .byte  $FD
  stz    $6B6E,x
  plp
  brk
@@ -6069,7 +6113,8 @@
  asl    $7E,x
  .byte  $B3
  .byte  $1B
- rmb7   $2F
+ .byte  $77
+ .byte  $2F
  inc    $85E3
  ply
  ora    $1C84,x
@@ -6264,7 +6309,8 @@
  inc    $1A
  and    $861B
  plp
- rmb0   $FB
+ .byte  $07
+ .byte  $FB
  sed
  smb0   $99
  pla
@@ -6317,7 +6363,8 @@
  .byte  $FC
  bcs    $F0EE
  jmp    ($1F0C,x)
- rmb6   $CA
+ .byte  $67
+ .byte  $CA
  jmp    ($53DE,x)
  .byte  $CB
  cmp    ($7D,x)
@@ -6354,7 +6401,8 @@
  sbc    #$D0
  rts
  bra    $F174
- smb4   $52
+ .byte  $C7
+ .byte  $52
  cli
  ldx    #$FF
  stx    $76
@@ -6484,7 +6532,8 @@
  ora    $0920
  sbc    ($A4)
  bit    $7520
- smb7   $E0
+ .byte  $F7
+ .byte  $E0
  bmi    $F1ED
  iny
  jmp    $F796
@@ -7466,7 +7515,9 @@
  bcc    $F961
  iny
  rts
- bbr0   $22,$F964
+ .byte  $0F
+ .byte  $22
+ .byte  $FF
  .byte  $33
  .byte  $CB
  .byte  'b'
@@ -7478,7 +7529,8 @@
  .byte  $33
  .byte  $CB
  ror    $FF
- rmb7   $0F
+ .byte  $77
+ .byte  $0F
  jsr    $33FF
  .byte  $CB
  rts
@@ -7501,7 +7553,8 @@
  .byte  $33
  .byte  $CB
  ldx    $FF
- smb0   $01
+ .byte  $87
+ .byte  $01
  .byte  $22
  .byte  $FF
  .byte  $33
@@ -8226,7 +8279,8 @@
  .byte  $FC
  sec
  .byte  $FB
- rmb3   $FB
+ .byte  $37
+ .byte  $FB
  and    $3621,y
  and    ($3A,x)
  sed
@@ -8328,20 +8382,24 @@
  .byte  $BB
  ldx    $A4
  asl    $95
- rmb0   $02
+ .byte  $07
+ .byte  $02
  ora    $00
  .byte  $93
- smb2   $C6
+ .byte  $A7
+ .byte  $C6
  sta    $C9B2,y
  ldx    $8C35,y
  stx    $AF,y
- rmb1   $17
+ .byte  $17
+ .byte  $17
  .byte  $2B
  .byte  $1F
  .byte  $83
  .byte  $7F
  eor    $17B5,x
- rmb1   $F5
+ .byte  $17
+ .byte  $F5
  .byte  $03
  adc    #$88
  cmp    #$FA
