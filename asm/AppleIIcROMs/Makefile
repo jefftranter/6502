@@ -1,5 +1,8 @@
 all:	appleiicrom.bin
 
+diff: appleiicrom.bin AppleIIcROM04.bin
+	diff appleiicrom.bin AppleIIcROM04.bin
+
 appleiicrom.bin: appleiicrom1.bin appleiicrom2.bin
 	cat appleiicrom1.bin appleiicrom2.bin > appleiicrom.bin
 
