@@ -1,11 +1,19 @@
  .setcpu "65c02"
  .org   $C000
 
-; Set to the version of Apple //c ROM you want to build.
+; Set to the version of Apple //c ROM you want to build. Typically
+; done on the command line.
 ;ROMVER = 255
 ;ROMVER = 0
 ;ROMVER = 3
-; ROMVER = 4
+;ROMVER = 4
+
+; Macro to define a string in ASCII with high bit set on each character.
+.macro STR Arg
+    .repeat .strlen(Arg), I
+    .byte   .strat(Arg, I) | $80
+    .endrep
+.endmacro
 
 ; The first 256 bytes of the ROM ($C000-$C0FF) are normally not mapped
 ; in to memory. They contain an Easter egg of the the designer's
@@ -674,12 +682,9 @@
  lda    $0200,y
  iny
  jmp    $C399
- cmp    ($F0,x)
- beq    $C5AB
- sbc    $A0
- .byte  $AF
- .byte  $AF
- .byte  $E3
+
+ STR    "Apple //c"    ; Power on boot message
+
  jsr    $F8D0
  jsr    $F953
  sta    $3A

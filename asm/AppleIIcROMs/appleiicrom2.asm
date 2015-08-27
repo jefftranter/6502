@@ -1,7 +1,8 @@
  .setcpu "65c02"
  .org   $C000
 
-; Set to the version of Apple //c ROM you want to build.
+; Set to the version of Apple //c ROM you want to build. Typically
+; done on the command line.
 ;ROMVER = 255
 ;ROMVER = 0
 ;ROMVER = 3
