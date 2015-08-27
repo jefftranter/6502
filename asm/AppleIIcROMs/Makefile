@@ -29,5 +29,6 @@ appleiicrom2.o: appleiicrom2.asm
 clean:
 	$(RM) appleiicrom1.o appleiicrom1.lst appleiicrom1.bin appleiicrom1.hex appleiicrom1.map
 	$(RM) appleiicrom2.o appleiicrom2.lst appleiicrom2.bin appleiicrom2.hex appleiicrom2.map
+	$(RM) appleiicrom.bin
 
 distclean: clean
