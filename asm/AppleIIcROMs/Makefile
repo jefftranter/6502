@@ -21,10 +21,10 @@ AppleIIcROM04.bin: appleiicrom1.asm  appleiicrom2.asm
 	ld65 -t none -vm -m AppleIIcROM04.map -o AppleIIcROM04.bin appleiicrom1.o  appleiicrom2.o
 
 check:	AppleIIcROMFF.bin AppleIIcROM00.bin AppleIIcROM03.bin AppleIIcROM04.bin
-	diff AppleIIcROM04.bin good
-	diff AppleIIcROM03.bin good
-#	diff AppleIIcROM00.bin good
-#	diff AppleIIcROMFF.bin good
+	cmp -b AppleIIcROM04.bin good/AppleIIcROM04.bin
+	cmp -b AppleIIcROM03.bin good/AppleIIcROM03.bin
+#	cmp -b AppleIIcROM00.bin good/AppleIIcROM00.bin
+#	cmp -b AppleIIcROMFF.bin good/AppleIIcROMFF.bin
 
 hex:	AppleIIcROMFF.bin AppleIIcROM00.bin AppleIIcROM03.bin AppleIIcROM04.bin
 	hexdump -C AppleIIcROMFF.bin > AppleIIcROMFF.hex

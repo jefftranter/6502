@@ -695,7 +695,11 @@
  jsr    $2020
  brk
  brk
-.if ROMVER = 3
+.if ROMVER = 255
+ .byte  $01
+.elseif ROMVER = 0
+ .byte  $01
+.elseif ROMVER = 3
  .byte  $01
 .elseif ROMVER = 4
  .byte  $02
@@ -723,14 +727,51 @@
  .byte  $FF
  .byte  $FF
  .byte  $FF
- eor    ($7D)
+ .byte  $52
+.if ROMVER = 255
+ .byte  $73
+.elseif ROMVER = 0
+ .byte  $73
+.elseif ROMVER = 3
+ .byte  $73
+.elseif ROMVER = 4
+ .byte  $7D
+.endif
  .byte  $2F
+.if ROMVER = 255
+ .byte  $B8
+.elseif ROMVER = 0
+ .byte  $B8
+.elseif ROMVER = 3
+ .byte  $B8
+.elseif ROMVER = 4
  .byte  $C2
+.endif
  .byte  $2F
- dec    $2F
+.if ROMVER = 255
+ .byte  $BC
+.elseif ROMVER = 0
+ .byte  $BC
+.elseif ROMVER = 3
+ .byte  $BC
+.elseif ROMVER = 4
+ .byte  $C6
+.endif
+ .byte  $2F
  sec
- .byte  's'
- .byte  's'
+.if ROMVER = 255
+ .byte  $69
+ .byte  $69
+.elseif ROMVER = 0
+ .byte  $69
+ .byte  $69
+.elseif ROMVER = 3
+ .byte  $69
+ .byte  $69
+.elseif ROMVER = 4
+ .byte  $73
+ .byte  $73
+.endif
  sec
  sec
  .byte  $2F
@@ -739,7 +780,16 @@
  .byte  $2F
  .byte  $2F
  and    $3C2F,y
- eor    $A7
+ .byte  $45
+.if ROMVER = 255
+ .byte  $9D
+.elseif ROMVER = 0
+ .byte  $9D
+.elseif ROMVER = 3
+ .byte  $9D
+.elseif ROMVER = 4
+ .byte  $A7
+.endif
  .byte  $AB
  sec
  .byte  $3F
