@@ -1,37 +1,28 @@
-all:	appleiicrom.bin
+#all: AppleIIcROM00.bin AppleIIcROM03.bin AppleIIcROM04.bin AppleIIcROMFF.bin 
 
-diff: appleiicrom.bin AppleIIcROM04.bin
-	diff appleiicrom.bin AppleIIcROM04.bin
+all: AppleIIcROM03.bin AppleIIcROM03.bin
 
-appleiicrom.bin: appleiicrom1.bin appleiicrom2.bin
-	cat appleiicrom1.bin appleiicrom2.bin > appleiicrom.bin
+AppleIIcROM04.bin: appleiicrom1.asm  appleiicrom2.asm
+	ca65 -g -DROMVER=4 -l AppleIIcROM04.lst appleiicrom1.asm
+	ca65 -g -DROMVER=4 -l AppleIIcROM04.lst appleiicrom2.asm
+	ld65 -t none -vm -m AppleIIcROM04.map -o AppleIIcROM04.bin appleiicrom1.o  appleiicrom2.o
 
-hex: appleiicrom1.hex appleiicrom2.hex  appleiicrom.hex
+AppleIIcROM03.bin: appleiicrom1.asm  appleiicrom2.asm
+	ca65 -g -DROMVER=3 -l AppleIIcROM03.lst appleiicrom1.asm
+	ca65 -g -DROMVER=3 -l AppleIIcROM03.lst appleiicrom2.asm
+	ld65 -t none -vm -m AppleIIcROM03.map -o AppleIIcROM03.bin appleiicrom1.o  appleiicrom2.o
 
-appleiicrom1.hex: appleiicrom1.bin
-	hexdump -C appleiicrom1.bin > appleiicrom1.hex
+check:	AppleIIcROM03.bin AppleIIcROM04.bin
+	diff AppleIIcROM03.bin good/AppleIIcROM03.bin
+	diff AppleIIcROM04.bin good/AppleIIcROM04.bin
 
-appleiicrom2.hex: appleiicrom2.bin
-	hexdump -C appleiicrom2.bin > appleiicrom2.hex
-
-appleiicrom.hex: appleiicrom.bin
-	hexdump -C appleiicrom.bin > appleiicrom.hex
-
-appleiicrom1.bin: appleiicrom1.o
-	ld65 -t none -vm -m appleiicrom1.map -o appleiicrom1.bin appleiicrom1.o
-
-appleiicrom2.bin: appleiicrom2.o
-	ld65 -t none -vm -m appleiicrom2.map -o appleiicrom2.bin appleiicrom2.o
-
-appleiicrom1.o: appleiicrom1.asm
-	ca65 -g -l appleiicrom1.lst appleiicrom1.asm
-
-appleiicrom2.o: appleiicrom2.asm
-	ca65 -g -l appleiicrom2.lst appleiicrom2.asm
+hex:	AppleIIcROM03.bin  AppleIIcROM04.bin
+	hexdump -C AppleIIcROM03.bin > AppleIIcROM03.hex
+	hexdump -C AppleIIcROM04.bin > AppleIIcROM04.hex
+	hexdump -C good/AppleIIcROM03.bin > good/AppleIIcROM03.hex
+	hexdump -C good/AppleIIcROM04.bin > good/AppleIIcROM04.hex
 
 clean:
-	$(RM) appleiicrom1.o appleiicrom1.lst appleiicrom1.bin appleiicrom1.hex appleiicrom1.map
-	$(RM) appleiicrom2.o appleiicrom2.lst appleiicrom2.bin appleiicrom2.hex appleiicrom2.map
-	$(RM) appleiicrom.bin appleiicrom.hex
+	$(RM) *.o *.lst *.bin *.hex *.map good/*.hex
 
 distclean: clean
