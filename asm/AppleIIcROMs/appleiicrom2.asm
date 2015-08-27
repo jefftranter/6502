@@ -544,16 +544,9 @@
  dey
  bpl    $C56B
  bmi    $C556
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
+
+ .res   10
+
  phx
  ldx    $0678
  inc    $C000,x
@@ -759,19 +752,9 @@
  phy
  jsr    $D600
  jmp    $C80E
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
+
+ .res   13
+
  sta    $C028
  jmp    $C6C2
  sta    $C028
@@ -797,35 +780,9 @@
  sty    $0678
  jsr    $D800
  jmp    $C80E
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
+
+ .res   29
+
  sta    $C028
  rti
  sta    $C028
@@ -870,14 +827,9 @@
  phy
  jsr    $D1A0
  bra    $C80E
- brk
- brk
- brk
- brk
- brk
- brk
- brk
- brk
+
+ .res   8
+
  jmp    $C78E
  phx
  jsr    $C816
