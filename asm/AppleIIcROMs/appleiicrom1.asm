@@ -8450,14 +8450,15 @@
  .byte  $1F
  .byte  $83
  .byte  $7F
- eor    $17B5,x
+ .byte  $5D
+ .byte  $B5
  .byte  $17
- sbc    $03,x
- bvs    $10067
- brk
- .byte  $FB
+ .byte  $17
+ .byte  $F5
  .byte  $03
- .byte  'b'
- plx
- .byte  $03
- iny
+ .byte  $70
+ .byte  $6E
+ .byte  $00
+ .word  $03FB
+ .word  $FA62
+ .word  $C803
