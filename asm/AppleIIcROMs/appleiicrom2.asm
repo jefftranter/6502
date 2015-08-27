@@ -5,7 +5,18 @@
 ;ROMVER = 255
 ;ROMVER = 0
 ;ROMVER = 3
- ROMVER = 4
+;ROMVER = 4
+
+.if ROMVER = 255
+.elseif ROMVER = 0
+.elseif ROMVER = 3
+.elseif ROMVER = 4
+.else
+.error "ROMVER not set correctly."
+.endif
+
+; This file is not part of the version 255 ROM.
+ .if .not ROMVER = 255
 
  .res 256
 
@@ -125,6 +136,7 @@
  stx    $05FC
 
 .if ROMVER = 255
+ stx    $06FF
 .elseif ROMVER = 0
  stx    $06FF
 .elseif ROMVER = 3
@@ -682,8 +694,13 @@
  jsr    $2020
  brk
  brk
+.if ROMVER = 3
+ .byte  $01
+.elseif ROMVER = 4
  .byte  $02
- ora    ($03,x)
+.endif
+ .byte  $01
+ .byte  $03
  .byte  $03
  .byte  $03
  .byte  $03
@@ -3280,3 +3297,5 @@
  .word  $C788
  .word  $C788
  .word  $C78E
+
+.endif ; .if ROMVER = 255

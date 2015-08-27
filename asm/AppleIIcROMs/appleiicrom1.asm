@@ -5,7 +5,7 @@
 ;ROMVER = 255
 ;ROMVER = 0
 ;ROMVER = 3
- ROMVER = 4
+; ROMVER = 4
 
 ; The first 256 bytes of the ROM ($C000-$C0FF) are normally not mapped
 ; in to memory. They contain an Easter egg of the the designer's
