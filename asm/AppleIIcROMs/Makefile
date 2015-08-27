@@ -6,13 +6,16 @@ diff: appleiicrom.bin AppleIIcROM04.bin
 appleiicrom.bin: appleiicrom1.bin appleiicrom2.bin
 	cat appleiicrom1.bin appleiicrom2.bin > appleiicrom.bin
 
-hex: appleiicrom1.hex appleiicrom2.hex
+hex: appleiicrom1.hex appleiicrom2.hex  appleiicrom.hex
 
 appleiicrom1.hex: appleiicrom1.bin
 	hexdump -C appleiicrom1.bin > appleiicrom1.hex
 
 appleiicrom2.hex: appleiicrom2.bin
 	hexdump -C appleiicrom2.bin > appleiicrom2.hex
+
+appleiicrom.hex: appleiicrom.bin
+	hexdump -C appleiicrom.bin > appleiicrom.hex
 
 appleiicrom1.bin: appleiicrom1.o
 	ld65 -t none -vm -m appleiicrom1.map -o appleiicrom1.bin appleiicrom1.o
@@ -29,6 +32,6 @@ appleiicrom2.o: appleiicrom2.asm
 clean:
 	$(RM) appleiicrom1.o appleiicrom1.lst appleiicrom1.bin appleiicrom1.hex appleiicrom1.map
 	$(RM) appleiicrom2.o appleiicrom2.lst appleiicrom2.bin appleiicrom2.hex appleiicrom2.map
-	$(RM) appleiicrom.bin
+	$(RM) appleiicrom.bin appleiicrom.hex
 
 distclean: clean

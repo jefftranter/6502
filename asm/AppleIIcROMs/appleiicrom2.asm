@@ -1,6 +1,12 @@
  .setcpu "65c02"
  .org   $C000
 
+; Set to the version of Apple //c ROM you want to build.
+;ROMVER = 255
+;ROMVER = 0
+;ROMVER = 3
+ ROMVER = 4
+
  .res 256
 
  lda    #$0E
@@ -117,7 +123,16 @@
  lda    $C062
  bpl    $C200
  stx    $05FC
+
+.if ROMVER = 255
+.elseif ROMVER = 0
+ stx    $06FF
+.elseif ROMVER = 3
+ stx    $06FF
+.elseif ROMVER = 4
  stx    $06FC
+.endif
+
  lda    $C010
  ldy    #$B0
  lda    $BFF9,y

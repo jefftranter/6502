@@ -7909,7 +7909,15 @@
  .byte  $02
  and    $32
  jmp    $FDF6
+.if ROMVER = 255
+ .byte  $FF
+.elseif ROMVER = 0
+ .byte  $00
+.elseif ROMVER = 3
+ .byte  $03
+.elseif ROMVER = 4
  .byte  $04
+.endif
  brk
  pha
  lsr    a
@@ -8075,15 +8083,51 @@
  lda    $C054
  sta    $C000
  rts
- .byte  $FF
- lda    ($FE)
- .byte  $FF
- .byte  $FF
+
+.if ROMVER = 255
  .byte  $FF
  .byte  $FF
  .byte  $FF
+.elseif ROMVER = 0
  .byte  $FF
  .byte  $FF
+ .byte  $FF
+.elseif ROMVER = 3
+ .byte  $F1
+ .byte  $FF
+ .byte  $FF
+.elseif ROMVER = 4
+ .byte  $FF
+ .byte  $B2
+ .byte  $FE
+.endif
+
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+
+.if ROMVER = 255
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+.elseif ROMVER = 0
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+.elseif ROMVER = 3
+ .byte  $BF
+ .byte  $FE
+ .byte  $FE
+ .byte  $FE
+.elseif ROMVER = 4
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+ .byte  $FF
+.endif
+
  ldy    $24
  lda    ($28),y
  nop
@@ -8120,7 +8164,15 @@
  .byte  $04
  pla
  rts
+.if ROMVER = 255
  nop
+.elseif ROMVER = 0
+ nop
+.elseif ROMVER = 3
+ .byte  $FE
+.elseif ROMVER = 4
+ nop
+.endif
  jsr    $C3A6
  cmp    #$88
  beq    $FD71
@@ -8268,7 +8320,17 @@
  jmp    $C986
  dec    $34
  jmp    $CA43
- bpl    $FE00
+
+.if ROMVER = 255
+ .byte  $60
+.elseif ROMVER = 0
+ .byte  $00
+.elseif ROMVER = 3
+ .byte  $00
+.elseif ROMVER = 4
+ .byte  $10
+.endif
+ .byte  $8A
  beq    $FE7F
  lda    $3C,x
  sta    $3A,x
