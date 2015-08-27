@@ -1,6 +1,12 @@
  .setcpu "65c02"
  .org   $C000
 
+; Set to the version of Apple //c ROM you want to build.
+;ROMVER = 255
+;ROMVER = 0
+;ROMVER = 3
+ ROMVER = 4
+
 ; The first 256 bytes of the ROM ($C000-$C0FF) are normally not mapped
 ; in to memory. They contain an Easter egg of the the designer's
 ; names.
@@ -1088,7 +1094,15 @@
  sec
  php
  pha
+.if ROMVER = 255
+ lda    $0660
+.elseif ROMVER = 0
+ lda    $06FF
+.elseif ROMVER = 3
+ lda    $06FF
+.elseif ROMVER = 4
  lda    $06FC
+.endif
  cmp    $05FC
  beq    $C8F9
  pla
@@ -2034,7 +2048,15 @@
  brk
  brk
  brk
+.if ROMVER = 255
+ .byte  $67
+.elseif ROMVER = 0
+ .byte  $44
+.elseif ROMVER = 3
+ .byte  $D0
+.elseif ROMVER = 4
  .byte  $D3
+.endif
  .byte  'o'
  cld
  adc    $D7
