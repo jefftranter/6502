@@ -173,6 +173,7 @@
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .elseif .defined(APPLE2)
   BASIC   = $E000               ; BASIC (cold start)
+; BASIC   = $03D0               ; BASIC (cold start with DOS hooks)
   MONITOR = $FF69               ; Apple monitor entry point
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $03F0             ; Break/interrupt vector (2 bytes)
