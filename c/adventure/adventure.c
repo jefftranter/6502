@@ -421,6 +421,11 @@ void doTake()
 
     item = sp + 1;
 
+    if (carryingItem(item)) {
+        printf("Already carrying it.\n");
+        return;
+    }
+
     /* Find number of the item. */
     for (i = 1; i <= LastItem; i++) {
         if (!strcasecmp(item, DescriptionOfItem[i])) {
@@ -658,8 +663,6 @@ void doUse()
 /* Prompt user and get a line of input */
 void prompt()
 {
-    number i;
-
     printf("? ");        
     fgets(buffer, sizeof(buffer)-1, stdin);
 
