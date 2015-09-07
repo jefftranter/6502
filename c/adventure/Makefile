@@ -11,8 +11,8 @@ adventure.mon: adventure
 	bintomon -v -f adventure >adventure.mon
 
 adventure: adventure.c
-	cl65 -O -l -vm -m adventure.map -t replica1 adventure.c
-#	cl65 -O -l adventure.lst -vm -m adventure.map -t apple2 adventure.c
+#	cl65 -O -l -vm -m adventure.map -t replica1 adventure.c
+	cl65 -O -l adventure.lst -vm -m adventure.map -t apple2enh adventure.c
 
 # SEND is a script I wrote.
 upload: adventure.mon

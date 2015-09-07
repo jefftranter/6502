@@ -5,9 +5,9 @@
  * Jeff Tranter <tranter@pobox.com>
  *
  * Written in standard C but designed to run on the Apple Replica 1
- * using the CC65 6502 assembler.
+ * or Apple II using the CC65 6502 assembler.
  *
- * Copyright 2012 Jeff Tranter
+ * Copyright 2012-2015 Jeff Tranter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
  * 0.0      13 Mar 2012  First alpha version
  * 0.1      18 Mar 2012  First beta version
  * 0.9      19 Mar 2012  First public release
+ * 1.0      06 Sep 2015  Lower case and other Apple II improvements.
  *
  */
 
@@ -35,6 +36,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> 
+#ifdef __CC65__
+#include <conio.h>
+#endif
 
 /* CONSTANTS */
 
@@ -125,64 +129,64 @@ typedef enum {
 
 /* Names of directions */
 char *DescriptionOfDirection[] = {
-    "NORTH", "SOUTH", "EAST", "WEST", "UP", "DOWN"
+    "north", "south", "east", "west", "up", "down"
 };
 
 /* Names of items */
 char *DescriptionOfItem[LastItem+1] = {
     "",
-    "KEY",
-    "PITCHFORK",
-    "FLASHLIGHT",
-    "LAMP",
-    "OIL",
-    "CANDYBAR",
-    "BOTTLE",
-    "DOLL",
-    "TOY CAR",
-    "MATCHES",
-    "GOLD COIN",
-    "SILVER COIN",
-    "STALE MEAT",
-    "BOOK",
-    "CHEESE",
-    "OLD RADIO",
+    "key",
+    "pitchfork",
+    "flashlight",
+    "lamp",
+    "oil",
+    "candybar",
+    "bottle",
+    "doll",
+    "toy car",
+    "matches",
+    "gold coin",
+    "silver coin",
+    "stale meat",
+    "book",
+    "cheese",
+    "old radio",
 };
 
 /* Names of locations */
 char *DescriptionOfLocation[NUMLOCATIONS] = {
     "",
-    "IN THE DRIVEWAY NEAR YOUR CAR",
-    "IN THE DRIVEWAY",
-    "IN FRONT OF THE GARAGE",
-    "IN FRONT OF THE BARN",
-    "AT THE DOOR TO THE HOUSE",
-    "IN THE GARAGE",
-    "IN THE WORKROOM OF THE BARN",
-    "IN THE HAYLOFT OF THE BARN",
-    "IN THE KITCHEN",
-    "IN THE DINING ROOM",
-    "AT THE BOTTOM OF THE STAIRS",
-    "IN THE DRAWING ROOM",
-    "IN THE STUDY",
-    "AT THE TOP OF THE STAIRS",
-    "IN A BOY'S BEDROOM",
-    "IN A GIRL'S BEDROOM",
-    "IN THE MASTER BEDROOM NEXT TO\nA BOOKCASE",
-    "IN THE SERVANT'S QUARTERS",
-    "IN THE BASEMENT LAUNDRY ROOM",
-    "IN THE FURNACE ROOM",
-    "IN A VACANT ROOM NEXT TO A\nLOCKED DOOR",
-    "IN THE CISTERN",
-    "IN AN UNDERGROUND TUNNEL. THERE ARE RATS HERE",
-    "IN THE WOODS NEAR A TRAPDOOR",
-    "IN THE WOODS",
-    "IN THE WOODS",
-    "IN THE WOODS NEXT TO A TREE",
-    "IN THE WOODS",
-    "IN THE WOODS",
-    "IN THE WOODS",
-    "IN THE WOODS",
+    "in the driveway near your car",
+    "in the driveway",
+    "in front of the garage",
+    "in front of the barn",
+    "at the door to the house",
+    "in the garage",
+    "in the workroom of the barn",
+    "in the hayloft of the barn",
+    "in the kitchen",
+    "in the dining room",
+    "at the bottom of the stairs",
+    "in the drawing room",
+    "in the study",
+    "at the top of the stairs",
+    "in a boy's bedroom",
+    "in a girl's bedroom",
+    "in the master bedroom next to\na bookcase",
+    "in the servant's quarters",
+    "in the basement laundry room",
+    "in the furnace room",
+    "in a vacant room next to a\nlocked door",
+    "in the cistern",
+    "in an underground tunnel. There are rats here",
+    "in the woods near a trapdoor",
+    "in the woods",
+    "in the woods",
+    "in the woods next to a tree",
+    "in the woods",
+    "in the woods",
+    "in the woods",
+    "in the woods",
 };
 
 /* DATA */
@@ -257,9 +261,9 @@ number wolfState;
 /* Set when game is over */
 number gameOver;
 
-const char *introText = "     ABANDONED FARMHOUSE ADVENTURE\n           BY JEFF TRANTER\n\nYOUR THREE-YEAR-OLD GRANDSON HAS GONE\nMISSING AND WAS LAST SEEN HEADED IN THE\nDIRECTION OF THE ABANDONED FAMILY FARM.\nIT'S A DANGEROUS PLACE TO PLAY. YOU\nHAVE TO FIND HIM BEFORE HE GETS HURT,\nAND IT WILL BE GETTING DARK SOON...\n";
+const char *introText = "     Abandoned Farmhouse Adventure\n           By Jeff Tranter\n\nYour three-year-old grandson has gone\nmissing and was last seen headed in the\ndirection of the abandoned family farm.\nIt's a dangerous place to play. You\nhave to find him before he gets hurt,\nand it will be getting dark soon...\n";
 
-const char *helpString = "VALID COMMANDS:\nGO EAST/WEST/NORTH/SOUTH/UP/DOWN \nLOOK\nUSE <OBJECT>\nEXAMINE <OBJECT>\nTAKE <OBJECT>\nDROP <OBJECT>\nINVENTORY\nHELP\nQUIT\nYOU CAN ABBREVIATE COMMANDS AND\nDIRECTIONS TO THE FIRST LETTER.\nTYPE JUST THE FIRST LETTER OF\nA DIRECTION TO MOVE.\n";
+const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
 
 /* Line of user input */
 char buffer[40];
@@ -267,9 +271,13 @@ char buffer[40];
 /* Clear the screen */
 void clearScreen()
 {
+#if defined(__APPLE2__)
+    clrscr();
+#else
     number i;
     for (i = 0; i < 24; ++i)
         printf("\n");
+#endif
 }
 
 /* Return 1 if carrying an item */
@@ -278,7 +286,7 @@ number carryingItem(char *item)
     number i;
 
     for (i = 0; i < MAXITEMS; i++) {
-        if ((Inventory[i] != 0) && (!strcmp(DescriptionOfItem[Inventory[i]], item)))
+        if ((Inventory[i] != 0) && (!strcasecmp(DescriptionOfItem[Inventory[i]], item)))
             return 1;
     }
     return 0;
@@ -291,7 +299,7 @@ number itemIsHere(char *item)
 
     /* Find number of the item. */
     for (i = 1; i <= LastItem; i++) {
-        if (!strcmp(item, DescriptionOfItem[i])) {
+        if (!strcasecmp(item, DescriptionOfItem[i])) {
             /* Found it, but is it here? */
             if (locationOfItem[i] == currentLocation) {
                 return 1;
@@ -309,7 +317,7 @@ void doInventory()
     number i;
     int found = 0;
 
-    printf("%s", "YOU ARE CARRYING:\n");
+    printf("%s", "You are carrying:\n");
     for (i = 0; i < MAXITEMS; i++) {
         if (Inventory[i] != 0) {
             printf("  %s\n", DescriptionOfItem[Inventory[i]]);
@@ -317,7 +325,7 @@ void doInventory()
         }
     }
     if (!found)
-        printf("  NOTHING\n");
+        printf("  nothing\n");
 }
 
 /* Help command */
@@ -331,10 +339,10 @@ void doLook()
 {
     number i, loc, seen;
 
-    printf("YOU ARE %s.\n", DescriptionOfLocation[currentLocation]);
+    printf("You are %s.\n", DescriptionOfLocation[currentLocation]);
 
     seen = 0;
-    printf("YOU SEE:\n");
+    printf("You see:\n");
     for (i = 1; i <= LastItem; i++) {
         if (locationOfItem[i] == currentLocation) {
             printf("  %s\n", DescriptionOfItem[i]);
@@ -342,9 +350,9 @@ void doLook()
         }
     }
     if (!seen)
-        printf("  NOTHING SPECIAL\n");
+        printf("  nothing special\n");
 
-    printf("YOU CAN GO:");
+    printf("You can go:");
 
     for (i = North; i <= Down; i++) {
         loc = Move[currentLocation][i];
@@ -358,9 +366,9 @@ void doLook()
 /* Quit command */
 void doQuit()
 {
-    printf("%s", "ARE YOU SURE YOU WANT TO QUIT (Y/N)? ");
+    printf("%s", "Are you sure you want to quit (y/n)? ");
     fgets(buffer, sizeof(buffer)-1, stdin);
-    if (toupper(buffer[0]) == 'Y') {
+    if (tolower(buffer[0]) == 'y') {
         gameOver = 1;
     }
 }
@@ -375,7 +383,7 @@ void doDrop()
     /* Command line should be like "D[ROP] ITEM" Item name will be after after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
-        printf("DROP WHAT?\n");
+        printf("Drop what?\n");
         return;
     }
 
@@ -383,18 +391,18 @@ void doDrop()
 
     /* See if we have this item */
     for (i = 0; i < MAXITEMS; i++) {
-        if ((Inventory[i] != 0) && (!strcmp(DescriptionOfItem[Inventory[i]], item))) {
+        if ((Inventory[i] != 0) && (!strcasecmp(DescriptionOfItem[Inventory[i]], item))) {
             /* We have it. Add to location. */
             locationOfItem[Inventory[i]] = currentLocation;
             /* And remove from inventory */
             Inventory[i] = 0;
-            printf("DROPPED %s.\n", item);
+            printf("Dropped %s.\n", item);
             ++turnsPlayed;
             return;
         }
     }
     /* If here, don't have it. */
-    printf("NOT CARRYING %s.\n", item);
+    printf("Not carrying %s.\n", item);
 }
 
 /* Take command */
@@ -407,7 +415,7 @@ void doTake()
     /* Command line should be like "T[AKE] ITEM" Item name will be after after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
-        printf("TAKE WHAT?\n");
+        printf("Take what?\n");
         return;
     }
 
@@ -415,7 +423,7 @@ void doTake()
 
     /* Find number of the item. */
     for (i = 1; i <= LastItem; i++) {
-        if (!strcmp(item, DescriptionOfItem[i])) {
+        if (!strcasecmp(item, DescriptionOfItem[i])) {
             /* Found it, but is it here? */
             if (locationOfItem[i] == currentLocation) {
             /* It is here. Add to inventory. */
@@ -424,21 +432,21 @@ void doTake()
                     Inventory[j] = i;
                     /* And remove from location. */
                     locationOfItem[i] = 0;
-                    printf("TOOK %s.\n", item);
+                    printf("Took %s.\n", item);
                     ++turnsPlayed;
                     return;
                 }
             }
 
             /* Reached maximum number of items to carry */ 
-            printf("YOU CAN'T CARRY ANY MORE. DROP SOMETHING.\n");
+            printf("You can't carry any more. Drop something.\n");
             return;
             }
         }
     }
 
     /* If here, don't see it. */
-    printf("I SEE NO %s HERE.\n", item);
+    printf("I see no %s here.\n", item);
 }
 
 /* Go command */
@@ -458,32 +466,33 @@ void doGo()
     } else {
         dirChar = buffer[0];
     }
+    dirChar = tolower(dirChar);
 
-    if (dirChar == 'N') {
+    if (dirChar == 'n') {
         dir = North;
-    } else if (dirChar == 'S') {
+    } else if (dirChar == 's') {
         dir = South;
-    } else if (dirChar == 'E') {
+    } else if (dirChar == 'e') {
         dir = East;
-    } else if (dirChar == 'W') {
+    } else if (dirChar == 'w') {
         dir = West;
-    } else if (dirChar == 'U') {
+    } else if (dirChar == 'u') {
         dir = Up;
-    } else if (dirChar == 'D') {
+    } else if (dirChar == 'd') {
         dir = Down;
     } else {
-        printf("GO WHERE?\n");
+        printf("Go where?\n");
         return;
     }
 
     if (Move[currentLocation][dir] == 0) {
-        printf("YOU CAN'T GO %s FROM HERE.\n", DescriptionOfDirection[dir]);
+        printf("You can't go %s from here.\n", DescriptionOfDirection[dir]);
         return;
     }
 
     /* We can move */
     currentLocation = Move[currentLocation][dir];
-    printf("YOU ARE %s.\n", DescriptionOfLocation[currentLocation]);
+    printf("You are %s.\n", DescriptionOfLocation[currentLocation]);
     ++turnsPlayed;
 }
 
@@ -496,7 +505,7 @@ void doExamine()
     /* Command line should be like "E[XAMINE] ITEM" Item name will be after after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
-        printf("EXAMINE WHAT?\n");
+        printf("Examine what?\n");
         return;
     }
 
@@ -504,44 +513,44 @@ void doExamine()
     ++turnsPlayed;
 
     /* Examine bookcase - not an object */
-    if (!strcmp(item, "BOOKCASE")) {
-        printf("YOU PULL BACK A BOOK AND THE BOOKCASE\nOPENS UP TO REVEAL A SECRET ROOM.\n");
+    if (!strcasecmp(item, "bookcase")) {
+        printf("You pull back a book and the bookcase\nopens up to reveal a secret room.\n");
         Move[17][North] = 18;
         return;
     }
 
     /* Make sure item is being carried or is in the current location */
     if (!carryingItem(item) && !itemIsHere(item)) {
-        printf("I DON'T SEE IT HERE.\n");
+        printf("I don't see it here.\n");
         return;
     }
 
     /* Examine Book */
-    if (!strcmp(item, "BOOK")) {
-        printf("IT IS A VERY OLD BOOK ENTITLED\n\"APPLE 1 OPERATION MANUAL\".\n");
+    if (!strcasecmp(item, "book")) {
+        printf("It is a very old book entitled\n\"Apple 1 operation manual\".\n");
         return;
     }
 
     /* Examine Flashlight */
-    if (!strcmp(item, "FLASHLIGHT")) {
-        printf("IT DOESN'T HAVE ANY BATTERIES.\n");
+    if (!strcasecmp(item, "flashlight")) {
+        printf("It doesn't have any batteries.\n");
         return;
     }
 
     /* Examine toy car */
-    if (!strcmp(item, "TOY CAR")) {
-        printf("IT IS A NICE TOY CAR.\nYOUR GRANDSON MATTHEW WOULD LIKE IT.\n");
+    if (!strcasecmp(item, "toy car")) {
+        printf("It is a nice toy car.\nYour grandson Matthew would like it.\n");
         return;
     }
 
     /* Examine old radio */
-    if (!strcmp(item, "OLD RADIO")) {
-        printf("IT IS A 1940 ZENITH 8-S-563 CONSOLE\nWITH AN 8A02 CHASSIS. YOU'D TURN IT ON\nBUT THE ELECTRICITY IS OFF.\n");
+    if (!strcasecmp(item, "old radio")) {
+        printf("It is a 1940 Zenith 8-S-563 console\nwith an 8A02 chassis. You'd turn it on\nbut the electricity is off.\n");
         return;
     }
 
    /* Nothing special about this item */
-   printf("YOU SEE NOTHING SPECIAL ABOUT IT.\n");
+   printf("You see nothing special about it.\n");
 }
 
 /* Use command */
@@ -553,7 +562,7 @@ void doUse()
     /* Command line should be like "U[SE] ITEM" Item name will be after after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
-        printf("USE WHAT?\n");
+        printf("Use what?\n");
         return;
     }
 
@@ -561,89 +570,89 @@ void doUse()
 
     /* Make sure item is being carried or is in the current location */
     if (!carryingItem(item) && !itemIsHere(item)) {
-        printf("I DON'T SEE IT HERE.\n");
+        printf("I don't see it here.\n");
         return;
     }
 
     ++turnsPlayed;
 
     /* Use key */
-    if (!strcmp(item, "KEY") && (currentLocation == VacantRoom)) {
-        printf("YOU INSERT THE KEY IN THE DOOR AND IT\nOPENS, REVEALING A TUNNEL.\n");
+    if (!strcasecmp(item, "key") && (currentLocation == VacantRoom)) {
+        printf("You insert the key in the door and it\nopens, revealing a tunnel.\n");
         Move[21][North] = 23;
         return;
     }
 
     /* Use pitchfork */
-    if (!strcmp(item, "PITCHFORK") && (currentLocation == WolfTree) && (wolfState == 0)) {
-        printf("YOU JAB THE WOLF WITH THE PITCHFORK.\nIT HOWLS AND RUNS AWAY.\n");
+    if (!strcasecmp(item, "pitchfork") && (currentLocation == WolfTree) && (wolfState == 0)) {
+        printf("You jab the wolf with the pitchfork.\nIt howls and runs away.\n");
         wolfState = 1;
         return;
     }
 
     /* Use toy car */
-    if (!strcmp(item, "TOY CAR") && (currentLocation == WolfTree && wolfState == 1)) {
-        printf("YOU SHOW MATTHEW THE TOY CAR AND HE\nCOMES DOWN TO TAKE IT. YOU TAKE MATTHEW\nIN YOUR ARMS AND CARRY HIM HOME.\n");
+    if (!strcasecmp(item, "toy car") && (currentLocation == WolfTree && wolfState == 1)) {
+        printf("You show Matthew the toy car and he\ncomes down to take it. You take Matthew\nin your arms and carry him home.\n");
         wolfState = 2;
         return;
     }
 
     /* Use oil */
-    if (!strcmp(item, "OIL")) {
-        if (carryingItem("LAMP")) {
-            printf("YOU FILL THE LAMP WITH OIL.\n");
+    if (!strcasecmp(item, "oil")) {
+        if (carryingItem("lamp")) {
+            printf("You fill the lamp with oil.\n");
             lampFilled = 1;
             return;
         } else {
-            printf("YOU DON'T HAVE ANYTHING TO USE IT WITH.\n");
+            printf("You don't have anything to use it with.\n");
             return;
         }
     }
 
     /* Use matches */
-    if (!strcmp(item, "MATCHES")) {
-        if (carryingItem("LAMP")) {
+    if (!strcasecmp(item, "matches")) {
+        if (carryingItem("lamp")) {
             if (lampFilled) {
-                printf("YOU LIGHT THE LAMP. YOU CAN SEE!\n");
+                printf("You light the lamp. You can see!\n");
                 lampLit = 1;
                 return;
             } else {
-                printf("YOU CAN'T LIGHT THE LAMP. IT NEEDS OIL.\n");
+                printf("You can't light the lamp. It needs oil.\n");
                 return;
             }
         } else {
-            printf("NOTHING HERE TO LIGHT\n");
+            printf("Nothing here to light\n");
         }
     }
                 
     /* Use candybar */
-    if (!strcmp(item, "CANDYBAR")) {
-        printf("THAT HIT THE SPOT. YOU NO LONGER FEEL\nHUNGRY.\n");
+    if (!strcasecmp(item, "candybar")) {
+        printf("That hit the spot. You no longer feel\nhungry.\n");
         ateFood = 1;
         return;
     }
 
     /* Use bottle */
-    if (!strcmp(item, "BOTTLE")) {
+    if (!strcasecmp(item, "bottle")) {
         if (currentLocation == Cistern) {
-            printf("YOU FILL THE BOTTLE WITH WATER FROM THE\nCISTERN AND TAKE A DRINK. YOU NO LONGER\nFEEL THIRSTY.\n");
+            printf("You fill the bottle with water from the\ncistern and take a drink. You no longer\nfeel thirsty.\n");
             drankWater = 1;
             return;
         } else {
-            printf("THE BOTTLE IS EMPTY. IF ONLY YOU HAD\nSOME WATER TO FILL IT!\n");
+            printf("The bottle is empty. If only you had\nsome water to fill it!\n");
             return;
         }
     }
 
     /* Use stale meat */
-    if (!strcmp(item, "STALE MEAT")) {
-        printf("THE MEAT LOOKED AND TASTED BAD. YOU\nFEEL VERY SICK AND PASS OUT.\n");
+    if (!strcasecmp(item, "stale meat")) {
+        printf("The meat looked and tasted bad. You\nfeel very sick and pass out.\n");
         gameOver = 1;
         return;
     }
 
     /* Default */
-    printf("NOTHING HAPPENS\n");
+    printf("Nothing happens\n");
 }
 
 /* Prompt user and get a line of input */
@@ -656,54 +665,50 @@ void prompt()
 
     /* Remove trailing newline */
     buffer[strlen(buffer)-1] = '\0';
-
-    /* Convert buffer to uppercase */
-    for (i = 0; i < strlen(buffer); i++) 
-        buffer[i] = toupper(buffer[i]);
 }
 
 /* Do special things unrelated to command typed. */
 void doActions()
 {
     if ((turnsPlayed == 10) && !lampLit) {
-        printf("IT WILL BE GETTING DARK SOON. YOU NEED\nSOME KIND OF LIGHT OR SOON YOU WON'T\nBE ABLE TO SEE.\n");
+        printf("It will be getting dark soon. You need\nsome kind of light or soon you won't\nbe able to see.\n");
     }
 
-    if ((turnsPlayed >= 60) && (!lampLit || (!itemIsHere("LAMP") && !carryingItem("LAMP")))) {
-        printf("IT IS DARK OUT AND YOU HAVE NO LIGHT.\nYOU STUMBLE AROUND FOR A WHILE AND\nTHEN FALL, HIT YOUR HEAD, AND PASS OUT.\n");
+    if ((turnsPlayed >= 60) && (!lampLit || (!itemIsHere("lamp") && !carryingItem("lamp")))) {
+        printf("It is dark out and you have no light.\nYou stumble around for a while and\nthen fall, hit your head, and pass out.\n");
         gameOver = 1;
         return;
     }
 
     if ((turnsPlayed == 20) && !drankWater) {
-        printf("YOU ARE GETTING VERY THIRSTY.\nYOU NEED TO GET A DRINK SOON.\n");
+        printf("You are getting very thirsty.\nYou need to get a drink soon.\n");
     }
 
     if ((turnsPlayed == 30) && !ateFood) {
-        printf("YOU ARE GETTING VERY HUNGRY.\nYOU NEED TO FIND SOMETHING TO EAT.\n");
+        printf("You are getting very hungry.\nYou need to find something to eat.\n");
     }
 
     if ((turnsPlayed == 50) && !drankWater) {
-        printf("YOU PASS OUT DUE TO THIRST.\n");
+        printf("You pass out due to thirst.\n");
         gameOver = 1;
         return;
     }
 
     if ((turnsPlayed == 40) && !ateFood) {
-        printf("YOU PASS OUT FROM HUNGER.\n");
+        printf("You pass out from hunger.\n");
         gameOver = 1;
         return;
     }
 
     if (currentLocation == Tunnel) {
-        if (itemIsHere("CHEESE")) {
-            printf("THE RATS GO AFTER THE CHEESE.\n");
+        if (itemIsHere("cheese")) {
+            printf("The rats go after the cheese.\n");
         } else {
             if (ratAttack < 3) {
-                printf("THE RATS ARE COMING TOWARDS YOU!\n");
+                printf("The rats are coming towards you!\n");
                 ++ratAttack;
             } else {
-                printf("THE RATS ATTACK AND YOU PASS OUT.\n");
+                printf("The rats attack and you pass out.\n");
                 gameOver = 1;
                 return;
             }
@@ -714,13 +719,13 @@ void doActions()
     if (currentLocation == WolfTree) {
         switch (wolfState) {
             case 0:
-                printf("A WOLF IS CIRCLING AROUND THE TREE.\nMATTHEW IS UP IN THE TREE. YOU HAVE TO\nSAVE HIM! IF ONLY YOU HAD SOME KIND OF\nWEAPON!\n");
+                printf("A wolf is circling around the tree.\nMatthew is up in the tree. You have to\nsave him! If only you had some kind of\nweapon!\n");
                 break;
             case 1:
-                printf("MATTHEW IS AFRAID TO COME\nDOWN FROM THE TREE. IF ONLY YOU HAD\nSOMETHING TO COAX HIM WITH.\n");
+                printf("Matthew is afraid to come\ndown from the tree. If only you had\nsomething to coax him with.\n");
                 break;
             case 2:
-                printf("CONGRATULATIONS! YOU SUCCEEDED AND WON\nTHE GAME. I HOPE YOU HAD AS MUCH FUN\nPLAYING THE GAME AS I DID CREATING IT.\n- JEFF TRANTER <TRANTER@POBOX.COM>\n");
+                printf("Congratulations! You succeeded and won\nthe game. I hope you had as much fun\nplaying the game as i did creating IT.\n- Jeff Tranter <tranter@pobox.com>\n");
                 gameOver = 1;
                 return;
                 break;
@@ -780,44 +785,44 @@ int main(void)
         while (!gameOver) {
             prompt();
             if (buffer[0] == '\0') {
-            } else if (buffer[0] == 'H') {
+            } else if (tolower(buffer[0]) == 'h') {
                 doHelp();
-            } else if (buffer[0] == 'I') {
+            } else if (tolower(buffer[0]) == 'i') {
                 doInventory();
-            } else if ((buffer[0] == 'G')
-                       || !strcmp(buffer, "N") || !strcmp(buffer, "S")
-                       || !strcmp(buffer, "E") || !strcmp(buffer, "W")
-                       || !strcmp(buffer, "U") || !strcmp(buffer, "D")
-                       || !strcmp(buffer, "NORTH") || !strcmp(buffer, "SOUTH")
-                       || !strcmp(buffer, "EAST") || !strcmp(buffer, "WEST")
-                       || !strcmp(buffer, "UP") || !strcmp(buffer, "DOWN")) {
+            } else if ((tolower(buffer[0]) == 'g')
+                       || !strcasecmp(buffer, "n") || !strcasecmp(buffer, "s")
+                       || !strcasecmp(buffer, "e") || !strcasecmp(buffer, "w")
+                       || !strcasecmp(buffer, "u") || !strcasecmp(buffer, "d")
+                       || !strcasecmp(buffer, "north") || !strcasecmp(buffer, "south")
+                       || !strcasecmp(buffer, "east") || !strcasecmp(buffer, "west")
+                       || !strcasecmp(buffer, "up") || !strcasecmp(buffer, "down")) {
                 doGo();
-            } else if (buffer[0] == 'L') {
+            } else if (tolower(buffer[0]) == 'l') {
                 doLook();
-            } else if (buffer[0] == 'T') {
+            } else if (tolower(buffer[0]) == 't') {
                 doTake();
-            } else if (buffer[0] == 'E') {
+            } else if (tolower(buffer[0]) == 'e') {
                 doExamine();
-            } else if (buffer[0] == 'U') {
+            } else if (tolower(buffer[0]) == 'u') {
                 doUse();
-            } else if (buffer[0] == 'D') {
+            } else if (tolower(buffer[0]) == 'd') {
                 doDrop();
-            } else if (buffer[0] == 'Q') {
+            } else if (tolower(buffer[0]) == 'q') {
                 doQuit();
-            } else if (!strcmp(buffer, "XYZZY")) {
-                printf("NICE TRY, BUT THAT WON'T WORK HERE.\n");
+            } else if (!strcasecmp(buffer, "xyzzy")) {
+                printf("Nice try, but that won't work here.\n");
             } else {
-                printf("I DON'T UNDERSTAND. TRY 'HELP'.\n");
+                printf("I don't understand. try 'help'.\n");
             }
 
-            /* Handle special actons. */
+            /* Handle special actions. */
             doActions();
         }
 
-        printf("GAME OVER AFTER %d TURNS.\n", turnsPlayed);
-        printf("%s", "DO YOU WANT TO PLAY AGAIN (Y/N)? ");
+        printf("Game over after %d turns.\n", turnsPlayed);
+        printf("%s", "Do you want to play again (y/n)? ");
         fgets(buffer, sizeof(buffer)-1, stdin);
-        if (toupper(buffer[0]) == 'N') {
+        if (tolower(buffer[0]) == 'n') {
             break;
         }
     }
