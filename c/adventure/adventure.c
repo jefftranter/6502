@@ -728,7 +728,7 @@ void doActions()
                 printf("Matthew is afraid to come\ndown from the tree. If only you had\nsomething to coax him with.\n");
                 break;
             case 2:
-                printf("Congratulations! You succeeded and won\nthe game. I hope you had as much fun\nplaying the game as i did creating IT.\n- Jeff Tranter <tranter@pobox.com>\n");
+                printf("Congratulations! You succeeded and won\nthe game. I hope you had as much fun\nplaying the game as I did creating it.\n- Jeff Tranter <tranter@pobox.com>\n");
                 gameOver = 1;
                 return;
                 break;
@@ -815,7 +815,7 @@ int main(void)
             } else if (!strcasecmp(buffer, "xyzzy")) {
                 printf("Nice try, but that won't work here.\n");
             } else {
-                printf("I don't understand. try 'help'.\n");
+                printf("I don't understand. Try 'help'.\n");
             }
 
             /* Handle special actions. */
