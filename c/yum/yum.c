@@ -4,9 +4,9 @@
  * Jeff Tranter <tranter@pobox.com>
  *
  * Written in standard C but designed to run on the Apple Replica 1
- * using the CC65 6502 assembler.
+ * or Apple II using the CC65 6502 assembler.
  *
- * Copyright 2012 Jeff Tranter
+ * Copyright 2012-2015 Jeff Tranter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
  * -------  ----         --------
  * 0.0      25 Jul 2012  Started coding
  * 0.1      31 Jul 2012  First release.
+ * 0.2      02 Sep 2015  Apple II improvements.
  *
  */
 
@@ -40,7 +41,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef __CC65__
-#include <apple1.h>
+#include <conio.h>
 #endif
 #ifndef __CC65__
 #include <time.h>
@@ -111,10 +112,10 @@ int dice[MAXDICE];
 char buffer[40];
 
 /* Names of computer players. */
-char *computerNames[MAXPLAYERS] = { "APPLE", "REPLICA", "WOZ" };
+char *computerNames[MAXPLAYERS] = { "Apple 1", "Apple 2", "Woz" };
 
 /* Names of categories. */
-char *labels[MAXCATEGORY] = { "1'S", "2'S", "3'S", "4'S", "5'S", "6'S", "SUB-TOTAL", "BONUS", "LOW STRAIGHT", "HIGH STRAIGHT", "LOW SCORE", "HIGH SCORE", "FULL HOUSE", "YUM", "TOTAL" };
+char *labels[MAXCATEGORY] = { "1's", "2's", "3's", "4's", "5's", "6's", "Sub-total", "Bonus", "Low Straight", "High Straight", "Low Score", "High Score", "Full House", "YUM", "Total" };
 
 /* FUNCTIONS */
 
@@ -150,10 +151,14 @@ void initialize()
 /* Clear the screen. */
 void clearScreen()
 {
+#if defined(__APPLE2__)
+    clrscr();
+#else
     int i;
 
     for (i = 0; i < 24; ++i)
         printf("\n");
+#endif
 }
 
 /* Print a string, wait for user to press enter, then continue. */
@@ -162,7 +167,7 @@ void pressEnter(char *s)
 
     /* Default string is printed if s is 0. */
     if (s == 0) {
-        printf("\nPRESS <ENTER> TO CONTINUE");
+        printf("\nPress <Return> to continue");
     } else {
         printf("%s", s);
     }
@@ -170,10 +175,17 @@ void pressEnter(char *s)
 #ifdef __CC65__
     /* On CC65 platform use keyPressed() routine and use this to set the random seed. */
 
+#if defined(__APPLE2__)
+    while (!kbhit()) {
+        randomSeed++;
+    }
+    cgetc();
+#else
     while (!keypressed()) {
         randomSeed++;
     }
     readkey();
+#endif
     printf("\n");
 #else
     fgets(buffer, sizeof(buffer)-1, stdin);
@@ -241,8 +253,8 @@ void displayScore()
 {
     int i;
 
-    printf("SCORE AFTER %d OF 12 ROUNDS:\n\n", currentRound);
-    printf("ROLL           ");
+    printf("Score after %d of 12 rounds:\n\n", currentRound);
+    printf("Roll           ");
     for (i = 0; i < numHumanPlayers + numComputerPlayers; i++) {
         printf("%-8s", playerName[i]);
     }
@@ -257,36 +269,36 @@ void displayScore()
 void displayHelp()
 {
     printf("%s",
-           "THIS IS A COMPUTER VERSION OF THE GAME\n"
-           "YUM, SIMILAR TO GAMES KNOWN AS YAHTZEE,\n"
-           "YACHT AND GENERALA. EACH PLAYER ROLLS\n"
-           "FIVE DICE UP TO THREE TIMES AND THEN\n"
-           "APPLIES THE DICE TOWARD A CATEGORY TO\n"
-           "CLAIM POINTS. THE GAME HAS 12 ROUNDS\n"
-           "DURING WHICH EACH PLAYER ATTEMPTS TO\n"
-           "CLAIM THE MOST POINTS IN EACH CATEGORY.\n"
+           "This is a computer version of the game\n"
+           "YUM, similar to games known as Yahtzee,\n"
+           "Yacht and Generala. Each player rolls\n"
+           "five dice up to three times and then\n"
+           "applies the dice toward a category to\n"
+           "claim points. The game has 12 rounds\n"
+           "during which each player attempts to\n"
+           "claim the most points in each category.\n"
            "\n"
-           "THE WINNER IS THE PERSON SCORING THE\n"
-           "MOST POINTS AT THE END OF THE GAME.\n"
+           "The winner is the person scoring the\n"
+           "most points at the end of the game.\n"
            "\n"
-           "THIS VERSION SUPPORTS UP TO THREE\n"
-           "PLAYERS OF WHICH ANY CAN BE HUMAN OR\n"
-           "COMPUTER PLAYERS.\n");
+           "This version supports up to three\n"
+           "players of which any can be human or\n"
+           "computer players.\n");
 
     pressEnter(0);
     clearScreen();
 
     printf("%s",
-           "CATEGORIES ARE AS FOLLOWS:\n\n"
-           "1'S THROUGH 6'S - DICE OF SAME TYPE\n"
-           "LOW STRAIGHT (15) - 1 2 3 4 5\n"
-           "HIGH STRAIGHT (20) - 2 3 4 5 6\n"
-           "LOW SCORE - TOTAL 21 OR MORE\n"
-           "HIGH SCORE - TOTAL 22 OR MORE\n"
-           "FULL HOUSE (25) - 3 OF A KIND AND PAIR\n"
-           "YUM (30) - 5 DICE THE SAME\n\n"
-           "BONUS OF 25 POINTS IF UPPER SECTION\n"
-           "IS 63 OR MORE.\n\n");
+           "Categories are as follows:\n\n"
+           "1's through 6's - dice of same type\n"
+           "Low Straight (15) - 1 2 3 4 5\n"
+           "High Straight (20) - 2 3 4 5 6\n"
+           "Low Score - total 21 or more\n"
+           "High Score - total 22 or more\n"
+           "Full House (25) - 3 of a kind and pair\n"
+           "YUM (30) - 5 dice the same\n\n"
+           "Bonus of 25 points if upper section\n"
+           "is 63 or more.\n\n");
 }
 
 /* Return location of number i in dice array. */
@@ -584,7 +596,7 @@ void displayDiceRolledAgain()
 {
     int i;
 
-    printf("%s KEEPS:", playerName[player]);
+    printf("%s keeps:", playerName[player]);
 
     for (i = 0; i < MAXDICE; i++) {
         if (dice[i] != UNSET)
@@ -629,15 +641,15 @@ void setPlayers()
 {
     int i;
 
-    numHumanPlayers = promptNumber("HOW MANY HUMAN PLAYERS", 0, MAXPLAYERS);
+    numHumanPlayers = promptNumber("How many human players", 0, MAXPLAYERS);
     if (numHumanPlayers < MAXPLAYERS) {
-        numComputerPlayers = promptNumber("HOW MANY COMPUTER PLAYERS", (numHumanPlayers == 0) ? 1 : 0, MAXPLAYERS - numHumanPlayers);
+        numComputerPlayers = promptNumber("How many computer players", (numHumanPlayers == 0) ? 1 : 0, MAXPLAYERS - numHumanPlayers);
     } else {
         numComputerPlayers = 0;
     }
 
     for (i = 0; i < numHumanPlayers; i++) {
-        snprintf(buffer, sizeof(buffer), "NAME OF PLAYER %d", i+1);
+        snprintf(buffer, sizeof(buffer), "Name of player %d", i+1);
         strncpy(playerName[i], promptString(buffer), sizeof(playerName[i]) - 1);
         playerName[i][strlen(playerName[i])] = 0; /* May need to add terminating null */
         isComputerPlayer[i] = false;
@@ -653,7 +665,7 @@ void setPlayers()
 bool promptYesNo(char *string)
 {
     while (true) {
-        printf("%s (Y/N)?", string);
+        printf("%s (y/n)?", string);
         fgets(buffer, sizeof(buffer)-1, stdin);
         if (toupper(buffer[0]) == 'Y')
             return true;
@@ -699,7 +711,7 @@ int askPlayerDiceToRollAgain()
 
     while (true) {
 
-        printf("ENTER DICE TO ROLL AGAIN OR\nD FOR DICE OR S FOR SCORE:");
+        printf("Enter dice to roll again or\nD for dice or S for score:");
         fgets(buffer, sizeof(buffer)-1, stdin);
         buffer[strlen(buffer)-1] = '\0'; /* Remove newline at end of string */
 
@@ -725,7 +737,7 @@ int askPlayerDiceToRollAgain()
         for (i = 0; i < strlen(buffer); i++) {
             /* Validate character. */
             if ((buffer[i] != ' ') && (buffer[i] != ',') && ((buffer[i] < '1') || (buffer[i] > '6'))) {
-                printf("INVALID INPUT: '%c', TRY AGAIN.\n", buffer[i]);
+                printf("Invalid input: '%c', Try again.\n", buffer[i]);
                 valid = false;
                 break;
             }
@@ -747,7 +759,7 @@ int askPlayerDiceToRollAgain()
             if (contains(buffer[i] - '0')) {
                 dice[find(buffer[i] - '0')] = UNSET;
             } else {
-                printf("YOU DON'T HAVE A '%c', TRY AGAIN.\n", buffer[i]);
+                printf("You don't have a '%c', Try again.\n", buffer[i]);
                 valid = false;
                 /* Revert the dice to the original saved values since we may have changed it before the error was detected. */
                 for (i = 0; i < MAXDICE; i++) {
@@ -794,7 +806,7 @@ void rollDice()
 void playCategory(int category)
 {
     if (scoreSheet[player][category] != UNSET) {
-        printf("INTERNAL ERROR: TRIED TO PLAY A CATEGORY THAT WAS ALREADY SELECTED!\n");
+        printf("Internal error: Tried to play a category that was already selected!\n");
         return;
     }
 
@@ -853,10 +865,10 @@ int humanPickCategory()
     }
 
     while (true) {
-        snprintf(buffer, sizeof(buffer), "\n%s, WHAT CATEGORY DO\nYOU WANT TO CLAIM?", playerName[player]);
+        snprintf(buffer, sizeof(buffer), "\n%s, What category do\nyou want to claim?", playerName[player]);
         category = promptNumber(buffer, 1, MAXCATEGORY-1) - 1;
         if (scoreSheet[player][category] != UNSET) {
-            printf("YOU ALREADY USED THAT CATEGORY.\nTRY AGAIN.\n");
+            printf("You already used that category.\nTry again.\n");
         } else {
             break;
         }
@@ -884,29 +896,29 @@ void displayWinner()
     /* Display the winner. */
     if (numHumanPlayers + numComputerPlayers == 3) {
         if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[1][14] == scoreSheet[2][14])) {
-            printf("IT WAS A THREE WAY TIE!\n");
+            printf("It was a three way tie!\n");
         } else if ((scoreSheet[0][14] == scoreSheet[1][14]) && (scoreSheet[0][14] == max)) {
-            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[1]);
+            printf("It was a tie between %s and %s\n", playerName[0], playerName[1]);
         } else if ((scoreSheet[1][14] == scoreSheet[2][14]) && (scoreSheet[1][14] == max)) {
-            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[1], playerName[2]);
+            printf("It was a tie between %s and %s\n", playerName[1], playerName[2]);
         } else if ((scoreSheet[0][14] == scoreSheet[2][14]) && (scoreSheet[0][14] == max)) {
-            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[2]);
+            printf("It was a tie between %s and %s\n", playerName[0], playerName[2]);
         } else {
-            printf("THE WINNER IS %s.\n", playerName[winner]);
+            printf("The winner is %s.\n", playerName[winner]);
         }
     }
 
     if (numHumanPlayers + numComputerPlayers == 2) {
         if (scoreSheet[0][14] == scoreSheet[1][14]) {
-            printf("IT WAS A TIE BETWEEN %s AND %s\n", playerName[0], playerName[1]);
+            printf("It was a tie between %s and %s\n", playerName[0], playerName[1]);
         } else {
-            printf("THE WINNER IS %s.\n", playerName[winner]);
+            printf("The winner is %s.\n", playerName[winner]);
         }
     }
 
     /* Display player's scores. */
     for (p = 0; p < numHumanPlayers + numComputerPlayers; p++) {
-        printf("%s HAS %d POINTS.\n", playerName[p], scoreSheet[p][14]);
+        printf("%s has %d points.\n", playerName[p], scoreSheet[p][14]);
     }
 }
 
@@ -1089,9 +1101,9 @@ int main(void)
           "   #    #     # #     #\n"
           "   #    #     # #     #\n"
           "   #     #####  #     #\n"
-          "\n\nWELCOME TO YUM!\n");
+          "\n\nWelcome to YUM!\n");
 
-    if (promptYesNo("DO YOU WANT INSTRUCTIONS")) {
+    if (promptYesNo("Do you want instructions")) {
         clearScreen();
         displayHelp();
     }
@@ -1100,14 +1112,14 @@ int main(void)
 
     while (true) {
 
-        pressEnter("PRESS <ENTER> TO START THE GAME");
+        pressEnter("Press <Return> to start the game");
         setRandomSeed();
 
         for (currentRound = 1; currentRound <= MAXROUNDS; currentRound++) {
             for (player = 0; player < numHumanPlayers + numComputerPlayers; player++) {
 
                 clearScreen();
-                snprintf(buffer, sizeof(buffer), "%s'S TURN. PRESS <ENTER> TO ROLL", playerName[player]);
+                snprintf(buffer, sizeof(buffer), "%s's turn. Press <Return> to roll", playerName[player]);
                 pressEnter(buffer);
                 markAllDiceToBeRolled();
 
@@ -1117,11 +1129,11 @@ int main(void)
                     rollDice();
                     sortDice();
                     if (roll == 1) {
-                        printf("FIRST ROLL IS:");
+                        printf("First roll is:");
                     } else if (roll == 2) {
-                        printf("SECOND ROLL IS:");
+                        printf("Second roll is:");
                     } else {
-                        printf("LAST ROLL IS:");
+                        printf("Last roll is:");
                     }
                     displayDice();
                     if (roll < 3) {
@@ -1141,7 +1153,7 @@ int main(void)
                 if (isComputerPlayer[player]) {
                     int c;
                     c = computerPickCategory();
-                    printf("%s PLAYS %s\n", playerName[player], labels[c]);
+                    printf("%s plays %s\n", playerName[player], labels[c]);
                     playCategory(c);
                     pressEnter(0);
                 } else {
@@ -1160,11 +1172,11 @@ int main(void)
         pressEnter(0);
         clearScreen();
 
-        if (!promptYesNo("WOULD YOU LIKE TO PLAY AGAIN")) {
+        if (!promptYesNo("Would you like to play again")) {
             break;
         }
 
-        if (!promptYesNo("SAME PLAYERS AS LAST TIME")) {
+        if (!promptYesNo("Same players as last time")) {
             setPlayers();
         }
 
