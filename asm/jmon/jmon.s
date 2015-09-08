@@ -177,6 +177,7 @@
   MONITOR = $FF69               ; Apple monitor entry point
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $03F0             ; Break/interrupt vector (2 bytes)
+  BEEP    = $FBE4               ; Beep the speaker
 .elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
@@ -251,6 +252,9 @@ MainLoop:
 
 ; Invalid command
 Invalid:
+.ifdef BEEP
+        JSR BEEP
+.endif
         LDX #<InvalidCommand
         LDY #>InvalidCommand
         JMP PrintString         ; Return via caller
@@ -276,6 +280,9 @@ CFFA1:
         JMP MENU                ; Jump to CFFA1 menu, will return when done.
 
 @NoCFFA1:
+.ifdef BEEP
+        JSR BEEP
+.endif
         LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
         LDY #>NoCFFA1String
         JMP PrintString         ; Return via caller
@@ -290,6 +297,9 @@ ACIFW:
         BEQ NoACI
         JMP ACI                 ; Jump to ACI firmware, unfortunately jumps to Woz Mon when done rather than returning here.
 NoACI:
+.ifdef BEEP
+        JSR BEEP
+.endif
         LDX #<NoACIString       ; Display error that no ACI is present.
         LDY #>NoACIString
         JMP PrintString         ; Return via caller
@@ -302,6 +312,9 @@ Monitor:
         BEQ @NoWozMon
         JMP WOZMON
 @NoWozMon:
+.ifdef BEEP
+        JSR BEEP
+.endif
         LDX #<NoWozMonString    ; Display error that no Woz Monitor is present.
         LDY #>NoWozMonString
         JMP PrintString         ; Return via caller
@@ -332,6 +345,9 @@ Basic:
         BEQ NoBasic
         JMP BASIC               ; Jump to BASIC (no facility to return).
 NoBasic:
+.ifdef BEEP
+        JSR BEEP
+.endif
         LDX #<NoBASICString     ; Display error that no BASIC is present.
         LDY #>NoBASICString
         JMP PrintString
@@ -2185,6 +2201,9 @@ RequireStartNotAfterEnd:
         BCC @rangeOkay
         BEQ @rangeOkay
 @rangeInvalid:
+.ifdef BEEP
+        JSR BEEP
+.endif
         LDX #<InvalidRange
         LDY #>InvalidRange
         JSR PrintString
