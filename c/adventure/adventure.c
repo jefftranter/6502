@@ -50,7 +50,7 @@
 
 /* TYPES */
 
-/* To optimize for code size and speed, must numbers are 8-bit chars when compiling for the Replica 1. */
+/* To optimize for code size and speed, most numbers are 8-bit chars when compiling for the Replica 1. */
 #ifdef __CC65__
 typedef char number;
 #else
