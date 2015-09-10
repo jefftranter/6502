@@ -558,6 +558,7 @@ TRYZPY:
   BNE TRYREL
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte (address)
+  JSR PrintDollar
   JSR PrintByte         ; display it
   JSR PrintCommaY
   JMP DONEOPS       
