@@ -1,8 +1,8 @@
 JMON - Jeff's Monitor Program
 ------------------------------
 
-A machine language monitor program for the Apple Replica 1, and Briel
-Superboard ///, or MOS Technology KIM-1.
+A machine language monitor program for the Apple Replica 1, Apple II,
+Briel Superboard ///, or MOS Technology KIM-1.
 
 Copyright (C) 2012-2015 by Jeff Tranter <tranter@pobox.com>
 
