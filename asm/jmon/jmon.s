@@ -82,6 +82,7 @@
 ; 1.2.1  25-Mar-2015   All features now working on KIM-1 platform
 ; 1.3.0  12-Aug-2015   Added support for Apple II platform.
 ; 1.3.1  19-Aug-2015   Breakpoints working. Added Computer type to info cmd.
+; 1.3.2  09-Sep-2015   Show Apple II peripheral cards in slots.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -2697,9 +2698,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte CR,"JMON Monitor 1.3.1 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.2 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.1 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.2 by J. Tranter", CR, 0
 .endif
 
 PromptString:
@@ -3049,6 +3050,36 @@ TypeKim1String:
 TypeOSIString:
         .asciiz "OSI"
 .endif
+.if .defined(APPLE2)
+HeaderString:
+        .asciiz "Slot ID Type"
+EmptySlotString:
+        .asciiz "-- empty or unknown"
+Class0String:
+        .asciiz "reserved"
+Class1String:
+        .asciiz "printer"
+Class2String:
+        .asciiz "joystick or mouse"
+Class3String:
+        .asciiz "serial or parallel"
+Class4String:
+        .asciiz "modem"
+Class5String:
+        .asciiz "sound or speech device"
+Class6String:
+        .asciiz "clock"
+Class7String:
+        .asciiz "mass storage device"
+Class8String:
+        .asciiz "80 column card"
+Class9String:
+        .asciiz "Network or bus interface"
+Class10String:
+        .asciiz "special purpose"
+ClassDefaultString:
+        .asciiz "future expansion"
+.endif
 
   .include "disasm.s"
   .include "miniasm.s"
@@ -3097,3 +3128,6 @@ MNEM:      .res 3               ; Hold three letter mnemonic string used by asse
 OPERAND:   .res 2               ; Holds any operands for assembled instruction
 TRACEINST: .res 8               ; buffer holding traced instruction followed by a JMP and optionally another jump (Up to 8 bytes)
 TAKEN:     .res 1               ; Flag indicating if a traced branch instruction was taken
+.if .defined(APPLE2)
+SLOT:      .res 1               ; Holds current peripheral card slot number
+.endif

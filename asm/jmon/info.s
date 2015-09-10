@@ -35,6 +35,15 @@
 ;        BASIC ROM: PRESENT
 ;     KRUSADER ROM: PRESENT
 ;       WOZMON ROM: PRESENT
+;Slot ID Type
+; 1   31 I/O serial or parallel card
+; 2   31 I/O serial or parallel card
+; 3   88 80 column card
+; 4   20 joystick or mouse
+; 5   -- empty or unknown
+; 6   -- empty or unknown
+; 7   9B Network or bus interface
+
 
 Info:
         JSR PrintChar           ; Echo command
@@ -247,8 +256,200 @@ PrintType:
         JSR PrintString
         JSR WozMonPresent
         JSR PrintPresent
-        JMP PrintCR
+        JSR PrintCR
 .endif
+
+.ifdef APPLE2
+; Display IDs of cards in slots. Uses Pascal 1.1 firmware protocol.
+; Pseudodode:
+; print "Slot ID  Type\n"
+; for s in 1..7
+;   print " s   "
+;   if $Cs05 == $38 and $Cs07 == $18 and $Cn0B == $01
+;     id = $Cs0C
+;     print "id  "
+;     class = ( ID && $F0 ) >> 4
+;      switch class:
+;        case 0: print "reserved"
+;        case 1: print "printer"
+;        case 2: print "joystick or mouse"
+;        case 3: print "serial or parallel"
+;        case 4: print "modem"
+;        case 5: print "sound or speech device"
+;        case 6: print "clock"
+;        case 7: print "mass storage device"
+;        case 8: print "80 column card"
+;        case 9: print "Network or bus interface"
+;        case 10: print "special purpose"
+;        default: print "reserved"
+;   else
+;     print "--  empty or unknown\n"
+
+        LDX #<HeaderString      ; Print table header
+        LDY #>HeaderString
+        JSR PrintString
+        JSR PrintCR             ; And newline
+
+        LDA #1                  ; Initialize slot number
+        STA SLOT
+Slots:
+        JSR PrintSpace          ; Print a space
+        LDA SLOT                ; Print slot number
+        JSR PRHEX
+        LDX #3                  ; Print three spaces
+        JSR PrintSpaces
+
+        LDA SLOT                ; Get slot number
+        CLC
+        ADC #$C0                ; Calculate $Cs
+        STA ADDR+1              ; High byte of address to read
+
+        LDA #$05                ; Want to read $Cs05
+        STA ADDR                ; Low byte of address to read
+        LDX #0                  ; Read $Cs05
+        LDA (ADDR,X)
+        CMP #$38                ; Should be $38 for peripheral card
+        BEQ OK1
+        JMP EmptySlot
+OK1:
+        LDA #$07                ; Want to read $Cs07
+        STA ADDR                ; Low byte of address to read
+        LDX #0                  ; Read $Cs07
+        LDA (ADDR,X)
+        CMP #$18                ; Should be $18 for peripheral card
+        BEQ OK2
+        JMP EmptySlot
+OK2:
+        LDA #$0B                ; Want to read $Cs0B
+        STA ADDR                ; Low byte of address to read
+        LDX #0                  ; Read $Cs0B
+        LDA (ADDR,X)
+        CMP #$01                ; Should be $01 for peripheral card
+        BEQ OK3
+        JMP EmptySlot
+OK3:
+        LDA #$0C                ; Want to read $Cs0C
+        STA ADDR                ; Low byte of address to read
+        LDX #0                  ; Read $Cs0C
+        LDA (ADDR,X)            ; This is the card ID
+        PHA                     ; Save A
+        JSR PrintByte           ; Print card ID
+        JSR PrintSpace          ; Then a space
+        PLA                     ; Restore A (Card ID)
+        AND #$F0                ; Mask off class portion of ID (upper nybble)
+        LSR                     ; Shift into lower nybble
+        LSR
+        LSR
+        LSR
+        CMP #$00                ; Is it class 0?
+        BNE Try1                ; If not, try next class.
+        LDX #<Class0String      ; Display class
+        LDY #>Class0String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try1:
+        CMP #$01
+        BNE Try2
+        LDX #<Class1String
+        LDY #>Class1String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try2:
+        CMP #$02
+        BNE Try3
+        LDX #<Class2String
+        LDY #>Class2String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try3:
+        CMP #$03
+        BNE Try4
+        LDX #<Class3String
+        LDY #>Class3String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try4:
+        CMP #$04
+        BNE Try5
+        LDX #<Class4String
+        LDY #>Class4String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try5:
+        CMP #$05
+        BNE Try6
+        LDX #<Class5String
+        LDY #>Class5String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try6:
+        CMP #$06
+        BNE Try7
+        LDX #<Class6String
+        LDY #>Class6String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try7:
+        CMP #$07
+        BNE Try8
+        LDX #<Class7String
+        LDY #>Class7String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try8:
+        CMP #$08
+        BNE Try9
+        LDX #<Class8String
+        LDY #>Class8String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try9:
+        CMP #$09
+        BNE Try10
+        LDX #<Class9String
+        LDY #>Class9String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Try10:
+        CMP #$0A
+        BNE Default
+        LDX #<Class10String
+        LDY #>Class10String
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+Default:
+        LDX #<ClassDefaultString
+        LDY #>ClassDefaultString
+        JSR PrintString
+        JSR PrintCR
+        JMP NextSlot
+EmptySlot:
+        LDX #<EmptySlotString
+        LDY #>EmptySlotString
+        JSR PrintString
+        JSR PrintCR
+NextSlot:
+        LDA SLOT                ; Get current slot
+        CLC                     ; Add one
+        ADC #1
+        STA SLOT
+        CMP #8                  ; Are we done?
+        BEQ Done                ; Yes, done.
+        JMP Slots               ; No, do next slot.
+Done:
+.endif
+        RTS
 
 ; Determine type of CPU. Returns result in A.
 ; 1 - 6502, 2 - 65C02, 3 - 65816.
