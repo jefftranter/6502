@@ -22,28 +22,27 @@
 ;
 ; Sample Output:
 ;
-;         COMPUTER: Apple //c
-;         CPU TYPE: 65C02
-;        CPU SPEED: 2.0 MHZ
-;RAM DETECTED FROM: $0000 TO $7FFF
-;       NMI VECTOR: $0F00
-;     RESET VECTOR: $FF00
-;   IRQ/BRK VECTOR: $0100
-;         ACI CARD: NOT PRESENT
-;       CFFA1 CARD: NOT PRESENT
-;   MULTI I/O CARD: PRESENT
+;         Computer: Apple //c
+;         CPU type: 65C02
+;        CPU speed: 2.0 MHZ
+;RAM detected from: $0000 TO $7FFF
+;       NMI vector: $0F00
+;     RESET vector: $FF00
+;   IRQ/BRK vector: $0100
+;         ACI card: NOT PRESENT
+;       CFFA1 card: NOT PRESENT
+;   MULTI I/O card: PRESENT
 ;        BASIC ROM: PRESENT
 ;     KRUSADER ROM: PRESENT
 ;       WOZMON ROM: PRESENT
 ;Slot ID Type
-; 1   31 I/O serial or parallel card
-; 2   31 I/O serial or parallel card
+; 1   31 serial or parallel
+; 2   31 serial or parallel
 ; 3   88 80 column card
 ; 4   20 joystick or mouse
 ; 5   -- empty or unknown
 ; 6   -- empty or unknown
 ; 7   9B Network or bus interface
-
 
 Info:
         JSR PrintChar           ; Echo command
@@ -147,10 +146,18 @@ PrintType:
 
 @Invalid:
 
+; Speed test works on Apple 1 with Multi I/O card or Apple II with
+; Super Serial Card or Apple //c with on-board serial.
+
+.if .defined(APPLE1) .or .defined (APPLE2)
+
 .ifdef APPLE1
         JSR MultiIOPresent      ; Can only measure clock speed if we have a Multi I/O card 
+.endif
+.ifdef APPLE2
+        JSR SerialPresent       ; Can only measure clock speed if we have a serial port
+.endif        
         BEQ @SkipSpeed
-        
         LDX #<CPUSpeedString
         LDY #>CPUSpeedString
         JSR PrintString
@@ -586,15 +593,27 @@ FindTopOfRAMEnd:            ; End of critical section we don't want to write to 
 ; a Multi I/O board and counting how many CPU cycles it takes. Returns
 ; value in A that is approximately CPU speed in MHz * 10.
 
-.ifdef APPLE1
+.if .defined(APPLE1) .or .defined(APPLE2)
+
 MeasureCPUSpeed:
 
+.ifdef APPLE1
 ; 6551 Chip registers
         TXDATA = $C300
         RXDATA = $C300
         STATUSREG = $C301
         CMDREG = $C302
         CTLREG = $C303
+.endif
+
+.ifdef APPLE2
+; 6551 Chip registers
+        TXDATA = $C098
+        RXDATA = $C098
+        STATUSREG = $C099
+        CMDREG = $C09A
+        CTLREG = $C09B
+.endif
 
 ; Set 1 stop bit, 8 bit data, internal clock, 19200bps
         LDA #%00011111

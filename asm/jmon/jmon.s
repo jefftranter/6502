@@ -83,6 +83,7 @@
 ; 1.3.0  12-Aug-2015   Added support for Apple II platform.
 ; 1.3.1  19-Aug-2015   Breakpoints working. Added Computer type to info cmd.
 ; 1.3.2  09-Sep-2015   Show Apple II peripheral cards in slots.
+;                      Add CPU speed test for Apple II.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -2606,6 +2607,44 @@ MultiIOPresent:
         RTS
 .endif
 
+; Determines if an Apple II serial port is is present.
+; Returns in A 1 if present, 0 if not.
+; Method is to check the first few 6551 registers.
+.ifdef APPLE2
+SerialPresent:
+        LDA #$00
+        STA $C09A
+        CMP $C09A
+        BNE @NoSerial
+        LDA #$FF
+        STA $C09A
+        CMP $C09A
+        BNE @NoSerial
+        LDA #$00
+        STA $C09B
+        CMP $C09B
+        BNE @NoSerial
+        LDA #$FF
+        STA $C09B
+        CMP $C09B
+        BNE @NoSerial
+        STA $C099
+        LDA $C099
+        AND #%00000100
+        CMP #$00
+        BNE @NoSerial
+        LDA $C09A
+        AND #%00011111
+        CMP #$00
+        BNE @NoSerial
+        LDA #1
+        RTS
+@NoSerial:
+        LDA #0
+        RTS
+
+.endif
+
 ; Determines if BASIC ROM is present.
 ; Returns in A 1 if present, 0 if not.
 ; Looks for the first three bytes of ROM.
@@ -3074,7 +3113,7 @@ Class7String:
 Class8String:
         .asciiz "80 column card"
 Class9String:
-        .asciiz "Network or bus interface"
+        .asciiz "network or bus interface"
 Class10String:
         .asciiz "special purpose"
 ClassDefaultString:
