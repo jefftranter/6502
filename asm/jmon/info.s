@@ -497,8 +497,9 @@ PrintPresent:
         JSR Imprint
         .asciiz "not "
 @Present:
-        JMP Imprint
+        JSR Imprint
         .asciiz "present"
+        RTS
 
 ; Determines top of installed RAM while trying not to corrupt any other
 ; program including this one. We assume RAM starts at 0. Returns top

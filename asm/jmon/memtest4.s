@@ -156,9 +156,8 @@ CHK_TEST4:
 
 ; test 5 complete - we have finished a complete pass
 TESTDONE:                        ; print done and stop
-        LDX        #<PassString
-        LDY        #>PassString
-        JSR        PrintString
+        JSR        Imprint
+        .asciiz "PASS "
         INC        PASSES
         LDA        PASSES
         JSR        PrintByte
@@ -203,40 +202,24 @@ KeyPressed:
 LOOP_ERR:
         PHA
         STY     LZ                     ; test # is in Y
-        LDX     #<FailString1
-        LDY     #>FailString1
-        JSR     PrintString
+        JSR     Imprint
+        .asciiz "ERROR: "
         LDA     LZ
         JSR     PrintByte                ; test #
-        LDX     #<FailString2
-        LDY     #>FailString2
-        JSR     PrintString
+        JSR     Imprint
+        .asciiz " ADDR: "
         LDA     ADDRS + $01
         JSR     PrintByte                 ; OUTPUT ADDRS HI
         LDA     ADDRS
         JSR     PrintByte                 ; OUTPUT ADDRS LO
-        LDX     #<FailString3
-        LDY     #>FailString3
-        JSR     PrintString
+        JSR     Imprint
+        .asciiz " EXP: "
         LDA     TEST_PATRN
         JSR     PrintByte                 ; OUTPUT EXPECTED
-        LDX     #<FailString4
-        LDY     #>FailString4
-        JSR     PrintString
+        JSR     Imprint
+        .asciiz " READ: "
         PLA
         JSR     PrintByte                 ; OUTPUT ACTUAL
         JSR      PrintCR
 FINISHED:
         RTS
-
-PassString:
-        .asciiz "PASS "
-
-FailString1:
-        .asciiz "ERROR: "
-FailString2:
-        .asciiz " ADDR: "
-FailString3:
-        .asciiz " EXP: "
-FailString4:
-        .asciiz " READ: "

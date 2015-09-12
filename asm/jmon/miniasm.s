@@ -88,9 +88,9 @@ GetMnem:
         BNE OpOk                ; Branch if okay
 
         JSR PrintCR
-        LDX #<InvalidInstructionString  ; Not a valid mnemonic
-        LDY #>InvalidInstructionString
-        JSR PrintString         ; Print error message
+        JSR Imprint            ; Not a valid mnemonic
+        .byte "Invalid instruction", 0
+
 EscPressed:
         JMP PrintCR             ; Return via caller
 
@@ -517,9 +517,8 @@ TryAbsIndInd:
 
 InvalidOp:
         JSR PrintCR
-        LDX #<InvalidOperandString
-        LDY #>InvalidOperandString
-        JSR PrintString
+        JSR Imprint
+        .byte "Invalid operand", 0
         JMP PrintCR             ; Return via caller
 
 GenerateCode:
@@ -528,9 +527,9 @@ GenerateCode:
         JSR CheckAddressingModeValid   ; See if addressing mode is valid
         BNE OperandOkay
 
-        LDX #<InvalidAddressingModeString ; Not a valid addressing mode
-        LDY #>InvalidAddressingModeString
-        JSR PrintString         ; Print error message
+        JSR Imprint             ; Not a valid addressing mode
+        .byte "Invalid addressing mode", 0
+
         JMP PrintCR             ; Return via caller
 
 OperandOkay:
@@ -554,9 +553,8 @@ OperandOkay:
 
 ; Memory is not writable for some reason, Report error and quit.
 
-        LDX #<UnableToWriteString
-        LDY #>UnableToWriteString
-        JSR PrintString         ; Print error message
+        JSR Imprint              ; Print error message
+        .byte "Unable to write to $", 0
         LDX ADDR
         LDY ADDR+1
         JSR PrintAddress
@@ -576,12 +574,15 @@ TryAcc:
 
 TryImmed:
         CMP #AM_IMMEDIATE       ; These modes take one operand
-        BEQ OneOperand
-        CMP #AM_ZEROPAGE
-        BEQ OneOperand
-        CMP #AM_ZEROPAGE_X
-        BEQ OneOperand
-        CMP #AM_ZEROPAGE_Y
+        BNE TryZp
+        JMP OneOperand
+TryZp:  CMP #AM_ZEROPAGE
+        BNE TryZpX
+        JMP OneOperand
+TryZpX: CMP #AM_ZEROPAGE_X
+        BNE TryZpY
+        JMP OneOperand
+TryZpY: CMP #AM_ZEROPAGE_Y
         BEQ OneOperand
         CMP #AM_INDEXED_INDIRECT
         BEQ OneOperand
@@ -634,9 +635,8 @@ Relative:
          CMP #$FF
          BEQ OkayFF                 ; Or $FF
 OutOfRange:
-         LDX #<BranchOutOfRangeString
-         LDY #>BranchOutOfRangeString
-         JSR PrintString
+         JSR Imprint
+         .byte "Relative branch out of range", 0
          JMP PrintCR                ; Return via caller
 
 OkayZero:

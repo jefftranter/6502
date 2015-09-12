@@ -84,7 +84,7 @@
 ; 1.3.1  19-Aug-2015   Breakpoints working. Added Computer type to info cmd.
 ; 1.3.2  09-Sep-2015   Show Apple II peripheral cards in slots.
 ;                      Add CPU speed test for Apple II.
-;                      Added Imprint routine.
+;                      Added Imprint routine and used it for unique strings.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -242,9 +242,12 @@ JMON:
 
 MainLoop:
 ; Display prompt
-        LDX #<PromptString
-        LDY #>PromptString
-        JSR PrintString
+        JSR Imprint
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "? "
+.elseif .defined(OSI)
+        .asciiz "?"     ; Smaller on OSI due to smaller screen
+.endif
 
 ; Get first character of command
         JSR GetKey
@@ -258,12 +261,13 @@ Invalid:
 .ifdef BEEP
         JSR BEEP
 .endif
-        JMP Imprint            ; Return via caller
+        JSR Imprint
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .byte "Invalid command. Type '?' for help", CR, 0
 .elseif .defined(OSI)
         .byte "Invalid command.", CR, "Type '?' for help", CR, 0
 .endif
+        RTS
 
 ; Display help
 Help:
@@ -291,8 +295,9 @@ CFFA1:
 .endif
         LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
         LDY #>NoCFFA1String
-        JMP Imprint             ; Return via caller
+        JSR Imprint
         .byte "No CFFA1 card found!", CR, 0
+        RTS
 .endif
 
 ; Call ACI (Apple Cassette Interface) firmware
@@ -308,8 +313,9 @@ NoACI:
         JSR BEEP
 .endif
                                 ; Display error that no ACI is present.
-        JMP Imprint             ; Return via caller
+        JSR Imprint
         .byte "No ACI card found!", CR, 0
+        RTS
 .endif
 
 ; Go to Woz Monitor, OSI Monitor, or KIM-1 Monitor.
@@ -323,8 +329,9 @@ Monitor:
         JSR BEEP
 .endif
                                 ; Display error that no Woz Monitor is present.
-        JMP Imprint             ; Return via caller
+        JSR Imprint
         .byte "Woz Mon not found!", CR, 0
+        RTS
 .elseif .defined(APPLE2)
         JMP MONITOR             ; Assume it is always present
 .elseif .defined(OSI)
@@ -355,8 +362,9 @@ NoBasic:
 .ifdef BEEP
         JSR BEEP
 .endif
-        JMP Imprint             ; Display error that no BASIC is present.
+        JSR Imprint             ; Display error that no BASIC is present.
         .byte "BASIC not found!", CR, 0
+        RTS
 .endif
 
 ; Handle breakpoint
@@ -656,8 +664,9 @@ Search:
         LDA SL
         CMP EL
         BNE @NotDone
-        JMP Imprint
+        JSR Imprint
         .byte "Not found", CR, 0
+        RTS
 @NotDone:
         LDA SL                  ; increment address
         CLC
@@ -706,7 +715,6 @@ Verify:
         STX DL          ; store address
         STY DH
         JSR PrintCR
-
         JSR RequireStartNotAfterEnd
         BCC @verify
         RTS
@@ -958,12 +966,13 @@ CLEAR:
         BNE CLEAR
         RTS
 VNOTINRAM:
-        JMP Imprint
+        JSR Imprint
         .byte "BRK vector not in RAM!", CR, 0
-
+        RTS
 BNOTINRAM:
-        JMP Imprint
+        JSR Imprint
         .byte "Breakpoint not in RAM!", CR, 0
+        RTS
 
 ; List breakpoints, e.g.
 ; "BREAKPOINT n AT $nnnn"
@@ -1435,6 +1444,7 @@ Options:
        .byte "Set high bit in characters (Y/N)?", 0
 @Retry1:
         JSR GetKey
+        JSR ToUpper
         CMP #ESC
         BEQ @Return
         CMP #'Y'
@@ -1566,7 +1576,7 @@ Checksum:
         JSR GetAddress          ; prompt for end address
         STX EL                  ; store address
         STY EH
-        JSR PrintSpace          ; print space
+        JSR PrintCR
 
         JSR RequireStartNotAfterEnd
         BCC @okay1
@@ -2239,7 +2249,6 @@ RequireStartNotAfterEnd:
 .ifdef BEEP
         JSR BEEP
 .endif
-        JSR PrintCR
         JSR Imprint
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
         .byte "Error: start must be <= end", CR, 0
@@ -2779,13 +2788,6 @@ WelcomeMessage:
         .byte CR,"JMON 1.3.2 by J. Tranter", CR, 0
 .endif
 
-PromptString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "? "
-.elseif .defined(OSI)
-        .asciiz "?"     ; Smaller on OSI due to smaller screen
-.endif
-
 ; Help string.
 HelpString:
 .if .defined(APPLE1)
@@ -2894,21 +2896,6 @@ KnownBPString1:
 
 KnownBPString2:
   .asciiz " at $"
-
-InvalidInstructionString:
-  .byte "Invalid instruction", 0
-
-InvalidOperandString:
-  .byte "Invalid operand", 0
-
-InvalidAddressingModeString:
-  .byte "Invalid addressing mode", 0
-
-BranchOutOfRangeString:
-  .byte "Relative branch out of range", 0
-
-UnableToWriteString:
-  .byte "Unable to write to $", 0
 
 Type6502String:
         .asciiz "6502"
