@@ -16,19 +16,20 @@ The .s files are assembler source. They are intended to be assembled
 with CC65 (See http://www.cc65.org). The source files are currently
 incomplete.
 
-This only includes the version for the Ohio Scientific C-1P. Support
-for the PET 2001, Apple II, and Atari 800 should only require entering
-the appropriate system data blocks.
+This only includes the versions for the Ohio Scientific C-1P and Apple
+II. Support for the PET 2001 and Atari 800 should only require
+entering the appropriate system data blocks.
 
-The software has been testing using the Ohio Scientific/Compukit UK101
+The software has been tested using the Ohio Scientific/Compukit UK101
 emulator (http://osi.marks-lab.com/) as well as Briel Computers
-Superboard III (http://www.brielcomputers.com/).
+Superboard III (http://www.brielcomputers.com/). It has also been
+tested on an Apple //c.
 
-The easiest way to load the monitor is to enter the OSI machine
-language monitor (answer "M" to the D/C/W/M? prompt on power up). Then
-load the file visiblemonitor.lod by pressing L and loading it from the
-serial port or cassette interface. It will load and start
-automatically.
+On the Ohio Scientific platform, the easiest way to load the monitor
+is to enter the OSI machine language monitor (answer "M" to the
+D/C/W/M? prompt on power up). Then load the file visiblemonitor.lod by
+pressing L and loading it from the serial port or cassette interface.
+It will load and start automatically.
 
 Here is a summary of how to use the monitor:
 
