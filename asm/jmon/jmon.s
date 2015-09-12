@@ -84,6 +84,7 @@
 ; 1.3.1  19-Aug-2015   Breakpoints working. Added Computer type to info cmd.
 ; 1.3.2  09-Sep-2015   Show Apple II peripheral cards in slots.
 ;                      Add CPU speed test for Apple II.
+;                      Added Imprint routine.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -1954,6 +1955,38 @@ done:
         PLA             ; Restore A
         RTS
 
+; Embedded string printer. Unpops the stack to find the embedded
+; string. It outputs one character at a time until a $00 marker is
+; found. Then it jumps back to the calling program just beyond the
+; string. Based on code from "Assembly Cookbook for the Apple II/IIe
+; by Don Lancaster.
+
+Imprint:
+        STX XSAV2       ; Save registers
+        STY YSAV2
+        STA ASAV2
+        PLA             ; Get pointer low and save
+        STA ADDR
+        PLA             ; Get pointer high and save
+        STA ADDR+1
+        LDY #$00        ; No indexing
+NXTCHR2:
+        INC ADDR        ; Get next high address
+        BNE NOC2        ; Skip if no carry
+        INC ADDR+1      ; Increment high address
+NOC2:   LDA (ADDR),Y    ; Get character
+        BEQ END2        ; If zero marker
+        JSR PrintChar   ; Print character
+        JMP NXTCHR2     ; Branch back
+END2:   LDA ADDR+1      ; Restore PC low
+        PHA
+        LDA ADDR        ; Restore PC high
+        PHA
+        LDX XSAV2
+        LDY YSAV2       ; Restore registers
+        LDA ASAV2
+        RTS             ; And exit
+
 ; Print byte as two hex chars.
 ; Taken from Woz Monitor PRBYTE routine ($FFDC).
 ; Pass byte in A
@@ -3061,16 +3094,8 @@ CPUSpeedString:
 MHzString:
         .asciiz " MHz"
 
-ComputerString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "         Computer: "
-.elseif .defined(OSI)
-        .asciiz "      Computer: "
-.endif
-
 .if .defined(APPLE1)
 TypeApple1String:
-        .asciiz "Apple 1"
 .elseif .defined(APPLE2)
 TypeAppleIIString:
         .asciiz "Apple II"
@@ -3170,3 +3195,6 @@ TAKEN:     .res 1               ; Flag indicating if a traced branch instruction
 .if .defined(APPLE2)
 SLOT:      .res 1               ; Holds current peripheral card slot number
 .endif
+XSAV2:     .res 1               ; Saved registers
+YSAV2:     .res 1
+ASAV2:     .res 1

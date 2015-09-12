@@ -48,13 +48,17 @@ Info:
         JSR PrintChar           ; Echo command
         JSR PrintCR
 
-        LDX #<ComputerString    ; Display computer type
-        LDY #>ComputerString
-        JSR PrintString
+        JSR Imprint             ; Display computer type
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "         Computer: "
+.elseif .defined(OSI)
+        .asciiz "      Computer: "
+.endif
 
 .if .defined(APPLE1)
         LDX #<TypeApple1String
         LDY #>TypeApple1String
+        .asciiz "Apple 1"
 
 .elseif .defined(APPLE2)
 
