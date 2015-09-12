@@ -157,7 +157,7 @@ CHK_TEST4:
 ; test 5 complete - we have finished a complete pass
 TESTDONE:                        ; print done and stop
         JSR        Imprint
-        .asciiz "PASS "
+        .asciiz "Pass "
         INC        PASSES
         LDA        PASSES
         JSR        PrintByte
@@ -176,7 +176,7 @@ KeyPressed:
         BMI        KeyPressed
         JMP        REPEAT
 KeyPressed:
-        LDA        $C010 ; Clear keyboard strobe
+        STA        $C010 ; Clear keyboard strobe
         JMP        FINISHED
 .elseif .defined(OSI)
         LDA        #$00
@@ -203,21 +203,21 @@ LOOP_ERR:
         PHA
         STY     LZ                     ; test # is in Y
         JSR     Imprint
-        .asciiz "ERROR: "
+        .asciiz "Error: "
         LDA     LZ
         JSR     PrintByte                ; test #
         JSR     Imprint
-        .asciiz " ADDR: "
+        .asciiz " Addr: "
         LDA     ADDRS + $01
         JSR     PrintByte                 ; OUTPUT ADDRS HI
         LDA     ADDRS
         JSR     PrintByte                 ; OUTPUT ADDRS LO
         JSR     Imprint
-        .asciiz " EXP: "
+        .asciiz " Exp: "
         LDA     TEST_PATRN
         JSR     PrintByte                 ; OUTPUT EXPECTED
         JSR     Imprint
-        .asciiz " READ: "
+        .asciiz " Read: "
         PLA
         JSR     PrintByte                 ; OUTPUT ACTUAL
         JSR      PrintCR
