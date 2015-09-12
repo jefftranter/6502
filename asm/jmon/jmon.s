@@ -258,9 +258,12 @@ Invalid:
 .ifdef BEEP
         JSR BEEP
 .endif
-        LDX #<InvalidCommand
-        LDY #>InvalidCommand
-        JMP PrintString         ; Return via caller
+        JMP Imprint            ; Return via caller
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .byte "Invalid command. Type '?' for help", CR, 0
+.elseif .defined(OSI)
+        .byte "Invalid command.", CR, "Type '?' for help", CR, 0
+.endif
 
 ; Display help
 Help:
@@ -288,7 +291,8 @@ CFFA1:
 .endif
         LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
         LDY #>NoCFFA1String
-        JMP PrintString         ; Return via caller
+        JMP Imprint             ; Return via caller
+        .byte "No CFFA1 card found!", CR, 0
 .endif
 
 ; Call ACI (Apple Cassette Interface) firmware
@@ -303,9 +307,9 @@ NoACI:
 .ifdef BEEP
         JSR BEEP
 .endif
-        LDX #<NoACIString       ; Display error that no ACI is present.
-        LDY #>NoACIString
-        JMP PrintString         ; Return via caller
+                                ; Display error that no ACI is present.
+        JMP Imprint             ; Return via caller
+        .byte "No ACI card found!", CR, 0
 .endif
 
 ; Go to Woz Monitor, OSI Monitor, or KIM-1 Monitor.
@@ -318,9 +322,9 @@ Monitor:
 .ifdef BEEP
         JSR BEEP
 .endif
-        LDX #<NoWozMonString    ; Display error that no Woz Monitor is present.
-        LDY #>NoWozMonString
-        JMP PrintString         ; Return via caller
+                                ; Display error that no Woz Monitor is present.
+        JMP Imprint             ; Return via caller
+        .byte "Woz Mon not found!", CR, 0
 .elseif .defined(APPLE2)
         JMP MONITOR             ; Assume it is always present
 .elseif .defined(OSI)
@@ -351,9 +355,8 @@ NoBasic:
 .ifdef BEEP
         JSR BEEP
 .endif
-        LDX #<NoBASICString     ; Display error that no BASIC is present.
-        LDY #>NoBASICString
-        JMP PrintString
+        JMP Imprint             ; Display error that no BASIC is present.
+        .byte "BASIC not found!", CR, 0
 .endif
 
 ; Handle breakpoint
@@ -653,10 +656,8 @@ Search:
         LDA SL
         CMP EL
         BNE @NotDone
-        LDX #<NotFound
-        LDY #>NotFound
-        JMP PrintString
-
+        JMP Imprint
+        .byte "Not found", CR, 0
 @NotDone:
         LDA SL                  ; increment address
         CLC
@@ -677,9 +678,8 @@ Search:
         SBC #0                  ; Includes possible carry
         STA SH
         INC IN
-        LDX #<Found
-        LDY #>Found
-        JSR PrintString
+        JSR Imprint
+        .asciiz "Found at: "
         LDX SL
         LDY SH
         JSR PrintAddress
@@ -716,9 +716,8 @@ Verify:
         LDA (SL),Y              ; compare source
         CMP (DL),Y              ; to destination
         BEQ @match
-        LDX #<MismatchString    ; report mismatch
-        LDY #>MismatchString
-        JSR PrintString
+        JSR Imprint             ; report mismatch
+        .asciiz "Mismatch: "
         LDX SL
         LDY SH
         JSR PrintAddress
@@ -840,21 +839,22 @@ Test:
         STX END
         STY END+1
         JSR PrintCR
-        LDX #<TestString1
-        LDY #>TestString1
-        JSR PrintString
+        JSR Imprint
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "Testing memory from $"
+.elseif .defined(OSI)
+        .byte "Testing memory from", CR, "$", 0
+.endif
         LDX START
         LDY START+1
         JSR PrintAddress
-        LDX #<TestString2
-        LDY #>TestString2
-        JSR PrintString
+        JSR Imprint
+        .asciiz " to $"
         LDX END
         LDY END+1
         JSR PrintAddress
-        LDX #<TestString3
-        LDY #>TestString3
-        JSR PrintString
+        JSR Imprint
+        .byte CR,"Press any key to stop", CR, 0
         JMP MEM_TEST
 
 ; Memory fill command
@@ -958,14 +958,12 @@ CLEAR:
         BNE CLEAR
         RTS
 VNOTINRAM:
-        LDX #<VNotRAMString
-        LDY #>VNotRAMString
-        JMP PrintString
+        JMP Imprint
+        .byte "BRK vector not in RAM!", CR, 0
 
 BNOTINRAM:
-        LDX #<BNotRAMString
-        LDY #>BNotRAMString
-        JMP PrintString
+        JMP Imprint
+        .byte "Breakpoint not in RAM!", CR, 0
 
 ; List breakpoints, e.g.
 ; "BREAKPOINT n AT $nnnn"
@@ -977,6 +975,7 @@ LIST:
         LDX #<KnownBPString1
         LDY #>KnownBPString1
         JSR PrintString
+
         PLA
         PHA
         LSR A                   ; divide by 2
@@ -1039,17 +1038,17 @@ ADDIT:
         LDA #0                  ; BRK instruction
         STA (BPA,X)             ; write breakpoint over code
         CMP (BPA,X)             ; If we don't read back what we wrote
-        BNE BNOTINRAM           ; then address is not writable (user may have put it in ROM)
-        RTS
+        BEQ InRam
+        JMP BNOTINRAM           ; then address is not writable (user may have put it in ROM)
+InRam:  RTS
 
 ; Remove breakpoint number A
 BPREMOVE:
         PHA
         JSR BPEXISTS
         BNE OK  
-        LDX #<NOBPString
-        LDY #>NOBPString
-        JSR PrintString
+        JSR Imprint
+        .byte "Breakpoint not set!", CR, 0
         PLA
         RTS
 OK:
@@ -1106,9 +1105,8 @@ BRKHANDLER:
         BIT  SAVE_P             ; is B bit set, indicating BRK and not IRQ?
         BNE  BREAK              ; If so, got to break handler
         JSR  PrintCR            ; Otherwise print message that we got an interrupt
-        LDX  #<IntString        
-        LDY  #>IntString
-        JSR  PrintString
+        JSR  Imprint
+        .byte "Interrupt ?", CR, 0
         LDY  SAVE_Y
         LDX  SAVE_X             ; Restore registers and return from interrupt
         LDA  SAVE_A
@@ -1140,9 +1138,8 @@ TRYNEXT:
         BNE CHECKADDR
 UNKNOWN:
         JSR PrintCR
-        LDX #<UnknownBPString
-        LDY #>UnknownBPString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "Breakpoint ? at $"
         LDX SAVE_PC
         LDY SAVE_PC+1
         JSR PrintAddress
@@ -1199,9 +1196,8 @@ writeLoop:
         STA (SL),Y              ; write data to address
         CMP (SL),Y
         BEQ Okay
-        LDX #<ReadString        ; Display message that same data not written back
-        LDY #>ReadString
-        JSR PrintString
+        JSR Imprint             ; Display message that same data not written back
+        .byte " Read: ", 0
         LDY #0
         LDA (SL),Y
         JSR PrintByte
@@ -1388,15 +1384,14 @@ PrintRegisters:
 
 ; Prompt user to change program options
 Options:
-        LDX #<OptionsString
-        LDY #>OptionsString
-        JSR PrintString
+        JSR Imprint
+        .byte "Options", CR, 0
 .if .defined(APPLE1) .or .defined(APPLE2)
-        LDX #<UppercaseString
-        LDY #>UppercaseString
-        JSR PrintString
+        JSR Imprint
+       .byte "All uppercase output (Y/N)?", 0
 @Retry:
         JSR GetKey
+        JSR ToUpper
         CMP #ESC
         BEQ @Return
         CMP #'Y'
@@ -1429,17 +1424,15 @@ Options:
 ; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
 ; Value of $20 works well for me (approx 1.5ms delay with 2MHz clock).
 ; See routine WAIT for details.
-        LDX #<WriteDelayString
-        LDY #>WriteDelayString
-        JSR PrintString
+        JSR Imprint
+       .byte "Write delay (00-FF)?", 0
         JSR GetByte
         STA OWDELAY
         JSR PrintCR             ; new line
 
 .if .defined(APPLE1) .or .defined(APPLE2)
-        LDX #<HighBitString
-        LDY #>HighBitString
-        JSR PrintString
+        JSR Imprint
+       .byte "Set high bit in characters (Y/N)?", 0
 @Retry1:
         JSR GetKey
         CMP #ESC
@@ -1448,7 +1441,7 @@ Options:
         BEQ @Yes1
         CMP #'N'
         BEQ @No1
-        BNE @Retry
+        BNE @Retry1
 @Yes1:
 .ifdef ECHO
         JSR PrintChar           ; echo command
@@ -1465,14 +1458,18 @@ Options:
 @Next1:
         JSR PrintCR             ; new line
 .endif
-
-        LDX #<CPUTypeString
-        LDY #>CPUTypeString
-        JSR PrintString
+        JSR Imprint
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
+.elseif .defined(OSI)
+        .byte "CPU type 1-6502 2-65C02", CR, "3-65816?", 0
+.endif
 @Retry2:
         JSR GetKey
         CMP #ESC
-        BEQ @Return
+        BNE @NotEsc
+        JMP @Return
+@NotEsc:
         CMP #'1'
         BEQ @Okay
         CMP #'2'
@@ -2192,9 +2189,12 @@ PromptToContinue:
         PHA
         TYA
         PHA
-        LDX #<ContinueString
-        LDY #>ContinueString
-        JSR PrintString
+        JSR Imprint
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "  <Space> to continue, <ESC> to stop"
+.elseif .defined(OSI)
+        .asciiz " <SP> cont <ESC> stop"
+.endif
 @SpaceOrEscape:
         JSR GetKey
         CMP #' '
@@ -2239,9 +2239,13 @@ RequireStartNotAfterEnd:
 .ifdef BEEP
         JSR BEEP
 .endif
-        LDX #<InvalidRange
-        LDY #>InvalidRange
-        JSR PrintString
+        JSR PrintCR
+        JSR Imprint
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .byte "Error: start must be <= end", CR, 0
+.elseif .defined(OSI)
+        .byte "Start must be <= end!", CR, 0
+.endif
         SEC
         RTS
 @rangeOkay:
@@ -2782,13 +2786,6 @@ PromptString:
         .asciiz "?"     ; Smaller on OSI due to smaller screen
 .endif
 
-InvalidCommand:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte "Invalid command. Type '?' for help", CR, 0
-.elseif .defined(OSI)
-        .byte "Invalid command.", CR, "Type '?' for help", CR, 0
-.endif
-
 ; Help string.
 HelpString:
 .if .defined(APPLE1)
@@ -2892,94 +2889,11 @@ HelpString:
         .byte 0
 .endif
 
-ContinueString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "  <Space> to continue, <ESC> to stop"
-.elseif .defined(OSI)
-        .asciiz " <SP> cont <ESC> stop"
-.endif
-
-InvalidRange:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte "Error: start must be <= end", CR, 0
-.elseif .defined(OSI)
-        .byte "Start must be <= end!", CR, 0
-.endif
-
-NotFound:
-        .byte "Not found", CR, 0
-
-Found:
-        .asciiz "Found at: "
-
-MismatchString:
-        .asciiz "Mismatch: "
-
-TestString1:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "Testing memory from $"
-.elseif .defined(OSI)
-        .byte "Testing memory from", CR, "$", 0
-.endif
-
-TestString2:
-        .asciiz " to $"
-
-TestString3:
-        .byte CR,"Press any key to stop", CR, 0
-
-VNotRAMString:
-  .byte "BRK vector not in RAM!", CR, 0
-
-BNotRAMString:
-  .byte "Breakpoint not in RAM!", CR, 0
-
-NOBPString:
-  .byte "Breakpoint not set!", CR, 0
-
-IntString:
-  .byte "Interrupt ?", CR, 0
-
-UnknownBPString:
-  .asciiz "Breakpoint ? at $"
-
 KnownBPString1:
   .asciiz "Breakpoint "
 
 KnownBPString2:
   .asciiz " at $"
-
-.ifdef APPLE1
-NoCFFA1String:
-  .byte "No CFFA1 card found!", CR, 0
-.endif
-
-.ifdef APPLE1
-NoACIString:
-  .byte "No ACI card found!", CR, 0
-.endif
-
-ReadString:
-  .byte " Read: ", 0
-
-OptionsString:
-  .byte "Options", CR, 0
-
-UppercaseString:
-  .byte "All uppercase output (Y/N)?", 0
-
-WriteDelayString:
-  .byte "Write delay (00-FF)?", 0
-
-HighBitString:
-  .byte "Set high bit in characters (Y/N)?", 0
-
-CPUTypeString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-  .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
-.elseif .defined(OSI)
-  .byte "CPU type 1-6502 2-65C02", CR, "3-65816?", 0
-.endif
 
 InvalidInstructionString:
   .byte "Invalid instruction", 0
@@ -2996,23 +2910,6 @@ BranchOutOfRangeString:
 UnableToWriteString:
   .byte "Unable to write to $", 0
 
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
-NoBASICString:
-  .byte "BASIC not found!", CR, 0
-.endif
-
-.ifdef APPLE1
-NoWozMonString:
-  .byte "Woz Mon not found!", CR, 0
-.endif
-
-CPUString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "         CPU type: "
-.elseif .defined(OSI)
-        .asciiz "      CPU type: "
-.endif
-
 Type6502String:
         .asciiz "6502"
 
@@ -3021,78 +2918,6 @@ Type65C02String:
 
 Type65816String:
         .asciiz "65816"
-
-ResetVectorString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "     RESET vector: $"
-.elseif .defined(OSI)
-        .asciiz "  RESET vector: $"
-.endif
-
-IRQVectorString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "   IRQ/BRK vector: $"
-.elseif .defined(OSI)
-        .asciiz "IRQ/BRK vector: $"
-.endif
-
-NMIVectorString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "       NMI vector: $"
-.elseif .defined(OSI)
-        .asciiz "    NMI vector: $"
-.endif
-
-PresentString:
-        .asciiz "present"
-
-NotString:
-        .asciiz "not "
-
-.ifdef APPLE1
-ACICardString:
-        .asciiz "         ACI card: "
-.endif
-
-.ifdef APPLE1
-CFFA1CardString:
-        .asciiz "       CFFA1 card: "
-.endif
-
-.ifdef APPLE1
-MultiIOCardString:
-        .asciiz "   Multi I/O Card: "
-.endif
-
-BASICString:
-.if .defined(APPLE1) .or .defined(APPLE2)
-        .asciiz "        BASIC ROM: "
-.elseif .defined(OSI)
-        .asciiz "     BASIC ROM: "
-.endif
-
-.ifdef APPLE1
-KrusaderString:
-        .asciiz "     Krusader ROM: "
-.endif
-
-.ifdef APPLE1
-WozMonString:
-        .asciiz "       WozMon ROM: "
-.endif
-
-RAMString:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .asciiz "RAM detected from: $0000 to "
-.elseif .defined(OSI)
-        .byte "RAM found from: $0000", CR, "            to: ", 0
-.endif
-
-CPUSpeedString:
-        .asciiz "        CPU speed: "
-
-MHzString:
-        .asciiz " MHz"
 
 .if .defined(APPLE1)
 TypeApple1String:
@@ -3113,36 +2938,6 @@ TypeKim1String:
 .elseif .defined(OSI)
 TypeOSIString:
         .asciiz "OSI"
-.endif
-.if .defined(APPLE2)
-HeaderString:
-        .asciiz "Slot ID Type"
-EmptySlotString:
-        .asciiz "-- empty or unknown"
-Class0String:
-        .asciiz "reserved"
-Class1String:
-        .asciiz "printer"
-Class2String:
-        .asciiz "joystick or mouse"
-Class3String:
-        .asciiz "serial or parallel"
-Class4String:
-        .asciiz "modem"
-Class5String:
-        .asciiz "sound or speech device"
-Class6String:
-        .asciiz "clock"
-Class7String:
-        .asciiz "mass storage device"
-Class8String:
-        .asciiz "80 column card"
-Class9String:
-        .asciiz "network or bus interface"
-Class10String:
-        .asciiz "special purpose"
-ClassDefaultString:
-        .asciiz "future expansion"
 .endif
 
   .include "disasm.s"

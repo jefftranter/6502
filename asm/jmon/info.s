@@ -58,7 +58,6 @@ Info:
 .if .defined(APPLE1)
         LDX #<TypeApple1String
         LDY #>TypeApple1String
-        .asciiz "Apple 1"
 
 .elseif .defined(APPLE2)
 
@@ -123,9 +122,12 @@ PrintType:
         JSR PrintString
         JSR PrintCR
 
-        LDX #<CPUString         ; Display CPU type
-        LDY #>CPUString
-        JSR PrintString
+        JSR Imprint             ; Display CPU type
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "         CPU type: "
+.elseif .defined(OSI)
+        .asciiz "      CPU type: "
+.endif
         JSR CPUType
         CMP #1
         BNE @Try2
@@ -162,9 +164,8 @@ PrintType:
         JSR SerialPresent       ; Can only measure clock speed if we have a serial port
 .endif        
         BEQ @SkipSpeed
-        LDX #<CPUSpeedString
-        LDY #>CPUSpeedString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "        CPU speed: "
         JSR MeasureCPUSpeed
         STA BIN+0
         LDA #0
@@ -181,90 +182,99 @@ PrintType:
         JSR PrintChar
         TXA
         JSR PRHEX
-        LDX #<MHzString
-        LDY #>MHzString
-        JSR PrintString
+        JSR Imprint
+        .asciiz " MHz"
         JSR PrintCR
 .endif
 
 @SkipSpeed:
-        LDX #<RAMString       ; Print range of RAM
-        LDY #>RAMString
-        JSR PrintString
+        JSR Imprint           ; Print range of RAM
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "RAM detected from: $0000 to "
+.elseif .defined(OSI)
+        .byte "RAM found from: $0000", CR, "            to: ", 0
+.endif
         JSR PrintDollar
         JSR FindTopOfRAM
         JSR PrintAddress
         JSR PrintCR
 
-        LDX #<NMIVectorString ; Print NMI vector address
-        LDY #>NMIVectorString
-        JSR PrintString
+        JSR Imprint           ; Print NMI vector address
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "       NMI vector: $"
+.elseif .defined(OSI)
+        .asciiz "    NMI vector: $"
+.endif
         LDX $FFFA
         LDY $FFFB
         JSR PrintAddress
         JSR PrintCR
 
-        LDX #<ResetVectorString ; Print reset vector address
-        LDY #>ResetVectorString
-        JSR PrintString
+        JSR Imprint ; Print reset vector address
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "     RESET vector: $"
+.elseif .defined(OSI)
+        .asciiz "  RESET vector: $"
+.endif
         LDX $FFFC
         LDY $FFFD
         JSR PrintAddress
         JSR PrintCR
 
-        LDX #<IRQVectorString ; Print IRQ/BRK vector address
-        LDY #>IRQVectorString
-        JSR PrintString
+        JSR Imprint   ; Print IRQ/BRK vector address
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+        .asciiz "   IRQ/BRK vector: $"
+.elseif .defined(OSI)
+        .asciiz "IRQ/BRK vector: $"
+.endif
         LDX $FFFE
         LDY $FFFF
         JSR PrintAddress
         JSR PrintCR
 
 .ifdef APPLE1
-        LDX #<ACICardString
-        LDY #>ACICardString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "         ACI card: "
         JSR ACIPresent
         JSR PrintPresent
         JSR PrintCR
        
-        LDX #<CFFA1CardString
-        LDY #>CFFA1CardString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "       CFFA1 card: "
         JSR CFFA1Present
         JSR PrintPresent
         JSR PrintCR
 
-        LDX #<MultiIOCardString
-        LDY #>MultiIOCardString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "   Multi I/O Card: "
         JSR MultiIOPresent
         JSR PrintPresent
         JSR PrintCR
 .endif
 
 .if .defined(APPLE) .or .defined(OSI)
-        LDX #<BASICString
-        LDY #>BASICString
-        JSR PrintString
+        JSR Imprint
+.if .defined(APPLE1) .or .defined(APPLE2)
+        .asciiz "        BASIC ROM: "
+.elseif .defined(OSI)
+        .asciiz "     BASIC ROM: "
+.endif
         JSR BASICPresent
         JSR PrintPresent
         JSR PrintCR
 .endif
        
 .ifdef APPLE1
-        LDX #<KrusaderString
-        LDY #>KrusaderString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "     Krusader ROM: "
         JSR KrusaderPresent
         JSR PrintPresent
         JSR PrintCR
 .endif
        
 .ifdef APPLE1
-        LDX #<WozMonString
-        LDY #>WozMonString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "       WozMon ROM: "
         JSR WozMonPresent
         JSR PrintPresent
         JSR PrintCR
@@ -296,9 +306,8 @@ PrintType:
 ;   else
 ;     print "--  empty or unknown\n"
 
-        LDX #<HeaderString      ; Print table header
-        LDY #>HeaderString
-        JSR PrintString
+        JSR Imprint             ; Print table header
+        .asciiz "Slot ID Type"
         JSR PrintCR             ; And newline
 
         LDA #1                  ; Initialize slot number
@@ -354,101 +363,88 @@ OK3:
         LSR
         CMP #$00                ; Is it class 0?
         BNE Try1                ; If not, try next class.
-        LDX #<Class0String      ; Display class
-        LDY #>Class0String
-        JSR PrintString
+        JSR Imprint             ; Display class
+        .asciiz "reserved"
         JSR PrintCR
         JMP NextSlot
 Try1:
         CMP #$01
         BNE Try2
-        LDX #<Class1String
-        LDY #>Class1String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "printer"
         JSR PrintCR
         JMP NextSlot
 Try2:
         CMP #$02
         BNE Try3
-        LDX #<Class2String
-        LDY #>Class2String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "joystick or mouse"
         JSR PrintCR
         JMP NextSlot
 Try3:
         CMP #$03
         BNE Try4
-        LDX #<Class3String
-        LDY #>Class3String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "serial or parallel"
         JSR PrintCR
         JMP NextSlot
 Try4:
         CMP #$04
         BNE Try5
-        LDX #<Class4String
-        LDY #>Class4String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "modem"
         JSR PrintCR
         JMP NextSlot
 Try5:
         CMP #$05
         BNE Try6
-        LDX #<Class5String
-        LDY #>Class5String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "sound or speech device"
         JSR PrintCR
         JMP NextSlot
 Try6:
         CMP #$06
         BNE Try7
-        LDX #<Class6String
-        LDY #>Class6String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "clock"
         JSR PrintCR
         JMP NextSlot
 Try7:
         CMP #$07
         BNE Try8
-        LDX #<Class7String
-        LDY #>Class7String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "mass storage device"
         JSR PrintCR
         JMP NextSlot
 Try8:
         CMP #$08
         BNE Try9
-        LDX #<Class8String
-        LDY #>Class8String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "80 column card"
         JSR PrintCR
         JMP NextSlot
 Try9:
         CMP #$09
         BNE Try10
-        LDX #<Class9String
-        LDY #>Class9String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "network or bus interface"
         JSR PrintCR
         JMP NextSlot
 Try10:
         CMP #$0A
         BNE Default
-        LDX #<Class10String
-        LDY #>Class10String
-        JSR PrintString
+        JSR Imprint
+        .asciiz "special purpose"
         JSR PrintCR
         JMP NextSlot
 Default:
-        LDX #<ClassDefaultString
-        LDY #>ClassDefaultString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "future expansion"
         JSR PrintCR
         JMP NextSlot
 EmptySlot:
-        LDX #<EmptySlotString
-        LDY #>EmptySlotString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "-- empty or unknown"
         JSR PrintCR
 NextSlot:
         LDA SLOT                ; Get current slot
@@ -498,13 +494,11 @@ O2:
 PrintPresent:
         CMP #0
         BNE @Present
-        LDX #<NotString
-        LDY #>NotString
-        JSR PrintString
+        JSR Imprint
+        .asciiz "not "
 @Present:
-        LDX #<PresentString
-        LDY #>PresentString
-        JMP PrintString
+        JMP Imprint
+        .asciiz "present"
 
 ; Determines top of installed RAM while trying not to corrupt any other
 ; program including this one. We assume RAM starts at 0. Returns top
