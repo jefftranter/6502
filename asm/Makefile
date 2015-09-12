@@ -13,6 +13,7 @@ SUBDIRS = \
     KIM-1 \
     msbasic \
     OSI \
+    ProDOS \
     sweet16 \
     tinybasic \
     wozaci \
