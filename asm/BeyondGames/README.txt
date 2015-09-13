@@ -31,6 +31,9 @@ D/C/W/M? prompt on power up). Then load the file visiblemonitor.lod by
 pressing L and loading it from the serial port or cassette interface.
 It will load and start automatically.
 
+The file visiblemonitor-apple2.hex can be loaded into an Apple II
+using the machine language monitor, over a serial port, for example.
+
 Here is a summary of how to use the monitor:
 
 Sample display:
