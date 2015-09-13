@@ -1,4 +1,4 @@
-SUBDIRS = adventure hello yum
+SUBDIRS = adventure adventure2 hello yum
 
 all:
 	@for i in $(SUBDIRS); do \
