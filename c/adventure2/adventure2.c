@@ -154,8 +154,65 @@ char *DescriptionOfItem[LastItem+1] = {
 /* Names of locations */
 char *DescriptionOfLocation[NUMLOCATIONS] = {
     "",
-    "in the driveway near your car",
-
+    "at the front entrance to the castle",
+    "in the vestibule",
+    "in the entry hall",
+    "in Peacock Alley",
+    "in Peacock Alley",
+    "in Peacock Alley",
+    "in Peacock Alley",
+    "in Peacock Alley",
+    "in the large formal dining room",
+    "in a large conservatory with a stained glass dome sky light",
+    "in the breakfast room",
+    "in the serving room",
+    "in the kitchen",
+    "in a hallway",
+    "in a hallway",
+    "in the elevator on the main floor",
+    "in the study",
+    "in the library",
+    "in the Great Hall",
+    "on the lower staircase",
+    "on the landing",
+    "in the oak drawing room",
+    "in the smoking room",
+    "on the covered porch",
+    "in the billiards room",
+    "at the west end of a hallway",
+    "in a hallway",
+    "in a hallway",
+    "in a hallway",
+    "at the east end of a hallway",
+    "in a corridor",
+    "in a corridor",
+    "in a narrow hallway",
+    "in the Round Room",
+    "in the pipe organ loft",
+    "in a large bedroom",
+    "in the lady's sitting room",
+    "in a small bedroom",
+    "in Sir Henry's bedroom",
+    "in a sitting room",
+    "in Lady Pellatt's bedroom",
+    "in Sir Henry's sitting room",
+    "in the guest bedroom",
+    "in the elevator on the second floor",
+    "in the children's bedroom",
+    "in the servant's bedroom",
+    "in the corner bedroom",
+    "in the linen room",
+    "in a bedroom",
+    "in the bath room",
+    "on the upper staircase",
+    "on a narrow staircase",
+    "in the wine cellar",
+    "in a damp underground tunnel",
+    "in a damp underground tunnel",
+    "in a damp underground tunnel",
+    "in the steam plant",
+    "in a damp underground tunnel",
+    "in the stables",
 };
 
 /* DATA */
@@ -169,38 +226,67 @@ Location_t locationOfItem[LastItem+1];
 /* Map. Given a location and a direction to move, returns the location it connects to, or 0 if not a valid move. Map can change during game play. */
 Direction_t Move[NUMLOCATIONS][6] = {
     /* N  S  E  W  U  D */
-    {  0, 0, 0, 0, 0, 0 }, /* 0 */
-    {  2, 0, 0, 0, 0, 0 }, /* 1 */
-    {  4, 1, 3, 5, 0, 0 }, /* 2 */
-    {  0, 0, 6, 2, 0, 0 }, /* 3 */
-    {  7, 2, 0, 0, 0, 0 }, /* 4 */
-    {  0, 0, 2, 9, 0, 0 }, /* 5 */
-    {  0, 0, 0, 3, 0, 0 }, /* 6 */
-    {  0, 4, 0, 0, 8, 0 }, /* 7 */
-    {  0, 0, 0, 0, 0, 7 }, /* 8 */
-    {  0,10, 5, 0, 0,19 }, /* 9 */
-    {  9, 0, 0,11, 0, 0 }, /* 10 */
-    {  0, 0,10,12,14, 0 }, /* 11 */
-    { 13, 0,11, 0, 0, 0 }, /* 12 */
-    {  0,12, 0, 0, 0, 0 }, /* 13 */
-    { 16, 0,15,17, 0,11 }, /* 14 */
-    {  0, 0, 0,14, 0, 0 }, /* 15 */
-    {  0,14, 0, 0, 0, 0 }, /* 16 */
-    {  0, 0,14, 0, 0, 0 }, /* 17 */
-    {  0, 0, 0, 0, 0,13 }, /* 18 */
-    {  0, 0, 0,20, 9, 0 }, /* 19 */
-    { 21, 0,19, 0, 0, 0 }, /* 20 */
-    {  0,20, 0,22, 0, 0 }, /* 21 */
-    {  0, 0,21, 0, 0, 0 }, /* 22 */
-    { 24,21, 0, 0, 0, 0 }, /* 23 */
-    { 29,23, 0,26, 0, 0 }, /* 24 */
-    { 26, 0,24, 0, 0, 0 }, /* 25 */
-    { 27,25,29, 0, 0, 0 }, /* 26 */
-    {  0,26,28, 0, 0, 0 }, /* 27 */
-    {  0,29,31,27, 0, 0 }, /* 28 */
-    { 28,24,30,26, 0, 0 }, /* 29 */
-    { 31, 0, 0,29, 0, 0 }, /* 30 */
-    {  0,30, 0,29, 0, 0 }, /* 31 */
+    {  0, 0, 0, 0, 0, 0 },    /* 0 NoLocation */
+    {  2, 0, 0, 0, 0, 0 },    /* 1 FrontEntrance */
+    {  3, 1, 0, 0, 0, 0 },    /* 2 Vestibule */
+    {  6, 2, 0, 0, 0, 0 },    /* 3 Entry */
+    {  9,14,10, 5, 0, 0 },    /* 4 PeacockAlley1 */
+    { 18,17, 4, 6, 0, 0 },    /* 5 PeacockAlley2 */
+    {  0, 3, 5, 7, 0, 0 },    /* 6 PeacockAlley3 */
+    { 19, 0, 6, 8,20, 0 },    /* 7 PeacockAlley4 */
+    { 22,23, 7,24, 0, 0 },    /* 8 PeacockAlley5 */
+    {  0, 4, 0, 0, 0, 0 },    /* 9 DiningRoom */
+    {  0, 0, 0, 4, 0, 0 },    /* 10 Conservatory */
+    {  0,12, 0,14, 0, 0 },    /* 11 BreakfastRoom */
+    { 11,13, 0,15, 0, 0 },    /* 12 ServingRoom */
+    { 12, 0, 0, 0, 0, 0 },    /* 13 Kitchen */
+    { 4, 15,11,16, 0, 0 },    /* 14 Hallway1 */
+    { 14, 0,12, 0, 0, 0 },    /* 15 Hallway2 */
+    {  0, 0,14, 0,44, 0 },    /* 16 Elevator1 */
+    {  4, 0, 0, 0,27,52 },    /* 17 Study */
+    { 24, 5, 0,19, 0, 0 },    /* 18 Library */
+    {  0, 7,18,22, 0, 0 },    /* 19 GreatHall */
+    {  7, 0, 0, 0,21, 0 },    /* 20 Stairs1 */
+    {  0, 0, 0, 0,51,20 },    /* 21 Landing */
+    {  0, 8, 0, 0, 0, 0 },    /* 22 OakDrawingRoom */
+    {  8,25, 0, 0, 0, 0 },    /* 23 SmokingRoom */
+    {  0, 0, 8, 0, 0, 0 },    /* 24 CoveredPorch */
+    { 23, 0, 0, 0, 0, 0 },    /* 25 BilliardsRoom */
+    { 41,31, 0,27, 0, 0 },    /* 26 Hallway10 */
+    { 42,48,26,28, 0, 0 },    /* 27 Hallway11 */
+    { 39,36,27,29, 0, 0 },    /* 28 Hallway12 */
+    {  0, 0, 0,30,51, 0 },    /* 29 Hallway13 */
+    { 33,49,29, 0, 0, 0 },    /* 30 Hallway14 */
+    { 26,32,43,38, 0, 0 },    /* 31 Corridor1 */
+    { 31, 0,45,46, 0, 0 },    /* 32 Corridor2 */
+    { 47,30,35,34, 0, 0 },    /* 33 Narrowhallway */
+    {  0, 0,33, 0, 0, 0 },    /* 34 RoundRoom */
+    {  0, 0, 0,33, 0, 0 },    /* 35 PipeOrganLoft */
+    { 28,50, 0, 0, 0, 0 },    /* 36 Bedroom1 */
+    {  0,41, 0, 0, 0, 0 },    /* 37 SittingRoom1 */
+    {  0, 0,31, 0, 0, 0 },    /* 38 Bedroom3 */
+    {  0,28,42, 0, 0, 0 },    /* 39 SirHenrysBedroom */
+    {  0, 0, 0,47, 0, 0 },    /* 40 SittingRoom3 */
+    { 37,26, 0, 0, 0, 0 },    /* 41 LadysBedroom */
+    {  0,27, 0,39, 0, 0 },    /* 42 SittingRoom2 */
+    {  0, 0, 0,31, 0, 0 },    /* 43 GuestBedroom */
+    {  0, 0, 0,48, 0,16 },    /* 44 Elevator2 */
+    {  0, 0, 0,32, 0, 0 },    /* 45 ChildrensBedroom */
+    {  0, 0,32, 0, 0, 0 },    /* 46 ServantsBedroom */
+    {  0,33,40, 0, 0, 0 },    /* 47 Bedroom4 */
+    { 27, 0,44, 0, 0, 0 },    /* 48 LinenRoom */
+    { 30, 0, 0, 0, 0, 0 },    /* 49 Bedroom2 */
+    { 36, 0, 0, 0, 0, 0 },    /* 50 Bath */
+    {  0, 0, 0, 0,29,21 },    /* 51 Stairs2 */
+    {  0, 0, 0, 0,17,54 },    /* 52 Stairs3 */
+    { 54, 0, 0, 0, 0, 0 },    /* 53 WineCellar */
+    {  0,53,52,55, 0, 0 },    /* 54 Tunnel1 */
+    {  0, 0,54,56, 0, 0 },    /* 55 Tunnel2 */
+    { 57, 0,55,58, 0, 0 },    /* 56 Tunnel3 */
+    {  0,56, 0, 0, 0, 0 },    /* 57 SteamPlant */
+    {  0, 0,56, 0,59, 0 },    /* 58 Tunnel4 */
+    {  0, 0, 0, 0, 0,58 },    /* 59 Stables */
+
 };
 
 /* Current location */
