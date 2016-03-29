@@ -1,6 +1,6 @@
 # Uncomment one of the following lines to set your platform
-#PLATFORM=APPLE1
-PLATFORM=APPLE2
+PLATFORM=APPLE1
+#PLATFORM=APPLE2
 #PLATFORM=OSI
 #PLATFORM=KIM1
 
@@ -25,7 +25,7 @@ jmon.bin: jmon.o
 	ld65 -t none -vm -m jmon.map -o jmon.bin jmon.o
 
 jmon.o:	jmon.s disasm.s miniasm.s trace.s info.s memtest4.s
-	ca65 -D$(PLATFORM) -g -l jmon.lst jmon.s
+	ca65 -D$(PLATFORM) -g -l jmon.s
 
 archive: jmon.mon
 	zip jmon-0.4.zip jmon.s disasm.s miniasm.s trace.s info.s memtest4.s README.txt jmon.mon Makefile

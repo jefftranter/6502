@@ -293,8 +293,7 @@ CFFA1:
 .ifdef BEEP
         JSR BEEP
 .endif
-        LDX #<NoCFFA1String     ; Display error that no CFFA1 is present.
-        LDY #>NoCFFA1String
+; Display error that no CFFA1 is present.
         JSR Imprint
         .byte "No CFFA1 card found!", CR, 0
         RTS
