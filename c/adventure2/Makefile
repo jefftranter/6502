@@ -3,7 +3,8 @@
 
 all: default
 
-default: adventure2
+default: native
+#default: adventure2
 
 adventure2: adventure2.c
 	cl65 -O -l adventure2.lst -vm -m adventure2.map -t apple2enh adventure2.c

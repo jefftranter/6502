@@ -1,4 +1,27 @@
 /*
+TO DO:
+
+Items:
+
+key - initially have, need to open front door
+pool cue - in billiard room - useless?
+metal bar - covered porch need to pry open coal furnace
+wine - wine cellar - useless?
+knife - kitchen - to cut ropes?
+flashlight - in entry - need to see in tunnels or when it gets dark?
+vestibule - umbrella - useless
+peanut butter sandwich - clue that someone was here recently.
+
+Skye could be hiding in coal furnace - need to open with metal bar
+Auntie somewhere - maybe broken leg?
+
+
+
+
+*/
+
+
+/*
  * 
  * Skye's Castle Adventure
  *
@@ -154,7 +177,7 @@ char *DescriptionOfItem[LastItem+1] = {
 /* Names of locations */
 char *DescriptionOfLocation[NUMLOCATIONS] = {
     "",
-    "at the front entrance to the castle",
+    "at the front door to the castle",
     "in the vestibule",
     "in the entry hall",
     "in Peacock Alley",
@@ -170,7 +193,7 @@ char *DescriptionOfLocation[NUMLOCATIONS] = {
     "in a hallway",
     "in a hallway",
     "in the elevator on the main floor",
-    "in the study",
+    "in a study, with a large desk and fireplace",
     "in the library",
     "in the Great Hall",
     "on the lower staircase",
@@ -227,7 +250,7 @@ Location_t locationOfItem[LastItem+1];
 Direction_t Move[NUMLOCATIONS][6] = {
     /* N  S  E  W  U  D */
     {  0, 0, 0, 0, 0, 0 },    /* 0 NoLocation */
-    {  2, 0, 0, 0, 0, 0 },    /* 1 FrontEntrance */
+    {  0, 0, 0, 0, 0, 0 },    /* 1 FrontEntrance */
     {  3, 1, 0, 0, 0, 0 },    /* 2 Vestibule */
     {  6, 2, 0, 0, 0, 0 },    /* 3 Entry */
     {  9,14, 5,10, 0, 0 },    /* 4 PeacockAlley1 */
@@ -243,7 +266,7 @@ Direction_t Move[NUMLOCATIONS][6] = {
     { 4, 15,16,11, 0, 0 },    /* 14 Hallway1 */
     { 14, 0, 0,12, 0, 0 },    /* 15 Hallway2 */
     {  0, 0, 0,14,44, 0 },    /* 16 Elevator1 */
-    {  4, 0, 0, 0,27,52 },    /* 17 Study */
+    {  4, 0, 0, 0, 0, 0 },    /* 17 Study */
     { 24, 5,19, 0, 0, 0 },    /* 18 Library */
     {  0, 7,22,18, 0, 0 },    /* 19 GreatHall */
     {  7, 0, 0, 0,21, 0 },    /* 20 Stairs1 */
@@ -572,10 +595,11 @@ void doExamine()
     item = sp + 1;
     ++turnsPlayed;
 
-    /* Examine bookcase - not an object */
-    if (!strcasecmp(item, "bookcase")) {
-        printf("You pull back a book and the bookcase\nopens up to reveal a secret room.\n");
-        Move[17][North] = 18;
+    /* Examine fireplace - not an object */
+    if (!strcasecmp(item, "fireplace")) {
+        printf("On either side of the fireplace are\nsecret panels, which now open and\nreveal staircases.\n");
+        Move[Study][Up] = Hallway11;
+        Move[Study][Down] = Stairs3;
         return;
     }
 
@@ -600,12 +624,6 @@ void doExamine()
     /* Examine toy car */
     if (!strcasecmp(item, "toy car")) {
         printf("It is a nice toy car.\nYour grandson Matthew would like it.\n");
-        return;
-    }
-
-    /* Examine old radio */
-    if (!strcasecmp(item, "old radio")) {
-        printf("It is a 1940 Zenith 8-S-563 console\nwith an 8A02 chassis. You'd turn it on\nbut the electricity is off.\n");
         return;
     }
 
@@ -637,9 +655,9 @@ void doUse()
     ++turnsPlayed;
 
     /* Use key */
-    if (!strcasecmp(item, "key") && (currentLocation == 0)) {
-        printf("You insert the key in the door and it\nopens, revealing a tunnel.\n");
-        Move[21][North] = 23;
+    if (!strcasecmp(item, "key") && (currentLocation == FrontEntrance)) {
+        printf("You insert the key and unlock the door.\n");
+        Move[FrontEntrance][North] = Vestibule;
         return;
     }
 
@@ -671,15 +689,16 @@ void initialize()
     gameOver= 0;
 
     /* These doors can get changed during game and may need to be reset */
-    //Move[17][North] = 0;
-    //Move[21][North] = 0;
+    Move[FrontEntrance][North] = 0;
+    Move[Study][Up] = 0;
+    Move[Study][Down] = 0;
 
     /* Set inventory to default */
     memset(Inventory, 0, sizeof(Inventory[0])*MAXITEMS);
     Inventory[0] = Key;
 
     /* Put items in their default locations */
-    //locationOfItem[0]  = 0;                /* NoItem */
+    locationOfItem[0]  = 0;                /* NoItem */
     //locationOfItem[1]  = Driveway1;        /* Key */
 }
 
