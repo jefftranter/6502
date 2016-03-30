@@ -1492,7 +1492,7 @@ Options:
 .endif
         AND #%00000011          ; Convert ASCII number to binary number
         STA OCPU
-.if .defined(OSI) .or .defined(KIM)
+.if .defined(OSI) .or .defined(KIM1)
 @Return:
 .endif
         JMP PrintCR             ; new line
