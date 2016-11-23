@@ -130,7 +130,7 @@ RETRN:  RTS
 NUMBER: TAX
         LDA     THRUST          ; test; is motor off?
         BEQ     RETRN           ; yes, ignore key
-        STA     THRUST          ; no, store thrust
+        STX     THRUST          ; no, store thrust
 
 ; calculate accel as thrust minus 5
 
