@@ -68,9 +68,6 @@
 ; LEN -length of instruction
 ; IN - input buffer holding operands
 ; AM - addressing mode (AM_*)
-; MNEM - hold three letter mnemonic string used by assembler
-; OPERAND - Holds any operands for assembled instruction (2 bytes)
-
 ; TRACEINST - buffer holding traced instruction
 
 

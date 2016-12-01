@@ -85,6 +85,7 @@
 ; 1.3.2  09-Sep-2015   Show Apple II peripheral cards in slots.
 ;                      Add CPU speed test for Apple II.
 ;                      Added Imprint routine and used it for unique strings.
+; 1.3.3  30-Nov-2016   Make miniassembler optional to reduce program size.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -94,6 +95,9 @@
 ; APPLE2  = 1
 ; OSI     = 1
 ; KIM1    = 1
+
+; Define if you want the mini-assembler, comment out if not.
+MINIASM = 1
 
 .if .defined(APPLE1)
     .out "Building for Apple 1/Replica 1"
@@ -340,6 +344,7 @@ Monitor:
 .endif
 
 ; Go to Mini Assembler
+.ifdef MINIASM
 Assemble:
 .ifdef ECHO
         JSR PrintChar           ; echo command
@@ -350,6 +355,7 @@ Assemble:
         STY ADDR+1              ; Save it
         JSR PrintCR             ; Start new line
         JMP AssembleLine        ; Call asssembler
+.endif
 
 ; Go to BASIC
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
@@ -2292,20 +2298,38 @@ GOTMCH: INX                     ; Makes zero a miss
 
 MATCHFL:
 .if .defined(APPLE1)
-        .byte "$?ABCDEFGHIKLMNORSTUV:=."
+        .byte "$?"
+.ifdef MINIASM
+        .byte "A"
+.endif
+        .byte "BCDEFGHIKLMNORSTUV:=."
 .elseif .defined(APPLE2)
-        .byte "$?ABCDFGHIKLNORSTUV:=."
+        .byte "$?"
+.ifdef MINIASM
+        .byte "A"
+.endif
+        .byte "BCDFGHIKLNORSTUV:=."
 .elseif .defined(OSI)
-        .byte "$?ABCDFGHIKLNORSTUV:=."
+        .byte "$?"
+.ifdef MINIASM
+        .byte "A"
+.endif
+        .byte "BCDFGHIKLNORSTUV:=."
 .elseif .defined(KIM1)
-        .byte "$?ABCDFGHKLNORSTUV:=."
+        .byte "$?"
+.ifdef MINIASM
+        .byte "A"
+.endif
+        .byte "BCDFGHKLNORSTUV:=."
 .endif
 
 JMPFL:
         .word Invalid-1
         .word Monitor-1
         .word Help-1
-        .word Assemble-1
+.ifdef MINIASM
+         .word Assemble-1
+.endif
         .word Breakpoint-1
         .word Copy-1
         .word Dump-1
@@ -2782,15 +2806,17 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte CR,"JMON Monitor 1.3.2 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.3 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.2 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.3 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
 HelpString:
 .if .defined(APPLE1)
+.ifdef MINIASM
         .byte "Assemble    A <address>", CR
+.endif
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
         .byte "Dump        D <start>", CR
@@ -2816,7 +2842,9 @@ HelpString:
         .byte "Help        ?", CR
         .byte 0
 .elseif .defined(APPLE2)
+.ifdef MINIASM
         .byte "Assemble    A <address>", CR
+.endif
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
         .byte "Dump        D <start>", CR
@@ -2841,7 +2869,9 @@ HelpString:
         .byte 0
 
 .elseif .defined(OSI)
+.ifdef MINIASM
         .byte "Assemble   A <a>", CR
+.endif
         .byte "Breakpoint B <n><a>", CR
         .byte "Copy       C <s><e><d>", CR
         .byte "Dump       D <s>", CR
@@ -2866,7 +2896,9 @@ HelpString:
         .byte 0
 
 .elseif .defined(KIM1)
+.ifdef MINIASM
         .byte "Assemble    A <address>", CR
+.endif
         .byte "Breakpoint  B <n or ?> <address>", CR
         .byte "Copy        C <start> <end> <dest>", CR
         .byte "Dump        D <start>", CR
@@ -2927,7 +2959,9 @@ TypeOSIString:
 .endif
 
   .include "disasm.s"
+.ifdef MINIASM
   .include "miniasm.s"
+.endif
   .include "trace.s"
   .include "info.s"
   .include "memtest4.s"
@@ -2969,8 +3003,10 @@ OHIGHASCII: .res 1              ; Set to $FF when characters should have high bi
 OCPU:      .res 1               ; CPU type for disassembly
 MBIT:      .res 1               ; For 65816 disassembly, tracks state of M bit in P
 XBIT:      .res 1               ; For 65816 disassembly, tracks state of X bit in P
+.ifdef MINIASM
 MNEM:      .res 3               ; Hold three letter mnemonic string used by assembler
 OPERAND:   .res 2               ; Holds any operands for assembled instruction
+.endif
 TRACEINST: .res 8               ; buffer holding traced instruction followed by a JMP and optionally another jump (Up to 8 bytes)
 TAKEN:     .res 1               ; Flag indicating if a traced branch instruction was taken
 .if .defined(APPLE2)
