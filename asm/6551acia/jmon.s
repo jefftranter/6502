@@ -757,7 +757,7 @@ PrintSpace: PHA
 
 ; Print a string
 ; Pass address of string in X (low) and Y (high).
-; String must be terminated in a null.
+; String must be terminated with a null.
 ; Cannot be longer than 256 characters.
 ; Registers changed: A, Y
 ;
