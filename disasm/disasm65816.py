@@ -16,7 +16,6 @@
 # limitations under the License.
 
 import sys
-import fileinput
 import argparse
 import signal
 

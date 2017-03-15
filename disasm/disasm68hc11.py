@@ -16,7 +16,6 @@
 # limitations under the License.
 
 import sys
-import fileinput
 import argparse
 import signal
 
@@ -479,7 +478,7 @@ while True:
         else:
             line += mnem
             if len(mnem) == 3:
-               line += " "
+                line += " "
 
         if mode == implied:
             pass
