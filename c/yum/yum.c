@@ -779,7 +779,7 @@ int askPlayerDiceToRollAgain()
 }
 
 /* Generate random number from low and high inclusive, e.g. randomNumber(1, 6) for a die. Calls rand(). */
-int randomNumber(low, high)
+int randomNumber(int low, int high)
 {
     return rand() % high + low;
 }
