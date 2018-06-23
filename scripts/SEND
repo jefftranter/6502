@@ -12,6 +12,8 @@ then
   exit 1
 fi
 
+stty -F /dev/ttyUSB0 -hup -clocal raw
+
 tr "\n" "\r" <$1 >/tmp/X
 #tr -d "\n" <$1 >/tmp/X
 ascii-xfr -s /tmp/X >/dev/ttyUSB0
