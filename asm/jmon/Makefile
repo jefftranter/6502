@@ -7,6 +7,7 @@ PLATFORM=APPLE1
 all: jmon.mon jmon.lod jmon.ptp
 
 # Apple 1/Replica 1/Apple 2 version binary
+# Use -1 option for Apple 1, -2 option for Apple 2
 jmon.mon: jmon.bin
 	bintomon -v -2 `./getaddress` jmon.bin >jmon.mon
 
