@@ -12,6 +12,7 @@ BeyondGames - Code from the book "Beyond Games: Systems Software for Your 6502 P
 cc65 - Patches for the CC65 assembler/compiler tools to add support for the Apple 1 and Replica 1.
 disasm -  6502/65C02 disassembler (see jmon for a newer version).
 ehbasic - Port of Enhanced BASIC 2.22 to the Replica 1.
+ewoz - extended version of the Woz Monitor for the Apple 1.
 jmon - A machine language monitor program for the Replica 1.
 KIM-1 - programs for the MOS Technology KIM-1 microcomputer.
 msbasic - Patches for Microsoft BASIC for the 6502 to run on the Replica 1.
