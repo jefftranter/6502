@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Get load and run addresses from map file and output in hex in format
+# to be used as arguments to the bintomon program.
+
+L=`grep "RESET    " ewoz.map | head -1 | awk '{ print $2 }'`
+R=`grep "RESET    " ewoz.map | head -1 | awk '{ print $2 }'`
+echo "-l 0x$L -r 0x$R"

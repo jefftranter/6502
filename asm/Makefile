@@ -19,6 +19,7 @@ SUBDIRS = \
     wozaci \
     wozfp \
     wozmon \
+    ewoz
 
 all:
 	@for i in $(SUBDIRS); do \
