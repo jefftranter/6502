@@ -1,4 +1,4 @@
-This directory a port of the DEBUG16 program to the Replica 1.
+This directory is a port of the DEBUG16 program to the Replica 1.
 
 It requires a Replica 1 with a 65816 processor (as far as I know I
 have the only one in existence).
@@ -6,9 +6,9 @@ have the only one in existence).
 It came from the manual "Programming the 65816 Including the 6502,
 65C02 and 65802" available from The Western Design Center, Inc.
 
-It provides some code for disassembling and and tracing execution on the 65816.
+It provides some code for disassembling and tracing execution on the 65816.
 
-Thee code needed to be ported to the CC65 assembler and changes made
+The code needed to be ported to the CC65 assembler and changes made
 for input/output on the Replica 1. The original code was intended for
 the Apple //e.
 
