@@ -1,7 +1,7 @@
 all:	ewoz.mon
 
 ewoz.mon: ewoz.bin
-	bintomon -v `./getaddress` ewoz.bin >ewoz.mon
+	bintomon -1 -v `./getaddress` ewoz.bin >ewoz.mon
 
 ewoz.bin: ewoz.o
 	ld65 -t none -vm -m ewoz.map -o ewoz.bin ewoz.o

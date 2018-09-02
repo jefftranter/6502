@@ -3,40 +3,56 @@
 ; See http://www.brielcomputers.com/phpBB3/viewtopic.php?f=9&t=197#p888
 ;
 ; Ported to the ca65 assembler by Jeff Tranter <tranter@pobox.com>
+; I also added support for using the console/keyboard for i/o.
 
-
-; The EWoz 1.0 is just the good old Woz mon with a few improvements and extensions so to say. 
+; The EWoz 1.0 is just the good old Woz mon with a few improvements and extensions so to say.
 ;
-; It's using ACIA @ 19200 Baud. 
-; It prints a small welcome message when started. 
-; All key strokes are converted to uppercase. 
-; The backspace works so the _ is no longer needed. 
-; When you run a program, it's called with an JSR so if the program ends with an RTS, you will be taken back to the monitor. 
-; You can load Intel HEX format files and it keeps track of the checksum. 
-; To load an Intel Hex file, just type L and hit return. 
-; Now just send a Text file that is in the Intel HEX Format just as you would send a text file for the Woz mon. 
-; You can abort the transfer by hitting ESC. 
+; It's using ACIA @ 19200 Baud.
+; It prints a small welcome message when started.
+; All key strokes are converted to uppercase.
+; The backspace works so the _ is no longer needed.
+; When you run a program, it's called with an JSR so if the program ends with an RTS, you will be taken back to the monitor.
+; You can load Intel HEX format files and it keeps track of the checksum.
+; To load an Intel Hex file, just type L and hit return.
+; Now just send a Text file that is in the Intel HEX Format just as you would send a text file for the Woz mon.
+; You can abort the transfer by hitting ESC.
 ;
-; The reason for implementing a loader for HEX files is the 6502 Assembler @ http://home.pacbell.net/michal_k/6502.html 
-; This assembler saves the code as Intel HEX format. 
+; The reason for implementing a loader for HEX files is the 6502 Assembler @ http://home.pacbell.net/michal_k/6502.html
+; This assembler saves the code as Intel HEX format.
 ;
-; In the future I might implement XModem, that is if anyone would have any use for it... 8) 
+; In the future I might implement XModem, that is if anyone would have any use for it... 8)
 ;
-; Enjoy... 
+; Enjoy...
 
 ; EWOZ Extended Woz Monitor.
 ; Just a few mods to the original monitor.
 
 ; START @ $7000
 
-; It performs i/o using the serial port on the Multi Port I/O board for the Briel Replica 1.
+; Uncomment one of the two lines below (but not both).
+; Set MULTIPORT to 1 in order to perform i/o using the serial port on
+; the Multi Port I/O board for the Briel Replica 1. Set console to 1
+; in order to use the built in console/display for i/o.
+
+MULTIPORT = 1
+;CONSOLE = 1
+
 ; Lines with comments starting with "*" indicate code changes from the original WozMon.
 
+.if .defined(MULTIPORT)
 ACIA        = $C000
 ACIA_CTRL   = ACIA+3
 ACIA_CMD    = ACIA+2
 ACIA_SR     = ACIA+1
 ACIA_DAT    = ACIA
+.endif
+
+.if .defined(CONSOLE)
+KBD         = $D010          ; PIA.A keyboard input
+KBDCR       = $D011          ; PIA.A keyboard control register
+DSP         = $D012          ; PIA.B display output register
+DSPCR       = $D013          ; PIA.B display control register
+.endif
 
 IN          = $0200          ;*Input buffer
 XAML        = $24            ;*Index pointers
@@ -58,10 +74,19 @@ CRCCHECK    = $30
 
 RESET:      CLD             ; Clear decimal arithmetic mode.
             CLI
+.if .defined(MULTIPORT)
             LDA #$1F        ;* Init ACIA to 19200 Baud.
             STA ACIA_CTRL
             LDA #$0B        ;* No Parity.
             STA ACIA_CMD
+.endif
+.if .defined(CONSOLE)
+            LDY #$7F        ; Mask for DSP data direction register.
+            STY DSP         ; Set it up.
+            LDA #$A7        ; KBD and DSP control register mask.
+            STA KBDCR       ; Enable interrupts, set CA1, CB1, for
+            STA DSPCR       ; positive edge sense/output mode.
+.endif
             LDA #$0D
             JSR ECHO        ;* New line.
             LDA #<MSG1
@@ -89,10 +114,17 @@ BACKSPACE:  DEY             ; Backup text index.
             JSR ECHO
             LDA #$88        ;*Backspace again to get to correct pos.
             JSR ECHO
+.if .defined(MULTIPORT)
 NEXTCHAR:   LDA ACIA_SR     ;*See if we got an incoming char
             AND #$08        ;*Test bit 3
             BEQ NEXTCHAR    ;*Wait for character
             LDA ACIA_DAT    ;*Load char
+.endif
+.if .defined(CONSOLE)
+NEXTCHAR:   LDA KBDCR       ; Key ready?
+            BPL NEXTCHAR    ; Loop until ready.
+            LDA KBD         ; Load character. B7 should be ‘1’.
+.endif
             CMP #$60        ;*Is it Lower case
             BMI   CONVERT   ;*Nope, just convert it
             AND #$5F        ;*If lower case, convert to Upper case
@@ -206,10 +238,17 @@ PRHEX:      AND #$0F        ; Mask LSD for hex print.
             ADC #$06        ; Add offset for letter.
 ECHO:       PHA             ;*Save A
             AND #$7F        ;*Change to "standard ASCII"
+.if .defined(MULTIPORT)
             STA ACIA_DAT    ;*Send it.
 WAIT:       LDA ACIA_SR     ;*Load status register for ACIA
             AND #$10        ;*Mask bit 4.
             BEQ    WAIT     ;*ACIA not done yet, wait.
+.endif
+.if .defined(CONSOLE)
+WAIT:       BIT DSP         ; bit (B7) cleared yet?
+            BMI WAIT        ; No, wait for display.
+            STA DSP         ; Output character. Sets DA.
+.endif
             PLA             ;*Restore A
             RTS             ;*Done, over and out...
 
@@ -217,9 +256,9 @@ SHWMSG:     LDY #$0
 PRINT:      LDA (MSGL),Y
             BEQ DONE
             JSR ECHO
-            INY 
+            INY
             BNE PRINT
-DONE:       RTS 
+DONE:       RTS
 
 
 ; Load an program in Intel Hex Format.
@@ -335,11 +374,17 @@ DONESECOND: AND #$0F
             ORA L
             INY
             RTS
-
+.if .defined(MULTIPORT)
 GETCHAR:    LDA ACIA_SR     ; See if we got an incoming char
             AND #$08        ; Test bit 3
             BEQ GETCHAR     ; Wait for character
             LDA ACIA_DAT    ; Load char
+.endif
+.if .defined(CONSOLE)
+GETCHAR:    LDA KBDCR       ; Key ready?
+            BPL GETCHAR     ; Loop until ready.
+            LDA KBD         ; Load character. B7 should be ‘1’.
+.endif
             RTS
 
 MSG1:      .byte "Welcome to EWOZ 1.0.",0
