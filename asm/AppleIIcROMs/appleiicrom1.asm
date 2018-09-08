@@ -16,7 +16,7 @@
 .endmacro
 
 ; The first 256 bytes of the ROM ($C000-$C0FF) are normally not mapped
-; in to memory. They contain an Easter egg of the the designer's
+; in to memory. They contain an Easter egg of the designer's
 ; names.
 
  .byte   "Peter Quinn, "

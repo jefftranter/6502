@@ -33,7 +33,7 @@ Page 4:
 Note: A quirk of Apple BASIC is that the number -32768, which is a
 valid 32 bit signed value, is not accepted. I don't think this was an
 oversight As Woz was an excellent programmer and had designed
-calculators in his career. I suspect it was to allow the the "***
+calculators in his career. I suspect it was to allow the "***
 >32767 ERR" message to be used for all overflow errors. We'll come
 across this issue later.
 

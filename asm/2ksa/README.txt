@@ -100,7 +100,7 @@ Source code errors:
 Page 16: The two instances of "JSR BIN2HEX" should read "JSR BIN2HX".
 
 Page 24: The third instruction "LDAZ PRMTAB" should be "LDAZX PRMTAB"
-(or in the the more conventional CC65 assembler, "LDA PRMTAB,X").
+(or in the more conventional CC65 assembler, "LDA PRMTAB,X").
 
 Page 28: The first instruction "LDA #00" should be "LDY #00".
 
