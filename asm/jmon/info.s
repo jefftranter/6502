@@ -158,11 +158,11 @@ PrintType:
 .if .defined(APPLE1) .or .defined (APPLE2)
 
 .ifdef APPLE1
-        JSR MultiIOPresent      ; Can only measure clock speed if we have a Multi I/O card 
+        JSR MultiIOPresent      ; Can only measure clock speed if we have a Multi I/O card
 .endif
 .ifdef APPLE2
         JSR SerialPresent       ; Can only measure clock speed if we have a serial port
-.endif        
+.endif
         BEQ @SkipSpeed
         JSR Imprint
         .asciiz "        CPU speed: "
@@ -238,7 +238,7 @@ PrintType:
         JSR ACIPresent
         JSR PrintPresent
         JSR PrintCR
-       
+
         JSR Imprint
         .asciiz "       CFFA1 card: "
         JSR CFFA1Present
@@ -263,7 +263,7 @@ PrintType:
         JSR PrintPresent
         JSR PrintCR
 .endif
-       
+
 .ifdef APPLE1
         JSR Imprint
         .asciiz "     Krusader ROM: "
@@ -271,7 +271,7 @@ PrintType:
         JSR PrintPresent
         JSR PrintCR
 .endif
-       
+
 .ifdef APPLE1
         JSR Imprint
         .asciiz "       WozMon ROM: "
@@ -582,7 +582,7 @@ FindTopOfRAMEnd:            ; End of critical section we don't want to write to 
         LDA TOP+1
         SBC #0              ; Subtract any borrow
         STA TOP+1
-  
+
         LDX TOP             ; Set top of RAM as TOP (X-low Y-high)
         LDY TOP+1
 
@@ -618,7 +618,7 @@ MeasureCPUSpeed:
         LDA #%00011111
         STA CTLREG
 
-; Set no parity, no echo, no TX interrupts, RTS low, no RX interrupts, DTR low  
+; Set no parity, no echo, no TX interrupts, RTS low, no RX interrupts, DTR low
        LDA #%00001011
        STA CMDREG
 

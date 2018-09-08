@@ -17,14 +17,14 @@
 ;
 
 ; Mini assembler syntax format:
-; 
+;
 ; A <address>
 ; XXXX: instruction
 ; XXXX: instruction
 ; XXXX: <Esc>
-; 
+;
 ; example:
-; 
+;
 ; A 6000
 ; 6000: NOP
 ; 6001: LDX #0A
@@ -32,12 +32,12 @@
 ; 6006: DEX
 ; 6007: BNE 6003
 ; 6009: <Esc>
-; 
+;
 ; Restrictions:
 ; - no symbols or labels
 ; - all values in hex, 2 or 4 digits
 ; - no backspace or other editing features
-; 
+;
 
 ; Variables used (defined in jmon.s)
 ; ADDR - instruction address
@@ -375,7 +375,7 @@ TryIndexedIndirect:
         STA OPERAND                   ; Save it as the operand
         JMP GenerateCode
 
-; AM_INDIRECT_INDEXED, e.g. LDA (nn),Y      
+; AM_INDIRECT_INDEXED, e.g. LDA (nn),Y
 TryIndirectIndexed:
         LDA IN                        ; Get length
         CMP #6                        ; Is it 6?
@@ -801,15 +801,15 @@ TwoCharsToBin:
         TXA                     ; get first digit
         JSR CharToBin           ; convert to binary
         ASL A                   ; shift to upper nibble
-        ASL A                
-        ASL A                
+        ASL A
+        ASL A
         ASL A
         STA T1                  ; Save it
         TYA                     ; get second digit
         JSR CharToBin           ; convert to binary
         CLC
         ADC T1                  ; Add the upper nibble
-        RTS        
+        RTS
 
 ; Convert character containing a hex digit to binary.
 ; Char passed in A. Returns value in A.

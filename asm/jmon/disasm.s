@@ -194,7 +194,7 @@ DISASM:
   LDA OPCODES1,X        ; get addressing mode
   STA AM                ; store it
   JMP AROUND
-UPPER: 
+UPPER:
   ASL A                 ; double it since table is two bytes per entry
   TAX
   LDA OPCODES2,X        ; get the instruction type (e.g. OP_LDA)
@@ -416,7 +416,7 @@ AMODE:
 DOMB:
   LDA OPCODE            ; get the op code
   AND #$70              ; Upper 3 bits is the bit number
-  LSR                   
+  LSR
   LSR
   LSR
   LSR
@@ -441,7 +441,7 @@ TRYBB:
 DOBB:                   ; handle special BBRn and BBSn instructions
   LDA OPCODE            ; get the op code
   AND #$70              ; Upper 3 bits is the bit number
-  LSR                   
+  LSR
   LSR
   LSR
   LSR
@@ -496,7 +496,7 @@ TRYIMP:
   CMP #AM_IMPLICIT
   BNE TRYINV
   JMP DONEOPS           ; no operands
-TRYINV: 
+TRYINV:
   CMP #AM_INVALID
   BNE TRYACC
   JMP DONEOPS           ; no operands
@@ -552,7 +552,7 @@ TRYZPX:
   JSR PrintDollar
   JSR PrintByte         ; display it
   JSR PrintCommaX
-  JMP DONEOPS       
+  JMP DONEOPS
 TRYZPY:
   CMP #AM_ZEROPAGE_Y
   BNE TRYREL
@@ -561,7 +561,7 @@ TRYZPY:
   JSR PrintDollar
   JSR PrintByte         ; display it
   JSR PrintCommaY
-  JMP DONEOPS       
+  JMP DONEOPS
 TRYREL:
   CMP #AM_RELATIVE
   BNE TRYABS
@@ -695,7 +695,7 @@ TRYSTACKREL:
   JSR PrintDollar
   JSR PrintByte         ; display it
   JSR PrintCommaS
-  JMP DONEOPS       
+  JMP DONEOPS
 
 TRYDPIL:
   CMP #AM_DIRECT_PAGE_INDIRECT_LONG ; [WDC 65816 only]
@@ -940,7 +940,7 @@ MNEMONICSEND: ; address of the end of the table
 
 ; Lengths of instructions given an addressing mode. Matches values of AM_*
 ; Assumes 65816 is in 8-bit mode.
-LENGTHS: 
+LENGTHS:
  .byte 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 4, 2, 2, 4, 3, 3, 3
 
 ; Opcodes. Listed in order. Defines the mnemonic and addressing mode.

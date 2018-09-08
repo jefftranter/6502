@@ -650,7 +650,7 @@ Search:
         INX
         CPX IN                  ; End of pattern reached?
         BEQ @Match              ; If so, found match
-        BNE @PartialMatch                
+        BNE @PartialMatch
 @NoMatch:
         STX T1                  ; Subtract X from SL,SH
         SEC
@@ -934,7 +934,7 @@ BPSETUP:
         LDA BRKVECTOR+1
         STA VECTOR+1
         LDA #$4C                ; JMP instruction
-        LDY #0          
+        LDY #0
         STA (VECTOR),Y          ; store at IRQ/BRK vector
         CMP (VECTOR),Y          ; if we don't read back what we wrote
         BNE VNOTINRAM           ; then vector address is not writable (user may have put it in ROM)
@@ -1060,7 +1060,7 @@ InRam:  RTS
 BPREMOVE:
         PHA
         JSR BPEXISTS
-        BNE OK  
+        BNE OK
         JSR Imprint
         .byte "Breakpoint not set!", CR, 0
         PLA
@@ -1961,7 +1961,7 @@ PrintString:
         INC T1+1        ; High byte
 @nocarry:
         JMP @loop       ; Go back and print next character
-done:   
+done:
         PLA
         TAY             ; Restore Y
         PLA             ; Restore A
@@ -2226,7 +2226,7 @@ PromptToContinue:
         TAY
         PLA
         TAX
-        PLA        
+        PLA
         RTS
 
 ; Delay. Calls routine WAIT using delay constant in OWDELAY.

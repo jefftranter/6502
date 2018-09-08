@@ -17,27 +17,27 @@
 
 ; Trace Feature
 ; --------------
-; 
+;
 ; The "." command single steps one instruction at a time showing the
 ; CPU registers. Starts with the register values listed by the R
 ; command. Updates them after single stepping.
-; 
+;
 ; The R(egister) shows the current PC and disassembles the current
 ; instruction. Also allow user to change the PC. Pressing <Enter>
 ; when prompted for a new register value will keep the current
 ; value and advance to the next register.
-; 
+;
 ; The G(o) command will optionally use the PC value if the user
 ; hits <Enter> instead of an address.
-; 
+;
 ; A breakpoint (BRK instruction) will display a message and update
 ; the current register values so that it can be traced. This works
 ; whether the breakpint address is set using the B command or not.
-; 
+;
 ; The command supports tracing/stepping through ROM as well as RAM.
-; 
+;
 ; e.g.
-; 
+;
 ; ? R
 ; A-D2 X-00 Y-03 S-017B P-33 ..-BDIZC
 ; FF00   D8          CLD
@@ -45,7 +45,7 @@
 ; PC-FF00
 ; ? .
 ; A-D2 X-00 Y-03 S-017B P-33 ..-B.IZC
-; FF01   58          CLI   
+; FF01   58          CLI
 ; ? .
 ; A-D2 X-00 Y-03 S-017B P-33 ..-B..ZC
 ; FF02   A0 7F       LDY   #$7F
@@ -160,7 +160,7 @@ Trace:
 
         JMP Execute
 
-; BRK - set B=1. Next PC is contents of IRQ vector at $FFFE,$FFFF. Push return address-1 (Current address + 1). Push P. 
+; BRK - set B=1. Next PC is contents of IRQ vector at $FFFE,$FFFF. Push return address-1 (Current address + 1). Push P.
 TryBRK:
         LDA OPCODE              ; Get the opcode
         CMP #$00                ; BRK ?
@@ -453,7 +453,7 @@ GetLength:
         LDA OPCODES1,X          ; Get addressing mode
         STA AM                  ; Store it
         JMP @AROUND
-@UPPER: 
+@UPPER:
         ASL A                   ; Double it since table is two bytes per entry
         TAX
         LDA OPCODES2,X          ; Get the instruction type (e.g. OP_LDA)
