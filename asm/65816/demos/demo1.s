@@ -58,9 +58,9 @@ THERE2:
 
   LDA #$08
   STA $6108
-  LDX #09
+  LDX #$09
   STX $6109
-  LDY #0A
+  LDY #$0A
   STY $610A
 
   SEC
