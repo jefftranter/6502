@@ -151,7 +151,7 @@ void initialize()
 /* Clear the screen. */
 void clearScreen()
 {
-#if defined(__APPLE2__)
+#if defined(__APPLE2__) || defined(__C64__)
     clrscr();
 #else
     int i;
@@ -175,7 +175,7 @@ void pressEnter(char *s)
 #ifdef __CC65__
     /* On CC65 platform use keyPressed() routine and use this to set the random seed. */
 
-#if defined(__APPLE2__)
+#if defined(__APPLE2__) || defined(__C64__)
     while (!kbhit()) {
         randomSeed++;
     }
