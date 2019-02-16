@@ -271,7 +271,7 @@ Direction_t Move[NUMLOCATIONS][6] = {
     { 4, 15,16,11, 0, 0 },    /* 14 Hallway1 */
     { 14, 0, 0,12, 0, 0 },    /* 15 Hallway2 */
     {  0, 0, 0,14,44, 0 },    /* 16 Elevator1 */
-    {  4, 0, 0, 0, 0, 0 },    /* 17 Study */
+    {  5, 0, 0, 0, 0, 0 },    /* 17 Study */
     { 24, 5,19, 0, 0, 0 },    /* 18 Library */
     {  0, 7,22,18, 0, 0 },    /* 19 GreatHall */
     {  7, 0, 0, 0,21, 0 },    /* 20 Stairs1 */
@@ -806,7 +806,7 @@ void doActions()
     }
 
     /* Give hint if in steam plant */
-    if ((currentLocation == SteamPlant) && (auntieTied == 0) && (locationOfItem[Skye] == 0)) {
+    if ((currentLocation == SteamPlant) && (auntieTied == 0) && (locationOfItem[Skye] == 0) && !carryingItem("Skye")) {
         printf("You see a steam boiler here. You can hear someone crying inside.\n");
     }
 }
