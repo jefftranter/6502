@@ -1,38 +1,39 @@
 /*
 TO DO:
 
-Items:
+Skye is in steam plant in coal skuttle.
+Only after Auntie is untied.
+Need steel bar to get her out of coal scuttle.
 
-key - initially have, need to open front door
-pool cue - in billiard room - useless?
-metal bar - covered porch need to pry open coal furnace
-wine - wine cellar - useless?
-knife - kitchen - to cut ropes?
-flashlight - in entry - need to see in tunnels or when it gets dark?
-vestibule - umbrella - useless
-peanut butter sandwich - clue that someone was here recently.
+Add some more red herring items.
 
-Skye could be hiding in coal furnace - need to open with metal bar
-Auntie somewhere - maybe broken leg?
+To win the game:
+- untie Auntie
+- get Skye
+- get Bailey
+- get Skye's doll
+- find way out
 
-
-
+Every 5 turns after Auntie is untied:
+Where is Skye?
+Skye won't leave until you find her cat, Bailey.
+Skye won't leave until you find her doll.
 
 */
 
 
 /*
- * 
+ *
  * Skye's Castle Adventure
  *
  * A sequel to The Abandoned Farmhouse Adventure.
-
+ *
  * Jeff Tranter <tranter@pobox.com>
  *
- * Written in standard C but designed to run on the Apple II using the
- * CC65 6502 assembler.
+ * Written in standard C but designed to run on the Apple II or other
+ * platforms using the CC65 6502 assembler.
  *
- * Copyright 2012-2015 Jeff Tranter
+ * Copyright 2012-2019 Jeff Tranter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +58,7 @@ Auntie somewhere - maybe broken leg?
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
+#include <string.h>
 #ifdef __CC65__
 #include <conio.h>
 #endif
@@ -92,6 +93,20 @@ typedef enum {
 /* Items */
 typedef enum {
     NoItem,
+    PoolCue,
+    Umbrella,
+    Newspaper,
+    Sandwich,
+    Cat,
+    Wine,
+    Knife,
+    Candle,
+    Matches,
+    Auntie,
+    Doll,
+    Skye,
+    SteelBar,
+    Book,
     Key,
     LastItem=Key
 } Item_t;
@@ -104,7 +119,7 @@ typedef enum {
     Entry,
     PeacockAlley1,
     PeacockAlley2,
-    PeacockAlley3,    
+    PeacockAlley3,
     PeacockAlley4,
     PeacockAlley5,
     DiningRoom,
@@ -170,8 +185,21 @@ char *DescriptionOfDirection[] = {
 /* Names of items */
 char *DescriptionOfItem[LastItem+1] = {
     "",
-    "key",
-
+    "pool cue",
+    "umbrella",
+    "newspaper",
+    "sandwich",
+    "cat",
+    "wine",
+    "knife",
+    "candle",
+    "matches",
+    "Auntie",
+    "doll",
+    "Skye",
+    "steel bar",
+    "book",
+    "key"
 };
 
 /* Names of locations */
@@ -271,7 +299,7 @@ Direction_t Move[NUMLOCATIONS][6] = {
     {  0, 7,22,18, 0, 0 },    /* 19 GreatHall */
     {  7, 0, 0, 0,21, 0 },    /* 20 Stairs1 */
     {  0, 0, 0, 0,51,20 },    /* 21 Landing */
-    {  0, 8, 0, 0, 0, 0 },    /* 22 OakDrawingRoom */
+    {  0, 8, 0,19, 0, 0 },    /* 22 OakDrawingRoom */
     {  8,25, 0, 0, 0, 0 },    /* 23 SmokingRoom */
     {  0,18, 0, 0, 0, 0 },    /* 24 CoveredPorch */
     { 23, 0, 0, 0, 0, 0 },    /* 25 BilliardsRoom */
@@ -318,10 +346,16 @@ number currentLocation;
 /* Number of turns played in game */
 int turnsPlayed;
 
+/* True if player has lit the candle. */
+number candleLit;
+
+/* True if Auntie is tied up. */
+number auntieTied;
+
 /* Set when game is over */
 number gameOver;
 
-const char *introText = 
+const char *introText =
 "     Abandoned Farmhouse Adventure\n"
 "           By Jeff Tranter\n\n"
 "Your great-great-grandfather built a\n"
@@ -521,7 +555,7 @@ void doTake()
                 }
             }
 
-            /* Reached maximum number of items to carry */ 
+            /* Reached maximum number of items to carry */
             printf("You can't carry any more. Drop something.\n");
             return;
             }
@@ -596,7 +630,7 @@ void doExamine()
     ++turnsPlayed;
 
     /* Examine fireplace - not an object */
-    if (!strcasecmp(item, "fireplace")) {
+    if (!strcasecmp(item, "fireplace") && (currentLocation == Study)) {
         printf("On either side of the fireplace are\nsecret panels, which now open and\nreveal staircases.\n");
         Move[Study][Up] = Hallway11;
         Move[Study][Down] = Stairs3;
@@ -609,22 +643,52 @@ void doExamine()
         return;
     }
 
-    /* Examine Book */
+    /* Examine Newspaper */
+    if (!strcasecmp(item, "newspaper")) {
+        printf("It reads:\n"
+               "\"Pellatt's Folly? Five million dollar \"house on the hill\" took\n"
+               "three years to build. Sole occupants of 98 room castle are Toronto\n"
+               "financier and invalid wife.\"\n");
+        return;
+    }
+
+    /* Examine Sandwich */
+    if (!strcasecmp(item, "sandwich")) {
+        printf("A peanut butter sandwich. It looks fresh, so someone must have been here recently.\n");
+        return;
+    }
+
+    /* Examine Cat */
+    if (!strcasecmp(item, "cat")) {
+        printf("It is Skye's cat, Bailey. How did he get here?\n");
+        return;
+    }
+
+    /* Examine Wine */
+    if (!strcasecmp(item, "wine")) {
+        printf("An old bottle of wine. It looks very dusty and dirty.\n");
+        return;
+    }
+
+    /* Examine Auntie */
+    if (!strcasecmp(item, "auntie")) {
+        if (auntieTied) {
+            printf("She is tied up and gagged and can't speak. But where is Skye?\n");
+        } else {
+            printf("Auntie says: Someone attacked me and tied me up! Skye went back into the tunnel to get help.\n");
+        }
+        return;
+    }
+
+    /* Examine doll */
+    if (!strcasecmp(item, "doll")) {
+        printf("It is a doll. It looks like one that belongs to Skye.\n");
+        return;
+    }
+
+    /* Examine book */
     if (!strcasecmp(item, "book")) {
-        printf("It is a very old book entitled\n\"Apple 1 operation manual\".\n");
-        return;
-    }
-
-    /* Examine Flashlight */
-    if (!strcasecmp(item, "flashlight")) {
-        printf("It doesn't have any batteries.\n");
-        return;
-    }
-
-    /* Examine toy car */
-    if (!strcasecmp(item, "toy car")) {
-        printf("It is a nice toy car.\nYour grandson Matthew would like it.\n");
-        return;
+        printf("It is titled \"The Curse of the Pharaohs\" by George Crabtree.\n");
     }
 
    /* Nothing special about this item */
@@ -661,6 +725,23 @@ void doUse()
         return;
     }
 
+    /* Use (drink) wine. */
+    if (!strcasecmp(item, "wine")) {
+        printf("It looks and smells bad, but you drink some anyway.\n");
+        printf("You feel very sick and pass out.\n");
+        gameOver = 1;
+        return;
+    }
+
+    /* Use knife */
+    if (!strcasecmp(item, "knife")) {
+        if (carryingItem("auntie") || itemIsHere("auntie")) {
+            printf("You cut the ropes with the knife.\n");
+            auntieTied = 0;
+            return;
+        }
+    }
+
     /* Default */
     printf("Nothing happens\n");
 }
@@ -668,7 +749,7 @@ void doUse()
 /* Prompt user and get a line of input */
 void prompt()
 {
-    printf("? ");        
+    printf("? ");
     fgets(buffer, sizeof(buffer)-1, stdin);
 
     /* Remove trailing newline */
@@ -678,6 +759,15 @@ void prompt()
 /* Do special things unrelated to command typed. */
 void doActions()
 {
+    if ((turnsPlayed == 10) && !candleLit) {
+        printf("It will be getting dark soon. You need\nsome kind of light or soon you won't\nbe able to see.\n");
+    }
+
+    if ((turnsPlayed >= 20) && (!candleLit || (!itemIsHere("candle") && !carryingItem("candle")))) {
+        printf("It is dark out and you have no light.\nYou stumble around for a while and\nthen fall, hit your head, and pass out.\n");
+        gameOver = 1;
+        return;
+    }
 
 }
 
@@ -687,6 +777,8 @@ void initialize()
     currentLocation = FrontEntrance;
     turnsPlayed = 0;
     gameOver= 0;
+    candleLit = 0;
+    auntieTied = 1;
 
     /* These doors can get changed during game and may need to be reset */
     Move[FrontEntrance][North] = 0;
@@ -698,8 +790,21 @@ void initialize()
     Inventory[0] = Key;
 
     /* Put items in their default locations */
-    locationOfItem[0]  = 0;                /* NoItem */
-    //locationOfItem[1]  = Driveway1;        /* Key */
+    locationOfItem[0]  = 0;   /* NoItem */
+    locationOfItem[PoolCue]   = BilliardsRoom;
+    locationOfItem[Umbrella]  = Vestibule;
+    locationOfItem[Newspaper] = Library;
+    locationOfItem[Sandwich]  = Study;
+    locationOfItem[Cat]       = PipeOrganLoft;
+    locationOfItem[Wine]      = WineCellar;
+    locationOfItem[Knife]     = Kitchen;
+    locationOfItem[Candle]    = GreatHall;
+    locationOfItem[Matches]   = SmokingRoom;
+    locationOfItem[Auntie]    = Stables;
+    locationOfItem[Skye]      = SteamPlant;
+    locationOfItem[Doll]      = ChildrensBedroom;
+    locationOfItem[SteelBar]  = Conservatory;
+    locationOfItem[Book]      = SirHenrysBedroom;
 }
 
 /* Main program (obviously) */
