@@ -1,19 +1,4 @@
 /*
-
-TO DO:
-
-Verify game is possible.
-
-Make all message strings under 40 characters wide.
-
-Add some more red herring items.
-
-Testing.
-
-*/
-
-
-/*
  *
  * Skye's Castle Adventure
  *
@@ -348,7 +333,7 @@ number auntieTied;
 number gameOver;
 
 const char *introText =
-"     Abandoned Farmhouse Adventure\n"
+"       Skye's Castle Adventure\n"
 "           By Jeff Tranter\n\n"
 "Your great-great-grandfather built a\n"
 "castle, but the family fell on hard\n"
@@ -356,8 +341,8 @@ const char *introText =
 "years. Occasionally, family members\n"
 "visit the castle, although it is old\n"
 "and dusty and possibly not safe. Today\n"
-"your three-year-old granddaughter went\n"
-"to visit the castle with her aunt, but\n"
+"your young granddaughter went to\n"
+"visit the castle with her aunt, but\n"
 "they did not return in the evening.\n"
 "Maybe you should have called the police,\n"
 "but instead you decide to go over\n"
