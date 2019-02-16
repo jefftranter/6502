@@ -1,12 +1,6 @@
 /*
 TO DO:
 
-Skye is in steam plant in coal skuttle.
-Only after Auntie is untied.
-Need steel bar to get her out of coal scuttle.
-
-Add some more red herring items.
-
 To win the game:
 - untie Auntie
 - get Skye
@@ -20,7 +14,13 @@ Where is Skye?
 Skye won't leave until you find her cat, Bailey.
 Skye won't leave until you find her doll.
 
+Verify game is possible.
+
 Make all message strings under 40 characters wide.
+
+Add some more red herring items.
+
+Testing.
 
 */
 
@@ -742,8 +742,9 @@ void doUse()
 
     /* Use knife */
     if (!strcasecmp(item, "knife")) {
-        if (carryingItem("auntie") || itemIsHere("auntie")) {
+        if ((carryingItem("auntie") || itemIsHere("auntie")) && (auntieTied == 1)) {
             printf("You cut the ropes with the knife.\n");
+            printf("Auntie says: Someone attacked me and tied me up! Skye went back into the tunnel to get help.\n");
             auntieTied = 0;
             return;
         }
@@ -757,6 +758,16 @@ void doUse()
             return;
         } else {
             printf("Nothing here to light\n");
+        }
+    }
+
+    /* Use steel bar to get Skye out of steam boiler */
+    if (!strcasecmp(item, "steel bar") && (currentLocation == SteamPlant)) {
+        if (locationOfItem[Skye] == 0) {
+            printf("You pry the boiler open with the steel bar.\nSkye was trapped inside! She is safe now.\n");
+            /* Skye is now in steam plant. */
+            locationOfItem[Skye] = SteamPlant;
+            return;
         }
     }
 
@@ -795,6 +806,10 @@ void doActions()
         candleLit = 0;
     }
 
+    /* Give hint if in steam plant */
+    if ((currentLocation == SteamPlant) && (auntieTied == 0) && (locationOfItem[Skye] == 0)) {
+        printf("You see a steam boiler here. You can hear someone crying inside it.\n");
+    }
 }
 
 /* Set variables to values for start of game */
@@ -827,9 +842,9 @@ void initialize()
     locationOfItem[Candle]    = GreatHall;
     locationOfItem[Matches]   = SmokingRoom;
     locationOfItem[Auntie]    = Stables;
-    locationOfItem[Skye]      = SteamPlant;
     locationOfItem[Doll]      = ChildrensBedroom;
     locationOfItem[SteelBar]  = Conservatory;
+    locationOfItem[Skye]      = 0;
     locationOfItem[Book]      = SirHenrysBedroom;
 }
 
