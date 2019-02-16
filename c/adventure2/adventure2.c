@@ -84,6 +84,13 @@ typedef enum {
     Skye,
     SteelBar,
     Book,
+    Hairbrush,
+    Note,
+    Perfume,
+    BusinessCard,
+    Soap,
+    Menu,
+    LightBulb,
     Key,
     LastItem=Key
 } Item_t;
@@ -176,6 +183,13 @@ char *DescriptionOfItem[LastItem+1] = {
     "Skye",
     "steel bar",
     "book",
+    "hairbrush",
+    "note",
+    "perfume",
+    "business card",
+    "soap",
+    "menu",
+    "light bulb",
     "key"
 };
 
@@ -589,7 +603,7 @@ void doGo()
     }
 
     /* Special case: can't leave castle until you have Auntie, Skye,
-       Bailey, and doll. */
+       cat, and doll. */
     if ((currentLocation == Vestibule) && (dir == South)) {
         if (!carryingItem("Skye") && !itemIsHere("Skye")) {
             printf("You can't leave without Skye!\n");
@@ -695,6 +709,68 @@ void doExamine()
     /* Examine book */
     if (!strcasecmp(item, "book")) {
         printf("It is titled \"The Curse of the Pharaohs\"\nby George Crabtree.\n");
+        return;
+    }
+
+    /* Examine note */
+    if (!strcasecmp(item, "note")) {
+        printf("It says: \"Reginald was here.\"\n");
+        return;
+    }
+
+    /* Examine business card */
+    if (!strcasecmp(item, "business card")) {
+        printf("It reads: \"Thomas Ridgway - chauffeur\"\n");
+        return;
+    }
+
+    /* Examine menu */
+    if (!strcasecmp(item, "menu")) {
+        printf("It reads:\n"
+               "First Course\n"
+               "Hors D'Oeuvres\n"
+               "Oysters\n"
+               "\n"
+               "Second Course\n"
+               "Consomme Olga\n"
+               "Cream of Barley\n"
+               "\n"
+               "Third Course\n"
+               "Poached Salmon with Mousseline Sauce, Cucumbers\n"
+               "\n"
+               "Fourth Course\n"
+               "Filet Mignons Lili\n"
+               "Saute of Chicken, Lyonnaise\n"
+               "Vegetable Marrow Farci\n"
+               "\n"
+               "Fifth Course\n"
+               "Lamb, Mint Sauce\n"
+               "Roast Duckling, Apple Sauce\n"
+               "Sirloin of Beef, Chateau Potatoes\n"
+               "Green Pea\n"
+               "Creamed Carrots\n"
+               "Boiled Rice\n"
+               "Parmentier & Boiled New Potatoes\n"
+               "\n"
+               "Sixth Course\n"
+               "Punch Romaine\n"
+               "\n"
+               "Seventh Course\n"
+               "Roast Squab & Cress\n"
+               "\n"
+               "Eighth Course\n"
+               "Cold Asparagus Vinaigrette\n"
+               "\n"
+               "Ninth Course\n"
+               "Pate de Foie Gras\n"
+               "Celery\n"
+               "\n"
+               "Tenth Course\n"
+               "Waldorf Pudding\n"
+               "Peaches in Chartreuse Jelly\n"
+               "Chocolate & Vanilla Eclairs\n"
+               "French Ice Cream\n");
+        return;
     }
 
    /* Nothing special about this item */
@@ -799,8 +875,8 @@ void doActions()
         return;
     }
 
-    /* Once lit, blow out candle every 10 turns. */
-    if ((turnsPlayed % 10 == 0) && candleLit) {
+    /* Once lit, blow out candle every 15 turns. */
+    if ((turnsPlayed % 15 == 0) && candleLit) {
         printf("The candle blows out!\n");
         candleLit = 0;
     }
@@ -830,21 +906,28 @@ void initialize()
     Inventory[0] = Key;
 
     /* Put items in their default locations */
-    locationOfItem[0]  = 0;   /* NoItem */
-    locationOfItem[PoolCue]   = BilliardsRoom;
-    locationOfItem[Umbrella]  = Vestibule;
-    locationOfItem[Newspaper] = Library;
-    locationOfItem[Sandwich]  = Study;
-    locationOfItem[Cat]       = PipeOrganLoft;
-    locationOfItem[Wine]      = WineCellar;
-    locationOfItem[Knife]     = Kitchen;
-    locationOfItem[Candle]    = GreatHall;
-    locationOfItem[Matches]   = SmokingRoom;
-    locationOfItem[Auntie]    = Stables;
-    locationOfItem[Doll]      = ChildrensBedroom;
-    locationOfItem[SteelBar]  = Conservatory;
-    locationOfItem[Skye]      = 0;
-    locationOfItem[Book]      = SirHenrysBedroom;
+    locationOfItem[0]  = 0;      /* NoItem */
+    locationOfItem[PoolCue]      = BilliardsRoom;
+    locationOfItem[Umbrella]     = Vestibule;
+    locationOfItem[Newspaper]    = Library;
+    locationOfItem[Sandwich]     = Study;
+    locationOfItem[Cat]          = PipeOrganLoft;
+    locationOfItem[Wine]         = WineCellar;
+    locationOfItem[Knife]        = Kitchen;
+    locationOfItem[Candle]       = GreatHall;
+    locationOfItem[Matches]      = SmokingRoom;
+    locationOfItem[Auntie]       = Stables;
+    locationOfItem[Doll]         = ChildrensBedroom;
+    locationOfItem[SteelBar]     = Conservatory;
+    locationOfItem[Skye]         = 0; /* Added later */
+    locationOfItem[Book]         = SirHenrysBedroom;
+    locationOfItem[Hairbrush]    = SittingRoom3;
+    locationOfItem[Note]         = Bedroom2;
+    locationOfItem[Perfume]      = LadysBedroom;
+    locationOfItem[BusinessCard] = ServantsBedroom;
+    locationOfItem[Soap]         = Bath;
+    locationOfItem[Menu]         = DiningRoom;
+    locationOfItem[LightBulb]    = OakDrawingRoom;
 }
 
 /* Main program (obviously) */
@@ -882,8 +965,6 @@ int main(void)
                 doDrop();
             } else if (tolower(buffer[0]) == 'q') {
                 doQuit();
-            } else if (!strcasecmp(buffer, "xyzzy")) {
-                printf("Nice try, but that won't work here.\n");
             } else {
                 printf("I don't understand. Try 'help'.\n");
             }
