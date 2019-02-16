@@ -1,5 +1,5 @@
 /*
- * 
+ *
  * The Abandoned Farm House Adventure
  *
  * Jeff Tranter <tranter@pobox.com>
@@ -35,7 +35,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
+#include <string.h>
 #ifdef __CC65__
 #include <conio.h>
 #endif
@@ -443,7 +443,7 @@ void doTake()
                 }
             }
 
-            /* Reached maximum number of items to carry */ 
+            /* Reached maximum number of items to carry */
             printf("You can't carry any more. Drop something.\n");
             return;
             }
@@ -629,7 +629,7 @@ void doUse()
             printf("Nothing here to light\n");
         }
     }
-                
+
     /* Use candybar */
     if (!strcasecmp(item, "candybar")) {
         printf("That hit the spot. You no longer feel\nhungry.\n");
@@ -663,7 +663,7 @@ void doUse()
 /* Prompt user and get a line of input */
 void prompt()
 {
-    printf("? ");        
+    printf("? ");
     fgets(buffer, sizeof(buffer)-1, stdin);
 
     /* Remove trailing newline */
