@@ -12,12 +12,15 @@ To win the game:
 - get Skye
 - get Bailey
 - get Skye's doll
-- find way out
+- then find way out
+- don't let player leave (remove exit door) until satisfied?
 
 Every 5 turns after Auntie is untied:
 Where is Skye?
 Skye won't leave until you find her cat, Bailey.
 Skye won't leave until you find her doll.
+
+Make all message strings under 40 characters wide.
 
 */
 
@@ -453,16 +456,20 @@ void doLook()
 
     printf("You are %s.\n", DescriptionOfLocation[currentLocation]);
 
-    seen = 0;
-    printf("You see:\n");
-    for (i = 1; i <= LastItem; i++) {
-        if (locationOfItem[i] == currentLocation) {
-            printf("  %s\n", DescriptionOfItem[i]);
-            seen = 1;
+    if ((turnsPlayed > 20) && !candleLit) {
+        printf("It is dark. You can't see.\n");
+    } else {
+        seen = 0;
+        printf("You see:\n");
+        for (i = 1; i <= LastItem; i++) {
+            if (locationOfItem[i] == currentLocation) {
+                printf("  %s\n", DescriptionOfItem[i]);
+                seen = 1;
+            }
         }
+        if (!seen)
+            printf("  nothing special\n");
     }
-    if (!seen)
-        printf("  nothing special\n");
 
     printf("You can go:");
 
@@ -742,6 +749,17 @@ void doUse()
         }
     }
 
+    /* Use matches to light candle */
+    if (!strcasecmp(item, "matches")) {
+        if (carryingItem("candle") || itemIsHere("candle")) {
+            printf("You light the candle. You can see!\n");
+            candleLit = 1;
+            return;
+        } else {
+            printf("Nothing here to light\n");
+        }
+    }
+
     /* Default */
     printf("Nothing happens\n");
 }
@@ -759,14 +777,22 @@ void prompt()
 /* Do special things unrelated to command typed. */
 void doActions()
 {
+    /* Check for getting dark. */
     if ((turnsPlayed == 10) && !candleLit) {
         printf("It will be getting dark soon. You need\nsome kind of light or soon you won't\nbe able to see.\n");
     }
 
-    if ((turnsPlayed >= 20) && (!candleLit || (!itemIsHere("candle") && !carryingItem("candle")))) {
+    /* Check if it got dark before you lit the candle. */
+    if ((turnsPlayed == 20) && !candleLit) {
         printf("It is dark out and you have no light.\nYou stumble around for a while and\nthen fall, hit your head, and pass out.\n");
         gameOver = 1;
         return;
+    }
+
+    /* Once lit, blow out candle every 10 turns. */
+    if ((turnsPlayed % 10 == 0) && candleLit) {
+        printf("The candle blows out!\n");
+        candleLit = 0;
     }
 
 }
