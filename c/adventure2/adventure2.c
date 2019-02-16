@@ -1,18 +1,6 @@
 /*
+
 TO DO:
-
-To win the game:
-- untie Auntie
-- get Skye
-- get Bailey
-- get Skye's doll
-- then find way out
-- don't let player leave (remove exit door) until satisfied?
-
-Every 5 turns after Auntie is untied:
-Where is Skye?
-Skye won't leave until you find her cat, Bailey.
-Skye won't leave until you find her doll.
 
 Verify game is possible.
 
@@ -54,7 +42,8 @@ Testing.
  *
  * Version  Date         Comments
  * -------  ----         --------
- * 0.0      07 Sep 2015  Started development
+ * 0.0      07 Sep 2015  Started development.
+ * 0.1      16 Feb 2019  Most game logic implemented.
  *
  */
 
@@ -614,6 +603,31 @@ void doGo()
         return;
     }
 
+    /* Special case: can't leave castle until you have Auntie, Skye,
+       Bailey, and doll. */
+    if ((currentLocation == Vestibule) && (dir == South)) {
+        if (!carryingItem("Skye") && !itemIsHere("Skye")) {
+            printf("You can't leave without Skye!\n");
+            return;
+        }
+        if (!carryingItem("Auntie") && !itemIsHere("Auntie")) {
+            printf("You can't leave without Auntie!\n");
+            return;
+        }
+        if (!carryingItem("cat") && !itemIsHere("cat")) {
+            printf("Skye won't leave without her cat, Bailey!\n");
+            return;
+        }
+        if (!carryingItem("doll") && !itemIsHere("doll")) {
+            printf("Skye won't leave without her doll!\n");
+            return;
+        }
+        /* You won! */
+        printf("Congratulations, you won the game!\nI hope you had as much fun playing\nthe game as I did creating it.\nJeff Tranter <tranter@pobox.com>\n");
+        gameOver = 1;
+        return;
+    }
+
     /* We can move */
     currentLocation = Move[currentLocation][dir];
     printf("You are %s.\n", DescriptionOfLocation[currentLocation]);
@@ -661,7 +675,7 @@ void doExamine()
 
     /* Examine Sandwich */
     if (!strcasecmp(item, "sandwich")) {
-        printf("A peanut butter sandwich. It looks fresh, so someone must have been here recently.\n");
+        printf("A peanut butter sandwich. It looks fresh,\nso someone must have been here recently.\n");
         return;
     }
 
@@ -680,9 +694,9 @@ void doExamine()
     /* Examine Auntie */
     if (!strcasecmp(item, "auntie")) {
         if (auntieTied) {
-            printf("She is tied up and gagged and can't speak. But where is Skye?\n");
+            printf("She is tied up and gagged and can't speak.\nBut where is Skye?\n");
         } else {
-            printf("Auntie says: Someone attacked me and tied me up! Skye went back into the tunnel to get help.\n");
+            printf("Auntie says: Someone attacked me and\ntied me up! Skye went back into the\ntunnel to get help.\n");
         }
         return;
     }
@@ -695,7 +709,7 @@ void doExamine()
 
     /* Examine book */
     if (!strcasecmp(item, "book")) {
-        printf("It is titled \"The Curse of the Pharaohs\" by George Crabtree.\n");
+        printf("It is titled \"The Curse of the Pharaohs\"\nby George Crabtree.\n");
     }
 
    /* Nothing special about this item */
@@ -744,7 +758,7 @@ void doUse()
     if (!strcasecmp(item, "knife")) {
         if ((carryingItem("auntie") || itemIsHere("auntie")) && (auntieTied == 1)) {
             printf("You cut the ropes with the knife.\n");
-            printf("Auntie says: Someone attacked me and tied me up! Skye went back into the tunnel to get help.\n");
+            printf("Auntie says: Someone attacked me and tied me up!\nSkye went back into the tunnel to get help.\n");
             auntieTied = 0;
             return;
         }
@@ -808,7 +822,7 @@ void doActions()
 
     /* Give hint if in steam plant */
     if ((currentLocation == SteamPlant) && (auntieTied == 0) && (locationOfItem[Skye] == 0)) {
-        printf("You see a steam boiler here. You can hear someone crying inside it.\n");
+        printf("You see a steam boiler here. You can hear someone crying inside.\n");
     }
 }
 
