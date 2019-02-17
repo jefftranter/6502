@@ -29,6 +29,7 @@
  * -------  ----         --------
  * 0.0      07 Sep 2015  Started development.
  * 0.1      16 Feb 2019  Most game logic implemented.
+ * 0.9      17 Feb 2019  Seems to be fully working.
  *
  */
 
@@ -674,7 +675,7 @@ void doExamine()
 
     /* Examine Sandwich */
     if (!strcasecmp(item, "sandwich")) {
-        printf("A peanut butter sandwich. It looks fresh,\nso someone must have been here recently.\n");
+        printf("A peanut butter sandwich. It looks\nfresh, so someone must have been here\nrecently.\n");
         return;
     }
 
@@ -941,6 +942,7 @@ int main(void)
         while (!gameOver) {
             prompt();
             if (buffer[0] == '\0') {
+                /* Ignore empty line */
             } else if (tolower(buffer[0]) == 'h') {
                 doHelp();
             } else if (tolower(buffer[0]) == 'i') {

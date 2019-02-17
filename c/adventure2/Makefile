@@ -1,13 +1,12 @@
 # "make native" will build for local machine (e.g. Linux desktop).
-# Otherwise by default will build for Apple OO using cc65.
+# Can also  build for Commodore 64 using cc65.
 
 all: default
 
 default: native
-#default: adventure2
 
 adventure2: adventure2.c
-	cl65 -O -l adventure2.lst -vm -m adventure2.map -t apple2enh adventure2.c
+	cl65 -O -t c64 adventure2.c -L /usr/local/share/cc65/lib
 
 native: adventure2.c
 	gcc -Wall -g -o adventure2 adventure2.c
