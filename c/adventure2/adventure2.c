@@ -23,6 +23,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * To Do:
+ * - Check for valid (possibly abbreviated) commands, not just first letter.
+ * - Output a blank line each turn?
+ *
  * Revision History:
  *
  * Version  Date         Comments
@@ -30,7 +34,7 @@
  * 0.0      07 Sep 2015  Started development.
  * 0.1      16 Feb 2019  Most game logic implemented.
  * 0.9      17 Feb 2019  Seems to be fully working.
- *
+ * 0.95     18 Feb 2019  Added joystick support
  */
 
 #include <ctype.h>
@@ -39,6 +43,7 @@
 #include <string.h>
 #ifdef __CC65__
 #include <conio.h>
+#include <joystick.h>
 #endif
 
 /* CONSTANTS */
@@ -197,7 +202,7 @@ const char *DescriptionOfItem[LastItem+1] = {
 /* Names of locations */
 const char *DescriptionOfLocation[NUMLOCATIONS] = {
     "",
-    "at the front door to the castle",
+    "at the front door of the castle",
     "in the vestibule",
     "in the entry hall",
     "in Peacock Alley",
@@ -359,12 +364,12 @@ const char *introText =
 "your young granddaughter went to\n"
 "visit the castle with her aunt, but\n"
 "they did not return in the evening.\n"
-"Maybe you should have called the police,\n"
-"but instead you decide to go over\n"
-"there and find them on your own. It\n"
-"looks like a bad storm is brewing, and\n"
-"the castle has no electricity, so you\n"
-"had better find them before it gets\n"
+"Maybe you should have called the\n"
+"police, but instead you decide to go\n"
+"over there and find them on your own.\n"
+"It looks like a bad storm is brewing,\n"
+"and the castle has no electricity, so\n"
+"you had better find them before it gets\n"
 "too dark.\n";
 
 const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
@@ -375,7 +380,7 @@ char buffer[40];
 /* Clear the screen */
 void clearScreen()
 {
-#if defined(__APPLE2__)
+#if defined(__CC65__)
     clrscr();
 #else
     number i;
@@ -854,11 +859,54 @@ void doUse()
 /* Prompt user and get a line of input */
 void prompt()
 {
+#ifdef __CC65__
+    unsigned char joy;
+#endif
+
     printf("? ");
+
+    #ifdef __CC65__
+    while (1) {
+        if (kbhit()) {
+            fgets(buffer, sizeof(buffer)-1, stdin); /* Get keyboard input */
+            buffer[strlen(buffer)-1] = '\0'; /* Remove trailing newline */
+            break;
+        } else {
+            /* Check for joystick input */
+            joy = joy_read(1);
+            if (joy == JOY_UP_MASK) {
+                strcpy(buffer, "n");
+                while (joy_read(1) != 0)
+                    ; /* Wait for joystick to be released */
+                break;
+            } else if (joy == JOY_DOWN_MASK) {
+                strcpy(buffer, "s");
+                while (joy_read(1) != 0)
+                    ; /* Wait for joystick to be released */
+                break;
+                break;
+            } else if (joy == JOY_RIGHT_MASK) {
+                strcpy(buffer, "e");
+                break;
+            } else if (joy == JOY_LEFT_MASK) {
+                strcpy(buffer, "w");
+                break;
+            } else if (joy == (JOY_UP_MASK|JOY_BTN_1_MASK)) {
+                strcpy(buffer, "u");
+                break;
+            } else if (joy == (JOY_DOWN_MASK|JOY_BTN_1_MASK)) {
+                strcpy(buffer, "d");
+                break;
+            }
+        }
+    }
+#else
+    /* Get keyboard input */
     fgets(buffer, sizeof(buffer)-1, stdin);
 
     /* Remove trailing newline */
     buffer[strlen(buffer)-1] = '\0';
+#endif
 }
 
 /* Do special things unrelated to command typed. */
@@ -934,11 +982,25 @@ void initialize()
 /* Main program (obviously) */
 int main(void)
 {
+
+#ifdef __CC65__
+    unsigned char Res;
+
+    Res = joy_load_driver(joy_stddrv);
+    if (Res != JOY_ERR_OK) {
+        cprintf("Error in joy_load_driver: %u\r\n", Res);
+    }
+
+    Res = joy_install(joy_static_stddrv);
+    if (Res != JOY_ERR_OK) {
+        cprintf("Error in joy_install_driver: %u\r\n", Res);
+    }
+#endif
+
     while (1) {
         initialize();
         clearScreen();
         printf("%s", introText);
-
         while (!gameOver) {
             prompt();
             if (buffer[0] == '\0') {
