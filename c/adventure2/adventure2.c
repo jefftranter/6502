@@ -131,7 +131,7 @@ typedef enum {
     Hallway14,
     Corridor1,
     Corridor2,
-    Narrowhallway,
+    NarrowHallway,
     RoundRoom,
     PipeOrganLoft,
     Bedroom1,
@@ -269,66 +269,66 @@ Location_t locationOfItem[LastItem+1];
 /* Map. Given a location and a direction to move, returns the location it connects to, or 0 if not a valid move. Map can change during game play. */
 Location_t Move[NUMLOCATIONS][6] = {
     /* N  S  E  W  U  D */
-    {  0, 0, 0, 0, 0, 0 },    /* 0 NoLocation */
-    {  0, 0, 0, 0, 0, 0 },    /* 1 FrontEntrance */
-    {  3, 1, 0, 0, 0, 0 },    /* 2 Vestibule */
-    {  6, 2, 0, 0, 0, 0 },    /* 3 Entry */
-    {  9,14, 5,10, 0, 0 },    /* 4 PeacockAlley1 */
-    { 18,17, 6, 4, 0, 0 },    /* 5 PeacockAlley2 */
-    {  0, 3, 7, 5, 0, 0 },    /* 6 PeacockAlley3 */
-    { 19, 0, 8, 6,20, 0 },    /* 7 PeacockAlley4 */
-    { 22,23, 0, 7, 0, 0 },    /* 8 PeacockAlley5 */
-    {  0, 4, 0, 0, 0, 0 },    /* 9 DiningRoom */
-    {  0, 0, 4, 0, 0, 0 },    /* 10 Conservatory */
-    {  0,12, 14,0, 0, 0 },    /* 11 BreakfastRoom */
-    { 11,13, 15,0, 0, 0 },    /* 12 ServingRoom */
-    { 12, 0, 0, 0, 0, 0 },    /* 13 Kitchen */
-    { 4, 15,16,11, 0, 0 },    /* 14 Hallway1 */
-    { 14, 0, 0,12, 0, 0 },    /* 15 Hallway2 */
-    {  0, 0, 0,14,44, 0 },    /* 16 Elevator1 */
-    {  5, 0, 0, 0, 0, 0 },    /* 17 Study */
-    { 24, 5,19, 0, 0, 0 },    /* 18 Library */
-    {  0, 7,22,18, 0, 0 },    /* 19 GreatHall */
-    {  7, 0, 0, 0,21, 0 },    /* 20 Stairs1 */
-    {  0, 0, 0, 0,51,20 },    /* 21 Landing */
-    {  0, 8, 0,19, 0, 0 },    /* 22 OakDrawingRoom */
-    {  8,25, 0, 0, 0, 0 },    /* 23 SmokingRoom */
-    {  0,18, 0, 0, 0, 0 },    /* 24 CoveredPorch */
-    { 23, 0, 0, 0, 0, 0 },    /* 25 BilliardsRoom */
-    { 41,31,27, 0, 0, 0 },    /* 26 Hallway10 */
-    { 42,48,28,26, 0, 0 },    /* 27 Hallway11 */
-    { 39,36,29,27, 0, 0 },    /* 28 Hallway12 */
-    {  0, 0,30,28, 0,51 },    /* 29 Hallway13 */
-    { 33,49, 0,29, 0, 0 },    /* 30 Hallway14 */
-    { 26,32,38,43, 0, 0 },    /* 31 Corridor1 */
-    { 31, 0,46,45, 0, 0 },    /* 32 Corridor2 */
-    { 47,30,34,35, 0, 0 },    /* 33 Narrowhallway */
-    {  0, 0, 0,33, 0, 0 },    /* 34 RoundRoom */
-    {  0, 0,33, 0, 0, 0 },    /* 35 PipeOrganLoft */
-    { 28,50, 0, 0, 0, 0 },    /* 36 Bedroom1 */
-    {  0,41, 0, 0, 0, 0 },    /* 37 SittingRoom1 */
-    {  0, 0, 0,31, 0, 0 },    /* 38 Bedroom3 */
-    {  0,28, 0,42, 0, 0 },    /* 39 SirHenrysBedroom */
-    {  0, 0,47, 0, 0, 0 },    /* 40 SittingRoom3 */
-    { 37,26, 0, 0, 0, 0 },    /* 41 LadysBedroom */
-    {  0,27,39, 0, 0, 0 },    /* 42 SittingRoom2 */
-    {  0, 0,31, 0, 0, 0 },    /* 43 GuestBedroom */
-    {  0, 0,48, 0, 0,16 },    /* 44 Elevator2 */
-    {  0, 0,32, 0, 0, 0 },    /* 45 ChildrensBedroom */
-    {  0, 0, 0,32, 0, 0 },    /* 46 ServantsBedroom */
-    {  0,33, 0,40, 0, 0 },    /* 47 Bedroom4 */
-    { 27, 0, 0,44, 0, 0 },    /* 48 LinenRoom */
-    { 30, 0, 0, 0, 0, 0 },    /* 49 Bedroom2 */
-    { 36, 0, 0, 0, 0, 0 },    /* 50 Bath */
-    {  0, 0, 0, 0,29,21 },    /* 51 Stairs2 */
-    {  0, 0, 0, 0,17,54 },    /* 52 Stairs3 */
-    { 54, 0, 0, 0, 0, 0 },    /* 53 WineCellar */
-    {  0,53,55, 0,52, 0 },    /* 54 Tunnel1 */
-    {  0, 0,56,54, 0, 0 },    /* 55 Tunnel2 */
-    { 57, 0,58,55, 0, 0 },    /* 56 Tunnel3 */
-    {  0,56, 0, 0, 0, 0 },    /* 57 SteamPlant */
-    {  0, 0, 0,56,59, 0 },    /* 58 Tunnel4 */
-    {  0, 0, 0, 0, 0,58 },    /* 59 Stables */
+    { NoLocation, NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },           /*  0 NoLocation */
+    { NoLocation, NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },           /*  1 FrontEntrance */
+    { Entry, FrontEntrance, NoLocation, NoLocation, NoLocation, NoLocation },             /*  2 Vestibule */
+    { PeacockAlley3, Vestibule, NoLocation, NoLocation, NoLocation, NoLocation },         /*  3 Entry */
+    { DiningRoom, Hallway1, PeacockAlley2, Conservatory, NoLocation, NoLocation },        /*  4 PeacockAlley1 */
+    { Library, Study, PeacockAlley3, PeacockAlley1, NoLocation, NoLocation },             /*  5 PeacockAlley2 */
+    { NoLocation, Entry, PeacockAlley4, PeacockAlley2, NoLocation, NoLocation },          /*  6 PeacockAlley3 */
+    { GreatHall, NoLocation, PeacockAlley5, PeacockAlley3, Stairs1, NoLocation },         /*  7 PeacockAlley4 */
+    { OakDrawingRoom, SmokingRoom, NoLocation, PeacockAlley4, NoLocation, NoLocation },   /*  8 PeacockAlley5 */
+    { NoLocation, PeacockAlley1, NoLocation, NoLocation, NoLocation, NoLocation },        /*  9 DiningRoom */
+    { NoLocation, NoLocation, PeacockAlley1, NoLocation, NoLocation, NoLocation },        /* 10 Conservatory */
+    { NoLocation, ServingRoom, Hallway1, NoLocation, NoLocation, NoLocation },            /* 11 BreakfastRoom */
+    { BreakfastRoom, Kitchen, Hallway2, NoLocation, NoLocation, NoLocation },             /* 12 ServingRoom */
+    { ServingRoom, NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },          /* 13 Kitchen */
+    { PeacockAlley1, Hallway2, Elevator1, BreakfastRoom, NoLocation, NoLocation },        /* 14 Hallway1 */
+    { Hallway1, NoLocation, NoLocation, ServingRoom, NoLocation, NoLocation },            /* 15 Hallway2 */
+    { NoLocation, NoLocation, NoLocation, Hallway1, Elevator2, NoLocation },              /* 16 Elevator1 */
+    { PeacockAlley2, NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },        /* 17 Study */
+    { CoveredPorch, PeacockAlley2, GreatHall, NoLocation, NoLocation, NoLocation },       /* 18 Library */
+    { NoLocation, PeacockAlley4, OakDrawingRoom, Library, NoLocation, NoLocation },       /* 19 GreatHall */
+    { PeacockAlley4, NoLocation, NoLocation, NoLocation, Landing, NoLocation },           /* 20 Stairs1 */
+    { NoLocation, NoLocation, NoLocation, NoLocation, Stairs2, Stairs1 },                 /* 21 Landing */
+    { NoLocation, PeacockAlley5, NoLocation, GreatHall, NoLocation, NoLocation },         /* 22 OakDrawingRoom */
+    { PeacockAlley5, BilliardsRoom, NoLocation, NoLocation, NoLocation, NoLocation },     /* 23 SmokingRoom */
+    { NoLocation, Library, NoLocation, NoLocation, NoLocation, NoLocation },              /* 24 CoveredPorch */
+    { SmokingRoom, NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },          /* 25 BilliardsRoom */
+    { LadysBedroom, Corridor1, Hallway1, NoLocation, NoLocation, NoLocation },            /* 26 Hallway10 */
+    { SittingRoom2, LinenRoom, Hallway12, Hallway10, NoLocation, NoLocation },            /* 27 Hallway11 */
+    { SirHenrysBedroom, Bedroom1, Hallway13, Hallway11, NoLocation, NoLocation },         /* 28 Hallway12 */
+    { NoLocation, NoLocation, Hallway14, Hallway12, NoLocation, Stairs2 },                /* 29 Hallway13 */
+    { NarrowHallway, Bedroom2, NoLocation, Hallway13, NoLocation, NoLocation },           /* 30 Hallway14 */
+    { Hallway10, Corridor2, Bedroom3, GuestBedroom, NoLocation, NoLocation },             /* 31 Corridor1 */
+    { Corridor1, NoLocation, ServantsBedroom, ChildrensBedroom, NoLocation, NoLocation }, /* 32 Corridor2 */
+    { Bedroom4, Hallway14, RoundRoom, PipeOrganLoft, NoLocation, NoLocation },            /* 33 NarrowHallway */
+    { NoLocation, NoLocation, NoLocation, NarrowHallway, NoLocation, NoLocation },        /* 34 RoundRoom */
+    { NoLocation, NoLocation, NarrowHallway, NoLocation, NoLocation, NoLocation },        /* 35 PipeOrganLoft */
+    { Hallway12, Bath, NoLocation, NoLocation, NoLocation, NoLocation },                  /* 36 Bedroom1 */
+    { NoLocation, LadysBedroom, NoLocation, NoLocation, NoLocation, NoLocation },         /* 37 SittingRoom1 */
+    { NoLocation, NoLocation, NoLocation, Corridor1, NoLocation, NoLocation },            /* 38 Bedroom3 */
+    { NoLocation, Hallway12, NoLocation, SittingRoom2, NoLocation, NoLocation },          /* 39 SirHenrysBedroom */
+    { NoLocation, NoLocation, Bedroom4, NoLocation, NoLocation, NoLocation },             /* 40 SittingRoom3 */
+    { SittingRoom1, Hallway10, NoLocation, NoLocation, NoLocation, NoLocation },          /* 41 LadysBedroom */
+    { NoLocation, Hallway11, SirHenrysBedroom, NoLocation, NoLocation, NoLocation },      /* 42 SittingRoom2 */
+    { NoLocation, NoLocation, Corridor1, NoLocation, NoLocation, NoLocation },            /* 43 GuestBedroom */
+    { NoLocation, NoLocation, LinenRoom, NoLocation, NoLocation, Elevator1 },             /* 44 Elevator2 */
+    { NoLocation, NoLocation, Corridor2, NoLocation, NoLocation, NoLocation },            /* 45 ChildrensBedroom */
+    { NoLocation, NoLocation, NoLocation, Corridor2, NoLocation, NoLocation },            /* 46 ServantsBedroom */
+    { NoLocation, NarrowHallway, NoLocation, SittingRoom3, NoLocation, NoLocation },      /* 47 Bedroom4 */
+    { Hallway11, NoLocation, NoLocation, Elevator2, NoLocation, NoLocation },             /* 48 LinenRoom */
+    { Hallway14, NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },            /* 49 Bedroom2 */
+    { Bedroom1,  NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },            /* 50 Bath */
+    { NoLocation, NoLocation, NoLocation, NoLocation, Hallway13, Landing },               /* 51 Stairs2 */
+    { NoLocation, NoLocation, NoLocation, NoLocation, Study, Tunnel1 },                   /* 52 Stairs3 */
+    { Tunnel1, NoLocation, NoLocation, NoLocation, NoLocation, NoLocation },              /* 53 WineCellar */
+    { NoLocation, WineCellar, Tunnel2, NoLocation, Stairs3, NoLocation },                 /* 54 Tunnel1 */
+    { NoLocation, NoLocation, Tunnel3, Tunnel1, NoLocation, NoLocation },                 /* 55 Tunnel2 */
+    { SteamPlant, NoLocation, Tunnel4, Tunnel2, NoLocation, NoLocation },                 /* 56 Tunnel3 */
+    { NoLocation, Tunnel3, NoLocation, NoLocation, NoLocation, NoLocation },              /* 57 SteamPlant */
+    { NoLocation, NoLocation, NoLocation, Tunnel3, Stables, NoLocation },                 /* 58 Tunnel4 */
+    { NoLocation, NoLocation, NoLocation, NoLocation, NoLocation, Tunnel4 },              /* 59 Stables */
 
 };
 
