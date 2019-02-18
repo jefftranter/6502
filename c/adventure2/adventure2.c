@@ -25,7 +25,6 @@
  *
  * To Do:
  * - Check for valid (possibly abbreviated) commands, not just first letter.
- * - Output a blank line each turn?
  *
  * Revision History:
  *
@@ -863,7 +862,7 @@ void prompt()
     unsigned char joy;
 #endif
 
-    printf("? ");
+    printf("\n? ");
 
     #ifdef __CC65__
     while (1) {
@@ -884,18 +883,25 @@ void prompt()
                 while (joy_read(1) != 0)
                     ; /* Wait for joystick to be released */
                 break;
-                break;
             } else if (joy == JOY_RIGHT_MASK) {
                 strcpy(buffer, "e");
+                while (joy_read(1) != 0)
+                    ; /* Wait for joystick to be released */
                 break;
             } else if (joy == JOY_LEFT_MASK) {
                 strcpy(buffer, "w");
+                while (joy_read(1) != 0)
+                    ; /* Wait for joystick to be released */
                 break;
             } else if (joy == (JOY_UP_MASK|JOY_BTN_1_MASK)) {
                 strcpy(buffer, "u");
+                while (joy_read(1) != 0)
+                    ; /* Wait for joystick to be released */
                 break;
             } else if (joy == (JOY_DOWN_MASK|JOY_BTN_1_MASK)) {
                 strcpy(buffer, "d");
+                while (joy_read(1) != 0)
+                    ; /* Wait for joystick to be released */
                 break;
             }
         }
