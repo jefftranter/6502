@@ -163,12 +163,12 @@ typedef enum {
 /* TABLES */
 
 /* Names of directions */
-char *DescriptionOfDirection[] = {
+const char *DescriptionOfDirection[] = {
     "north", "south", "east", "west", "up", "down"
 };
 
 /* Names of items */
-char *DescriptionOfItem[LastItem+1] = {
+const char *DescriptionOfItem[LastItem+1] = {
     "",
     "pool cue",
     "umbrella",
@@ -195,7 +195,7 @@ char *DescriptionOfItem[LastItem+1] = {
 };
 
 /* Names of locations */
-char *DescriptionOfLocation[NUMLOCATIONS] = {
+const char *DescriptionOfLocation[NUMLOCATIONS] = {
     "",
     "at the front door to the castle",
     "in the vestibule",
@@ -267,7 +267,7 @@ Item_t Inventory[MAXITEMS];
 Location_t locationOfItem[LastItem+1];
 
 /* Map. Given a location and a direction to move, returns the location it connects to, or 0 if not a valid move. Map can change during game play. */
-Direction_t Move[NUMLOCATIONS][6] = {
+Location_t Move[NUMLOCATIONS][6] = {
     /* N  S  E  W  U  D */
     {  0, 0, 0, 0, 0, 0 },    /* 0 NoLocation */
     {  0, 0, 0, 0, 0, 0 },    /* 1 FrontEntrance */
@@ -333,7 +333,7 @@ Direction_t Move[NUMLOCATIONS][6] = {
 };
 
 /* Current location */
-number currentLocation;
+Location_t currentLocation;
 
 /* Number of turns played in game */
 int turnsPlayed;
@@ -385,7 +385,7 @@ void clearScreen()
 }
 
 /* Return 1 if carrying an item */
-number carryingItem(char *item)
+number carryingItem(const char *item)
 {
     number i;
 
@@ -397,7 +397,7 @@ number carryingItem(char *item)
 }
 
 /* Return 1 if item it at current location (not carried) */
-number itemIsHere(char *item)
+number itemIsHere(const char *item)
 {
     number i;
 
@@ -503,7 +503,7 @@ void doDrop()
             /* We have it. Add to location. */
             locationOfItem[Inventory[i]] = currentLocation;
             /* And remove from inventory */
-            Inventory[i] = 0;
+            Inventory[i] = (Item_t)0;
             printf("Dropped %s.\n", item);
             ++turnsPlayed;
             return;
@@ -542,9 +542,9 @@ void doTake()
             /* It is here. Add to inventory. */
             for (j = 0; j < MAXITEMS; j++) {
                 if (Inventory[j] == 0) {
-                    Inventory[j] = i;
+                    Inventory[j] = (Item_t)i;
                     /* And remove from location. */
-                    locationOfItem[i] = 0;
+                    locationOfItem[i] = NoLocation;
                     printf("Took %s.\n", item);
                     ++turnsPlayed;
                     return;
@@ -898,16 +898,16 @@ void initialize()
     auntieTied = 1;
 
     /* These doors can get changed during game and may need to be reset */
-    Move[FrontEntrance][North] = 0;
-    Move[Study][Up] = 0;
-    Move[Study][Down] = 0;
+    Move[FrontEntrance][North] = NoLocation;
+    Move[Study][Up] = NoLocation;
+    Move[Study][Down] = NoLocation;
 
     /* Set inventory to default */
     memset(Inventory, 0, sizeof(Inventory[0])*MAXITEMS);
     Inventory[0] = Key;
 
     /* Put items in their default locations */
-    locationOfItem[0]  = 0;      /* NoItem */
+    locationOfItem[0]            = NoLocation;
     locationOfItem[PoolCue]      = BilliardsRoom;
     locationOfItem[Umbrella]     = Vestibule;
     locationOfItem[Newspaper]    = Library;
@@ -920,7 +920,7 @@ void initialize()
     locationOfItem[Auntie]       = Stables;
     locationOfItem[Doll]         = ChildrensBedroom;
     locationOfItem[SteelBar]     = Conservatory;
-    locationOfItem[Skye]         = 0; /* Added later */
+    locationOfItem[Skye]         = NoLocation; /* Added later */
     locationOfItem[Book]         = SirHenrysBedroom;
     locationOfItem[Hairbrush]    = SittingRoom3;
     locationOfItem[Note]         = Bedroom2;
