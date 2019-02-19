@@ -24,7 +24,6 @@
  * limitations under the License.
  *
  * To Do:
- * - Check for valid (possibly abbreviated) commands, not just first letter.
  *
  * Revision History:
  *
@@ -33,7 +32,7 @@
  * 0.0      07 Sep 2015  Started development.
  * 0.1      16 Feb 2019  Most game logic implemented.
  * 0.9      17 Feb 2019  Seems to be fully working.
- * 0.95     18 Feb 2019  Added joystick support
+ * 0.95     18 Feb 2019  Added joystick support, better parsing of commands.
  */
 
 #include <ctype.h>
@@ -376,6 +375,34 @@ const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlo
 /* Line of user input */
 char buffer[40];
 
+/*
+ * Check if string str starts with command or abbreviated command cmd, e.g
+ * "h", "he", "hel", or "help" matches "help". Not case sensitive. Ends
+ * comparison when str contains space, end of string, or end of cmd reached.
+ * Return 1 for match, 0 for non-match.
+ */
+number matchesCommand(const char *cmd, const char *str)
+{
+    unsigned int i;
+
+    /* Make sure that at least the first character matches. */
+    if (cmd[0] == '\0' || str[0] == '\0' || cmd[0] == ' ' || str[0] == ' ' || tolower(str[0]) != tolower(cmd[0])) {
+        return 0; /* no match */
+    }
+
+    /* Now check rest of strings. */
+    for (i = 1; i < strlen(cmd); i++) {
+        if (cmd[i] == '\0' || str[i] == '\0' || cmd[i] == ' ' || str[i] == ' ') {
+            return 1; /* A match */
+        }
+        if (tolower(str[i]) != tolower(cmd[i])) {
+            return 0; /* Not a match */
+        }
+    }
+
+    return 1; /* A match */
+}
+
 /* Clear the screen */
 void clearScreen()
 {
@@ -400,7 +427,7 @@ number carryingItem(const char *item)
     return 0;
 }
 
-/* Return 1 if item it at current location (not carried) */
+/* Return 1 if item is at current location (not carried) */
 number itemIsHere(const char *item)
 {
     number i;
@@ -1011,11 +1038,11 @@ int main(void)
             prompt();
             if (buffer[0] == '\0') {
                 /* Ignore empty line */
-            } else if (tolower(buffer[0]) == 'h') {
+            } else if (matchesCommand("help", buffer)) {
                 doHelp();
-            } else if (tolower(buffer[0]) == 'i') {
+            } else if (matchesCommand("inventory", buffer)) {
                 doInventory();
-            } else if ((tolower(buffer[0]) == 'g')
+            } else if (matchesCommand("go", buffer)
                        || !strcasecmp(buffer, "n") || !strcasecmp(buffer, "s")
                        || !strcasecmp(buffer, "e") || !strcasecmp(buffer, "w")
                        || !strcasecmp(buffer, "u") || !strcasecmp(buffer, "d")
@@ -1023,17 +1050,17 @@ int main(void)
                        || !strcasecmp(buffer, "east") || !strcasecmp(buffer, "west")
                        || !strcasecmp(buffer, "up") || !strcasecmp(buffer, "down")) {
                 doGo();
-            } else if (tolower(buffer[0]) == 'l') {
+            } else if (matchesCommand("look", buffer)) {
                 doLook();
-            } else if (tolower(buffer[0]) == 't') {
+            } else if (matchesCommand("take", buffer)) {
                 doTake();
-            } else if (tolower(buffer[0]) == 'e') {
+            } else if (matchesCommand("examine", buffer)) {
                 doExamine();
-            } else if (tolower(buffer[0]) == 'u') {
+            } else if (matchesCommand("use", buffer)) {
                 doUse();
-            } else if (tolower(buffer[0]) == 'd') {
+            } else if (matchesCommand("drop", buffer)) {
                 doDrop();
-            } else if (tolower(buffer[0]) == 'q') {
+            } else if (matchesCommand("quit", buffer)) {
                 doQuit();
             } else {
                 printf("I don't understand. Try 'help'.\n");
