@@ -1,7 +1,7 @@
 ;
 ; 6502 Instruction Trace
 ;
-; Copyright (C) 2012-2016 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2019 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@
 ; CPU registers. Starts with the register values listed by the R
 ; command. Updates them after single stepping.
 ;
-; The R(egister) shows the current PC and disassembles the current
-; instruction. Also allow user to change the PC. Pressing <Enter>
-; when prompted for a new register value will keep the current
+; The R(egister) command shows the current PC and disassembles the
+; current instruction. It also allows the user to change the PC. Pressing
+; <Enter> when prompted for a new register value will keep the current
 ; value and advance to the next register.
 ;
 ; The G(o) command will optionally use the PC value if the user
