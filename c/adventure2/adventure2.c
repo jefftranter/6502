@@ -33,7 +33,15 @@
  * 0.1      16 Feb 2019  Most game logic implemented.
  * 0.9      17 Feb 2019  Seems to be fully working.
  * 0.95     18 Feb 2019  Added joystick support, better parsing of commands.
+ * 0.96     28 Apr 2019  Conditionally compile joystick support when available.
  */
+
+/* Define __JOYSTICK__ if compiling on a platform which supports joysticks */
+#ifdef __CC65__
+#if defined(__APPLE2__) || defined(__APPLE2ENH__) || defined(__ATARI__) || defined(__C128__) || defined(__C16__) || defined(__C64__) || defined(__NES__) || defined(__VIC20__) || defined(__LYNX__)
+#define __JOYSTICK__ 1
+#endif
+#endif /* __CC65__ */
 
 #include <ctype.h>
 #include <stdio.h>
@@ -41,8 +49,10 @@
 #include <string.h>
 #ifdef __CC65__
 #include <conio.h>
+#ifdef __JOYSTICK__
 #include <joystick.h>
-#endif
+#endif /* __JOYSTICK__ */
+#endif /* __CC65__ */
 
 /* CONSTANTS */
 
@@ -59,7 +69,7 @@
 typedef char number;
 #else
 typedef int number;
-#endif
+#endif /* __CC65__ */
 
 /* Directions */
 typedef enum {
@@ -412,7 +422,7 @@ void clearScreen()
     number i;
     for (i = 0; i < 24; ++i)
         printf("\n");
-#endif
+#endif /* __CC65__ */
 }
 
 /* Return 1 if carrying an item */
@@ -886,8 +896,10 @@ void doUse()
 void prompt()
 {
 #ifdef __CC65__
+#ifdef __JOYSTICK__
     unsigned char joy;
-#endif
+#endif /* __JOYSTICK__ */
+#endif /* __CC65__ */
 
     printf("\n? ");
 
@@ -897,6 +909,7 @@ void prompt()
             fgets(buffer, sizeof(buffer)-1, stdin); /* Get keyboard input */
             buffer[strlen(buffer)-1] = '\0'; /* Remove trailing newline */
             break;
+#ifdef __JOYSTICK__
         } else {
             /* Check for joystick input */
             joy = joy_read(1);
@@ -931,6 +944,7 @@ void prompt()
                     ; /* Wait for joystick to be released */
                 break;
             }
+#endif /* __JOYSTICK__ */
         }
     }
 #else
@@ -939,7 +953,7 @@ void prompt()
 
     /* Remove trailing newline */
     buffer[strlen(buffer)-1] = '\0';
-#endif
+#endif /* __CC65__ */
 }
 
 /* Do special things unrelated to command typed. */
@@ -1017,6 +1031,7 @@ int main(void)
 {
 
 #ifdef __CC65__
+#ifdef __JOYSTICK__
     unsigned char Res;
 
     Res = joy_load_driver(joy_stddrv);
@@ -1028,7 +1043,8 @@ int main(void)
     if (Res != JOY_ERR_OK) {
         cprintf("Error in joy_install_driver: %u\r\n", Res);
     }
-#endif
+#endif /* __JOYSTICK__ */
+#endif /* __CC65__ */
 
     while (1) {
         initialize();
