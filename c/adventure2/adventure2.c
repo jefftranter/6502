@@ -33,15 +33,16 @@
  * 0.1      16 Feb 2019  Most game logic implemented.
  * 0.9      17 Feb 2019  Seems to be fully working.
  * 0.95     18 Feb 2019  Added joystick support, better parsing of commands.
- * 0.96     28 Apr 2019  Conditionally compile joystick support when available.
+ * 0.96     28 Apr 2019  Conditionally compile joystick support.
  */
 
-/* Define __JOYSTICK__ if compiling on a platform which supports joysticks */
-#ifdef __CC65__
-#if defined(__APPLE2__) || defined(__APPLE2ENH__) || defined(__ATARI__) || defined(__C128__) || defined(__C16__) || defined(__C64__) || defined(__NES__) || defined(__VIC20__) || defined(__LYNX__)
-#define __JOYSTICK__ 1
-#endif
-#endif /* __CC65__ */
+
+/* Uncomment the next line to define JOYSTICK if you want to enable
+ *  support for moving using a joystick. You need to be on a platform
+ *  with joystick support in cc65.
+ */
+//#define JOYSTICK 1
+
 
 #include <ctype.h>
 #include <stdio.h>
@@ -49,9 +50,9 @@
 #include <string.h>
 #ifdef __CC65__
 #include <conio.h>
-#ifdef __JOYSTICK__
+#ifdef JOYSTICK
 #include <joystick.h>
-#endif /* __JOYSTICK__ */
+#endif /* JOYSTICK */
 #endif /* __CC65__ */
 
 /* CONSTANTS */
@@ -896,9 +897,9 @@ void doUse()
 void prompt()
 {
 #ifdef __CC65__
-#ifdef __JOYSTICK__
+#ifdef JOYSTICK
     unsigned char joy;
-#endif /* __JOYSTICK__ */
+#endif /* JOYSTICK */
 #endif /* __CC65__ */
 
     printf("\n? ");
@@ -909,7 +910,7 @@ void prompt()
             fgets(buffer, sizeof(buffer)-1, stdin); /* Get keyboard input */
             buffer[strlen(buffer)-1] = '\0'; /* Remove trailing newline */
             break;
-#ifdef __JOYSTICK__
+#ifdef JOYSTICK
         } else {
             /* Check for joystick input */
             joy = joy_read(1);
@@ -944,7 +945,7 @@ void prompt()
                     ; /* Wait for joystick to be released */
                 break;
             }
-#endif /* __JOYSTICK__ */
+#endif /* JOYSTICK */
         }
     }
 #else
@@ -1031,7 +1032,7 @@ int main(void)
 {
 
 #ifdef __CC65__
-#ifdef __JOYSTICK__
+#ifdef JOYSTICK
     unsigned char Res;
 
     Res = joy_load_driver(joy_stddrv);
@@ -1043,7 +1044,7 @@ int main(void)
     if (Res != JOY_ERR_OK) {
         cprintf("Error in joy_install_driver: %u\r\n", Res);
     }
-#endif /* __JOYSTICK__ */
+#endif /* JOYSTICK */
 #endif /* __CC65__ */
 
     while (1) {
