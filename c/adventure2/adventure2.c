@@ -55,6 +55,26 @@
 #endif /* JOYSTICK */
 #endif /* __CC65__ */
 
+/*
+ * On the OSI platform we don't have printf(), only cprintf().
+ * We also don't have fgets, so we need to implement it here using cgetc().
+ */
+#ifdef __OSIC1P__
+char *_fgets (char *s, int size, FILE *)
+{
+    int i;
+    for (i = 0; i < size; i++) {
+        s[i] = cgetc();
+        if (s[i] == '\r' || s[i] == '\n' || s[i] == '\0')
+            break;
+    }
+    s[i+i] = '\0';
+    return s;
+}
+#define fgets _fgets
+#define printf cprintf
+#endif
+
 /* CONSTANTS */
 
 /* Maximum number of items user can carry */

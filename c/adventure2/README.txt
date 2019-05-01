@@ -9,7 +9,9 @@ point of the game.
 
 It was written to run on platforms supported by cc65 although it is in
 portable C and should run on any system with a C compiler (I did most
-of the development and testing on a Linux system).
+of the development and testing on a Linux system). See the Makefile
+for commands and instruction on how to build and install it on various
+platforms.
 
 The source is included and under an Apache license so you can modify
 and adapt the code if you wish. Much of the code is data-driven and
