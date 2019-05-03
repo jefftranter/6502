@@ -55,26 +55,6 @@
 #endif /* JOYSTICK */
 #endif /* __CC65__ */
 
-/*
- * On the OSI platform we don't have printf(), only cprintf().
- * We also don't have fgets, so we need to implement it here using cgetc().
- */
-#ifdef __OSIC1P__
-char *_fgets (char *s, int size, FILE *)
-{
-    int i;
-    for (i = 0; i < size; i++) {
-        s[i] = cgetc();
-        if (s[i] == '\r' || s[i] == '\n' || s[i] == '\0')
-            break;
-    }
-    s[i+i] = '\0';
-    return s;
-}
-#define fgets _fgets
-#define printf cprintf
-#endif
-
 /* CONSTANTS */
 
 /* Maximum number of items user can carry */
@@ -85,7 +65,7 @@ char *_fgets (char *s, int size, FILE *)
 
 /* TYPES */
 
-/* To optimize for code size and speed, most numbers are 8-bit chars when compiling for the Replica 1. */
+/* To optimize for code size and speed, most numbers are 8-bit chars when compiling for CC65. */
 #ifdef __CC65__
 typedef char number;
 #else
@@ -924,7 +904,7 @@ void prompt()
 
     printf("\n? ");
 
-    #ifdef __CC65__
+#ifdef __CC65__
     while (1) {
         if (kbhit()) {
             fgets(buffer, sizeof(buffer)-1, stdin); /* Get keyboard input */
@@ -1054,16 +1034,8 @@ int main(void)
 #ifdef __CC65__
 #ifdef JOYSTICK
     unsigned char Res;
-
     Res = joy_load_driver(joy_stddrv);
-    if (Res != JOY_ERR_OK) {
-        cprintf("Error in joy_load_driver: %u\r\n", Res);
-    }
-
     Res = joy_install(joy_static_stddrv);
-    if (Res != JOY_ERR_OK) {
-        cprintf("Error in joy_install_driver: %u\r\n", Res);
-    }
 #endif /* JOYSTICK */
 #endif /* __CC65__ */
 

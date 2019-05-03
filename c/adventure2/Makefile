@@ -35,6 +35,8 @@
 # Running "make osi" will build for this platform. Transfer the
 # generated file adventure2.mon over a serial interface using the OSI
 # monitor.
+# Not currently supported as cc65 does not support file i/o on the
+# OSIC1P platform.
 
 # Apple 1 and compatibles like the Briel Replica 1:
 # TBD
