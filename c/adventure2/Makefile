@@ -10,7 +10,7 @@
 # Commodore 64 and compatibles like the C64 Mini:
 #
 # Running "make c64" will build for the Commodore 64 using cc65. Copy
-# the resulting file "adventure2" to your media and run it froM BASIC
+# the resulting file "adventure2" to your media and run it from BASIC
 # using the commands:
 #
 #   LOAD"ADVENTURE2",8
@@ -28,7 +28,8 @@
 # Running "make apple2" will build for the Apple 2 platform using
 # cc65. Copy the resulting file "adventure2" to your media and run it
 # from BASIC. I have tested it with an Apple //c using a FloppyEmu
-# flash drive.
+# flash drive. I used AppleCommander to copy the binary to a ProDOS
+# disk image.
 
 # Ohio Scientific Challenger 1P/SuperBoard II and compatibles like the Briel Superboard III:
 #
@@ -52,8 +53,7 @@ c64:	adventure2.c
 	cl65 -O -t c64 adventure2.c -L /usr/local/share/cc65/lib
 
 apple2: adventure2.c
-	cl65 -O -t apple2 adventure2.c -L /usr/local/share/cc65/lib
-#	cl65 -O -t apple2enh adventure2.c -L /usr/local/share/cc65/lib
+	cl65 -O -t apple2enh adventure2.c -o adventure2 -L /usr/local/share/cc65/lib
 
 osi:	adventure2.c
 	cl65 -O -t osic1p adventure2.c -L /usr/local/share/cc65/lib
