@@ -59,6 +59,12 @@ osi:	adventure.c
 	cl65 -O -t osic1p adventure.c -L /usr/local/share/cc65/lib
 	bintomon -l 0x200 -r 0x200 adventure >adventure.mon
 
+replica1: adventure.c
+	cl65 -O -t replica1 adventure.c -o adventure -L /usr/local/share/cc65/lib
+
+apple1: adventure.c
+	cl65 -O -t apple1 adventure.c -o adventure -L /usr/local/share/cc65/lib
+
 clean:
 	$(RM) adventure.o adventure.lst adventure.map adventure adventure.mon
 
