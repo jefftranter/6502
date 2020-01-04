@@ -39,12 +39,10 @@ OSIWEB forums.
 You need some jumpers for serial or cassette, as per the OSI assembly
 manual.
 
-Obtaining the exact crystal is problematic. Unicorn Electronics has
-3.6864 MHz and 4.000 MHz crystals that may be close enough depending
-on your monitor, or even a 3.54 MHz TV color burst crystal. Another
-option is to use a programmable oscillator chip (see
-https://www.digikey.com/products/en?keywords=SGR-8002DC-PTB-ND) with
-some circuit modifications.
+Obtaining the exact crystal is problematic. You may be able to find
+one on eBay. Another option is to use a programmable oscillator chip
+(see https://www.digikey.com/products/en?keywords=SGR-8002DC-PTB-ND)
+with some circuit modifications.
 
 *References*
 
