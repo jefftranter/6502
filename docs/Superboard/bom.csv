@@ -1,0 +1,111 @@
+"Parts List for Ohio Scientific Model 600 Rev D",,,,
+"Jeff Tranter <tranter@pobox.com>",,,,
+"04 Jan 2020",,,,
+,,,,
+"Designation","Qty","Description","Supplier","Comments"
+"-",0,"Diode Bridge, KBPC602","n/a","Normally not installed"
+"C1",0,"Capacitor, Electrolytic, 10,000 uF","n/a","Normally not installed"
+"C2",0,"Capacitor, 0.01 uF","n/a","Normally not installed"
+"C3",0,"Capacitor, ?","n/a","Normally not installed"
+"C4",0,"Capacitor, Electrolytic, 33 uF","n/a","Normally not installed"
+"C5",1,"Capacitor, Electrolytic, 47uF, 16V","any","Can use 33 uF"
+"C6,C61,C65",3,"Capacitor 150 pF, 5%","any","Usually marked “151”"
+"C7,C12,C55,C60",4,"Capacitor, 0.001 uF, 100V, 10%","any","Usually marked “102”"
+"C8,C11",2,"Capacitor, 0.1 uF, 50V, 10%","any","Usually marked “104”"
+"C9",1,"Capacitor, 68 pF, 5%","any","Usually marked “680” or “68”"
+"C10,C13",2,"Capacitor, 0.01 uF, 100V, 10%","any","Usually marked “103”"
+"C21-C30,C32-C33,C35-C54,C56,C58-C59",35,"Capacitor, 0.1 uF, 10V","any","Usually marked “104”"
+"C57",1,"Capacitor, 27 pF, 1kV, 10%","any",
+"C63",1,"Capacitor, Electrolytic, 35 uF","any",
+"C64",1,"Capacitor, Electrolytic, 50 uF","any",
+"R1-R8,R10-R12,R62,R76",13,"Resistor, 4700, 1/4W, 5%","any",
+"R9,R38,R40,R42,R44,R46,R48,R51,R61",9,"Resistor, 220, 1/4W, 5%","any",
+"R32,R52,R54,R59,R72,R86",5,"Resistor, 1000, 1/4W, 5%","any",
+"R33-R34,R37,R50,R53,R55,R63,R66",10,"Resistor, 10K, 1/4W, 5%","any",
+"R35-R36,R60,R68,R73",5,"Resistor, 470, 1/4W, 5%","any","Schematic shows two R73"
+"R64-R65",2,"Resistor, 1000, ½W, 5%","any","Note ½ W"
+"R39,R41,R43,R45,R47,R49",6,"Resistor, 390, 1/4W, 5%","any",
+"R56,R78,R79,R84,R85",5,"Resistor, 100K, 1/4W, 5%","any",
+"R62A",1,"Resistor, 100, 1/4W, 5%","any",
+"R67",1,"Resistor, 8.2K, 1/4W, 5%","any",
+"R68",1,"Resistor, 3.9K, 1/4W, 5%","any",
+"R69",1,"Resistor, 2K, 1/4W, 5%","any",
+"R70",1,"Resistor, 16K, 1/4W, 5%","any",
+"R71",1,"Resistor, 33K, 1/4W, 5%","any",
+"R73",1,"Resistor, 68K, 1/4W, 5%","any","Schematic shows two R73"
+"R74",1,"Resistor, 510, 1/4W, 5%","any",
+"R75",1,"Resistor, 1000, 1/4W, 5%","any",
+"R77,R80-82",4,"Resistor, 1M, 1/4W, 5%","any",
+"R83",1,"Resistor, 10K, 1/4W, 5%","any",
+"R57",1,"Control (Trimpot), 10K","any","Tape pulse adjustment"
+"R58",1,"Control (Trimpot), 5K","any","Video output level"
+"D1-D10,D16-D27,D29-D32",26,"Diode, 1N914","any","Schematic shows two D3"
+"D15",1,"Diode, 1N4001","any",
+"D3",1,"LED, Red","any","Schematic shows two D3"
+"Q1",1,"Transistor, PNP, 2N5226","any","Can substitute with 2N3906"
+"Q2",1,"Transistor, NPN, 2N5225","any","Can substitute with 2N3904"
+"U2,U3",2,"IC, 74LS75","Unicorn",
+"U4-U5",2,"IC, 74LS125","Unicorn",
+"U6-U7,U24-U25,U74",5,"IC, 8T28","Unicorn","Can substitute with 74LS365"
+"U8",1,"IC, 6502 Microprocessor","Unicorn","Can also use 65C02"
+"U9",1,"IC, 2716, 2Kx8 EPROM (or 2816 EEPROM)","Unicorn","BASIC 1"
+"U10",1,"IC, 2716, 2Kx8 EPROM (or 2816 EEPROM)","Unicorn","BASIC 2"
+"U11",1,"IC, 2716, 2Kx8 EPROM (or 2816 EEPROM)","Unicorn","BASIC 3"
+"U12",1,"IC, 2716, 2Kx8 EPROM (or 2816 EEPROM)","Unicorn","BASIC 4"
+"U13",1,"IC, 2716, 2Kx8 EPROM (or 2816 EEPROM)","Unicorn","SYN600"
+"U14",1,"IC, 6850 UART","Unicorn",
+"U15",1,"IC, 74LS02","Unicorn",
+"U16,U18,U21,U62",4,"IC, 74LS04","Unicorn",
+"U17",1,"IC, 74LS139","Unicorn",
+"U19,U56",2,"IC, 74LS20","Unicorn",
+"U20,U22-U23,U73",4,"IC, 74LS138","Unicorn",
+"U29",1,"IC, 74LS93","Unicorn",
+"U30,U57,U59-U61",5,"IC, 74LS163","Unicorn",
+"U31-U40,U45-U52,U77",19,"IC, 2114 RAM 450NS","Unicorn",
+"U41",1,"IC, 2716, 2Kx8 EPROM (or 2816 EEPROM)","Unicorn","CHAR GEN"
+"U42",1,"IC, 74LS165","Unicorn",
+"U43",1,"IC, 7408","Unicorn","Not 74LS08"
+"U53-U55,U78",4,"IC, 74LS157","Unicorn",
+"U58",1,"IC, 7400","Unicorn","Not 74LS00"
+"U63,U76",2,"IC, 7474","Unicorn","Not 74LS74"
+"U64",1,"IC, 74LS76","Unicorn",
+"U65,U69",2,"IC, 74123","Unicorn","Not 74LS123"
+"U66",1,"IC, CA3130S, Op Amp","eBay",
+"U67",1,"IC, 74LS14","Unicorn",
+"U68",1,"IC, 7417","Unicorn","Normally not installed"
+"U70",1,"IC, 7403","Unicorn","Not 74LS03"
+"U72",1,"IC, 74LS174","Unicorn",
+"U79",1,"IC, 74LS86","Unicorn",
+"U80",1,"IC, LM393, Op amp","Unicorn",
+"F1",1,"Fuse, 5A, 250V, Quick-acting","any",
+"X1",1,"Crystal, 3.932160 MHz","Mouser","Mouser part 520-HCA393-17X"
+"J1",1,"40 pin DIP socket","Unicorn","Expansion connector"
+"J2",1,"Connector, 12 pin Female Molex","any","TTL Serial, Tape"
+"J3",1,"Connector, 12 pin Female Molex","any","RS-232"
+"J4",1,"Connector, 2 pin Female Molex","any","Sound out"
+"J5",1,"Plug","any","DC Power"
+"J6",1,"Jack, RCA","any","Video Output"
+"J7",1,"Jack, RCA or 3.5mm audio plug","any","Audio Tape Input"
+"J8",1,"Jack, RCA or 3.5mm audio plug","any","Audio Tape Output"
+"J75",1,"Socket, DIP, 14 pin","Unicorn","Color board connector"
+"M1",0,"Fan motor","n/a","Normally not installed"
+"-",2,"Socket, DIP, 8 pin","Unicorn",
+"-",16,"Socket, DIP, 14 pin","Unicorn",
+"-",25,"Socket, DIP, 16 pin","Unicorn",
+"-",19,"Socket, DIP, 18 pin","Unicorn",
+"-",7,"Socket, DIP, 24 pin","Unicorn","Recommend machined sockets for ROMs."
+"-",2,"Socket, DIP, 40 pin","Unicorn",
+"SW1-SW51",51,"Main keyboard keys","Cherry MX",
+"SW52",1,"Shift Lock key (latching)","eBay","Can use slide switch"
+"SW53",1,"Break key","Cherry MX",
+"SW54",0,"Power switch","n/a","Normally not installed"
+"-",1,"PCB","any",
+"-",53,"Key caps","eBay","See OSIWeb forums for supplier of custom keycaps"
+"-",1,"Fuse holder","any",
+"-",1,"Spacebar hardware",,
+"-",1,"Shorting plug for 12 pin Molex",,
+"-",1,"Switch, 3P5T",,"Optional for printer, modem, cassette selection"
+,,,,
+"Notes:",,,,
+"1. 74LSxx parts are preferred over 74xx unless explicitly called for.",,,,
+"2. Some parts are installed on Challenger 1P but not Superboard.",,,,
