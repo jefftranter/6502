@@ -30,7 +30,7 @@
 "R67",1,"Resistor, 8.2K, 1/4W, 5%","any",
 "R68",1,"Resistor, 3.9K, 1/4W, 5%","any",
 "R69",1,"Resistor, 2K, 1/4W, 5%","any",
-"R70",1,"Resistor, 16K, 1/4W, 5%","any",
+"R70",1,"Resistor, 16K, 1/4W, 5%","any","Non-standard value"
 "R71",1,"Resistor, 33K, 1/4W, 5%","any",
 "R73",1,"Resistor, 68K, 1/4W, 5%","any","Schematic shows two R73"
 "R74",1,"Resistor, 510, 1/4W, 5%","any",

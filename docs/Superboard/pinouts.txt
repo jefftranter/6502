@@ -1,0 +1,99 @@
+              Superboard II 600 Rev D Connector Pinouts
+              =========================================
+                   Jeff Tranter <tranter@pobox.com>
+                             25 Jan 2020
+
+J1 (Expansion Connector):
++-----+---------+-----+---------+
+| Pin | Signal  | Pin | Signal  |
++-----+---------+-----+---------+
+|   1 | /IRQ    |  21 | A9      |
+|   2 | /NMI    |  22 | A10     |
+|   3 | DD      |  23 | A11     |
+|   4 | /BD0    |  24 | A12     |
+|   5 | /BD1    |  25 | A13     |
+|   6 | /BD2    |  26 | A14     |
+|   7 | /BD3    |  27 | A15     |
+|   8 | GND     |  28 | GND     |
+|   9 | GND     |  29 | GND     |
+|  10 | GND     |  30 | GND     |
+|  11 |         |  31 | 02      |
+|  12 | A2      |  32 | R/W     |
+|  13 | A1      |  33 | /BD7    |
+|  14 | A0      |  34 | /BD6    |
+|  15 | A3      |  35 | /BD5    |
+|  16 | A4      |  36 | /BD4    |
+|  17 | A5      |  37 | GND     |
+|  18 | A6      |  38 | GND     |
+|  19 | A7      |  39 | GND     |
+|  20 | A8      |  40 | GND     |
++-----+---------+-----+---------+
+
+J2 (Video, Cassette, Serial):
++-----+-----------------+
+| Pin | Signal          |
++-----+-----------------+
+|   1 |  ERx DATA       |
+|   2 |  ERx CLOCK      |
+|   3 |  /CTS           |
+|   4 |  EIx DATA       |
+|   5 |  EIx CLOC K     |
+|   6 |  RTS            |
+|   7 |  MIC (TAPE OUT) |
+|   8 |  GND            |
+|   9 |  AUX OUT        |
+|  10 |  MON (TAPE IN)  |
+|  11 |  GND            |
+|  12 |  VIDEO OUT      |
++-----+-----------------+
+
+J3 (Shorting Plug):
++-----+-----------------------+
+| Pin | Signal                |
++-----+-----------------------+
+|   1 | GND                   |
+|   2 | RS-232 OUT            |
+|   3 | RS-232 IN             |
+|   4 | Rx DATA               |
+|   5 | Rx DATA 1             |
+|   6 | Rx DATA 2             |
+|   7 | -V IN                 |
+|   8 | BAUD DIVIDER          |
+|   9 | /RTS                  |
+|  10 | 124.8 KHZ (300 BAUD)  |
+|  11 | UNUSED                |
+|  12 | 499.2 KHZ (1200 BAUD) |
++-----+-----------------------+
+
+J4 (Sound):
++-----+---------+
+| Pin | Signal  |
++-----+---------+
+|   1 | GND     |
+|   2 | NOISE   |
++-----+---------+
+
+J75 (Color Expansion):
++-----+-------------+
+| Pin | Signal      |
++-----+-------------+
+|   1 | CD0         |
+|   2 | CD2         |
+|   3 | +5V         |
+|   4 | +5V         |
+|   5 | BLANK       |
+|   6 | GND         |
+|   7 | GND         |
+|   8 | GND         |
+|   9 | /SVID       |
+|  10 | VID         |
+|  11 | VID 1       |
+|  12 | COMP. SYNC  |
+|  13 | COLOR EN    |
+|  14 | /CHLD       |
+|  15 | CD3         |
+|  16 | CD1         |
++-----+-------------+
+
+J2 and J3 pin 1 is on right. J4 pin 1 on top. J1 and J75 are DIP
+sockets.
