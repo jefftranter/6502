@@ -2,9 +2,10 @@ JMON - Jeff's Monitor Program
 ------------------------------
 
 A machine language monitor program for the Apple Replica 1, Apple II,
-Briel Superboard ///, or MOS Technology KIM-1.
+Ohio Scientific Challenger 1P/Superboard II, Briel Superboard ///, or
+MOS Technology KIM-1.
 
-Copyright (C) 2012-2016 by Jeff Tranter <tranter@pobox.com>
+Copyright (C) 2012-2020 by Jeff Tranter <tranter@pobox.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -136,8 +137,7 @@ Sets a number of program options. Prompts the user for the value of
 each option.
 
 You can specify whether output is all uppercase or a mixture of upper
-and lower (the Replica 1 supports lowercase, the original Apple 1 and
-clones cannot display lowercase).
+and lower (the original Apple 1 and clones cannot display lowercase).
 
 You specify the value for the delay after all writes to accommodate
 slow EEPROMs. Applies to COPY, FILL, and TEST commands. Depending on

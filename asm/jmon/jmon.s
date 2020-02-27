@@ -1,6 +1,6 @@
 ; JMON - 6502 Monitor Program
 ;
-; Copyright (C) 2012-2016 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2020 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 ; - refactor some common code to reduce size
 ; - option to use other device for I/O, e.g. ACIA on Multi I/O card
 ; - make some modules configurable to enable/disable to reduce code size
-; - try to get down to fit in 8K (possibly with some features disabled)
 
 ; Revision History
 ; Version Date         Comments
@@ -86,6 +85,8 @@
 ;                      Add CPU speed test for Apple II.
 ;                      Added Imprint routine and used it for unique strings.
 ; 1.3.3  30-Nov-2016   Make miniassembler optional to reduce program size.
+; 1.3.4  26-Feb-2020   Fix bug in disassembler address incrementing.
+;                      Tested on real OSI Superboard II.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -97,7 +98,8 @@
 ; KIM1    = 1
 
 ; Define if you want the mini-assembler, comment out if not.
-MINIASM = 1
+; Should fit in 8K if this is disabled.
+;MINIASM = 1
 
 .if .defined(APPLE1)
     .out "Building for Apple 1/Replica 1"
@@ -161,6 +163,7 @@ MINIASM = 1
   VECTOR  = $3E                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
   BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
   T3      = $48                 ; Temp variable 3 (1 byte)
+  T4      = $49                 ; Temp variable 4 (2 bytes)
 .endif
 
 ; Non page zero locations
@@ -1978,21 +1981,21 @@ Imprint:
         STY YSAV2
         STA ASAV2
         PLA             ; Get pointer low and save
-        STA ADDR
+        STA T4
         PLA             ; Get pointer high and save
-        STA ADDR+1
+        STA T4+1
         LDY #$00        ; No indexing
 NXTCHR2:
-        INC ADDR        ; Get next high address
+        INC T4          ; Get next high address
         BNE NOC2        ; Skip if no carry
-        INC ADDR+1      ; Increment high address
-NOC2:   LDA (ADDR),Y    ; Get character
+        INC T4+1        ; Increment high address
+NOC2:   LDA (T4),Y      ; Get character
         BEQ END2        ; If zero marker
         JSR PrintChar   ; Print character
         JMP NXTCHR2     ; Branch back
-END2:   LDA ADDR+1      ; Restore PC low
+END2:   LDA T4+1        ; Restore PC low
         PHA
-        LDA ADDR        ; Restore PC high
+        LDA T4          ; Restore PC high
         PHA
         LDX XSAV2
         LDY YSAV2       ; Restore registers
@@ -2806,9 +2809,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte CR,"JMON Monitor 1.3.3 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.4 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.3 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.4 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
