@@ -7,3 +7,12 @@ Basic version 1.0 rev 3.2."
 
 Some games have instructions in the .txt file corresponding to the
 .bas file for the game.
+
+---
+
+Porting Notes:
+
+All programs have been tested on an Ohio Scientfic Superboard II with
+8K of RAM.
+
+The 24 column screen means that some output can be hard to read.
