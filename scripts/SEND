@@ -16,4 +16,4 @@ then
 fi
 
 stty -F /dev/ttyUSB0 9600 -hup -clocal raw
-ascii-xfr -s -l 100 -c 50 $1 >/dev/ttyUSB0
+ascii-xfr -s -l 100 -c 60 $1 >/dev/ttyUSB0
