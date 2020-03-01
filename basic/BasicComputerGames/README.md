@@ -16,3 +16,5 @@ All programs have been tested on an Ohio Scientfic Superboard II with
 8K of RAM.
 
 The 24 column screen means that some output can be hard to read.
+
+Banner.bas is not working. Need to review why.
