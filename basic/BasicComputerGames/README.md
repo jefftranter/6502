@@ -18,3 +18,5 @@ All programs have been tested on an Ohio Scientfic Superboard II with
 The 24 column screen means that some output can be hard to read.
 
 Banner.bas is not working. Need to review why.
+
+Blackjack.bas will not run on a system with only 8K of RAM.
