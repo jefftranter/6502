@@ -5,7 +5,7 @@ They have been adapted where needed to run on the version of Microsoft
 Basic used on the Ohio Scientific Superboard II computer, "OSI 6502
 Basic version 1.0 rev 3.2."
 
-Some games have instructions in the .txt file corresponding to the
+Most games have instructions in the .txt file corresponding to the
 .bas file for the game.
 
 ---
