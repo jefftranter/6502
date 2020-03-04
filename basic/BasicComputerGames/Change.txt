@@ -1,0 +1,5 @@
+In this program, the computer pretends it is the cashier at your
+friendly neighborhood candy store. You tell it the cost of the item(s)
+you are buying, the amount of your payment, and it will automatically
+(!) determine your correct change. Aren't machines wonderful? Dennis
+Lunder of People's Computer Company wrote this program.
