@@ -1,0 +1,8 @@
+The fictitious chemical, kryptocyanic acid, can only be diluted by the
+ratio of 7 parts water to 3 parts acid. Any other ratio causes an
+unstable compound which soon explodes. Given an amount of acid, you
+must determine how much water to add for dilution. If you're more than
+5% off, you lose one of your nine lives. The program continues to play
+until you lose all nine lives or until it is interrupted.
+
+It was originally written by Wayne Teeter of Ridgecrest, California.
