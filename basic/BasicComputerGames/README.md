@@ -12,11 +12,15 @@ Most games have instructions in the .txt file corresponding to the
 
 Porting Notes:
 
-All programs have been tested on an Ohio Scientfic Superboard II with
+All programs have been tested on an Ohio Scientific Superboard II with
 8K of RAM.
 
 The 24 column screen means that some output can be hard to read.
 
-Banner.bas is not working. Need to review why.
+Some lines that were more than 72 characters long were shortened.
 
-Blackjack.bas will not run on a system with only 8K of RAM.
+Banner.bas is not working. Need to review why (many people reported
+this on other systems).
+
+Blackjack.bas and CivilWar.bas will not run on a system with only 8K
+of RAM.
