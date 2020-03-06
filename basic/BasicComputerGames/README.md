@@ -22,5 +22,5 @@ Some lines that were more than 72 characters long were shortened.
 Banner.bas is not working. Need to review why (many people reported
 this on other systems).
 
-Blackjack.bas and CivilWar.bas will not run on a system with only 8K
-of RAM.
+Blackjack.bas, CivilWar.bas, and SuperStarTrek.bas will not run on a
+system with only 8K of RAM and have not been tested.
