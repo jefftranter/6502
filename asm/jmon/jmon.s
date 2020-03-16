@@ -1685,7 +1685,8 @@ GetKey:
         PLA
         RTS
 .elseif .defined(OSI)
-        JMP $FD00               ; Call OSI input routine
+        JMP $FD00               ; Call OSI keyboard input routine
+;       JMP $FE80               ; Call OSI serial input routine
 .elseif .defined(KIM1)
         TYA                     ; Save Y on stack
         PHA
@@ -2069,11 +2070,13 @@ PrintChar:
 .elseif .defined(OSI)
         PHP             ; Save status
         PHA             ; Save A as it may be changed
-        JSR $BF2D       ; Call OSI character out routine
+        JSR $BF2D       ; Call OSI screen character out routine
+;       JSR $FCB1       ; Call OSI serial character out routine
         CMP #CR         ; Is it Return?
         BNE @ret        ; If not, return
         LDA #LF
-        JSR $BF2D       ; Else print Linefeed too
+        JSR $BF2D       ; Else print Linefeed too (screen)
+;       JSR $FCB1       ; Else print Linefeed too (serial)
 @ret:
         PLA             ; Restore A
         PLP             ; Restore status
