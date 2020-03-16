@@ -2,7 +2,7 @@
 ; OSI Serial/Cassette and console input/output.
 ;
 ; Build using:
-; ca65 -g -l example2.s
+; ca65 -g -l example2.lst example2.s
 ; ld65 -t none -vm -o example2.bin example2.o
 ; ./bintolod -s 0000 -l 0000 example2.bin >example2.lod
 ;
@@ -38,8 +38,8 @@ clearscreen:
         lda #' '
 loop1:  sta $D000,x
         sta $D100,x
-        sta $D300,x
         sta $D200,x
+        sta $D300,x
         dex
         bne loop1
 

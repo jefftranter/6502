@@ -2521,7 +2521,7 @@ ClearScreen:
 .elseif .defined(APPLE2)
         JMP $FC58       ; Apple II HOME
 .elseif .defined(OSI)
-; Clear screen by write spaces to all video memory.
+; Clear screen by writing spaces to all video memory.
         PHA             ; save A
         TXA             ; save X
         PHA
@@ -2529,8 +2529,8 @@ ClearScreen:
         LDA #' '
 CLR1:   STA $D000,X
         STA $D100,X
-        STA $D300,X
         STA $D200,X
+        STA $D300,X
         DEX
         BNE CLR1
         LDA #$65        ; Set cursor position to home

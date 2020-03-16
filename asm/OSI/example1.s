@@ -5,7 +5,7 @@
 ;  scrollng.
 ;
 ; Build using:
-; ca65 -g -l example1.s
+; ca65 -g -l example1.lst example1.s
 ; ld65 -t none -vm -o example1.bin example1.o
 ; ./bintolod -s 0000 -l 0000 example1.bin >example1.lod
 ;
