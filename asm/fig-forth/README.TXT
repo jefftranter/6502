@@ -9,3 +9,5 @@ program storage in an 8K system.
 
 Input/output uses the screen and keyboard. If you want to use the
 serial port, uncomment the relevant lines defining OUTCH and INCH.
+
+The MON command will go to the OSI monitor.
