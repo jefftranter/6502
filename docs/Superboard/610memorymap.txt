@@ -1,0 +1,17 @@
+         Ohio Scientific Model 610 Expander Board Memory Map
+                   Jeff Tranter <tranter@pobox.com>
+                             05 Apr 2020
+
++---------------+---------------------------------------------------+
+| Address Range | Description                                       |
++---------------+---------------------------------------------------+
+| $2000 - $7FFF | RAM (24K if fully populated, system total 32K)    |
+|               |                                                   |
+| $C000         | 6820/6820 PIA Peripheral Reg/Data Direction Reg A |
+| $C001         | 6820/6820 PIA Control Register A                  |
+| $C002         | 6820/6820 PIA Peripheral Reg/Data Direction Reg B |
+| $C003         | 6820/6820 PIA Control Register B                  |
+|               |                                                   |
+| $C010         | 6850 ACIA Status/Control Register                 |
+| $C011         | 6850 ACIA Data Register                           |
++---------------+---------------------------------------------------+
