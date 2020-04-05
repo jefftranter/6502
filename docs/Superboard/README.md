@@ -14,8 +14,8 @@ follow to assemble and test the board. It is 126 pages long. I had
 mine commercially printed and bound at Staples for about $20.
 
 You will need a 5 Volt power supply rated for at least 3 Amps. One
-inexpensive option is a USB power supply. Some USB C supplies (like
-those designed for a Raspberry Pi 4) can provide this much current.
+inexpensive option is a USB power supply. Some USB supplies can
+provide this much current.
 
 You will need an eraser and programmer for the EPROMs (or just a
 programmer if you use EEPROMs). Unlike the original, no modifications
