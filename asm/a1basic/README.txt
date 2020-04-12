@@ -10,4 +10,4 @@ You can change the .org address and run it out of RAM if desired.
 Examples of things easily changed:
 
 - change the prompt character (look for the comment "Prompt character...")
-- change defaults value of LOMEM or HIMEM (see routine mem_init_4k)
+- change default value of LOMEM or HIMEM (see routine mem_init_4k)
