@@ -2,8 +2,11 @@
  * Class to emulate a 6502 CPU and system with RAM, ROM, and peripherals.
  */
 
+// TODO: Profile and optimize performance bottlenecks.
+
 #include <cassert>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include "sim6502.h"
 
@@ -38,8 +41,143 @@ void Sim6502::reset()
 
 void Sim6502::step()
 {
-    // TODO: Implement
-    m_regPC += 1;
+    // This is written for speed and efficiency and not elegance and redability.
+
+    // TODO: Fully implement
+
+    int len = 1; // Instruction length
+    uint8_t opcode = m_memory[m_regPC];
+    uint8_t operand1 = m_memory[m_regPC + 1];
+    uint8_t operand2 = m_memory[m_regPC + 2];
+    
+    switch (opcode) {
+
+    case 0x18: // clc     
+        m_regSR &= ~C_BIT;
+        cout << "clc" << endl;
+        break;
+
+    case 0x38: // sec
+        m_regSR |= C_BIT;
+        cout << "sec" << endl;
+        break;
+
+    case 0x4c: // jmp
+        m_regPC = operand1 + 256 * operand2;
+        cout << "jmp " << operand1 + 256 * operand2 << endl;
+        len = 0;
+        break;
+        
+    case 0x69: // adc #xx
+        m_regA += operand1; // Add immediate operand
+        if (m_regSR & C_BIT) m_regA++; // Add 1 if carry set
+        // TODO: Update S, V, Z, C flags 
+        cout << "adc #" << (int)operand1 << endl;
+        len = 2;
+        break;
+
+    case 0x8c: // sty xxxx
+        write(operand1 + 256 * operand2, m_regY);
+        cout << "sty " << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
+    case 0x8d: // sta xxxx
+        write(operand1 + 256 * operand2, m_regA);
+        cout << "sta " << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
+    case 0x8e: // stx xxxx
+        write(operand1 + 256 * operand2, m_regX);
+        cout << "stx " << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
+    case 0xa0: // ldx #
+        cout << "ldy #" << (int)operand1 << endl;
+        m_regY = operand1;
+        len = 2;
+        break;
+
+    case 0xa2: // ldx #
+        cout << "ldx #" << (int)operand1 << endl;
+        m_regX = operand1;
+        len = 2;
+        break;
+
+    case 0xa9: // lda #
+        cout << "lda #" << (int)operand1 << endl;
+        m_regA = operand1;
+        len = 2;
+        break;
+
+    case 0xac: // ldy xxxx
+        m_regY = read(operand1 + 256 * operand2);
+        cout << "ldy " << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
+    case 0xad: // lda xxxx
+        m_regA = read(operand1 + 256 * operand2);
+        cout << "lda " << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
+    case 0xae: // ldx xxxx
+        m_regX = read(operand1 + 256 * operand2);
+        cout << "ldx " << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
+    case 0xc8: // iny
+        cout << "iny" << endl;
+        m_regY++;
+        if (m_regY == 0) { // Set Z flag if zero
+            m_regSR |= Z_BIT;
+        }
+        break;
+
+    case 0xca: // dex
+        cout << "dex" << endl;
+        m_regX--;
+        if (m_regX == 0) { // Set Z flag if zero
+            m_regSR |= Z_BIT;
+        }
+        break;
+
+    case 0xd0: // bne
+        // TODO: Implemen6t branching
+        cout << "bne " << (int)operand1 << endl;
+        len = 2;
+        break;
+        
+    case 0xd8: // cld
+        m_regSR &= ~D_BIT;
+        cout << "cld" << endl;
+        break;
+
+    case 0xea: // nop
+        cout << "nop" << endl;
+        break;
+
+    case 0xee: // inc xxxx
+        write(operand1 + 256 * operand2, read(operand1 + 256 * operand2) + 1);
+        cout << "inc " << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
+    case 0xf8: // sed
+        m_regSR |= D_BIT;
+        cout << "sed" << endl;
+        break;
+        
+    default: // Invalid instruction, handle as NOP
+        cout << "???" << endl;
+        break;
+    }
+
+    m_regPC += len;
 }
 
 Sim6502::CpuType Sim6502::cpuType()
@@ -49,6 +187,8 @@ Sim6502::CpuType Sim6502::cpuType()
 
 void Sim6502::setCpuType(const CpuType &type)
 {
+    // TODO: Add support for other CPU variants.
+    assert(m_cpuType == MOS6502);
     m_cpuType = type;
 }
 
@@ -124,39 +264,48 @@ void Sim6502::setPC(uint16_t val)
     m_regPC = val;
 }
 
-void Sim6502::poke(uint16_t address, uint8_t byte)
+void Sim6502::write(uint16_t address, uint8_t byte)
 {
-    m_memory[address] = byte;
+    // Ignore writes to ROM or unused memory.
+    if (isRam(address) || isPeripheral(address)) {
+        m_memory[address] = byte;
+    }
 }
 
-uint8_t Sim6502::peek(uint16_t address)
+uint8_t Sim6502::read(uint16_t address)
 {
     return m_memory[address];
 }
 
 bool Sim6502::isRam(uint16_t address)
 {
+    // TODO: May want to optimize using array lookup
     return (address >= m_ramStart && address <= m_ramEnd);
 }
 
 
 bool Sim6502::isRom(uint16_t address)
 {
+    // TODO: May want to optimize using array lookup
     return (address >= m_romStart && address <= m_romEnd);
 }
 
 bool Sim6502::isPeripheral(uint16_t address)
 {
+    // TODO: Implement
     return false;
 }
 
 bool Sim6502::isUnused(uint16_t address)
 {
-    return (!isRam(address) && !isRom(address));
+    // TODO: May want to optimize using array lookup
+    return (!isRam(address) && !isRom(address) &&!isPeripheral(address));
 }
 
 bool Sim6502::loadMemory(string filename, uint16_t startAddress)
 {
+    // TODO: Add support for file formats other than binary
+
     ifstream inFile;
 
     inFile.open(filename, ios::binary);
@@ -167,12 +316,15 @@ bool Sim6502::loadMemory(string filename, uint16_t startAddress)
         inFile.close();
         return true;
     } else {
+        cerr << "Error: Unable to open file '" << filename << "' for reading." << endl;
         return false;
     }
 }
 
 bool Sim6502::saveMemory(string filename, uint16_t startAddress, uint16_t endAddress)
 {
+    // TODO: Add support for file formats other than binary
+
     ofstream outFile;
 
     outFile.open(filename, ios::binary);
@@ -183,6 +335,7 @@ bool Sim6502::saveMemory(string filename, uint16_t startAddress, uint16_t endAdd
         outFile.close();
         return true;
     } else {
+        cerr << "Error: Unable to open file '" << filename << "' for writing." << endl;
         return false;
     }
 }
@@ -200,24 +353,35 @@ void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress)
 {
     assert(startAddress <= endAddress);
 
-    // TODO: Make hex output correct number of digits with leading zeroes.
-    
     for (int i = startAddress; i <= endAddress; i++) {
 
         if ((i == startAddress) || (i % 16 == 0)) {
-            cout << endl << hex << i << ":";
+            cout << endl << hex << setfill('0') << setw(4) << i << ":";
         }    
-        cout << " " << (int) m_memory[i] << flush;
+        cout << " " << setfill('0') << setw(2) << (int)m_memory[i];
     }
     cout << endl;
 }
 
 void Sim6502::dumpRegisters()
 {
-    // TODO: Make hex output correct number of digits with leading zeroes.
-    // TODO: Show SR symbolically eg. SV-BDIZC
+    string s;
 
-    cout << hex << "PC=" << m_regPC << " A=" << (int) m_regA << " X=" << (int) m_regX << " Y=" << (int) m_regY << " SP=01" << (int) m_regSP << " SR=" << (int) m_regSP << endl;
+    (m_regSR & S_BIT) ? s += "S" : s += "s";
+    (m_regSR & V_BIT) ? s += "V" : s += "v";
+    (m_regSR & X_BIT) ? s += "1" : s += "0";
+    (m_regSR & B_BIT) ? s += "B" : s += "b";
+    (m_regSR & D_BIT) ? s += "D" : s += "d";
+    (m_regSR & I_BIT) ? s += "I" : s += "i";
+    (m_regSR & Z_BIT) ? s += "Z" : s += "z";
+    (m_regSR & C_BIT) ? s += "C" : s += "c";
+
+    cout << hex << setfill('0') << "PC=" << setw(4) << m_regPC
+         << " A=" << setw(2) << (int)m_regA
+         << " X=" << setw(2) << (int)m_regX
+         << " Y=" << setw(2) << (int)m_regY
+         << " SP=01" << setw(2) << (int)m_regSP
+         << " SR=" << s << endl;
 }
 
 void Sim6502::disassemble(uint16_t startAddress, uint16_t endAddress)
