@@ -108,6 +108,14 @@ void Sim6502::step()
         len = 0;
         break;
 
+    case 0x68: // pla
+        m_regSP++;
+        m_regA = read(STACK + m_regSP);
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "pla" << endl;
+        break;
+
     case 0x69: // adc #xx
         m_regA += operand1; // Add immediate operand
         if (m_regSR & C_BIT) m_regA++; // Add 1 if carry set
@@ -204,6 +212,13 @@ void Sim6502::step()
         len = 2;
         break;
 
+    case 0xa8: // tay
+        m_regY = m_regA;
+        (m_regY >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regY == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "tay" << endl;
+        break;
+
     case 0xa9: // lda #
         m_regA = operand1;
         (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
@@ -241,6 +256,14 @@ void Sim6502::step()
         (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
         (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         cout << "lda $" << setw(4) << operand1 + 256 * operand2 << ",y" << endl;
+        len = 3;
+        break;
+
+    case 0xbd: // lda xxx,x
+        m_regA = read(operand1 + 256 * operand2 + m_regX);
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "lda $" << setw(4) << operand1 + 256 * operand2 << ",x" << endl;
         len = 3;
         break;
 
