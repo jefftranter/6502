@@ -143,6 +143,7 @@ public:
     uint8_t m_6850_data_reg = 0; // MC6850 Data Register
 
     uint16_t m_keyboardStart = 0; // Keyboard base address
+    uint8_t m_keyboardRowRegister = 0;
 
     uint8_t m_regA = 0; // Registers
     uint8_t m_regX = 0;

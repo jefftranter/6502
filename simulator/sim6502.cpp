@@ -576,8 +576,6 @@ void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 {
     cout << "Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
     m_memory[address] = byte;
-
-    //dumpVideo();
 }
 
 void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
@@ -595,7 +593,8 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 
 void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
 {
-    // TODO: Implement
+    // TODO: Fully implement
+    m_keyboardRowRegister = byte;
     cout << "Wrote $" << hex << setw(2) << (int)byte << " to keyboard register" << endl;
 }
 
@@ -631,9 +630,17 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
     
 uint8_t Sim6502::readKeyboard(uint16_t address)
 {
-    // TODO: Implement
-    cout << "Read $ff from keyboard register" << endl;
-    return 0xff;
+    // TODO: Fully implement
+    cout << "Read from keyboard register" << endl;
+    if (m_keyboardRowRegister == 0xfb) {
+        //cout << "Sending keyboard key 'C'" << endl;
+        //return 0x64; // Simulate sending "C" for BASIC cold start.
+        cout << "Sending keyboard key 'M'" << endl;
+        return 0xfb; // Simulate sending "M" for Monitor.
+    } else {
+        cout << "Sending no keyboard key pressed" << endl;
+        return 0xff; // No key pressed
+    }
 }
 
 uint8_t Sim6502::readVideo(uint16_t address)
