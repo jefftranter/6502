@@ -64,92 +64,114 @@ void Sim6502::step()
 
     case 0x4c: // jmp
         m_regPC = operand1 + 256 * operand2;
-        cout << "jmp " << operand1 + 256 * operand2 << endl;
+        cout << "jmp $" << operand1 + 256 * operand2 << endl;
         len = 0;
         break;
         
     case 0x69: // adc #xx
         m_regA += operand1; // Add immediate operand
         if (m_regSR & C_BIT) m_regA++; // Add 1 if carry set
-        // TODO: Update S, V, Z, C flags 
-        cout << "adc #" << (int)operand1 << endl;
+        // TODO: Update S, V, Z, C flags
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (m_regA >= 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        cout << "adc #$" << (int)operand1 << endl;
         len = 2;
         break;
 
     case 0x8c: // sty xxxx
         write(operand1 + 256 * operand2, m_regY);
-        cout << "sty " << operand1 + 256 * operand2 << endl;
+        cout << "sty $" << operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 
     case 0x8d: // sta xxxx
         write(operand1 + 256 * operand2, m_regA);
-        cout << "sta " << operand1 + 256 * operand2 << endl;
+        cout << "sta $" << operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 
     case 0x8e: // stx xxxx
         write(operand1 + 256 * operand2, m_regX);
-        cout << "stx " << operand1 + 256 * operand2 << endl;
+        cout << "stx $" << operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 
-    case 0xa0: // ldx #
-        cout << "ldy #" << (int)operand1 << endl;
+    case 0xa0: // ldy #
         m_regY = operand1;
+        (m_regY >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regY == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "ldy #$" << (int)operand1 << endl;
         len = 2;
         break;
 
     case 0xa2: // ldx #
-        cout << "ldx #" << (int)operand1 << endl;
         m_regX = operand1;
+        (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regX == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "ldx #$" << (int)operand1 << endl;
         len = 2;
         break;
 
     case 0xa9: // lda #
-        cout << "lda #" << (int)operand1 << endl;
         m_regA = operand1;
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "lda #$" << (int)operand1 << endl;
         len = 2;
         break;
 
     case 0xac: // ldy xxxx
         m_regY = read(operand1 + 256 * operand2);
-        cout << "ldy " << operand1 + 256 * operand2 << endl;
+        (m_regY >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regY == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "ldy $" << operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 
     case 0xad: // lda xxxx
         m_regA = read(operand1 + 256 * operand2);
-        cout << "lda " << operand1 + 256 * operand2 << endl;
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "lda $" << operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 
     case 0xae: // ldx xxxx
         m_regX = read(operand1 + 256 * operand2);
-        cout << "ldx " << operand1 + 256 * operand2 << endl;
+        (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regX == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "ldx $" << operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 
     case 0xc8: // iny
         cout << "iny" << endl;
         m_regY++;
-        if (m_regY == 0) { // Set Z flag if zero
-            m_regSR |= Z_BIT;
-        }
+        (m_regY >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regY == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         break;
 
     case 0xca: // dex
         cout << "dex" << endl;
         m_regX--;
-        if (m_regX == 0) { // Set Z flag if zero
-            m_regSR |= Z_BIT;
-        }
+        (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regX == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         break;
 
     case 0xd0: // bne
-        // TODO: Implemen6t branching
+        if (!(m_regSR & Z_BIT)) {
+            if (operand1 > 0x7f) { // Branch taken
+                m_regPC = m_regPC + 1 - (uint8_t)~operand1; // Branch back
+            } else {
+                m_regPC = m_regPC + 1 + operand1; // Branch forward
+            }
+            len = 0;
+        } else { // Branch not taken
+            len = 2;
+        }
         cout << "bne " << (int)operand1 << endl;
-        len = 2;
         break;
         
     case 0xd8: // cld
@@ -162,12 +184,18 @@ void Sim6502::step()
         break;
 
     case 0xee: // inc xxxx
-        write(operand1 + 256 * operand2, read(operand1 + 256 * operand2) + 1);
-        cout << "inc " << operand1 + 256 * operand2 << endl;
-        len = 3;
-        break;
+        {
+            uint8_t val = read(operand1 + 256 * operand2) + 1;
+            write(operand1 + 256 * operand2, val);
+            (val >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+            (val == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+            cout << "inc $" << operand1 + 256 * operand2 << endl;
+            len = 3;
+            break;
+        }
 
     case 0xf8: // sed
+        // TODO: Handle decimal mode for relevant instructions
         m_regSR |= D_BIT;
         cout << "sed" << endl;
         break;
