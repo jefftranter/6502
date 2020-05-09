@@ -25,8 +25,8 @@ int main()
         return 1;
     }
 
-    sim.dumpMemory(0xa000, 0xbfff);
-    sim.dumpMemory(0xf800, 0xffff);
+    //sim.dumpMemory(0xa000, 0xbfff);
+    //sim.dumpMemory(0xf800, 0xffff);
     sim.reset();
     cout << "Running..." << endl;
 
