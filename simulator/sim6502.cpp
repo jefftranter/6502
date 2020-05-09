@@ -49,8 +49,23 @@ void Sim6502::step()
     uint8_t opcode = m_memory[m_regPC];
     uint8_t operand1 = m_memory[m_regPC + 1];
     uint8_t operand2 = m_memory[m_regPC + 2];
+    uint8_t tmp;
 
     switch (opcode) {
+
+    case 0x10: // bpl
+        if (!(m_regSR & S_BIT)) {
+            if (operand1 > 0x7f) { // Branch taken
+                m_regPC = m_regPC + 1 - (uint8_t)~operand1; // Branch back
+            } else {
+                m_regPC = m_regPC + 2 + operand1; // Branch forward
+            }
+            len = 0;
+        } else { // Branch not taken
+            len = 2;
+        }
+        cout << "bpl $" << setw(2) << (int)operand1 << endl;
+        break;
 
     case 0x18: // clc     
         m_regSR &= ~C_BIT;
@@ -67,6 +82,14 @@ void Sim6502::step()
         len = 0;
         break;
 
+    case 0x2c: // bit xxxx
+        ((m_regA & read(operand1 + 256 * operand2)) == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (read(operand1 + 256 * operand2) >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (read(operand1 + 256 * operand2) & 0x40) ? m_regSR |= V_BIT : m_regSR &= ~V_BIT;; // Set V flag
+        cout << "bit $" << setw(4) << (int)(operand1 + 256 * operand2) << endl;
+        len = 3;
+        break;
+
     case 0x30: // bmi
         if (m_regSR & S_BIT) {
             if (operand1 > 0x7f) { // Branch taken
@@ -78,7 +101,7 @@ void Sim6502::step()
         } else { // Branch not taken
             len = 2;
         }
-        cout << "bmi $" << setw(2) <<(int)operand1 << endl;
+        cout << "bmi $" << setw(2) << (int)operand1 << endl;
         break;
 
     case 0x38: // sec
@@ -90,6 +113,14 @@ void Sim6502::step()
         write(STACK + m_regSP, m_regA);
         m_regSP--;
         cout << "pha" << endl;
+        break;
+
+    case 0x49: // eor #
+        m_regA ^= operand1;
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "eor #$" << setw(2) << (int)operand1 << endl;
+        len = 2;
         break;
 
     case 0x4c: // jmp
@@ -227,6 +258,13 @@ void Sim6502::step()
         len = 2;
         break;
 
+    case 0xaa: // tax
+        m_regX = m_regA;
+        (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regX == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "tax" << endl;
+        break;
+
     case 0xac: // ldy xxxx
         m_regY = read(operand1 + 256 * operand2);
         (m_regY >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
@@ -316,20 +354,25 @@ void Sim6502::step()
         cout << "cld" << endl;
         break;
 
+    case 0xe8: // inx
+        m_regX++;
+        (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regX == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "inx" << endl;
+        break;
+
     case 0xea: // nop
         cout << "nop" << endl;
         break;
 
     case 0xee: // inc xxxx
-        {
-            uint8_t val = read(operand1 + 256 * operand2) + 1;
-            write(operand1 + 256 * operand2, val);
-            (val >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
-            (val == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
-            cout << "inc $" << setw(4) << operand1 + 256 * operand2 << endl;
-            len = 3;
-            break;
-        }
+        tmp = read(operand1 + 256 * operand2) + 1;
+        write(operand1 + 256 * operand2, tmp);
+        (tmp >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (tmp == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "inc $" << setw(4) << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
 
     case 0xf0: // beq
         if (m_regSR & Z_BIT) {
