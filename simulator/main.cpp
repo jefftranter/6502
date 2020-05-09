@@ -34,9 +34,14 @@ int main()
     sim.reset();
     cout << "Running..." << endl;
 
+    int i = 0;
     while (true) {
         sim.dumpRegisters();
         sim.step();
+        if (i % 100 == 0) {
+            sim.dumpVideo();
+        }
+        i++;
     }
 
     return 0;

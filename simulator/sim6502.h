@@ -117,6 +117,9 @@ public:
     // Dump registers to standard output
     void dumpRegisters();
 
+    // Dump video memory
+    void dumpVideo();
+
     // TODO: Set/get breakpoint?
     // TODO: Breakpoint hit (callback?).
     // TODO: Keyboard/peripheral input (callback?).

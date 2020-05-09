@@ -574,9 +574,10 @@ void Sim6502::write(uint16_t address, uint8_t byte)
 
 void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 {
-    // TODO: Display simulated screen
     cout << "Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
     m_memory[address] = byte;
+
+    //dumpVideo();
 }
 
 void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
@@ -757,4 +758,23 @@ void Sim6502::dumpRegisters()
          << " Y=" << setw(2) << (int)m_regY
          << " SP=01" << setw(2) << (int)m_regSP
          << " SR=" << s << endl;
+}
+
+void Sim6502::dumpVideo()
+{
+    cout << "+------------------------+" << endl;
+
+    for (int row = 0; row < 24; row++) {
+        cout << "|";
+        for (int col = 0; col < 24; col++) {
+            char c = m_memory[0xd085 + (row * 32) + col];
+            if ((c >= 0x20) && (c <= 0x7c)) {
+                cout << c;
+            } else {
+                cout << ".";
+            }
+        }
+        cout << "|" << endl;
+    }
+    cout << "+------------------------+" << endl;
 }
