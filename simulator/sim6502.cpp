@@ -63,6 +63,318 @@ void Sim6502::reset()
     m_regPC = m_memory[0xfffc] + m_memory[0xfffd] * 256;
 }
 
+
+Sim6502::CpuType Sim6502::cpuType()
+{
+    return m_cpuType;
+}
+
+void Sim6502::setCpuType(const CpuType &type)
+{
+    // TODO: Add support for other CPU variants.
+    assert(m_cpuType == MOS6502);
+    m_cpuType = type;
+}
+
+void Sim6502::irq()
+{
+    // TODO: Implement full IRQ handling
+    m_regPC = m_memory[0xfffe] + m_memory[0xffff] * 256;
+}
+
+void Sim6502::nmi()
+{
+    // TODO: Implement full NMI handling
+    m_regPC = m_memory[0xfffa] + m_memory[0xfffb] * 256;
+}
+
+uint8_t Sim6502::aReg()
+{
+    return m_regA;
+}
+
+void Sim6502::setAReg(uint8_t val)
+{
+    m_regA = val;
+}
+
+uint8_t Sim6502::xReg()
+{
+    return m_regX;
+}
+
+void Sim6502::setXReg(uint8_t val)
+{
+    m_regX = val;
+}
+
+uint8_t Sim6502::yReg()
+{
+    return m_regY;
+}
+
+void Sim6502::setYReg(uint8_t val)
+{
+    m_regY = val;
+}
+
+uint8_t Sim6502::sr()
+{
+    return m_regSR;
+}
+
+void Sim6502::setSR(uint8_t val)
+{
+    m_regSR = val;
+}
+
+uint8_t Sim6502::sp()
+{
+    return m_regSP;
+}
+
+void Sim6502::setSP(uint8_t val)
+{
+    m_regSP = val;
+}
+
+uint16_t Sim6502::pc()
+{
+    return m_regPC;
+}
+
+void Sim6502::setPC(uint16_t val)
+{
+    m_regPC = val;
+}
+
+void Sim6502::write(uint16_t address, uint8_t byte)
+{
+    if (isRam(address) || isRom(address)) {
+        m_memory[address] = byte;
+    } else if (isVideo(address)) {
+        writeVideo(address, byte);
+    } else if (isPeripheral(address)) {
+        writePeripheral(address, byte);
+    } else if (isKeyboard(address)) {
+        writeKeyboard(address, byte);
+    }
+}
+
+void Sim6502::writeVideo(uint16_t address, uint8_t byte)
+{
+    cout << "Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
+    m_memory[address] = byte;
+}
+
+void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
+{
+    if (address == m_peripheralStart) {
+        m_6850_control_reg = byte;
+        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Control Register" << endl;
+    } else if (address == m_peripheralStart + 1) {
+        m_6850_data_reg = byte;
+        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Data Register" << endl;
+    } else {
+        assert(false); // Should never be reached
+    }
+}
+
+void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
+{
+    // TODO: Fully implement
+    m_keyboardRowRegister = byte;
+    cout << "Wrote $" << hex << setw(2) << (int)byte << " to keyboard register" << endl;
+}
+
+uint8_t Sim6502::read(uint16_t address)
+{
+    if (isRam(address) || isRom(address)) {
+        return m_memory[address];
+    }
+    if (isVideo(address)) {
+        return readVideo(address);
+    }
+    if (isPeripheral(address)) {
+        return readPeripheral(address);
+    }
+    if (isKeyboard(address)) {
+        return readKeyboard(address);
+    }
+    return 0; // Unused, read as zero                
+}
+
+uint8_t Sim6502::readPeripheral(uint16_t address)
+{
+    if (address == m_peripheralStart) {
+        cout << "Read $" << hex << setw(2) << (int)m_6850_control_reg << " from MC680 Status Register" << endl;
+        return m_6850_control_reg = 0;
+    }
+    if (address == m_peripheralStart + 1) {
+        cout << "Read $" << hex << setw(2) << (int)m_6850_data_reg << " from MC680 Data Register" << endl;
+        return m_6850_control_reg = 0;
+    }
+    assert(false); // Should never be reached
+}
+
+uint8_t Sim6502::readKeyboard(uint16_t address)
+{
+    // TODO: Fully implement
+    cout << "Read from keyboard register" << endl;
+    if (m_keyboardRowRegister == 0xfb) {
+        //cout << "Sending keyboard key 'C'" << endl;
+        //return 0x64; // Simulate sending "C" for BASIC cold start.
+        cout << "Sending keyboard key 'M'" << endl;
+        return 0xfb; // Simulate sending "M" for Monitor.
+    } else {
+        cout << "Sending no keyboard key pressed" << endl;
+        return 0xff; // No key pressed
+    }
+}
+
+uint8_t Sim6502::readVideo(uint16_t address)
+{
+    cout << "Read video RAM at $" << hex << setw(4) << address << endl;
+    return m_memory[address];
+}
+
+bool Sim6502::isRam(uint16_t address)
+{
+    // TODO: May want to optimize using array lookup
+    return (address >= m_ramStart && address <= m_ramEnd);
+}
+
+bool Sim6502::isRom(uint16_t address)
+{
+    // TODO: May want to optimize using array lookup
+    return (address >= m_romStart && address <= m_romEnd);
+}
+
+bool Sim6502::isPeripheral(uint16_t address)
+{
+    // 6550 UART is two addresses.
+    return address >= m_peripheralStart && address <= m_peripheralStart + 1;
+}
+
+bool Sim6502::isVideo(uint16_t address)
+{
+    return (address >= m_videoStart && address <= m_videoEnd);
+}
+
+bool Sim6502::isKeyboard(uint16_t address)
+{
+    // Keyboard is only one address
+    return address == m_keyboardStart;
+}
+
+bool Sim6502::isUnused(uint16_t address)
+{
+    // TODO: May want to optimize using array lookup
+    return (!isRam(address) && !isRom(address) &&!isPeripheral(address));
+}
+
+bool Sim6502::loadMemory(string filename, uint16_t startAddress)
+{
+    // TODO: Add support for file formats other than binary
+
+    ifstream inFile;
+
+    inFile.open(filename, ios::binary);
+    if (inFile.is_open()) {
+        for (int i = startAddress; i <= 0xffff; i++) {
+            inFile.read((char*) &m_memory[i], 1);
+        }
+        inFile.close();
+        return true;
+    } else {
+        cerr << "Error: Unable to open file '" << filename << "' for reading." << endl;
+        return false;
+    }
+}
+
+bool Sim6502::saveMemory(string filename, uint16_t startAddress, uint16_t endAddress)
+{
+    // TODO: Add support for file formats other than binary
+
+    ofstream outFile;
+
+    outFile.open(filename, ios::binary);
+    if (outFile.is_open()) {
+        for (int i = startAddress; i <= endAddress; i++) {
+            outFile.write((const char*) &m_memory[i], 1);
+        }
+        outFile.close();
+        return true;
+    } else {
+        cerr << "Error: Unable to open file '" << filename << "' for writing." << endl;
+        return false;
+    }
+}
+
+void Sim6502::setMemory(uint16_t startAddress, uint16_t endAddress, uint8_t byte)
+{
+    assert(startAddress <= endAddress);
+
+    for (int i = startAddress; i <= endAddress; i++) {
+        m_memory[i] = byte;
+    }
+}
+
+void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress)
+{
+    assert(startAddress <= endAddress);
+
+    for (int i = startAddress; i <= endAddress; i++) {
+
+        if ((i == startAddress) || (i % 16 == 0)) {
+            cout << endl << hex << setfill('0') << setw(4) << i << ":";
+        }    
+        cout << " " << setfill('0') << setw(2) << (int)m_memory[i];
+    }
+    cout << endl;
+}
+
+void Sim6502::dumpRegisters()
+{
+    string s;
+
+    (m_regSR & S_BIT) ? s += "S" : s += "s";
+    (m_regSR & V_BIT) ? s += "V" : s += "v";
+    (m_regSR & X_BIT) ? s += "1" : s += "0";
+    (m_regSR & B_BIT) ? s += "B" : s += "b";
+    (m_regSR & D_BIT) ? s += "D" : s += "d";
+    (m_regSR & I_BIT) ? s += "I" : s += "i";
+    (m_regSR & Z_BIT) ? s += "Z" : s += "z";
+    (m_regSR & C_BIT) ? s += "C" : s += "c";
+
+    cout << hex << setfill('0') << "PC=" << setw(4) << m_regPC
+         << " (" << setw(2) << (int)m_memory[m_regPC] << ")"
+         << " A=" << setw(2) << (int)m_regA
+         << " X=" << setw(2) << (int)m_regX
+         << " Y=" << setw(2) << (int)m_regY
+         << " SP=01" << setw(2) << (int)m_regSP
+         << " SR=" << s << endl;
+}
+
+void Sim6502::dumpVideo()
+{
+    cout << "+------------------------+" << endl;
+
+    for (int row = 0; row < 24; row++) {
+        cout << "|";
+        for (int col = 0; col < 24; col++) {
+            char c = m_memory[0xd085 + (row * 32) + col];
+            if ((c >= 0x20) && (c <= 0x7c)) {
+                cout << c;
+            } else {
+                cout << ".";
+            }
+        }
+        cout << "|" << endl;
+    }
+    cout << "+------------------------+" << endl;
+}
+
 void Sim6502::step()
 {
     // This is written for speed and efficiency and not elegance and redability.
@@ -473,315 +785,4 @@ void Sim6502::step()
     }
 
     m_regPC += len;
-}
-
-Sim6502::CpuType Sim6502::cpuType()
-{
-    return m_cpuType;
-}
-
-void Sim6502::setCpuType(const CpuType &type)
-{
-    // TODO: Add support for other CPU variants.
-    assert(m_cpuType == MOS6502);
-    m_cpuType = type;
-}
-
-void Sim6502::irq()
-{
-    // TODO: Implement full IRQ handling
-    m_regPC = m_memory[0xfffe] + m_memory[0xffff] * 256;
-}
-
-void Sim6502::nmi()
-{
-    // TODO: Implement full NMI handling
-    m_regPC = m_memory[0xfffa] + m_memory[0xfffb] * 256;
-}
-
-uint8_t Sim6502::aReg()
-{
-    return m_regA;
-}
-
-void Sim6502::setAReg(uint8_t val)
-{
-    m_regA = val;
-}
-
-uint8_t Sim6502::xReg()
-{
-    return m_regX;
-}
-
-void Sim6502::setXReg(uint8_t val)
-{
-    m_regX = val;
-}
-
-uint8_t Sim6502::yReg()
-{
-    return m_regY;
-}
-
-void Sim6502::setYReg(uint8_t val)
-{
-    m_regY = val;
-}
-
-uint8_t Sim6502::sr()
-{
-    return m_regSR;
-}
-
-void Sim6502::setSR(uint8_t val)
-{
-    m_regSR = val;
-}
-
-uint8_t Sim6502::sp()
-{
-    return m_regSP;
-}
-
-void Sim6502::setSP(uint8_t val)
-{
-    m_regSP = val;
-}
-
-uint16_t Sim6502::pc()
-{
-    return m_regPC;
-}
-
-void Sim6502::setPC(uint16_t val)
-{
-    m_regPC = val;
-}
-
-void Sim6502::write(uint16_t address, uint8_t byte)
-{
-    if (isRam(address) || isRom(address)) {
-        m_memory[address] = byte;
-    } else if (isVideo(address)) {
-        writeVideo(address, byte);
-    } else if (isPeripheral(address)) {
-        writePeripheral(address, byte);
-    } else if (isKeyboard(address)) {
-        writeKeyboard(address, byte);
-    }
-}
-
-void Sim6502::writeVideo(uint16_t address, uint8_t byte)
-{
-    cout << "Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
-    m_memory[address] = byte;
-}
-
-void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
-{
-    if (address == m_peripheralStart) {
-        m_6850_control_reg = byte;
-        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Control Register" << endl;
-    } else if (address == m_peripheralStart + 1) {
-        m_6850_data_reg = byte;
-        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Data Register" << endl;
-    } else {
-        assert(false); // Should never be reached
-    }
-}
-
-void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
-{
-    // TODO: Fully implement
-    m_keyboardRowRegister = byte;
-    cout << "Wrote $" << hex << setw(2) << (int)byte << " to keyboard register" << endl;
-}
-
-uint8_t Sim6502::read(uint16_t address)
-{
-    if (isRam(address) || isRom(address)) {
-        return m_memory[address];
-    }
-    if (isVideo(address)) {
-        return readVideo(address);
-    }
-    if (isPeripheral(address)) {
-        return readPeripheral(address);
-    }
-    if (isKeyboard(address)) {
-        return readKeyboard(address);
-    }
-    return 0; // Unused, read as zero                
-}
-
-uint8_t Sim6502::readPeripheral(uint16_t address)
-{
-    if (address == m_peripheralStart) {
-        cout << "Read $" << hex << setw(2) << (int)m_6850_control_reg << " from MC680 Status Register" << endl;
-        return m_6850_control_reg = 0;
-    }
-    if (address == m_peripheralStart + 1) {
-        cout << "Read $" << hex << setw(2) << (int)m_6850_data_reg << " from MC680 Data Register" << endl;
-        return m_6850_control_reg = 0;
-    }
-    assert(false); // Should never be reached
-}
-    
-uint8_t Sim6502::readKeyboard(uint16_t address)
-{
-    // TODO: Fully implement
-    cout << "Read from keyboard register" << endl;
-    if (m_keyboardRowRegister == 0xfb) {
-        //cout << "Sending keyboard key 'C'" << endl;
-        //return 0x64; // Simulate sending "C" for BASIC cold start.
-        cout << "Sending keyboard key 'M'" << endl;
-        return 0xfb; // Simulate sending "M" for Monitor.
-    } else {
-        cout << "Sending no keyboard key pressed" << endl;
-        return 0xff; // No key pressed
-    }
-}
-
-uint8_t Sim6502::readVideo(uint16_t address)
-{
-    cout << "Read video RAM at $" << hex << setw(4) << address << endl;
-    return m_memory[address];
-}
-    
-bool Sim6502::isRam(uint16_t address)
-{
-    // TODO: May want to optimize using array lookup
-    return (address >= m_ramStart && address <= m_ramEnd);
-}
-
-bool Sim6502::isRom(uint16_t address)
-{
-    // TODO: May want to optimize using array lookup
-    return (address >= m_romStart && address <= m_romEnd);
-}
-
-bool Sim6502::isPeripheral(uint16_t address)
-{
-    // 6550 UART is two addresses.
-    return address >= m_peripheralStart && address <= m_peripheralStart + 1;
-}
-
-bool Sim6502::isVideo(uint16_t address)
-{
-    return (address >= m_videoStart && address <= m_videoEnd);
-}
-
-bool Sim6502::isKeyboard(uint16_t address)
-{
-    // Keyboard is only one address
-    return address == m_keyboardStart;
-}
-
-bool Sim6502::isUnused(uint16_t address)
-{
-    // TODO: May want to optimize using array lookup
-    return (!isRam(address) && !isRom(address) &&!isPeripheral(address));
-}
-
-bool Sim6502::loadMemory(string filename, uint16_t startAddress)
-{
-    // TODO: Add support for file formats other than binary
-
-    ifstream inFile;
-
-    inFile.open(filename, ios::binary);
-    if (inFile.is_open()) {
-        for (int i = startAddress; i <= 0xffff; i++) {
-            inFile.read((char*) &m_memory[i], 1);
-        }
-        inFile.close();
-        return true;
-    } else {
-        cerr << "Error: Unable to open file '" << filename << "' for reading." << endl;
-        return false;
-    }
-}
-
-bool Sim6502::saveMemory(string filename, uint16_t startAddress, uint16_t endAddress)
-{
-    // TODO: Add support for file formats other than binary
-
-    ofstream outFile;
-
-    outFile.open(filename, ios::binary);
-    if (outFile.is_open()) {
-        for (int i = startAddress; i <= endAddress; i++) {
-            outFile.write((const char*) &m_memory[i], 1);
-        }
-        outFile.close();
-        return true;
-    } else {
-        cerr << "Error: Unable to open file '" << filename << "' for writing." << endl;
-        return false;
-    }
-}
-
-void Sim6502::setMemory(uint16_t startAddress, uint16_t endAddress, uint8_t byte)
-{
-    assert(startAddress <= endAddress);
-
-    for (int i = startAddress; i <= endAddress; i++) {
-        m_memory[i] = byte;
-    }
-}
-
-void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress)
-{
-    assert(startAddress <= endAddress);
-
-    for (int i = startAddress; i <= endAddress; i++) {
-
-        if ((i == startAddress) || (i % 16 == 0)) {
-            cout << endl << hex << setfill('0') << setw(4) << i << ":";
-        }    
-        cout << " " << setfill('0') << setw(2) << (int)m_memory[i];
-    }
-    cout << endl;
-}
-
-void Sim6502::dumpRegisters()
-{
-    string s;
-
-    (m_regSR & S_BIT) ? s += "S" : s += "s";
-    (m_regSR & V_BIT) ? s += "V" : s += "v";
-    (m_regSR & X_BIT) ? s += "1" : s += "0";
-    (m_regSR & B_BIT) ? s += "B" : s += "b";
-    (m_regSR & D_BIT) ? s += "D" : s += "d";
-    (m_regSR & I_BIT) ? s += "I" : s += "i";
-    (m_regSR & Z_BIT) ? s += "Z" : s += "z";
-    (m_regSR & C_BIT) ? s += "C" : s += "c";
-
-    cout << hex << setfill('0') << "PC=" << setw(4) << m_regPC
-         << " (" << setw(2) << (int)m_memory[m_regPC] << ")"
-         << " A=" << setw(2) << (int)m_regA
-         << " X=" << setw(2) << (int)m_regX
-         << " Y=" << setw(2) << (int)m_regY
-         << " SP=01" << setw(2) << (int)m_regSP
-         << " SR=" << s << endl;
-}
-
-void Sim6502::dumpVideo()
-{
-    cout << "+------------------------+" << endl;
-
-    for (int row = 0; row < 24; row++) {
-        cout << "|";
-        for (int col = 0; col < 24; col++) {
-            char c = m_memory[0xd085 + (row * 32) + col];
-            if ((c >= 0x20) && (c <= 0x7c)) {
-                cout << c;
-            } else {
-                cout << ".";
-            }
-        }
-        cout << "|" << endl;
-    }
-    cout << "+------------------------+" << endl;
 }
