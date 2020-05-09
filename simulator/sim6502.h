@@ -23,6 +23,9 @@ public:
     const uint8_t Z_BIT = 0x02;
     const uint8_t C_BIT = 0x01;
 
+    // Stack address
+    const uint16_t STACK = 0x0100;
+
     Sim6502();
     ~Sim6502();
 

@@ -58,9 +58,9 @@ void Sim6502::step()
         break;
 
     case 0x20: // jsr xxxx
-        write(0x0100 + m_regSP, (m_regPC + 2) >> 8); // Push PC high byte
+        write(STACK + m_regSP, (m_regPC + 2) >> 8); // Push PC high byte
         m_regSP--;
-        write(0x0100 + m_regSP, (m_regPC + 2) & 0xff); // Push PC low byte
+        write(STACK + m_regSP, (m_regPC + 2) & 0xff); // Push PC low byte
         m_regSP--;
         m_regPC = operand1 + 256 * operand2; // New PC
         cout << "jsr $" << operand1 + 256 * operand2 << endl;
@@ -72,6 +72,12 @@ void Sim6502::step()
         cout << "sec" << endl;
         break;
 
+    case 0x48: // pha
+        write(STACK + m_regSP, m_regA);
+        m_regSP--;
+        cout << "pha" << endl;
+        break;
+
     case 0x4c: // jmp
         m_regPC = operand1 + 256 * operand2;
         cout << "jmp $" << operand1 + 256 * operand2 << endl;
@@ -80,9 +86,9 @@ void Sim6502::step()
 
     case 0x60: // rts
         m_regSP++;
-        m_regPC = read(0x0100 + m_regSP); // Pull PC low byte
+        m_regPC = read(STACK + m_regSP); // Pull PC low byte
         m_regSP++;
-        m_regPC += read(0x0100 + m_regSP) << 8; // Pull PC high byte
+        m_regPC += read(STACK + m_regSP) << 8; // Pull PC high byte
         m_regPC++; // Increment PC by 1
         cout << "rts" << endl;
         len = 0;
@@ -107,6 +113,13 @@ void Sim6502::step()
         cout << "dey" << endl;
         break;
 
+    case 0x8a: // txa
+        m_regA = m_regX;
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "txa" << endl;
+        break;
+
     case 0x8c: // sty xxxx
         write(operand1 + 256 * operand2, m_regY);
         cout << "sty $" << operand1 + 256 * operand2 << endl;
@@ -123,6 +136,13 @@ void Sim6502::step()
         write(operand1 + 256 * operand2, m_regX);
         cout << "stx $" << operand1 + 256 * operand2 << endl;
         len = 3;
+        break;
+
+    case 0x98: // tya
+        m_regA = m_regY;
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "tya" << endl;
         break;
 
     case 0x9a: // txs
@@ -199,6 +219,14 @@ void Sim6502::step()
         cout << "iny" << endl;
         break;
 
+    case 0xc9: // cmp #
+        // TODO: Set S flag
+        (m_regA == operand1) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        // TODO: Set C flag
+        cout << "cmp #$" << (int)operand1 << endl;
+        len = 2;
+        break;
+
     case 0xca: // dex
         m_regX--;
         (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
@@ -219,7 +247,7 @@ void Sim6502::step()
         }
         cout << "bne $" << (int)operand1 << endl;
         break;
-        
+
     case 0xd8: // cld
         m_regSR &= ~D_BIT;
         cout << "cld" << endl;
@@ -240,12 +268,26 @@ void Sim6502::step()
             break;
         }
 
+    case 0xf0: // beq
+        if (m_regSR & Z_BIT) {
+            if (operand1 > 0x7f) { // Branch taken
+                m_regPC = m_regPC + 1 - (uint8_t)~operand1; // Branch back
+            } else {
+                m_regPC = m_regPC + 1 + operand1; // Branch forward
+            }
+            len = 0;
+        } else { // Branch not taken
+            len = 2;
+        }
+        cout << "beq $" << (int)operand1 << endl;
+        break;
+
     case 0xf8: // sed
         // TODO: Handle decimal mode for relevant instructions
         m_regSR |= D_BIT;
         cout << "sed" << endl;
         break;
-        
+
     default: // Invalid instruction, handle as NOP
         //cout << "???" << endl;
         cout << "??? unhandled opcode: " << (int) opcode << endl;
