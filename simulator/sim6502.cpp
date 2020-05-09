@@ -219,9 +219,12 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
 
 uint8_t Sim6502::readKeyboard(uint16_t address)
 {
+    static int tries = 0;
+
     // TODO: Fully implement
     cout << "Read from keyboard register" << endl;
-    if (m_keyboardRowRegister == 0xfb) {
+    if ((m_keyboardRowRegister == 0xfb) && (tries < 2)) {
+        tries++;
         //cout << "Sending keyboard key 'C'" << endl;
         //return 0x64; // Simulate sending "C" for BASIC cold start.
         cout << "Sending keyboard key 'M'" << endl;
@@ -424,6 +427,14 @@ void Sim6502::step()
         m_regPC = operand1 + 256 * operand2; // New PC
         cout << "jsr $" << setw(4) << operand1 + 256 * operand2 << endl;
         len = 0;
+        break;
+
+    case 0x29: // and #
+        m_regA &= operand1;
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "and #$" << setw(2) << (int)operand1 << endl;
+        len = 2;
         break;
 
     case 0x2a: // rola
@@ -724,6 +735,15 @@ void Sim6502::step()
         cout << "bne $" << setw(2) << (int)operand1 << endl;
         break;
 
+    case 0xce: // dec xxxx
+        tmp = read(operand1 + 256 * operand2) - 1;
+        write(operand1 + 256 * operand2, tmp);
+        (tmp >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (tmp == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "dec $" << setw(4) << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
     case 0xd8: // cld
         m_regSR &= ~D_BIT;
         cout << "cld" << endl;
@@ -746,6 +766,18 @@ void Sim6502::step()
 
     case 0xea: // nop
         cout << "nop" << endl;
+        break;
+
+    case 0xed: // sbc xxxx
+        m_regA -= read(operand1 + 256 * operand2); // Add operand
+        if (!(m_regSR & C_BIT)) m_regA--; // Subtract 1 if carry (borrow) not set
+        // TODO: Update S, V, Z, C flags
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (m_regA >= 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        cout << "sbc $" << setw(4) << (int)operand1 + 256 * operand2 << endl;
+        len = 3;
         break;
 
     case 0xee: // inc xxxx
