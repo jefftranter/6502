@@ -223,7 +223,11 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
 
     // TODO: Fully implement
     cout << "Read from keyboard register" << endl;
-    if ((m_keyboardRowRegister == 0xfb) && (tries < 2)) {
+    if (m_keyboardRowRegister == 0xfe) {
+        cout << "Sending keyboard key Shift Lock" << endl;
+        return 0xfe; // Return Shift Lock pressed when this row selected.
+    }
+    if ((m_keyboardRowRegister == 0xfb) && (tries < 3)) {
         tries++;
         //cout << "Sending keyboard key 'C'" << endl;
         //return 0x64; // Simulate sending "C" for BASIC cold start.

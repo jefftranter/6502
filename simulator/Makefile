@@ -1,4 +1,4 @@
-all:	sim6502 rom.bin
+all:	sim6502
 
 sim6502: sim6502.o main.o
 	g++ -o sim6502 sim6502.o main.o
