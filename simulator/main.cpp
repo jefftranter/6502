@@ -13,19 +13,22 @@ int main()
 
     Sim6502 sim;
 
-    sim.setRamRange(0x0000, 0x7fff);
-    sim.setRomRange(0x8000, 0xffff);
+    sim.setRamRange(0x0000, 0x1fff);
+    sim.setRomRange(0xf800, 0xffff);
 
-    if (!sim.loadMemory("rom.bin", 0x8000)) {
+    //if (!sim.loadMemory("rom.bin", 0x8000)) {
+    if (!sim.loadMemory("syn600.bin", 0xf800)) {
         return 1;
     }
 
-    sim.dumpMemory(0x8000, 0x802f);
-    sim.setPC(0x8000);
+    //sim.dumpMemory(0x8000, 0x802f);
+    sim.dumpMemory(0xf800, 0xffff);
+    //sim.setPC(0x8000);
+    sim.reset();
     
     cout << "Running..." << endl;
 
-    for (int i = 0; i < 30; i++) {
+    while (true) {
         sim.dumpRegisters();
         sim.step();
     }
