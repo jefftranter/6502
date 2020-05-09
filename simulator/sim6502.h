@@ -12,6 +12,7 @@ class Sim6502 {
 public:
 
     enum CpuType { MOS6502, Rockwell65C02, WDC65C02, WDC65816 };
+    enum PeripheralType { MC6850, MC6820 };
 
     // Status register bits
     const uint8_t S_BIT = 0x80;
@@ -39,11 +40,9 @@ public:
     void setRomRange(uint16_t start, uint16_t end);
 
     void videoRange(uint16_t &start, uint16_t &end);
-    void setVideoRange(uint16_t &start, uint16_t &end);
-
-    // TODO: Set video type?
-
-    // TODO: Set peripheral type and address (e.g. 6850, 6820).
+    void setVideoRange(uint16_t start, uint16_t end);
+    void setPeripheral(PeripheralType type, uint16_t start);
+    void setKeyboard(uint16_t start);
 
     // Reset CPU.
     void reset();
@@ -74,13 +73,33 @@ public:
     // Write to memory. Ignores writes to ROM or unused memory.
     void write(uint16_t address, uint8_t byte);
 
+    // Write to peripheral.
+    void writePeripheral(uint16_t address, uint8_t byte);
+
+    // Write to video memory.
+    void writeVideo(uint16_t address, uint8_t byte);
+
+    // Write to keyboard.
+    void writeKeyboard(uint16_t address, uint8_t byte);
+
     // Read from memory.
     uint8_t read(uint16_t address);
 
-    // Return if an address is RAM, ROM, peripheral, or unused.
+    // Read from peripheral.
+    uint8_t readPeripheral(uint16_t address);
+
+    // Read from video memory.
+    uint8_t readVideo(uint16_t address);
+
+    // Read from keyboard.
+    uint8_t readKeyboard(uint16_t address);
+    
+    // Return if an address is RAM, ROM, peripheral, video, keyboard, or unused.
     bool isRam(uint16_t address);
     bool isRom(uint16_t address);
     bool isPeripheral(uint16_t address);
+    bool isVideo(uint16_t address);
+    bool isKeyboard(uint16_t address);
     bool isUnused(uint16_t address);
 
     // Load memory from file.
@@ -98,11 +117,7 @@ public:
     // Dump registers to standard output
     void dumpRegisters();
 
-    // Disassemble memory to standard output
-    void disassemble(uint16_t startAddress, uint16_t endAddress);
-
     // TODO: Set/get breakpoint?
-
     // TODO: Breakpoint hit (callback?).
     // TODO: Keyboard/peripheral input (callback?).
     // TODO Illegal instruction (callback?).
@@ -117,6 +132,15 @@ public:
     uint16_t m_romStart = 0; // ROM start
     uint16_t m_romEnd = 0; // ROM end
 
+    uint16_t m_videoStart = 0; // Video memory start
+    uint16_t m_videoEnd = 0; // Video memory end
+
+    uint16_t m_peripheralStart = 0; // Peripheral base address
+    uint8_t m_6850_control_reg = 0; // MC6850 Status/Control Register
+    uint8_t m_6850_data_reg = 0; // MC6850 Data Register
+
+    uint16_t m_keyboardStart = 0; // Keyboard base address
+
     uint8_t m_regA = 0; // Registers
     uint8_t m_regX = 0;
     uint8_t m_regY = 0;
@@ -124,5 +148,5 @@ public:
     uint8_t m_regSP = 0;
     uint16_t m_regPC = 0;
 
-    uint8_t m_memory[0x10000]{0}; // Memory
+    uint8_t m_memory[0x10000]{0}; // Memory (Used for RAM, ROM, and video)
 };

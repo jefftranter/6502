@@ -34,6 +34,30 @@ void Sim6502::setRomRange(uint16_t start, uint16_t end)
     m_romEnd = end;
 }
 
+void Sim6502::videoRange(uint16_t &start, uint16_t &end)
+{
+    start = m_videoStart;
+    end = m_videoEnd;
+}
+
+void Sim6502::setVideoRange(uint16_t start, uint16_t end)
+{
+    assert(start <= end);
+    m_videoStart = start;
+    m_videoEnd = end;
+}
+
+void Sim6502::setPeripheral(PeripheralType type, uint16_t start)
+{
+    assert(type == MC6850);
+    m_peripheralStart = start;
+}
+
+void Sim6502::setKeyboard(uint16_t start)
+{
+    m_keyboardStart = start;
+}
+
 void Sim6502::reset()
 {
     m_regPC = m_memory[0xfffc] + m_memory[0xfffd] * 256;
@@ -537,23 +561,91 @@ void Sim6502::setPC(uint16_t val)
 
 void Sim6502::write(uint16_t address, uint8_t byte)
 {
-    // Ignore writes to ROM or unused memory.
-    if (isRam(address) || isPeripheral(address)) {
+    if (isRam(address) || isRom(address)) {
         m_memory[address] = byte;
+    } else if (isVideo(address)) {
+        writeVideo(address, byte);
+    } else if (isPeripheral(address)) {
+        writePeripheral(address, byte);
+    } else if (isKeyboard(address)) {
+        writeKeyboard(address, byte);
     }
+}
+
+void Sim6502::writeVideo(uint16_t address, uint8_t byte)
+{
+    // TODO: Display simulated screen
+    cout << "Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
+    m_memory[address] = byte;
+}
+
+void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
+{
+    if (address == m_peripheralStart) {
+        m_6850_control_reg = byte;
+        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Control Register" << endl;
+    } else if (address == m_peripheralStart + 1) {
+        m_6850_data_reg = byte;
+        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Data Register" << endl;
+    } else {
+        assert(false); // Should never be reached
+    }
+}
+
+void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
+{
+    // TODO: Implement
+    cout << "Wrote $" << hex << setw(2) << (int)byte << " to keyboard register" << endl;
 }
 
 uint8_t Sim6502::read(uint16_t address)
 {
-    return m_memory[address];
+    if (isRam(address) || isRom(address)) {
+        return m_memory[address];
+    }
+    if (isVideo(address)) {
+        return readVideo(address);
+    }
+    if (isPeripheral(address)) {
+        return readPeripheral(address);
+    }
+    if (isKeyboard(address)) {
+        return readKeyboard(address);
+    }
+    return 0; // Unused, read as zero                
 }
 
+uint8_t Sim6502::readPeripheral(uint16_t address)
+{
+    if (address == m_peripheralStart) {
+        cout << "Read $" << hex << setw(2) << (int)m_6850_control_reg << " from MC680 Status Register" << endl;
+        return m_6850_control_reg = 0;
+    }
+    if (address == m_peripheralStart + 1) {
+        cout << "Read $" << hex << setw(2) << (int)m_6850_data_reg << " from MC680 Data Register" << endl;
+        return m_6850_control_reg = 0;
+    }
+    assert(false); // Should never be reached
+}
+    
+uint8_t Sim6502::readKeyboard(uint16_t address)
+{
+    // TODO: Implement
+    cout << "Read $ff from keyboard register" << endl;
+    return 0xff;
+}
+
+uint8_t Sim6502::readVideo(uint16_t address)
+{
+    cout << "Read video RAM at $" << hex << setw(4) << address << endl;
+    return m_memory[address];
+}
+    
 bool Sim6502::isRam(uint16_t address)
 {
     // TODO: May want to optimize using array lookup
     return (address >= m_ramStart && address <= m_ramEnd);
 }
-
 
 bool Sim6502::isRom(uint16_t address)
 {
@@ -563,8 +655,19 @@ bool Sim6502::isRom(uint16_t address)
 
 bool Sim6502::isPeripheral(uint16_t address)
 {
-    // TODO: Implement
-    return false;
+    // 6550 UART is two addresses.
+    return address >= m_peripheralStart && address <= m_peripheralStart + 1;
+}
+
+bool Sim6502::isVideo(uint16_t address)
+{
+    return (address >= m_videoStart && address <= m_videoEnd);
+}
+
+bool Sim6502::isKeyboard(uint16_t address)
+{
+    // Keyboard is only one address
+    return address == m_keyboardStart;
 }
 
 bool Sim6502::isUnused(uint16_t address)
@@ -654,9 +757,4 @@ void Sim6502::dumpRegisters()
          << " Y=" << setw(2) << (int)m_regY
          << " SP=01" << setw(2) << (int)m_regSP
          << " SR=" << s << endl;
-}
-
-void Sim6502::disassemble(uint16_t startAddress, uint16_t endAddress)
-{
-    // TODO: Implement
 }
