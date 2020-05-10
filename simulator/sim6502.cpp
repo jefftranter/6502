@@ -534,7 +534,7 @@ void Sim6502::step()
         break;
 
     case 0x36: // rol xx,x
-        tmp1 = (m_regSR & 0x80) ? 0x01 : 0x00; // Save original C flag
+        tmp1 = (m_regSR & 0x01) ? 0x01 : 0x00; // Save original C flag
         tmp2 = read(operand1 + m_regX); // Read value
         (tmp2 & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set new C flag
         tmp2 = (tmp2 << 1) & 0xff; // Shift left
@@ -919,12 +919,24 @@ void Sim6502::step()
         cout << "inx" << endl;
         break;
 
+    case 0xe9: // sbc #
+        m_regA -= operand1; // Subtract immediate operand
+        if (!(m_regSR & C_BIT)) m_regA--; // Subtract 1 if carry (borrow) not set
+        // TODO: Update S, V, Z, C flags
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (m_regA >= 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        cout << "sbc #$" << setw(2) << (int)operand1 << endl;
+        len = 2;
+        break;
+
     case 0xea: // nop
         cout << "nop" << endl;
         break;
 
     case 0xed: // sbc xxxx
-        m_regA -= read(operand1 + 256 * operand2); // Add operand
+        m_regA -= read(operand1 + 256 * operand2); // Subtract operand
         if (!(m_regSR & C_BIT)) m_regA--; // Subtract 1 if carry (borrow) not set
         // TODO: Update S, V, Z, C flags
         (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
