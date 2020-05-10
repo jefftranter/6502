@@ -14,6 +14,22 @@ using namespace std;
 
 Sim6502::Sim6502()
 {
+    m_row['1'] = m_row['2'] = m_row['3'] = m_row['4'] = m_row['5'] = m_row['6'] = m_row['7'] = 127;
+    m_row['8'] = m_row['9'] = m_row['0'] = m_row[':'] = m_row['-'] = m_row[0x7f]  = 191;
+    m_row['.'] = m_row['L'] = m_row['O'] = m_row['\n'] = m_row['\r'] = 223;
+    m_row['W'] = m_row['E'] = m_row['R'] = m_row['T'] = m_row['Y'] = m_row['U'] = m_row['I'] = 239;
+    m_row['S'] = m_row['D'] = m_row['F'] = m_row['G'] = m_row['H'] = m_row['J'] = m_row['K'] = 247;
+    m_row['X'] = m_row['C'] = m_row['V'] = m_row['B'] = m_row['N'] = m_row['M'] = m_row[','] = 251;
+    m_row['Q'] = m_row['A'] = m_row['Z'] = m_row[' '] = m_row['/'] = m_row[';'] = m_row['P'] = 253;
+    m_row[0x1b] = 254;
+
+    m_col['Q'] = m_col['X'] = m_col['S'] = m_col['W'] = m_col['.'] = m_col['8'] = m_col['1'] = 127;
+    m_col['A'] = m_col['C'] = m_col['D'] = m_col['E'] = m_col['L'] = m_col['9'] = m_col['2'] = 191;
+    m_col[0x1b]= m_col['Z'] = m_col['V'] = m_col['F'] = m_col['R'] = m_col['O'] = m_col['0'] = m_col['3'] = 223;
+    m_col[' '] = m_col['B'] = m_col['G'] = m_col['T'] = m_col['\n'] = m_col[':'] = m_col['4'] = 239;
+    m_col['/'] = m_col['N'] = m_col['H'] = m_col['Y'] = m_col['\r'] = m_col['-'] = m_col['5'] = 247;
+    m_col[';'] = m_col['M'] = m_col['J'] = m_col['U'] = m_col[0x7F] = m_col['6'] = 251;
+    m_col['P'] = m_col[','] = m_col['K'] = m_col['I'] = m_col['7'] = 253;
 }
 
 Sim6502::~Sim6502()
@@ -182,7 +198,6 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 
 void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
 {
-    // TODO: Fully implement
     m_keyboardRowRegister = byte;
     cout << "Keyboard: wrote $" << hex << setw(2) << (int)byte << " to row register" << endl;
 }
@@ -217,26 +232,53 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
     assert(false); // Should never be reached
 }
 
+
+void Sim6502::pressKey(char key)
+{
+    cout << "Keyboard: pressKey '" << key << "'" << endl;
+
+    if ((m_row[(int)key] == 0) || (m_col[(int)key] == 0)) {
+        cout << "Error: Unrecognized key '" << key << "'" << endl;
+        return;
+    }
+
+    m_keyboardCharacter = key; // Save keyboard key character
+    m_desiredRow = m_row[(int)key];
+    m_columnData = m_col[(int)key];
+    m_sendingCharacter = true;
+    m_tries = 0;
+}
+
+
 uint8_t Sim6502::readKeyboard(uint16_t address)
 {
-    static int tries = 0;
+    char key;
 
-    // TODO: Fully implement
-    cout << "Keyboard: read from keyboard register" << endl;
-    if (m_keyboardRowRegister == 0xfe) {
-        cout << "Keyboard: Sending keyboard key Shift Lock" << endl;
-        return 0xfe; // Return Shift Lock pressed when this row selected.
+    cout << "Keyboard: scanning row $" << (int)m_keyboardRowRegister << endl;
+
+    if (!m_sendingCharacter) {
+        cout << "Enter key: " << flush;
+        cin >> key;
+        cout << endl;
+        pressKey(key);
     }
-    if ((m_keyboardRowRegister == 0xfb) && (tries < 3)) {
-        tries++;
-        //cout << "Sending keyboard key 'C'" << endl;
-        //return 0x64; // Simulate sending "C" for BASIC cold start.
-        cout << "Keyboard: Sending keyboard key 'M'" << endl;
-        return 0xfb; // Simulate sending "M" for Monitor.
-    } else {
-        cout << "Keyboard: Sending no key pressed" << endl;
-        return 0xff; // No key pressed
+
+    if (m_keyboardRowRegister == m_desiredRow) {
+        m_tries++;
+        if (m_tries == 3) {
+            cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
+            m_sendingCharacter = false;
+        }
+        cout << "Keyboard: returning column data $" << (int)m_columnData << endl;
+        return m_columnData;
     }
+
+    if (m_keyboardRowRegister == 254) { // Modifier row
+        cout << "Keyboard: returning column data for shift lock pressed" << endl;
+        return 254; // Return shift lock pressed
+    }
+
+    return 0xff; // No key pressed.
 }
 
 uint8_t Sim6502::readVideo(uint16_t address)
@@ -441,6 +483,14 @@ void Sim6502::step()
         len = 0;
         break;
 
+    case 0x24: // bit xx
+        ((m_regA & read(operand1)) == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (read(operand1) >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
+        (read(operand1) & 0x40) ? m_regSR |= V_BIT : m_regSR &= ~V_BIT;; // Set V flag
+        cout << "bit $" << setw(2) << (int)operand1 << endl;
+        len = 2;
+        break;
+
     case 0x29: // and #
         m_regA &= operand1;
         (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT;; // Set S flag
@@ -507,7 +557,7 @@ void Sim6502::step()
         len = 2;
         break;
 
-    case 0x4c: // jmp
+    case 0x4c: // jmp xxxx
         m_regPC = operand1 + 256 * operand2;
         cout << "jmp $" << setw(4) << operand1 + 256 * operand2 << endl;
         len = 0;
@@ -543,6 +593,12 @@ void Sim6502::step()
         len = 2;
         break;
 
+    case 0x6c: // jmp (xxxx)
+        m_regPC = read(operand1) + 256 * read(operand1 + 1);
+        cout << "jmp ($" << setw(4) << operand1 + 256 * operand2 << ")" << endl;
+        len = 0;
+        break;
+
     case 0x6d: // adc xxxx
         m_regA += read(operand1 + 256 * operand2); // Add operand
         if (m_regSR & C_BIT) m_regA++; // Add 1 if carry set
@@ -564,6 +620,12 @@ void Sim6502::step()
     case 0x85: // sta xx
         write(operand1, m_regA);
         cout << "sta $" << setw(2) << (int)operand1 << endl;
+        len = 2;
+        break;
+
+    case 0x86: // stx xx
+        write(operand1, m_regX);
+        cout << "stx $" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
 
@@ -616,6 +678,12 @@ void Sim6502::step()
     case 0x91: // sta (xx),y
         write(read(operand1) + 256 * read(operand1 + 1) + m_regY, m_regA);
         cout << "sta ($" << setw(2) << (int)operand1 << "),y" << endl;
+        len = 2;
+        break;
+
+    case 0x95: // sta xx,x
+        write(operand1 + m_regX, m_regA);
+        cout << "sta $" << setw(2) << (int)operand1 << ",x" << endl;
         len = 2;
         break;
 

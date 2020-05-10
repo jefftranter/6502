@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <string>
+#include <queue>
 
 using namespace std;
 
@@ -11,7 +12,10 @@ class Sim6502 {
 
 public:
 
+    // CPU types. Currently only MOS6502 is supported.
     enum CpuType { MOS6502, Rockwell65C02, WDC65C02, WDC65816 };
+
+    // Perpheral types. Currently only M6850 is supported.
     enum PeripheralType { MC6850, MC6820 };
 
     // Status register bits
@@ -93,7 +97,7 @@ public:
 
     // Read from keyboard.
     uint8_t readKeyboard(uint16_t address);
-    
+
     // Return if an address is RAM, ROM, peripheral, video, keyboard, or unused.
     bool isRam(uint16_t address);
     bool isRom(uint16_t address);
@@ -120,6 +124,9 @@ public:
     // Dump video memory
     void dumpVideo();
 
+    // Simulate pressing a keyboard key
+    void pressKey(char key);
+
     // TODO: Set/get breakpoint?
     // TODO: Breakpoint hit (callback?).
     // TODO: Keyboard/peripheral input (callback?).
@@ -144,6 +151,11 @@ public:
 
     uint16_t m_keyboardStart = 0; // Keyboard base address
     uint8_t m_keyboardRowRegister = 0;
+    uint8_t m_desiredRow = 0;
+    uint8_t m_columnData = 0;
+    bool m_sendingCharacter = false;
+    char m_keyboardCharacter;
+    int m_tries = 0;
 
     uint8_t m_regA = 0; // Registers
     uint8_t m_regX = 0;
@@ -153,4 +165,7 @@ public:
     uint16_t m_regPC = 0;
 
     uint8_t m_memory[0x10000]{0}; // Memory (Used for RAM, ROM, and video)
+
+    uint8_t m_row[128]{0};
+    uint8_t m_col[128]{0};
 };
