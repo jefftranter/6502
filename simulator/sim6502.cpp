@@ -184,7 +184,7 @@ void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
 {
     // TODO: Fully implement
     m_keyboardRowRegister = byte;
-    cout << "Wrote $" << hex << setw(2) << (int)byte << " to keyboard register" << endl;
+    cout << "Keyboard: wrote $" << hex << setw(2) << (int)byte << " to row register" << endl;
 }
 
 uint8_t Sim6502::read(uint16_t address)
@@ -222,19 +222,19 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
     static int tries = 0;
 
     // TODO: Fully implement
-    cout << "Read from keyboard register" << endl;
+    cout << "Keyboard: read from keyboard register" << endl;
     if (m_keyboardRowRegister == 0xfe) {
-        cout << "Sending keyboard key Shift Lock" << endl;
+        cout << "Keyboard: Sending keyboard key Shift Lock" << endl;
         return 0xfe; // Return Shift Lock pressed when this row selected.
     }
     if ((m_keyboardRowRegister == 0xfb) && (tries < 3)) {
         tries++;
         //cout << "Sending keyboard key 'C'" << endl;
         //return 0x64; // Simulate sending "C" for BASIC cold start.
-        cout << "Sending keyboard key 'M'" << endl;
+        cout << "Keyboard: Sending keyboard key 'M'" << endl;
         return 0xfb; // Simulate sending "M" for Monitor.
     } else {
-        cout << "Sending no keyboard key pressed" << endl;
+        cout << "Keyboard: Sending no key pressed" << endl;
         return 0xff; // No key pressed
     }
 }
