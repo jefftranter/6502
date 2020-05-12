@@ -50,7 +50,7 @@ void Sim6502::setRomRange(uint16_t start, uint16_t end)
     m_romEnd = end;
 }
 
-void Sim6502::videoRange(uint16_t &start, uint16_t &end)
+void Sim6502::videoRange(uint16_t &start, uint16_t &end) const
 {
     start = m_videoStart;
     end = m_videoEnd;
@@ -104,7 +104,7 @@ void Sim6502::nmi()
     m_regPC = m_memory[0xfffa] + m_memory[0xfffb] * 256;
 }
 
-uint8_t Sim6502::aReg()
+uint8_t Sim6502::aReg() const
 {
     return m_regA;
 }
@@ -114,7 +114,7 @@ void Sim6502::setAReg(uint8_t val)
     m_regA = val;
 }
 
-uint8_t Sim6502::xReg()
+uint8_t Sim6502::xReg() const
 {
     return m_regX;
 }
@@ -124,7 +124,7 @@ void Sim6502::setXReg(uint8_t val)
     m_regX = val;
 }
 
-uint8_t Sim6502::yReg()
+uint8_t Sim6502::yReg() const
 {
     return m_regY;
 }
@@ -134,7 +134,7 @@ void Sim6502::setYReg(uint8_t val)
     m_regY = val;
 }
 
-uint8_t Sim6502::sr()
+uint8_t Sim6502::sr() const
 {
     return m_regSR;
 }
@@ -144,7 +144,7 @@ void Sim6502::setSR(uint8_t val)
     m_regSR = val;
 }
 
-uint8_t Sim6502::sp()
+uint8_t Sim6502::sp() const
 {
     return m_regSP;
 }
@@ -154,7 +154,7 @@ void Sim6502::setSP(uint8_t val)
     m_regSP = val;
 }
 
-uint16_t Sim6502::pc()
+uint16_t Sim6502::pc() const
 {
     return m_regPC;
 }
@@ -185,12 +185,14 @@ void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 
 void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 {
+    // TODO: Simulate 6850 UART
+
     if (address == m_peripheralStart) {
         m_6850_control_reg = byte;
-        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Control Register" << endl;
+        cout << "Peripheral: wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
     } else if (address == m_peripheralStart + 1) {
         m_6850_data_reg = byte;
-        cout << "Wrote $" << hex << setw(2) << (int)byte << " to MC680 Data Register" << endl;
+        cout << "Peripheral: wrote $" << hex << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
     } else {
         assert(false); // Should never be reached
     }
@@ -221,12 +223,14 @@ uint8_t Sim6502::read(uint16_t address)
 
 uint8_t Sim6502::readPeripheral(uint16_t address)
 {
+    // TODO: Simulate 6850 UART
+
     if (address == m_peripheralStart) {
-        cout << "Read $" << hex << setw(2) << (int)m_6850_control_reg << " from MC680 Status Register" << endl;
+        cout << "Peripheral: read $" << hex << setw(2) << (int)m_6850_control_reg << " from MC6850 Status Register" << endl;
         return m_6850_control_reg = 0;
     }
     if (address == m_peripheralStart + 1) {
-        cout << "Read $" << hex << setw(2) << (int)m_6850_data_reg << " from MC680 Data Register" << endl;
+        cout << "Peripheral: read $" << hex << setw(2) << (int)m_6850_data_reg << " from MC6850 Data Register" << endl;
         return m_6850_control_reg = 0;
     }
     assert(false); // Should never be reached
@@ -288,36 +292,36 @@ uint8_t Sim6502::readVideo(uint16_t address)
     return m_memory[address];
 }
 
-bool Sim6502::isRam(uint16_t address)
+bool Sim6502::isRam(uint16_t address) const
 {
     // TODO: May want to optimize using array lookup
     return (address >= m_ramStart && address <= m_ramEnd);
 }
 
-bool Sim6502::isRom(uint16_t address)
+bool Sim6502::isRom(uint16_t address) const
 {
     // TODO: May want to optimize using array lookup
     return (address >= m_romStart && address <= m_romEnd);
 }
 
-bool Sim6502::isPeripheral(uint16_t address)
+bool Sim6502::isPeripheral(uint16_t address) const
 {
     // 6550 UART is two addresses.
     return address >= m_peripheralStart && address <= m_peripheralStart + 1;
 }
 
-bool Sim6502::isVideo(uint16_t address)
+bool Sim6502::isVideo(uint16_t address) const
 {
     return (address >= m_videoStart && address <= m_videoEnd);
 }
 
-bool Sim6502::isKeyboard(uint16_t address)
+bool Sim6502::isKeyboard(uint16_t address) const
 {
     // Keyboard is only one address
     return address == m_keyboardStart;
 }
 
-bool Sim6502::isUnused(uint16_t address)
+bool Sim6502::isUnused(uint16_t address) const
 {
     // TODO: May want to optimize using array lookup
     return (!isRam(address) && !isRom(address) &&!isPeripheral(address));
@@ -423,6 +427,22 @@ void Sim6502::dumpVideo()
         cout << "|" << endl;
     }
     cout << "+------------------------+" << endl;
+}
+
+void Sim6502::setBreakpoint(uint16_t address)
+{
+    // TODO: Check for duplicate breakpoint?
+    m_breakpoints.push_back(address);
+}
+
+void Sim6502::clearBreakpoint(uint16_t address)
+{
+    m_breakpoints.remove(address);
+}
+
+std::list<uint16_t> Sim6502::getBreakpoints() const
+{
+    return m_breakpoints;
 }
 
 void Sim6502::step()
@@ -578,6 +598,14 @@ void Sim6502::step()
         m_regPC = operand1 + 256 * operand2;
         cout << "jmp $" << setw(4) << operand1 + 256 * operand2 << endl;
         len = 0;
+        break;
+
+    case 0x55: // eor xx,x
+        m_regA ^= read(operand1 + m_regX);
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "eor $" << setw(2) << (int)operand1 << ",x" << endl;
+        len = 2;
         break;
 
     case 0x60: // rts
@@ -927,7 +955,7 @@ void Sim6502::step()
         write(operand1, tmp1);
         (tmp1 >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
         (tmp1 == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
-        cout << "inc $" << setw(2) << (int) operand1 << endl;
+        cout << "inc $" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
 

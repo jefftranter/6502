@@ -1,6 +1,28 @@
 #include <iostream>
 #include "sim6502.h"
 
+
+/*
+
+TODO: Make command line interface, e,g.
+
+- load
+- run
+- reset
+- step
+- show registers
+- dump
+- breakpoints
+- watchpoints
+- edit memory
+- registers
+- disassemble
+- IRQ, NMI
+- save memory
+- show video screen
+
+*/
+
 int main()
 {
     Sim6502 sim;

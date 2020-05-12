@@ -3,7 +3,7 @@
  */
 
 #include <cstdint>
-#include <string>
+#include <list>
 #include <queue>
 
 using namespace std;
@@ -38,12 +38,12 @@ public:
     void setCpuType(const CpuType &type);
 
     // TODO: Support multiple RAM/ROM ranges? Set arbitrary addresses or pages as ROM or ROM?
-    void ramRange(uint16_t &start, uint16_t &end);
+    void ramRange(uint16_t &start, uint16_t &end) const;
     void setRamRange(uint16_t start, uint16_t end);
-    void romRange(uint16_t &start, uint16_t &end);
+    void romRange(uint16_t &start, uint16_t &end) const;
     void setRomRange(uint16_t start, uint16_t end);
 
-    void videoRange(uint16_t &start, uint16_t &end);
+    void videoRange(uint16_t &start, uint16_t &end) const;
     void setVideoRange(uint16_t start, uint16_t end);
     void setPeripheral(PeripheralType type, uint16_t start);
     void setKeyboard(uint16_t start);
@@ -61,17 +61,17 @@ public:
     void step();
 
     // Set/get registers (A, X, Y, SR, SP, PC)
-    uint8_t aReg();
+    uint8_t aReg() const;
     void setAReg(uint8_t val);
-    uint8_t xReg();
+    uint8_t xReg() const;
     void setXReg(uint8_t val);
-    uint8_t yReg();
+    uint8_t yReg() const;
     void setYReg(uint8_t val);
-    uint8_t sr();
+    uint8_t sr() const;
     void setSR(uint8_t val);
-    uint8_t sp();
+    uint8_t sp() const;
     void setSP(uint8_t val);
-    uint16_t pc();
+    uint16_t pc() const;
     void setPC(uint16_t val);
 
     // Write to memory. Ignores writes to ROM or unused memory.
@@ -99,12 +99,12 @@ public:
     uint8_t readKeyboard(uint16_t address);
 
     // Return if an address is RAM, ROM, peripheral, video, keyboard, or unused.
-    bool isRam(uint16_t address);
-    bool isRom(uint16_t address);
-    bool isPeripheral(uint16_t address);
-    bool isVideo(uint16_t address);
-    bool isKeyboard(uint16_t address);
-    bool isUnused(uint16_t address);
+    bool isRam(uint16_t address) const;
+    bool isRom(uint16_t address) const;
+    bool isPeripheral(uint16_t address) const;
+    bool isVideo(uint16_t address) const;
+    bool isKeyboard(uint16_t address) const;
+    bool isUnused(uint16_t address) const;
 
     // Load memory from file.
     bool loadMemory(string filename, uint16_t startAddress=0);
@@ -127,10 +127,14 @@ public:
     // Simulate pressing a keyboard key
     void pressKey(char key);
 
-    // TODO: Set/get breakpoint?
+    // Breakpoint support
+    void setBreakpoint(uint16_t address);
+    void clearBreakpoint(uint16_t address);
+    std::list<uint16_t> getBreakpoints() const;
+
     // TODO: Breakpoint hit (callback?).
     // TODO: Keyboard/peripheral input (callback?).
-    // TODO Illegal instruction (callback?).
+    // TODO: Illegal instruction (callback?).
 
   protected:
 
@@ -168,4 +172,6 @@ public:
 
     uint8_t m_row[128]{0};
     uint8_t m_col[128]{0};
+
+    std::list<uint16_t> m_breakpoints;
 };
