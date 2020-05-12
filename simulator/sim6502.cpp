@@ -939,17 +939,15 @@ void Sim6502::step()
         break;
 
     case 0xe9: // sbc #
-        // See http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
-        operand1 = ~operand1; // Turns into same logic as addition
-        tmp3 = m_regA + operand1; // Add immediate operand
-        if (m_regSR & C_BIT) tmp3++; // Add 1 if carry set
+        tmp3 = m_regA - operand1; // Subtract immediate operand
+        if (!(m_regSR & C_BIT)) tmp3--; // Subtract 1 if carry not set
         (tmp3 >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
         (tmp3 > 0xff) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
         ((tmp3 & 0xff) == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         // See http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
         ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
-        cout << "adc #$" << setw(2) << (int)~operand1 << endl;
+        cout << "sbc #$" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
 
@@ -958,16 +956,15 @@ void Sim6502::step()
         break;
 
     case 0xed: // sbc xxxx
-        operand1 = ~operand1; // Turns into same logic as addition
-        tmp3 = m_regA + read(operand1 + 256 * operand2); // Add operand
-        if (m_regSR & C_BIT) tmp3++; // Add 1 if carry set
+        tmp3 = m_regA - read(operand1 + 256 * operand2); // Subtract operand
+        if (!(m_regSR & C_BIT)) tmp3--; // Subtract 1 if carry not set
         (tmp3 >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
         (tmp3 > 0xff) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
         ((tmp3 & 0xff) == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         // See http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
         ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
-        cout << "sbc $" << setw(4) << (int)~operand1 + 256 * operand2 << endl;
+        cout << "sbc $" << setw(4) << (int)operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 
