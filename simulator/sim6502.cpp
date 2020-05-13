@@ -269,7 +269,7 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
 
     if (m_keyboardRowRegister == m_desiredRow) {
         m_tries++;
-        if (m_tries == 3) {
+        if (m_tries == 4) {
             cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
             m_sendingCharacter = false;
         }
@@ -869,9 +869,10 @@ void Sim6502::step()
         break;
 
     case 0xc0: // cpy #xx
-        // TODO: Set S flag
+        tmp3 = m_regY - operand1;
         (m_regY == operand1) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
-        // TODO: Set C flag
+        (m_regY < operand1)  ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        ((m_regY ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cpy #$" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
@@ -884,9 +885,10 @@ void Sim6502::step()
         break;
 
     case 0xc9: // cmp #
+        tmp3 = m_regA - operand1;
         (m_regA == operand1) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regA < operand1)  ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        // TODO: Set C flag
+        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cmp #$" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
@@ -899,13 +901,13 @@ void Sim6502::step()
         break;
 
     case 0xcd: // cmp xxxx
+        tmp3 = m_regA - read(operand1 + 256 * operand2);
         (m_regA == read(operand1 + 256 * operand2)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regA < read(operand1 + 256 * operand2)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        // TODO: Set C flag
+        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cmp $" << setw(4) << (int)(operand1 + 256 * operand2) << endl;
         len = 3;
         break;
-
     case 0xd0: // bne
         if (!(m_regSR & Z_BIT)) {
             if (operand1 > 0x7f) { // Branch taken
@@ -935,17 +937,19 @@ void Sim6502::step()
         break;
 
     case 0xe0: // cpx #
-        // TODO: Set S flag
+        tmp3 = m_regX - operand1;
         (m_regX == operand1) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
-        // TODO: Set C flag
+        (m_regX < operand1)  ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        ((m_regX ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cpx #$" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
 
     case 0xe4: // cpx xx
-        // TODO: Set S flag
+        tmp3 = m_regX - read(operand1);
         (m_regX == read(operand1)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
-        // TODO: Set C flag
+        (m_regX < read(operand1)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        ((m_regX ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cpx $" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
