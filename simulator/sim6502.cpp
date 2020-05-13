@@ -179,7 +179,7 @@ void Sim6502::write(uint16_t address, uint8_t byte)
 
 void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 {
-    cout << "Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
+    cout << "Video: wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
     m_memory[address] = byte;
 }
 
@@ -190,6 +190,70 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
     if (address == m_peripheralStart) {
         m_6850_control_reg = byte;
         cout << "Peripheral: wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
+
+        switch (byte & 0x03) {
+        case 0x00:
+            cout << "Clock: divide by 1" << endl;
+            break;
+        case 0x01:
+            cout << "Clock: divide by 16" << endl;
+            break;
+        case 0x02:
+            cout << "Clock: divide by 64" << endl;
+            break;
+        case 0x03:
+            cout << "Clock: master reset" << endl;
+            break;
+        }
+
+        switch ((byte >> 2) & 0x07) {
+        case 0x00:
+            cout << "Protocol 7E2" << endl;
+            break;
+        case 0x01:
+            cout << "Protocol 7O2" << endl;
+            break;
+        case 0x02:
+            cout << "Protocol 7E1" << endl;
+            break;
+        case 0x03:
+            cout << "Protocol 7O1" << endl;
+            break;
+        case 0x04:
+            cout << "Protocol 8N2" << endl;
+            break;
+        case 0x05:
+            cout << "Protocol 8N1" << endl;
+            break;
+        case 0x06:
+            cout << "Protocol 78E1" << endl;
+            break;
+        case 0x07:
+            cout << "Protocol 8O1" << endl;
+            break;
+        }
+
+        switch ((byte >> 5) & 0x03) {
+        case 0x00:
+            cout << "/RTS low, TX int. disabled" << endl;
+            break;
+        case 0x01:
+            cout << "/RTS low, TX int. enabled" << endl;
+            break;
+        case 0x02:
+            cout << "/RTS high, TX int. disabled" << endl;
+            break;
+        case 0x03:
+            cout << "/RTS low, transmit break" << endl;
+            break;
+        }
+
+        if (byte & 0x80) {
+            cout << "Enable interrupts" << endl;
+        } else {
+            cout << "Disable interrupts" << endl;
+        }
+
     } else if (address == m_peripheralStart + 1) {
         m_6850_data_reg = byte;
         cout << "Peripheral: wrote $" << hex << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
@@ -200,6 +264,7 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 
 void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
 {
+    assert(isKeyboard(address));
     m_keyboardRowRegister = byte;
     cout << "Keyboard: wrote $" << hex << setw(2) << (int)byte << " to row register" << endl;
 }
@@ -256,19 +321,21 @@ void Sim6502::pressKey(char key)
 
 uint8_t Sim6502::readKeyboard(uint16_t address)
 {
-    char key;
+    assert(isKeyboard(address));
 
     cout << "Keyboard: scanning row $" << (int)m_keyboardRowRegister << endl;
 
     if (!m_sendingCharacter) {
-        cout << "Enter key: " << flush;
-        cin >> key;
-        cout << endl;
-        pressKey(key);
+        cout << "Enter key (Enter for none): " << flush;
+        string s;
+        getline(cin, s);
+        if (s.length() > 0) {
+            pressKey(s[0]);
+        }
     }
 
     if (m_keyboardRowRegister == m_desiredRow) {
-        m_tries++;
+        m_tries++; // TODO: Optimize debounce retries, then send no key pressed
         if (m_tries == 4) {
             cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
             m_sendingCharacter = false;
@@ -288,7 +355,7 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
 
 uint8_t Sim6502::readVideo(uint16_t address)
 {
-    cout << "Read video RAM at $" << hex << setw(4) << address << endl;
+    cout << "Video: read $" << setw(2) << hex << (int)m_memory[address] << " from video RAM at $" << hex << setw(4) << address << endl;
     return m_memory[address];
 }
 
@@ -460,6 +527,11 @@ void Sim6502::step()
     int tmp3;
 
     switch (opcode) {
+
+    case 0x00: // brk
+        cout << "brk" << endl;
+        exit(1);
+        break;
 
     case 0x09: // ora #
         m_regA |= operand1;
@@ -829,7 +901,7 @@ void Sim6502::step()
         break;
 
     case 0xb1: // lda (xx),y
-        m_regA = read(operand1) + 256 * read(operand1 + 1) + m_regY;
+        m_regA = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
         (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         cout << "lda ($" << setw(2) << (int)operand1 << "),y" << endl;
@@ -877,6 +949,15 @@ void Sim6502::step()
         len = 2;
         break;
 
+    case 0xc5: // cmp xx
+        tmp3 = m_regA - read(operand1);
+        (m_regA == read(operand1)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (m_regA < read(operand1)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        cout << "cmp $" << setw(2) << (int)(operand1) << endl;
+        len = 2;
+        break;
+
     case 0xc8: // iny
         m_regY++;
         (m_regY >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
@@ -908,6 +989,7 @@ void Sim6502::step()
         cout << "cmp $" << setw(4) << (int)(operand1 + 256 * operand2) << endl;
         len = 3;
         break;
+
     case 0xd0: // bne
         if (!(m_regSR & Z_BIT)) {
             if (operand1 > 0x7f) { // Branch taken
