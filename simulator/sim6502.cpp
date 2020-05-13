@@ -331,6 +331,8 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
         getline(cin, s);
         if (s.length() > 0) {
             pressKey(s[0]);
+        } else {
+            pressKey('\r'); // Send Return
         }
     }
 
