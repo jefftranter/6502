@@ -335,9 +335,14 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
     }
 
     if (m_keyboardRowRegister == m_desiredRow) {
-        m_tries++; // TODO: Optimize debounce retries, then send no key pressed
-        if (m_tries == 4) {
+        m_tries++; // Need to send key pressed 4 times for software debouncing, then send no key pressed 4 times.
+        if (m_tries < 4) {
             cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
+        } else if (m_tries < 8) {
+            cout << "Keyboard: sent no key pressed" << endl;
+            m_columnData = 0xff;
+        } else {
+            cout << "Keyboard: finished key press cycle" << endl;
             m_sendingCharacter = false;
         }
         cout << "Keyboard: returning column data $" << (int)m_columnData << endl;
