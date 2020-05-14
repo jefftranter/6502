@@ -29,8 +29,8 @@ int main()
 
     // Settings for Ohio Scientific Superboard II
     sim.setRamRange(0x0000, 0x1fff);
-    sim.setRomRange(0xa000, 0xbfff);
-    sim.setRomRange(0xf800, 0xffff);
+    sim.setRomRange1(0xa000, 0xbfff);
+    sim.setRomRange2(0xf800, 0xffff);
     sim.setVideoRange(0xd000, 0xd3ff);
     sim.setPeripheral(Sim6502::MC6850, 0xf000);
     sim.setKeyboard(0xdf00);

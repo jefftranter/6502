@@ -38,16 +38,24 @@ Sim6502::~Sim6502()
 
 void Sim6502::setRamRange(uint16_t start, uint16_t end)
 {
+    // TODO: Add support for multiple RAM ranges
     assert(start <= end);
     m_ramStart = start;
     m_ramEnd = end;
 }
 
-void Sim6502::setRomRange(uint16_t start, uint16_t end)
+void Sim6502::setRomRange1(uint16_t start, uint16_t end)
 {
     assert(start <= end);
-    m_romStart = start;
-    m_romEnd = end;
+    m_romStart1 = start;
+    m_romEnd1 = end;
+}
+
+void Sim6502::setRomRange2(uint16_t start, uint16_t end)
+{
+    assert(start <= end);
+    m_romStart2 = start;
+    m_romEnd2 = end;
 }
 
 void Sim6502::videoRange(uint16_t &start, uint16_t &end) const
@@ -375,7 +383,7 @@ bool Sim6502::isRam(uint16_t address) const
 bool Sim6502::isRom(uint16_t address) const
 {
     // TODO: May want to optimize using array lookup
-    return (address >= m_romStart && address <= m_romEnd);
+    return (address >= m_romStart1 && address <= m_romEnd1) || (address >= m_romStart2 && address <= m_romEnd2);
 }
 
 bool Sim6502::isPeripheral(uint16_t address) const
@@ -697,6 +705,19 @@ void Sim6502::step()
         len = 0;
         break;
 
+    case 0x65: // adc xx
+        tmp3 = m_regA + read(operand1); // Add operand
+        if (m_regSR & C_BIT) tmp3++; // Add 1 if carry set
+        (tmp3 >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (tmp3 > 0xff) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
+        ((tmp3 & 0xff) == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        // See http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        m_regA = tmp3 & 0xff; // Mask result to 8 bits
+        cout << "adc $" << setw(2) << (int)operand1 << endl;
+        len = 2;
+        break;
+
     case 0x68: // pla
         m_regSP++;
         m_regA = read(STACK + m_regSP);
@@ -719,7 +740,7 @@ void Sim6502::step()
         break;
 
     case 0x6c: // jmp (xxxx)
-        m_regPC = read(operand1) + 256 * read(operand1 + 1);
+        m_regPC = read(operand1 + 256 * operand2) + 256 * read(operand1 + 256 * operand2 + 1);
         cout << "jmp ($" << setw(4) << operand1 + 256 * operand2 << ")" << endl;
         len = 0;
         break;
@@ -861,6 +882,14 @@ void Sim6502::step()
         len = 2;
         break;
 
+    case 0xa6: // ldx xx
+        m_regX = read(operand1);
+        (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regX == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "ldx $" << setw(2) << (int)operand1 << endl;
+        len = 2;
+        break;
+
     case 0xa8: // tay
         m_regY = m_regA;
         (m_regY >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
@@ -931,7 +960,7 @@ void Sim6502::step()
         len = 3;
         break;
 
-    case 0xbd: // lda xxx,x
+    case 0xbd: // lda xxxx,x
         m_regA = read(operand1 + 256 * operand2 + m_regX);
         (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
@@ -948,19 +977,17 @@ void Sim6502::step()
         break;
 
     case 0xc0: // cpy #xx
-        tmp3 = m_regY - operand1;
         (m_regY == operand1) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regY < operand1)  ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        ((m_regY ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        (m_regY >= operand1) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cpy #$" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
 
     case 0xc5: // cmp xx
-        tmp3 = m_regA - read(operand1);
         (m_regA == read(operand1)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regA < read(operand1)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        (m_regA >= read(operand1)) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cmp $" << setw(2) << (int)(operand1) << endl;
         len = 2;
         break;
@@ -973,10 +1000,9 @@ void Sim6502::step()
         break;
 
     case 0xc9: // cmp #
-        tmp3 = m_regA - operand1;
         (m_regA == operand1) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regA < operand1)  ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        (m_regA >= operand1) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cmp #$" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
@@ -988,11 +1014,18 @@ void Sim6502::step()
         cout << "dex" << endl;
         break;
 
+    case 0xcc: // cpy xxxx
+        (m_regY == read(operand1 + 256 * operand2)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (m_regY < read(operand1 + 256 * operand2)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regY >= read(operand1 + 256 * operand2)) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        cout << "cpy $" << setw(4) << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
     case 0xcd: // cmp xxxx
-        tmp3 = m_regA - read(operand1 + 256 * operand2);
         (m_regA == read(operand1 + 256 * operand2)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regA < read(operand1 + 256 * operand2)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        (m_regA >= read(operand1 + 256 * operand2)) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cmp $" << setw(4) << (int)(operand1 + 256 * operand2) << endl;
         len = 3;
         break;
@@ -1026,19 +1059,17 @@ void Sim6502::step()
         break;
 
     case 0xe0: // cpx #
-        tmp3 = m_regX - operand1;
         (m_regX == operand1) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regX < operand1)  ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        ((m_regX ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        (m_regX >= operand1) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cpx #$" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
 
     case 0xe4: // cpx xx
-        tmp3 = m_regX - read(operand1);
         (m_regX == read(operand1)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         (m_regX < read(operand1)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
-        ((m_regX ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        (m_regX >= read(operand1)) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         cout << "cpx $" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
@@ -1076,6 +1107,14 @@ void Sim6502::step()
         cout << "nop" << endl;
         break;
 
+    case 0xec: // cpx xxxx
+        (m_regX == read(operand1 + 256 * operand2)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (m_regX < read(operand1 + 256 * operand2)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regX >= read(operand1 + 256 * operand2)) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        cout << "cpx $" << setw(4) << operand1 + 256 * operand2 << endl;
+        len = 3;
+        break;
+
     case 0xed: // sbc xxxx
         tmp3 = m_regA - read(operand1 + 256 * operand2); // Subtract operand
         if (!(m_regSR & C_BIT)) tmp3--; // Subtract 1 if carry not set
@@ -1085,7 +1124,7 @@ void Sim6502::step()
         // See http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
         ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
-        cout << "sbc $" << setw(4) << (int)operand1 + 256 * operand2 << endl;
+        cout << "sbc $" << setw(4) << operand1 + 256 * operand2 << endl;
         len = 3;
         break;
 

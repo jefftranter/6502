@@ -41,7 +41,8 @@ public:
     void ramRange(uint16_t &start, uint16_t &end) const;
     void setRamRange(uint16_t start, uint16_t end);
     void romRange(uint16_t &start, uint16_t &end) const;
-    void setRomRange(uint16_t start, uint16_t end);
+    void setRomRange1(uint16_t start, uint16_t end);
+    void setRomRange2(uint16_t start, uint16_t end);
 
     void videoRange(uint16_t &start, uint16_t &end) const;
     void setVideoRange(uint16_t start, uint16_t end);
@@ -143,8 +144,11 @@ public:
     uint16_t m_ramStart = 0; // RAM start
     uint16_t m_ramEnd = 0; // RAM end
 
-    uint16_t m_romStart = 0; // ROM start
-    uint16_t m_romEnd = 0; // ROM end
+    uint16_t m_romStart1 = 0; // ROM start
+    uint16_t m_romEnd1 = 0; // ROM end
+
+    uint16_t m_romStart2 = 0; // ROM start
+    uint16_t m_romEnd2 = 0; // ROM end
 
     uint16_t m_videoStart = 0; // Video memory start
     uint16_t m_videoEnd = 0; // Video memory end
