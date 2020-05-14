@@ -55,7 +55,7 @@ LFF40:  jsr     LFFBA
 LFF4A:  cmp     #'W'    ; User selected W for BASIC Warm start?
         bne     LFF51
         jmp     L0000   ; Jump to BASIC warm start
-LFF51:  cmp     #'C'    ; User selected C for BASIC Carm start?
+LFF51:  cmp     #'C'    ; User selected C for BASIC Cold start?
         bne     LFF58
         jmp     LBD11   ; Jump to BASIC cold start
 LFF58:  cmp     #'D'    ; User selected D for boot from disk?
