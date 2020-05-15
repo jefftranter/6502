@@ -556,6 +556,14 @@ void Sim6502::step()
         len = 2;
         break;
 
+    case 0x05: // ora xx
+        m_regA |= read(operand1);
+        (m_regA >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "ora ($" << setw(2) << (int)operand1 << endl;
+        len = 2;
+        break;
+
     case 0x06: // asl xx
         tmp1 = read(operand1);
         (tmp1 & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
@@ -853,6 +861,20 @@ void Sim6502::step()
         len = 3;
         break;
 
+    case 0x70: // bvs xx
+        if (m_regSR & V_BIT) {
+            if (operand1 > 0x7f) { // Branch taken
+                m_regPC = m_regPC + 1 - (uint8_t)~operand1; // Branch back
+            } else {
+                m_regPC = m_regPC + 2 + operand1; // Branch forward
+            }
+            len = 0;
+        } else { // Branch not taken
+            len = 2;
+        }
+        cout << "bvs $" << setw(2) << (int)operand1 << endl;
+        break;
+
     case 0x76: // ror xx,x
         tmp1 = (m_regSR & 0x01) ? 0x80 : 0x00; // Save original C flag in MSB
         tmp2 = read(operand1 + m_regX); // Read value
@@ -864,6 +886,19 @@ void Sim6502::step()
         (tmp2 >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
         cout << "ror $" << setw(2) << (int)operand1 << ",x" << endl;
         len = 2;
+        break;
+
+    case 0x79: // adc xxxx,y
+        tmp3 = m_regA + read(operand1 + 256 * operand2 + m_regY); // Add operand
+        if (m_regSR & C_BIT) tmp3++; // Add 1 if carry set
+        (tmp3 >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (tmp3 > 0xff) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
+        ((tmp3 & 0xff) == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        // See http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        m_regA = tmp3 & 0xff; // Mask result to 8 bits
+        cout << "adc $" << setw(4) << (int)operand1 + 256 * operand2 << ",y" << endl;
+        len = 3;
         break;
 
     case 0x84: // sty xx
@@ -1094,6 +1129,13 @@ void Sim6502::step()
         (m_regA == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
         cout << "lda $" << setw(4) << operand1 + 256 * operand2 << ",y" << endl;
         len = 3;
+        break;
+
+    case 0xba: // tsx
+        m_regX = m_regSP;
+        (m_regX >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regX == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        cout << "tsx" << endl;
         break;
 
     case 0xbd: // lda xxxx,x
@@ -1338,6 +1380,19 @@ void Sim6502::step()
         // TODO: Handle decimal mode for relevant instructions
         m_regSR |= D_BIT;
         cout << "sed" << endl;
+        break;
+
+    case 0xf9: // sbc xxxx,y
+        tmp3 = m_regA - read(operand1 + 256 * operand2 + m_regY); // Subtract operand
+        if (!(m_regSR & C_BIT)) tmp3--; // Subtract 1 if carry not set
+        (tmp3 >= 0x80) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (tmp3 > 0xff) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set V flag
+        ((tmp3 & 0xff) == 0) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        // See http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+        ((m_regA ^ tmp3) & (operand1 ^ tmp3) & 0x80) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        m_regA = tmp3 & 0xff; // Mask result to 8 bits
+        cout << "sbc $" << setw(4) << operand1 + 256 * operand2 << ",y" << endl;
+        len = 3;
         break;
 
     case 0xfe: // inc xxxx,x
