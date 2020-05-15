@@ -1,0 +1,31 @@
+To Do:
+
+- Fixes for flags in ADC/SBC/CMP
+- Get BASIC fully working
+- Implement more instructions
+- Support for lower case chars and make caps lock a toggle
+- Test with other programs: JMON, CEGMON, Enhanced Basic
+
+Future:
+
+- Make debug output optional
+- Command line options to load file(s), start at address, control trace output
+- Main program with command line/debug interface: load, run, reset,
+  step, show registers, dump, breakpoints, watchpoints, edit memory,
+  registers, disassemble, IRQ, NMI, save memory, show video screen
+- Qt-based GUI
+- Add support for multiple RAM ranges?
+- Simulate OSI 6850 UART serial port for LOAD/SAVE
+- Simulated Sound/Bank/Color/Video register
+- Simulate BRK
+- Simulate IRQ and NMI
+- Option for Rockwell instructions
+- Option for 65C02 instructions
+- Option for 65816 instructions
+- Support loading RAM or ROM from other file formats (S record file, Intel hex, etc.)
+- Only read/write effective addresses once
+- Breakpoint function
+- Disassembler
+- Simulate 610 board: additional RAM, Second 6550 UART, 6820 PIA, floppy disk
+- Optimize performance
+- Handle decimal mode

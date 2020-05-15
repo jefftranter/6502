@@ -1,25 +1,13 @@
 #include <iostream>
 #include "sim6502.h"
 
-
 /*
 
-TODO: Make command line interface, e,g.
+This is a 6502 simulator to simulate an Ohio Scientific Superboard II
+computer.
 
-- load
-- run
-- reset
-- step
-- show registers
-- dump
-- breakpoints
-- watchpoints
-- edit memory
-- registers
-- disassemble
-- IRQ, NMI
-- save memory
-- show video screen
+It is written in standard C++ and should be portable, but has only
+been tested on Linux with the gcc compiler.
 
 */
 
@@ -28,9 +16,9 @@ int main()
     Sim6502 sim;
 
     // Settings for Ohio Scientific Superboard II
-    sim.setRamRange(0x0000, 0x1fff);
-    sim.setRomRange1(0xa000, 0xbfff);
-    sim.setRomRange2(0xf800, 0xffff);
+    sim.setRamRange(0x0000, 0x1fff); // 8K
+    sim.setRomRange1(0xa000, 0xbfff); // Basic
+    sim.setRomRange2(0xf800, 0xffff); // Monitor
     sim.setVideoRange(0xd000, 0xd3ff);
     sim.setPeripheral(Sim6502::MC6850, 0xf000);
     sim.setKeyboard(0xdf00);

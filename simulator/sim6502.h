@@ -18,7 +18,7 @@ public:
     // Perpheral types. Currently only M6850 is supported.
     enum PeripheralType { MC6850, MC6820 };
 
-    // Status register bits
+    // Processor status register bits
     const uint8_t S_BIT = 0x80;
     const uint8_t V_BIT = 0x40;
     const uint8_t X_BIT = 0x20;
@@ -68,8 +68,8 @@ public:
     void setXReg(uint8_t val);
     uint8_t yReg() const;
     void setYReg(uint8_t val);
-    uint8_t sr() const;
-    void setSR(uint8_t val);
+    uint8_t pReg() const;
+    void setPReg(uint8_t val);
     uint8_t sp() const;
     void setSP(uint8_t val);
     uint16_t pc() const;
@@ -169,7 +169,7 @@ public:
     uint8_t m_regA = 0; // Registers
     uint8_t m_regX = 0;
     uint8_t m_regY = 0;
-    uint8_t m_regSR = X_BIT;
+    uint8_t m_regP = X_BIT;
     uint8_t m_regSP = 0;
     uint16_t m_regPC = 0;
 
