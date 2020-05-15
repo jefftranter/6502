@@ -161,6 +161,7 @@ public:
     uint8_t m_keyboardRowRegister = 0;
     uint8_t m_desiredRow = 0;
     uint8_t m_columnData = 0;
+    bool m_shift = false;
     bool m_sendingCharacter = false;
     char m_keyboardCharacter;
     int m_tries = 0;
@@ -174,8 +175,9 @@ public:
 
     uint8_t m_memory[0x10000]{0}; // Memory (Used for RAM, ROM, and video)
 
-    uint8_t m_row[128]{0};
-    uint8_t m_col[128]{0};
+    uint8_t m_row[128]{0}; // Keyboard row lookup table by key
+    uint8_t m_col[128]{0}; // Keyboard column lookup table by key
+    bool m_shifted[128]{false}; // Flags keys that need to be shifted
 
     std::list<uint16_t> m_breakpoints;
 };

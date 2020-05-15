@@ -16,7 +16,7 @@ Sim6502::Sim6502()
 {
     m_row['1'] = m_row['2'] = m_row['3'] = m_row['4'] = m_row['5'] = m_row['6'] = m_row['7'] = 127;
     m_row['8'] = m_row['9'] = m_row['0'] = m_row[':'] = m_row['-'] = m_row[0x7f]  = 191;
-    m_row['.'] = m_row['L'] = m_row['O'] = m_row['\n'] = m_row['\r'] = 223;
+    m_row['.'] = m_row['L'] = m_row['O'] = m_row['\n']= m_row['\r']= 223;
     m_row['W'] = m_row['E'] = m_row['R'] = m_row['T'] = m_row['Y'] = m_row['U'] = m_row['I'] = 239;
     m_row['S'] = m_row['D'] = m_row['F'] = m_row['G'] = m_row['H'] = m_row['J'] = m_row['K'] = 247;
     m_row['X'] = m_row['C'] = m_row['V'] = m_row['B'] = m_row['N'] = m_row['M'] = m_row[','] = 251;
@@ -26,10 +26,30 @@ Sim6502::Sim6502()
     m_col['Q'] = m_col['X'] = m_col['S'] = m_col['W'] = m_col['.'] = m_col['8'] = m_col['1'] = 127;
     m_col['A'] = m_col['C'] = m_col['D'] = m_col['E'] = m_col['L'] = m_col['9'] = m_col['2'] = 191;
     m_col[0x1b]= m_col['Z'] = m_col['V'] = m_col['F'] = m_col['R'] = m_col['O'] = m_col['0'] = m_col['3'] = 223;
-    m_col[' '] = m_col['B'] = m_col['G'] = m_col['T'] = m_col['\n'] = m_col[':'] = m_col['4'] = 239;
-    m_col['/'] = m_col['N'] = m_col['H'] = m_col['Y'] = m_col['\r'] = m_col['-'] = m_col['5'] = 247;
-    m_col[';'] = m_col['M'] = m_col['J'] = m_col['U'] = m_col[0x7F] = m_col['6'] = 251;
+    m_col[' '] = m_col['B'] = m_col['G'] = m_col['T'] = m_col['\n']= m_col[':'] = m_col['4'] = 239;
+    m_col['/'] = m_col['N'] = m_col['H'] = m_col['Y'] = m_col['\r']= m_col['-'] = m_col['5'] = 247;
+    m_col[';'] = m_col['M'] = m_col['J'] = m_col['U'] = m_col[0x7F]= m_col['6'] = 251;
     m_col['P'] = m_col[','] = m_col['K'] = m_col['I'] = m_col['7'] = 253;
+
+    // Shifted versions of keys
+    m_row['!'] = m_row['"'] = m_row['#'] = m_row['$'] = m_row['%'] = m_row['&'] = m_row['\''] = 127;
+    m_row['('] = m_row[')'] = m_row['*'] = m_row['='] = 191;
+    m_row['>'] = 223;
+    m_row['<'] = 251;
+    m_row['?'] = m_row['+'] = 253;
+
+    m_col['>'] = m_col['('] = m_col['!'] = 127;
+    m_col[')'] = m_col['#'] = 191;
+    m_col['#'] = 223;
+    m_col['*'] = m_col['$'] = 239;
+    m_col['?'] = m_col['='] = m_col['%'] = 247;
+    m_col['+'] = m_col['&'] = 251;
+    m_col[','] = m_col['\''] = 253;
+
+    m_shifted['!']
+        = m_shifted['"'] = m_shifted['#'] = m_shifted['$'] = m_shifted['%'] = m_shifted['&']
+        = m_shifted['\''] =  m_shifted['('] = m_shifted[')'] = m_shifted['*'] = m_shifted['=']
+        = m_shifted['>'] = m_shifted['<'] = m_shifted['?'] = m_shifted['+'] = true;
 }
 
 Sim6502::~Sim6502()
@@ -322,6 +342,7 @@ void Sim6502::pressKey(char key)
     m_keyboardCharacter = key; // Save keyboard key character
     m_desiredRow = m_row[(int)key];
     m_columnData = m_col[(int)key];
+    m_shift = m_shifted[(int)key];
     m_sendingCharacter = true;
     m_tries = 0;
 }
@@ -354,14 +375,20 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
         } else {
             cout << "Keyboard: finished key press cycle" << endl;
             m_sendingCharacter = false;
+            m_shift = false;
         }
         cout << "Keyboard: returning column data $" << (int)m_columnData << endl;
         return m_columnData;
     }
 
     if (m_keyboardRowRegister == 254) { // Modifier row
-        cout << "Keyboard: returning column data for shift lock pressed" << endl;
-        return 254; // Return shift lock pressed
+        if (m_shift) {
+            cout << "Keyboard: returning column data $" << (251&254) << " for left shift and shift lock pressed" << endl;
+            return (251&254); // Return both left shift and shift lock pressed
+        } else {
+            cout << "Keyboard: returning column data $" << 254 << " for shift lock pressed" << endl;
+            return 254; // Return shift lock pressed
+        }
     }
 
     cout << "Keyboard: returning no key pressed" << endl;
@@ -1259,6 +1286,14 @@ void Sim6502::step()
     case 0xd8: // cld
         m_regSR &= ~D_BIT;
         cout << "cld" << endl;
+        break;
+
+    case 0xd9: // cmp xxxx,y
+        (m_regA == read(operand1 + 256 * operand2 + m_regY)) ? m_regSR |= Z_BIT : m_regSR &= ~Z_BIT; // Set Z flag
+        (m_regA < read(operand1 + 256 * operand2 + m_regY)) ? m_regSR |= S_BIT : m_regSR &= ~S_BIT; // Set S flag
+        (m_regA >= read(operand1 + 256 * operand2 + m_regY)) ? m_regSR |= C_BIT : m_regSR &= ~C_BIT; // Set C flag
+        cout << "cmp $" << setw(4) << (int)(operand1 + 256 * operand2) << ",y" <<endl;
+        len = 3;
         break;
 
     case 0xe0: // cpx #
