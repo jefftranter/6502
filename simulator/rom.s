@@ -1,22 +1,31 @@
         .org $8000
 
 start:  nop
-        sed
-        cld
-        ldx     #1
-        ldy     #2
-        lda     #3
-        sta     $1000
-        stx     $1001
-        sty     $1002
-        lda     $1000
-        ldx     $1002
-        ldy     $1001
         sec
-        clc
-        adc     #$02
-loop:   iny
-        dex
-        bne     loop
-        inc     $1000
+        bcs     l1
+        brk
+l1:     clc
+        bcc     *+3
+        brk
+        lda     #$01
+        bpl     *+3
+        brk
+        lda     #$80
+        bmi     *+3
+        brk
+        lda     #$00
+        beq     *+3
+        brk
+        ldx     #$00
+        beq     *+3
+        brk
+        ldy     #$00
+        beq     *+3
+        brk
+        ldx     #$00
+        beq     *+3
+        brk
+        ldy     #$00
+        beq     *+3
+        brk
         jmp     start
