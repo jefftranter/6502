@@ -1,6 +1,27 @@
         .org $8000
 
 start:  nop
+        lda     #$01
+        clc
+        adc     #$01
+        lda     #$ff
+        clc
+        adc     #$01
+        lda     #$ff
+        clc
+        adc     #$02
+        lda     #$70
+        clc
+        adc     #$10
+        nop
+        lda     #$10
+        sec
+        sbc     #$01
+        lda     #$01
+        sec
+        sbc     #$02
+        nop
+
         sec
         bcs     l1
         brk
