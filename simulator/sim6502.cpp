@@ -582,7 +582,7 @@ void Sim6502::step()
         m_regA |= read(operand1);
         (m_regA >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        cout << "ora ($" << setw(2) << (int)operand1 << endl;
+        cout << "ora $" << setw(2) << (int)operand1 << endl;
         len = 2;
         break;
 
