@@ -829,7 +829,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 > 0xff) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 < 0x80) || (tmp3 > 0x17F)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        !((m_regA ^ read(operand1)) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "adc $" << setw(2) << (int)operand1 << endl;
         len = 2;
@@ -865,7 +865,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 > 0xff) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 < 0x80) || (tmp3 > 0x17F)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        !((m_regA ^ operand1) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "adc #$" << setw(2) << (int)operand1 << endl;
         len = 2;
@@ -896,7 +896,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 > 0xff) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 < 0x80) || (tmp3 > 0x17F)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        !((m_regA ^ read(operand1 + 256 * operand2)) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "adc $" << setw(4) << (int)operand1 + 256 * operand2 << endl;
         len = 3;
@@ -938,6 +938,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 > 0xff) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
+        !((m_regA ^ read(operand1 + 256 * operand2 + m_regY)) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "adc $" << setw(4) << (int)operand1 + 256 * operand2 << ",y" << endl;
         len = 3;
@@ -1344,7 +1345,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 >= 0) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 < -128) || (tmp3 > 127)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        !((m_regA ^ (255 - read(operand1))) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "sbc $" << setw(2) << (int)operand1 << endl;
         len = 2;
@@ -1375,7 +1376,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 >= 0) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 < -128) || (tmp3 > 127)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        !((m_regA ^ (255 - operand1)) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "sbc #$" << setw(2) << (int)operand1 << endl;
         len = 2;
@@ -1402,7 +1403,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 >= 0) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 < -128) || (tmp3 > 127)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        !((m_regA ^ (255 - read(operand1 + 256 * operand2))) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "sbc $" << setw(4) << operand1 + 256 * operand2 << endl;
         len = 3;
@@ -1455,7 +1456,7 @@ void Sim6502::step()
         (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (tmp3 >= 0) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 < -128) || (tmp3 > 127)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        !((m_regA ^ (255 - read(operand1 + 256 * operand2 + m_regY))) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "sbc $" << setw(4) << operand1 + 256 * operand2 << ",y" << endl;
         len = 3;

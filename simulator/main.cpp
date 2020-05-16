@@ -38,10 +38,14 @@ int main()
     if (!sim.loadMemory("basic4.rom", 0xb800)) {
         return 1;
     }
+    //if (!sim.loadMemory("rom.bin", 0x8000)) {
+    //    return 1;
+    //}
 
     //sim.dumpMemory(0xa000, 0xbfff);
     //sim.dumpMemory(0xf800, 0xffff);
     sim.reset();
+    //sim.setPC(0x8000);
     cout << "Running..." << endl;
 
     int i = 0;

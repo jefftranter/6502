@@ -2,6 +2,7 @@ To Do:
 
 - Fixes for flags in ADC/SBC/CMP
 - Get BASIC fully working
+- Command line options to load file(s), start at address, control trace output
 - Implement more instructions
 - Support for lower case chars and make caps lock a toggle
 - Test with other programs: JMON, CEGMON, Enhanced Basic
@@ -9,7 +10,6 @@ To Do:
 Future:
 
 - Make debug output optional
-- Command line options to load file(s), start at address, control trace output
 - Main program with command line/debug interface: load, run, reset,
   step, show registers, dump, breakpoints, watchpoints, edit memory,
   registers, disassemble, IRQ, NMI, save memory, show video screen
