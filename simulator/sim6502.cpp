@@ -480,16 +480,31 @@ void Sim6502::setMemory(uint16_t startAddress, uint16_t endAddress, uint8_t byte
     }
 }
 
-void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress)
+void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress, bool showAscii)
 {
     assert(startAddress <= endAddress);
 
+    cout << endl << hex << uppercase << setfill('0') << setw(4) << startAddress << ":";
+    int printed = 0;
     for (int i = startAddress; i <= endAddress; i++) {
 
-        if ((i == startAddress) || (i % 16 == 0)) {
+        if ((i != startAddress) && (i % 16 == 0)) {
             cout << endl << hex << setfill('0') << setw(4) << i << ":";
+            printed = 0;
         }    
         cout << " " << setfill('0') << setw(2) << (int)m_memory[i];
+        printed++;
+        if (printed == 16) {
+            cout << "  ";
+            for (int j = i - 16 ; j < i; j++) {
+                if (isprint(m_memory[j])) {
+                    cout << (char)m_memory[j];
+                } else {
+                    cout << ".";
+                }
+                printed = 0;
+            }
+        }
     }
     cout << endl;
 }

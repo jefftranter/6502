@@ -1,4 +1,7 @@
+#include <algorithm>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include "sim6502.h"
 
 /*
@@ -38,16 +41,115 @@ int main()
     if (!sim.loadMemory("basic4.rom", 0xb800)) {
         return 1;
     }
-    //if (!sim.loadMemory("rom.bin", 0x8000)) {
-    //    return 1;
-    //}
 
-    //sim.dumpMemory(0xa000, 0xbfff);
-    //sim.dumpMemory(0xf800, 0xffff);
     sim.reset();
-    //sim.setPC(0x8000);
     cout << "Running..." << endl;
 
+    while (true) {
+        string line;
+
+        cout << "> " << flush;
+        getline(cin, line);
+
+        if (cin.eof()) {
+            exit(0);
+        }
+
+        // Vector of string to save tokens
+        vector <string> tokens;
+
+        // stringstream class check1
+        stringstream check1(line);
+
+        string intermediate;
+
+        // Tokenizing on space
+        while (getline(check1, intermediate, ' ')) {
+            tokens.push_back(intermediate);
+        }
+
+        if (tokens.size() > 0) {
+
+            if (tokens[0] == "?") {
+                cout << "Commands:" << endl;
+                cout << "Breakpoint   B <n or ?> <address>" << endl;
+                cout << "Dump         D <start> <end>" << endl;
+                cout << "Go           G <address>" << endl;
+                cout << "Help         ?" << endl;
+                cout << "Quit         Q" << endl;
+                cout << "Registers    R" << endl;
+                cout << "Dump Video   V" << endl;
+                cout << "Reset        X" << endl;
+                cout << "Trace        ." << endl;
+
+            } else if (tokens[0] == "q" || tokens[0] == "Q") {
+                exit(0);
+
+            } else if (tokens[0] == ".") {
+                sim.step();
+                sim.dumpRegisters();
+
+            } else if (tokens[0] == "r" || tokens[0] == "R") {
+                sim.dumpRegisters();
+
+            } else if ((tokens[0] == "d" || tokens[0] == "D") && tokens.size() >= 2) {
+
+                int start = stoi(tokens[1], nullptr, 16);
+                int end;
+                if (tokens.size() > 2) {
+                end = stoi(tokens[2], 0, 16);
+                } else {
+                    end = start + 15;
+                }
+                sim.dumpMemory(start, end);
+
+            } else if ((tokens[0] == "b" || tokens[0] == "B")) {
+
+                if (tokens.size() == 1) {
+                    // List breakpoints
+                    for (auto b: sim.getBreakpoints()) {
+                        cout << "Breakpoint at $" << hex << setw(4) <<  b << endl;
+                    }
+                } else if (tokens.size() == 2) {
+                    // Clear breakpoint
+                    int address = stoi(tokens[1], nullptr, 16);
+                    if (address > 0) {
+                        cout << "Adding breakpoint at $" << hex << setw(4) << address << endl;
+                        sim.setBreakpoint(address);
+                    } else {
+                        cout << "Removing breakpoint at $" << hex << setw(4) << -address << endl;
+                        sim.clearBreakpoint(-address);
+                    }
+                }
+
+            } else if ((tokens[0] == "g" || tokens[0] == "G")) {
+                // Run until breakpoint hit.
+                std::list<uint16_t> breakpoints = sim.getBreakpoints();
+
+                while (true) {
+                    sim.step();
+                    sim.dumpRegisters();
+                    if (std::find(breakpoints.begin(), breakpoints.end(), sim.pc()) != breakpoints.end()) {
+                        cout << "Breakpoint hit at $" << hex << setw(4) << sim.pc() << endl;
+                        sim.dumpRegisters();
+                        break;
+                    }
+                }
+
+            } else if ((tokens[0] == "x" || tokens[0] == "X")) {
+                sim.reset();
+
+            } else if ((tokens[0] == "v" || tokens[0] == "V")) {
+            sim.dumpVideo();
+
+            } else {
+                cout << "Invalid command. Type '?' for help." << endl;
+            }
+        }
+    }
+
+
+    /*
     int i = 0;
     while (true) {
         sim.dumpRegisters();
@@ -57,6 +159,8 @@ int main()
         }
         i++;
     }
+
+    */
 
     return 0;
 }

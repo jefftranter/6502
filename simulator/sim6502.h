@@ -117,7 +117,7 @@ public:
     void setMemory(uint16_t startAddress, uint16_t endAddress, uint8_t byte=0);
 
     // Dump memory to standard output
-    void dumpMemory(uint16_t startAddress, uint16_t endAddress);
+    void dumpMemory(uint16_t startAddress, uint16_t endAddress, bool showAscii=true);
 
     // Dump registers to standard output
     void dumpRegisters();
@@ -179,5 +179,6 @@ public:
     uint8_t m_col[128]{0}; // Keyboard column lookup table by key
     bool m_shifted[128]{false}; // Flags keys that need to be shifted
 
-    std::list<uint16_t> m_breakpoints;
+    // TODO: Might want to use set rather than list
+    std::list<uint16_t> m_breakpoints; // Breakpoint list
 };
