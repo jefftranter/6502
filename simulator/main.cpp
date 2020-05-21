@@ -129,7 +129,7 @@ int main()
 
                 while (true) {
                     sim.step();
-                    sim.dumpRegisters();
+                    //sim.dumpRegisters();
                     if (std::find(breakpoints.begin(), breakpoints.end(), sim.pc()) != breakpoints.end()) {
                         cout << "Breakpoint hit at $" << hex << setw(4) << sim.pc() << endl;
                         sim.dumpRegisters();
