@@ -42,12 +42,12 @@ Sim6502::Sim6502()
     m_col['*'] = m_col['$'] = 239;
     m_col['?'] = m_col['='] = m_col['%'] = 247;
     m_col['+'] = m_col['&'] = 251;
-    m_col[','] = m_col['\''] = 253;
+    m_col['<'] = m_col['\''] = 253;
 
-    m_shifted['!']
-        = m_shifted['"'] = m_shifted['#'] = m_shifted['$'] = m_shifted['%'] = m_shifted['&']
-        = m_shifted['\''] =  m_shifted['('] = m_shifted[')'] = m_shifted['*'] = m_shifted['=']
-        = m_shifted['>'] = m_shifted['<'] = m_shifted['?'] = m_shifted['+'] = true;
+    m_shifted['!'] = m_shifted['"'] = m_shifted['#'] = m_shifted['$'] = m_shifted['%']
+        = m_shifted['&'] = m_shifted['\''] = m_shifted['('] = m_shifted[')'] = m_shifted['*']
+        = m_shifted['='] = m_shifted['>'] = m_shifted['<'] = m_shifted['?'] = m_shifted['+']
+        = true;
 }
 
 Sim6502::~Sim6502()
