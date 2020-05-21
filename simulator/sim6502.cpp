@@ -33,20 +33,21 @@ Sim6502::Sim6502()
     m_row['!'] = m_row['"'] = m_row['#'] = m_row['$'] = m_row['%'] = m_row['&'] = m_row['\''] = 127;
     m_row['('] = m_row[')'] = m_row['*'] = m_row['='] = 191;
     m_row['>'] = 223;
-    m_row['<'] = 251;
+    m_row['<'] = m_row['^'] = 251;
     m_row['?'] = m_row['+'] = 253;
 
     m_col['>'] = m_col['('] = m_col['!'] = 127;
     m_col[')'] = m_col['"'] = 191;
     m_col['#'] = 223;
     m_col['*'] = m_col['$'] = 239;
-    m_col['?'] = m_col['='] = m_col['%'] = 247;
+    m_col['?'] = m_col['='] = m_col['%'] = m_col['^'] = 247;
     m_col['+'] = m_col['&'] = 251;
     m_col['<'] = m_col['\''] = 253;
 
     m_shifted['!'] = m_shifted['"'] = m_shifted['#'] = m_shifted['$'] = m_shifted['%']
         = m_shifted['&'] = m_shifted['\''] = m_shifted['('] = m_shifted[')'] = m_shifted['*']
         = m_shifted['='] = m_shifted['>'] = m_shifted['<'] = m_shifted['?'] = m_shifted['+']
+        = m_shifted['^']
         = true;
 }
 
@@ -803,7 +804,7 @@ void Sim6502::step()
 
     case 0x4a: // lsra
         (m_regA & 0x01) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
-        m_regA >>= 1; // Shift right
+        m_regA = (m_regA >> 1) & 0xff; // Shift right
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         m_regP &= ~S_BIT; // Clear S flag
         cout << "lsra" << endl;
@@ -878,7 +879,7 @@ void Sim6502::step()
         tmp2 = read(operand1); // Read value
         cout << "tmp2 = " << (int)tmp2 << endl;
         (tmp2 & 0x01) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set new C flag
-        tmp2 >>= 1; // Shift right
+        tmp2 = (tmp2 >> 1) & 0xff; // Shift right
         tmp2 |= tmp1; // Set MSB of result to original C bit
         write(operand1, tmp2); // Write back
         (tmp2 == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
@@ -913,7 +914,7 @@ void Sim6502::step()
     case 0x6a: // rora
         tmp1 = (m_regP & 0x01) ? 0x80 : 0x00; // Save original C flag in MSB
         (m_regA & 0x01) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set new C flag
-        m_regA >>= 1; // Shift right
+        m_regA = (m_regA >> 1) & 0xff; // Shift right
         m_regA |= tmp1; // Set MSB of result to original C bit
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         (m_regA >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
@@ -959,7 +960,7 @@ void Sim6502::step()
         tmp1 = (m_regP & 0x01) ? 0x80 : 0x00; // Save original C flag in MSB
         tmp2 = read(operand1 + m_regX); // Read value
         (tmp2 & 0x01) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set new C flag
-        tmp2 >>= 1; // Shift right
+        tmp2 = (tmp2 >> 1) & 0xff; // Shift right
         tmp2 |= tmp1; // Set MSB of result to original C bit
         write(operand1 + m_regX, tmp2); // Write back
         (tmp2 == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag

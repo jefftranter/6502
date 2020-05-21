@@ -1,3 +1,8 @@
+Known Bugs:
+
+- Some math results are incorrect
+- Extra newline in output
+
 To Do:
 
 - Review implementation of ASL, ROL, LSR, ROR
