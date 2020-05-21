@@ -52,6 +52,7 @@ int main()
         getline(cin, line);
 
         if (cin.eof()) {
+            cout << endl;
             exit(0);
         }
 

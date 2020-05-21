@@ -352,6 +352,7 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
     cout << "Keyboard: scanning row $" << (int)m_keyboardRowRegister << endl;
 
     if (!m_sendingCharacter) {
+        dumpVideo();
         cout << "Enter key (Enter for none): " << flush;
         string s;
         getline(cin, s);
@@ -676,8 +677,8 @@ void Sim6502::step()
 
     case 0x24: // bit xx
         ((m_regA & read(operand1)) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        (read(operand1) & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
-        (read(operand1) & 0x40) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        ((read(operand1) & 0x80) != 0) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        ((read(operand1) & 0x40) != 0) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         cout << "bit $" << setw(2) << (int)operand1 << " ($" << (int)read(operand1) << ")" << endl;
         len = 2;
         break;
@@ -886,10 +887,10 @@ void Sim6502::step()
         }
         tmp3 = m_regA + operand1; // Add immediate operand
         if (m_regP & C_BIT) tmp3++; // Add 1 if carry set
-        (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
-        (tmp3 > 0xff) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
+        ((tmp3 & 0x80) != 0) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        ((tmp3 < 0x00) || (tmp3 > 0xff)) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        !((m_regA ^ operand1) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        ((tmp3 & 0x80) != (m_regA & 0x80)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "adc #$" << setw(2) << (int)operand1 << endl;
         len = 2;
@@ -1271,7 +1272,7 @@ void Sim6502::step()
 
     case 0xc9: // cmp #
         (m_regA == operand1) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((m_regA - operand1) & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        (m_regA < operand1) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA >= operand1) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         cout << "cmp #$" << setw(2) << (int)operand1 << endl;
         len = 2;
@@ -1399,10 +1400,10 @@ void Sim6502::step()
         }
         tmp3 = m_regA - operand1; // Subtract immediate operand
         if (!(m_regP & C_BIT)) tmp3--; // Subtract 1 if carry not set
-        (tmp3 >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
-        (tmp3 >= 0) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
+        ((tmp3 & 0x80) != 0) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        ((tmp3 >= 0) && (tmp3 <= 0xff)) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        !((m_regA ^ (255 - operand1)) & 0x80) && ((m_regA ^ tmp3) & 0x80) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        ((tmp3 & 0x80) != (m_regA & 0x80)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "sbc #$" << setw(2) << (int)operand1 << endl;
         len = 2;
