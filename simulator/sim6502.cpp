@@ -534,11 +534,11 @@ void Sim6502::dumpRegisters()
 
 void Sim6502::dumpVideo()
 {
-    cout << "+------------------------+" << endl;
+    cout << "+--------------------------------+" << endl;
 
     for (int row = 0; row < 24; row++) {
         cout << "|";
-        for (int col = 0; col < 24; col++) {
+        for (int col = 0; col < 32; col++) {
             char c = m_memory[0xd085 + (row * 32) + col];
             if ((c >= 0x20) && (c <= 0x7c)) {
                 cout << c;
@@ -548,7 +548,7 @@ void Sim6502::dumpVideo()
         }
         cout << "|" << endl;
     }
-    cout << "+------------------------+" << endl;
+    cout << "+--------------------------------+" << endl;
 }
 
 void Sim6502::setBreakpoint(uint16_t address)
