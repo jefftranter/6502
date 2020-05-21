@@ -815,6 +815,20 @@ void Sim6502::step()
         len = 0;
         break;
 
+    case 0x50: // bvc xx
+        if (!(m_regP & V_BIT)) {
+            if (operand1 > 0x7f) { // Branch taken
+                m_regPC = m_regPC + 1 - (uint8_t)~operand1; // Branch back
+            } else {
+                m_regPC = m_regPC + 2 + operand1; // Branch forward
+            }
+            len = 0;
+        } else { // Branch not taken
+            len = 2;
+        }
+        cout << "bvc $" << setw(2) << (int)operand1 << endl;
+        break;
+
     case 0x55: // eor xx,x
         m_regA ^= read(operand1 + m_regX);
         (m_regA >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
@@ -1457,6 +1471,21 @@ void Sim6502::step()
             len = 2;
         }
         cout << "beq $" << setw(2) << (int)operand1 << endl;
+        break;
+
+    case 0xf5: // sbc xx,x
+        if (m_regP & D_BIT) {
+            cout << "Warning: Decimal mode not implemented." << endl;
+        }
+        tmp3 = m_regA - read(operand1 + m_regX); // Subtract operand
+        if (!(m_regP & C_BIT)) tmp3--; // Subtract 1 if carry not set
+        ((tmp3 & 0x80) != 0) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        ((tmp3 >= 0) && (tmp3 <= 0xff)) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
+        ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
+        ((tmp3 & 0x80) != (read(operand1 + m_regX) & 0x80)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        m_regA = tmp3 & 0xff; // Mask result to 8 bits
+        cout << "sbc $" << setw(4) << (int)operand1 << ",x" << " ($" << tmp3 << ")" << endl;
+        len = 2;
         break;
 
     case 0xf6: // inc xx,x
