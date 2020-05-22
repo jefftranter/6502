@@ -89,7 +89,7 @@ int main()
                 cout << "Go           G [<address>]" << endl;
                 cout << "Help         ?" << endl;
                 cout << "Quit         Q" << endl;
-                cout << "Registers    R" << endl;
+                cout << "Registers    R [<register> <value>]" << endl;
                 cout << "Dump Video   V" << endl;
                 cout << "Reset        X" << endl;
                 cout << "Trace        . [<instructions>]" << endl;
@@ -114,6 +114,23 @@ int main()
                 }
 
             } else if (tokens[0] == "r" || tokens[0] == "R") {
+                if (tokens.size() == 3) {
+                    // User specified register name and new value
+                    // PC 1234 A 01 X 02 Y 03 SP 04 P 05
+                    if ((tokens[1] == "pc") || (tokens[1] == "PC")) {
+                        sim.setPC(stoi(tokens[2], nullptr, 16));
+                    } else if ((tokens[1] == "a") || (tokens[1] == "A")) {
+                        sim.setAReg(stoi(tokens[2], nullptr, 16));
+                    } else if ((tokens[1] == "x") || (tokens[1] == "X")) {
+                        sim.setXReg(stoi(tokens[2], nullptr, 16));
+                    } else if ((tokens[1] == "y") || (tokens[1] == "Y")) {
+                        sim.setYReg(stoi(tokens[2], nullptr, 16));
+                    } else if ((tokens[1] == "sp") || (tokens[1] == "SP")) {
+                        sim.setSP(stoi(tokens[2], nullptr, 16));
+                    } else if ((tokens[1] == "p") || (tokens[1] == "P")) {
+                        sim.setPReg(stoi(tokens[2], nullptr, 16));
+                    }
+                }
                 sim.dumpRegisters();
 
             } else if ((tokens[0] == "d" || tokens[0] == "D") && tokens.size() >= 2) {
