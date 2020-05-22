@@ -5,17 +5,13 @@ Known Bugs:
 
 To Do:
 
-- Test with other programs: CEGMON
+- Simulate OSI 6850 UART serial port for LOAD/SAVE
 - Implement more instructions
-- Command line options to load file(s), start at address, control trace output
+- More command line options
 - Support for lower case chars and make caps lock a toggle
-- Main program with command line/debug interface: load, run, reset,
-  step, show registers, dump, breakpoints, watchpoints, edit memory,
-  registers, disassemble, IRQ, NMI, save memory, show video screen
 - Make debug output optional
 - Qt-based GUI
 - Add support for multiple RAM ranges?
-- Simulate OSI 6850 UART serial port for LOAD/SAVE
 - Simulated Sound/Bank/Color/Video register
 - Simulate BRK
 - Simulate IRQ and NMI

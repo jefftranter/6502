@@ -140,7 +140,7 @@ int main(int argc, char **argv)
         if (!sim.loadMemory(filename, a_option)) {
             return 1;
         }
-        cout << "Loaded " << filename << " at address $" << uppercase << hex << setw(4) << a_option << endl;
+        cout << "Loaded " << filename << " at address $" << uppercase << hex << setfill('0') << setw(4) << a_option << endl;
     }
 
     if (R_option) {

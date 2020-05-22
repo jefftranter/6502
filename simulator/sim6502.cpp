@@ -365,6 +365,13 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
         cout << "Enter key (Enter for none): " << flush;
         string s;
         getline(cin, s);
+
+        if (cin.eof()) {
+            cout << endl;
+            exit(0);
+            return 0xff;
+        }
+
         if (s.length() > 0) {
             pressKey(s[0]);
         } else {
@@ -1001,6 +1008,21 @@ void Sim6502::step()
         len = 3;
         break;
 
+    case 0x7d: // adc xxxx,x
+        if (m_regP & D_BIT) {
+            cout << "Warning: Decimal mode not implemented." << endl;
+        }
+        tmp3 = m_regA + read(operand1 + 256 * operand2 + m_regX); // Add operand
+        if (m_regP & C_BIT) tmp3++; // Add 1 if carry set
+        ((tmp3 & 0x80) != 0) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        ((tmp3 < 0x00) || (tmp3 > 0xff)) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
+        ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
+        ((tmp3 & 0x80) != (read(operand1 + 256 * operand2 + m_regX) & 0x80)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        m_regA = tmp3 & 0xff; // Mask result to 8 bits
+        cout << "adc $" << setw(4) << (int)operand1 + 256 * operand2 << ",x" << " ($" << (int)read(operand1 + 256 * operand2 + m_regX) << ")" << endl;
+        len = 3;
+        break;
+
     case 0x84: // sty xx
         write(operand1, m_regY);
         cout << "sty $" << setw(2) << (int)operand1 << endl;
@@ -1452,7 +1474,7 @@ void Sim6502::step()
 
     case 0xe9: // sbc #
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+           cout << "Warning: Decimal mode not implemented." << endl;
         }
         tmp3 = m_regA - operand1; // Subtract immediate operand
         if (!(m_regP & C_BIT)) tmp3--; // Subtract 1 if carry not set
@@ -1571,7 +1593,7 @@ void Sim6502::step()
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         ((tmp3 & 0x80) != (read(operand1 + 256 * operand2 + m_regY) & 0x80)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
-        cout << "sbc $" << setw(4) << operand1 + 256 * operand2 << ",y" << " ($" << tmp3 << ")" << endl;
+        cout << "sbc $" << setw(4) << operand1 + 256 * operand2 << ",y" << endl;
         len = 3;
         break;
 
