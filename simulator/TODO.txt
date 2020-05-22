@@ -5,9 +5,7 @@ Known Bugs:
 
 To Do:
 
-- Review implementation of ASL, ROL, LSR, ROR
-- Get BASIC fully working
-- Test with other programs: JMON, CEGMON, Enhanced Basic
+- Test with other programs: CEGMON, Enhanced Basic
 - Implement more instructions
 - Command line options to load file(s), start at address, control trace output
 - Support for lower case chars and make caps lock a toggle

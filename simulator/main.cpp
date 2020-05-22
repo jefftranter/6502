@@ -19,7 +19,7 @@ int main()
     Sim6502 sim;
 
     // Settings for Ohio Scientific Superboard II
-    sim.setRamRange(0x0000, 0x1fff); // 8K
+    sim.setRamRange(0x0000, 0x7fff); // 32K
     sim.setRomRange1(0xa000, 0xbfff); // Basic
     sim.setRomRange2(0xf800, 0xffff); // Monitor
     sim.setVideoRange(0xd000, 0xd3ff);

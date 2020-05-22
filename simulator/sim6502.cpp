@@ -330,10 +330,18 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
 
 void Sim6502::pressKey(char key)
 {
-    cout << "Keyboard: pressKey '" << key << "'" << endl;
+    if (isprint(key)) {
+        cout << "Keyboard: pressKey '" << key << "'" << endl;
+    } else {
+        cout << "Keyboard: pressKey " << hex << (int)key << endl;
+    }
 
     if ((m_row[(int)key] == 0) || (m_col[(int)key] == 0)) {
-        cout << "Keyboard: Error: Unrecognized key '" << key << "'" << endl;
+        if (isprint(key)) {
+            cout << "Keyboard: Error: Unrecognized key '" << key << "'" << endl;
+        } else {
+            cout << "Keyboard: Error: Unrecognized key " << hex << (int)key << endl;
+        }
         return;
     }
 
@@ -367,7 +375,11 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
     if (m_keyboardRowRegister == m_desiredRow) {
         m_tries++; // Need to send key pressed 4 times for software debouncing, then send no key pressed 4 times.
         if (m_tries < 4) {
-            cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
+            if (isprint(m_keyboardCharacter)) {
+                cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
+            } else {
+                cout << "Keyboard: sent key " << hex << (int)m_keyboardCharacter << endl;
+            }
         } else if (m_tries < 8) {
             cout << "Keyboard: sent no key pressed" << endl;
             m_columnData = 0xff;
@@ -849,6 +861,10 @@ void Sim6502::step()
         len = 2;
         break;
 
+    case 0x58: // cli
+        m_regP &= ~I_BIT; // Clear I flag
+        break;
+
     case 0x60: // rts
         m_regSP++;
         m_regPC = read(STACK + m_regSP); // Pull PC low byte
@@ -1095,6 +1111,14 @@ void Sim6502::step()
         (m_regY >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regY == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         cout << "ldy #$" << setw(2) << (int)operand1 << endl;
+        len = 2;
+        break;
+
+    case 0xa1: // lda (xx,x)
+        m_regA = read(read(operand1) + 256 * read(operand1 + 1) + m_regX);
+        (m_regA >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
+        cout << "lda ($" << setw(2) << (int)operand1 << ",x)" << endl;
         len = 2;
         break;
 
