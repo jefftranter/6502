@@ -205,84 +205,88 @@ void Sim6502::write(uint16_t address, uint8_t byte)
 
 void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 {
-    cout << "Video: wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
+    cout << "Video: Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
     m_memory[address] = byte;
 }
 
 void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 {
-    // TODO: Simulate 6850 UART
+    // TODO: More fully simulate 6850 UART.
 
     if (address == m_peripheralStart) {
         m_6850_control_reg = byte;
-        cout << "Peripheral: wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
+        cout << "Peripheral: Wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
 
         switch (byte & 0x03) {
         case 0x00:
-            cout << "Clock: divide by 1" << endl;
+            cout << "Peripheral: Clock: divide by 1" << endl;
             break;
         case 0x01:
-            cout << "Clock: divide by 16" << endl;
+            cout << "Peripheral: Clock: divide by 16" << endl;
             break;
         case 0x02:
-            cout << "Clock: divide by 64" << endl;
+            cout << "Peripheral: Clock: divide by 64" << endl;
             break;
         case 0x03:
-            cout << "Clock: master reset" << endl;
+            cout << "Peripheral: Clock: master reset" << endl;
             break;
         }
 
         switch ((byte >> 2) & 0x07) {
         case 0x00:
-            cout << "Protocol 7E2" << endl;
+            cout << "Peripheral: Protocol 7E2" << endl;
             break;
         case 0x01:
-            cout << "Protocol 7O2" << endl;
+            cout << "Peripheral: Protocol 7O2" << endl;
             break;
         case 0x02:
-            cout << "Protocol 7E1" << endl;
+            cout << "Peripheral: Protocol 7E1" << endl;
             break;
         case 0x03:
-            cout << "Protocol 7O1" << endl;
+            cout << "Peripheral: Protocol 7O1" << endl;
             break;
         case 0x04:
-            cout << "Protocol 8N2" << endl;
+            cout << "Peripheral: Protocol 8N2" << endl;
             break;
         case 0x05:
-            cout << "Protocol 8N1" << endl;
+            cout << "Peripheral: Protocol 8N1" << endl;
             break;
         case 0x06:
-            cout << "Protocol 78E1" << endl;
+            cout << "Peripheral: Protocol 78E1" << endl;
             break;
         case 0x07:
-            cout << "Protocol 8O1" << endl;
+            cout << "Peripheral: Protocol 8O1" << endl;
             break;
         }
 
         switch ((byte >> 5) & 0x03) {
         case 0x00:
-            cout << "/RTS low, TX int. disabled" << endl;
+            cout << "Peripheral: /RTS low, TX int. disabled" << endl;
             break;
         case 0x01:
-            cout << "/RTS low, TX int. enabled" << endl;
+            cout << "Peripheral: /RTS low, TX int. enabled" << endl;
             break;
         case 0x02:
-            cout << "/RTS high, TX int. disabled" << endl;
+            cout << "Peripheral: /RTS high, TX int. disabled" << endl;
             break;
         case 0x03:
-            cout << "/RTS low, transmit break" << endl;
+            cout << "Peripheral: /RTS low, transmit break" << endl;
             break;
         }
 
         if (byte & 0x80) {
-            cout << "Enable interrupts" << endl;
+            cout << "Peripheral: Enable interrupts" << endl;
         } else {
-            cout << "Disable interrupts" << endl;
+            cout << "Peripheral: Disable interrupts" << endl;
         }
 
     } else if (address == m_peripheralStart + 1) {
         m_6850_data_reg = byte;
-        cout << "Peripheral: wrote $" << hex << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
+        if (isprint(byte)) {
+            cout << "Peripheral: Wrote '" << hex << uppercase << setw(2) << (char)byte << "' to MC6850 Data Register" << endl;
+        } else {
+            cout << "Peripheral: Wrote $" << hex << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
+        }
     } else {
         assert(false); // Should never be reached
     }
@@ -314,15 +318,16 @@ uint8_t Sim6502::read(uint16_t address)
 
 uint8_t Sim6502::readPeripheral(uint16_t address)
 {
-    // TODO: Simulate 6850 UART
+    // TODO: More fully simulate 6850 UART.
 
     if (address == m_peripheralStart) {
-        cout << "Peripheral: read $" << hex << setw(2) << (int)m_6850_control_reg << " from MC6850 Status Register" << endl;
-        return m_6850_control_reg = 0;
+        // Return RDRF and TDRE true.
+        cout << "Peripheral: Read $0x03 from MC6850 Status Register" << endl;
+        return 0x03;
     }
     if (address == m_peripheralStart + 1) {
-        cout << "Peripheral: read $" << hex << setw(2) << (int)m_6850_data_reg << " from MC6850 Data Register" << endl;
-        return m_6850_control_reg = 0;
+        cout << "Peripheral: Read 'A' from MC6850 Data Register" << endl;
+        return 'A';
     }
     assert(false); // Should never be reached
 }

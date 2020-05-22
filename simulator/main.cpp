@@ -55,7 +55,7 @@ void usage()
 }
 
 
-/* Handle command line options. */
+// Handle command line options.
 static void parse_args(int argc, char **argv)
 {
     const char *flags = "hvl:a:r:R";
@@ -92,8 +92,11 @@ static void parse_args(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    /* parse the command line arguments */
+    // Parse the command line arguments
     parse_args(argc, argv);
+
+    // Set some outout defaults.
+    cout << uppercase << hex;
 
     if (h_option) {
         usage();
@@ -306,20 +309,6 @@ int main(int argc, char **argv)
             }
         }
     }
-
-
-    /*
-    int i = 0;
-    while (true) {
-        sim.dumpRegisters();
-        sim.step();
-        if (i % 100 == 0) {
-            sim.dumpVideo();
-        }
-        i++;
-    }
-
-    */
 
     return 0;
 }
