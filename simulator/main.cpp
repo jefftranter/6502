@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <signal.h>
 #include "sim6502.h"
 
 /*
@@ -14,11 +15,21 @@ been tested on Linux with the gcc compiler.
 
 */
 
+// Use to flag when Control-C pressed
+bool control_c = false;
+
+// Control-C handler used to interrupt execution
+void signal_callback_handler(int signum) {
+    control_c = true;
+}
+
 int main()
 {
-    Sim6502 sim;
+    // Set up Control-C interrupt handler
+    signal(SIGINT, signal_callback_handler);
 
     // Settings for Ohio Scientific Superboard II
+    Sim6502 sim;
     sim.setRamRange(0x0000, 0x7fff); // 32K
     sim.setRomRange1(0xa000, 0xbfff); // Basic
     sim.setRomRange2(0xf800, 0xffff); // Monitor
@@ -92,9 +103,14 @@ int main()
                 if (tokens.size() == 2) {
                     instructions = stoi(tokens[1], nullptr, 16);
                 }
+                control_c = false;
                 for (int i = 0; i < instructions; i++) {
                     sim.step();
                     sim.dumpRegisters();
+                    if (control_c) {
+                        cout << endl << "Control-C interrupt" << endl;
+                        break;
+                    }
                 }
 
             } else if (tokens[0] == "r" || tokens[0] == "R") {
@@ -141,12 +157,17 @@ int main()
                 // Run until breakpoint hit.
                 std::list<uint16_t> breakpoints = sim.getBreakpoints();
 
+                control_c = false;
                 while (true) {
                     sim.step();
                     //sim.dumpRegisters();
                     if (std::find(breakpoints.begin(), breakpoints.end(), sim.pc()) != breakpoints.end()) {
                         cout << "Breakpoint hit at $" << hex << setw(4) << sim.pc() << endl;
                         sim.dumpRegisters();
+                        break;
+                    }
+                    if (control_c) {
+                        cout << endl << "Control-C interrupt" << endl;
                         break;
                     }
                 }
