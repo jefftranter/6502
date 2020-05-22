@@ -5,7 +5,7 @@ Known Bugs:
 
 To Do:
 
-- Test with other programs: CEGMON, Enhanced Basic
+- Test with other programs: CEGMON
 - Implement more instructions
 - Command line options to load file(s), start at address, control trace output
 - Support for lower case chars and make caps lock a toggle
@@ -32,11 +32,12 @@ To Do:
 Command Line Options (proposed)
 -------------------------------
 
--h --help            Show command line usage
--l <file> <address>  Load raw file in memory
+-h                   Show command line usage
+-l <file>            Load raw file into memory
+-a <address>         Address to load raw file
 -r <address>         Run from address immediately on startup, do not enter CLI
 -v                   Show software version and copyright
--R                   Reset on startup
+-R                   Reset on startup, do not enter CLI
 -l +/-<category>     Enable/disable logging of a category, e.g. registers instructions, video
 
 

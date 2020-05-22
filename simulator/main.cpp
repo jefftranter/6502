@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -13,18 +14,99 @@ computer.
 It is written in standard C++ and should be portable, but has only
 been tested on Linux with the gcc compiler.
 
+Copyright (c) 2020 Jeff Tranter <tranter@pobox.com>
+
 */
 
-// Use to flag when Control-C pressed
+
+// Use to flag when Control-C pressed.
 bool control_c = false;
 
-// Control-C handler used to interrupt execution
+// Last address use by dump command.
+int lastDumpAddress = 0;
+
+// Command line options.
+int h_option = 0;
+int v_option = 0;
+int l_option = 0;
+string filename = "";
+int a_option = 0;
+int r_option = 0;
+int R_option = 0;
+
+
+// Control-C handler used to interrupt execution.
 void signal_callback_handler(int signum) {
     control_c = true;
 }
 
-int main()
+
+// Display command line options usage.
+void usage()
 {
+    cout << "Usage: sim6502 [<options>]" << endl;
+    cout << "Options:" << endl;
+    cout << "-h                   Show command line usage" << endl;
+    cout << "-v                   Show software version and copyright" << endl;
+    cout << "-l <file>            Load raw file into memory" << endl;
+    cout << "-a <address>         Address to load raw file" << endl;
+    cout << "-r <address>         Set PC to address" << endl;
+    cout << "-R                   Reset on startup" << endl;
+}
+
+
+/* Handle command line options. */
+static void parse_args(int argc, char **argv)
+{
+    const char *flags = "hvl:a:r:R";
+    int c;
+
+    while ((c = getopt(argc, argv, flags)) != EOF) {
+        switch (c) {
+        case 'h':
+            h_option = 1;
+            break;
+        case 'v':
+            v_option = 1;
+            break;
+        case'l':
+            l_option = 1;
+            filename = optarg;
+            break;
+        case'a':
+            a_option = stoi(optarg, nullptr, 16);
+            break;
+        case'r':
+            r_option = stoi(optarg, nullptr, 16);
+            break;
+        case'R':
+            R_option = 1;
+            break;
+        case '?':
+            exit(1);
+            break;
+        }
+    }
+}
+
+
+int main(int argc, char **argv)
+{
+    /* parse the command line arguments */
+    parse_args(argc, argv);
+
+    if (h_option) {
+        usage();
+        exit(0);
+    }
+
+    if (v_option) {
+        cout << "Sim6502 6502 simulator version 0.1" << endl;
+        cout << "Copyright (c) 2020 Jeff Tranter <tranter@pobox.com>" << endl;
+        cout << "Licensed under the Apache License, Version 2.0." << endl;
+        exit(0);
+    }
+
     // Set up Control-C interrupt handler
     signal(SIGINT, signal_callback_handler);
 
@@ -53,8 +135,21 @@ int main()
         return 1;
     }
 
-    sim.reset();
-    cout << "Running..." << endl;
+    // Filename to load specified on command line.
+    if (l_option) {
+        if (!sim.loadMemory(filename, a_option)) {
+            return 1;
+        }
+        cout << "Loaded " << filename << " at address $" << uppercase << hex << setw(4) << a_option << endl;
+    }
+
+    if (R_option) {
+        sim.reset();
+    }
+
+    if (r_option) {
+        sim.setPC(r_option);
+    }
 
     while (true) {
         string line;
@@ -84,8 +179,8 @@ int main()
 
             if (tokens[0] == "?") {
                 cout << "Commands:" << endl;
-                cout << "Breakpoint   B <n or ?> <address>" << endl;
-                cout << "Dump         D <start> [<end>]" << endl;
+                cout << "Breakpoint   B [-][<address>]" << endl;
+                cout << "Dump         D [<start>] [<end>]" << endl;
                 cout << "Go           G [<address>]" << endl;
                 cout << "Help         ?" << endl;
                 cout << "Quit         Q" << endl;
@@ -133,16 +228,27 @@ int main()
                 }
                 sim.dumpRegisters();
 
-            } else if ((tokens[0] == "d" || tokens[0] == "D") && tokens.size() >= 2) {
+            } else if ((tokens[0] == "d" || tokens[0] == "D")) {
 
-                int start = stoi(tokens[1], nullptr, 16);
-                int end;
-                if (tokens.size() > 2) {
-                end = stoi(tokens[2], 0, 16);
+                int start, end;
+
+                // Start address specified
+                if (tokens.size() > 1) {
+                    start = stoi(tokens[1], nullptr, 16);
                 } else {
+                    // Default start to last end address plus one.
+                    start = lastDumpAddress;
+                }
+
+                // End address specified
+                if (tokens.size() > 2) {
+                    end = stoi(tokens[2], 0, 16);
+                } else {
+                    // Default to dumping 16 addresses.
                     end = start + 15;
                 }
                 sim.dumpMemory(start, end);
+                lastDumpAddress = end + 1;
 
             } else if ((tokens[0] == "b" || tokens[0] == "B")) {
 
