@@ -74,21 +74,28 @@ int main()
             if (tokens[0] == "?") {
                 cout << "Commands:" << endl;
                 cout << "Breakpoint   B <n or ?> <address>" << endl;
-                cout << "Dump         D <start> <end>" << endl;
-                cout << "Go           G <address>" << endl;
+                cout << "Dump         D <start> [<end>]" << endl;
+                cout << "Go           G [<address>]" << endl;
                 cout << "Help         ?" << endl;
                 cout << "Quit         Q" << endl;
                 cout << "Registers    R" << endl;
                 cout << "Dump Video   V" << endl;
                 cout << "Reset        X" << endl;
-                cout << "Trace        ." << endl;
+                cout << "Trace        . [<instructions>]" << endl;
 
             } else if (tokens[0] == "q" || tokens[0] == "Q") {
                 exit(0);
 
             } else if (tokens[0] == ".") {
-                sim.step();
-                sim.dumpRegisters();
+                int instructions = 1;
+                // Get optional number of instructions to trace
+                if (tokens.size() == 2) {
+                    instructions = stoi(tokens[1], nullptr, 16);
+                }
+                for (int i = 0; i < instructions; i++) {
+                    sim.step();
+                    sim.dumpRegisters();
+                }
 
             } else if (tokens[0] == "r" || tokens[0] == "R") {
                 sim.dumpRegisters();
@@ -124,6 +131,13 @@ int main()
                 }
 
             } else if ((tokens[0] == "g" || tokens[0] == "G")) {
+
+                // Get optional go address
+                if (tokens.size() == 2) {
+                    int address = stoi(tokens[1], nullptr, 16);
+                    sim.setPC(address);
+                }
+
                 // Run until breakpoint hit.
                 std::list<uint16_t> breakpoints = sim.getBreakpoints();
 

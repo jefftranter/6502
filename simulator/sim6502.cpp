@@ -596,6 +596,7 @@ void Sim6502::step()
 
     case 0x00: // brk
         cout << "brk" << endl;
+        cout << "Exited due to brk at address $" << hex << setw(4) << m_regPC << endl;
         exit(1);
         break;
 
