@@ -1254,6 +1254,14 @@ void Sim6502::step()
         cout << "tsx" << endl;
         break;
 
+    case 0xbc: // ldy xxxx,x
+        m_regY = read(operand1 + 256 * operand2 + m_regX);
+        (m_regY >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        (m_regY == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
+        cout << "ldy $" << setw(4) << operand1 + 256 * operand2 << ",x" << endl;
+        len = 3;
+        break;
+
     case 0xbd: // lda xxxx,x
         m_regA = read(operand1 + 256 * operand2 + m_regX);
         (m_regA >= 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
