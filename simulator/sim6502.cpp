@@ -383,23 +383,36 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
     cout << "Keyboard: scanning row $" << (int)m_keyboardRowRegister << endl;
 
     if (!m_sendingCharacter) {
-        dumpVideo();
-        cout << "Enter key (Enter for none): " << flush;
-        string s;
-        getline(cin, s);
+        dumpVideo(); // Show screen
 
-        if (cin.eof()) {
-            cout << endl;
-            exit(0);
-            return 0xff;
-        }
-
-        if (s.length() > 0) {
-            pressKey(s[0]);
+        if (!m_keyboardFifo.empty()) { // If fifo not empty
+            pressKey(m_keyboardFifo.front()); // Get next key from fifo
+            m_keyboardFifo.pop(); // And remove it from fifo
         } else {
-            pressKey('\r'); // Send Return
+            // Prompt for (keys) to press
+            cout << "Keyboard: input: " << flush;
+            string s;
+            getline(cin, s);
+
+            if (cin.eof()) {
+                cout << endl;
+                exit(0);
+                return 0xff;
+            }
+
+            if (s.length() > 0) {
+                for (auto i : s) {
+                    m_keyboardFifo.push(i); // Push character(s) into fifo
+                }
+                pressKey(m_keyboardFifo.front()); // Send first character
+                m_keyboardFifo.pop(); // And remove it from fifo
+            } else {
+                pressKey('\r'); // Send Return
+            }
         }
     }
+
+    // We already have a character to send.
 
     if (m_keyboardRowRegister == m_desiredRow) {
         m_tries++; // Need to send key pressed 4 times for software debouncing, then send no key pressed 4 times.

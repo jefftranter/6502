@@ -181,4 +181,6 @@ public:
 
     // TODO: Might want to use set rather than list
     std::list<uint16_t> m_breakpoints; // Breakpoint list
+
+    std::queue<char> m_keyboardFifo = {}; // Holds keyboard input
 };
