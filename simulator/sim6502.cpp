@@ -404,6 +404,9 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
                 for (auto i : s) {
                     m_keyboardFifo.push(i); // Push character(s) into fifo
                 }
+                if (s.length() > 1) {
+                    m_keyboardFifo.push('\r'); // If more than than one char, append Return for convenience
+                }
                 pressKey(m_keyboardFifo.front()); // Send first character
                 m_keyboardFifo.pop(); // And remove it from fifo
             } else {
