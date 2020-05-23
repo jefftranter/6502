@@ -8,7 +8,7 @@ To Do:
 - Simulate OSI 6850 UART serial port for LOAD/SAVE
 - Implement more instructions
 - More command line options
-- Support for lower case chars and make caps lock a toggle
+- Proper support for lower case chars and make caps lock a toggle
 - Make debug output optional
 - Qt-based GUI
 - Add support for multiple RAM ranges?
