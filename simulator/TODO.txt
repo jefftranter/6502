@@ -1,6 +1,6 @@
 Known Bugs:
 
-- Some math results are incorrect
+- Some math results are incorrect (random?)
 - Extra newline in output
 
 To Do:

@@ -13,21 +13,38 @@ using namespace std;
 Sim6502::Sim6502()
 {
     m_row['1'] = m_row['2'] = m_row['3'] = m_row['4'] = m_row['5'] = m_row['6'] = m_row['7'] = 127;
-    m_row['8'] = m_row['9'] = m_row['0'] = m_row[':'] = m_row['-'] = m_row[0x7f]  = 191;
-    m_row['.'] = m_row['L'] = m_row['O'] = m_row['\n']= m_row['\r']= 223;
+    m_row['8'] = m_row['9'] = m_row['0'] = m_row[':'] = m_row['-'] = m_row[0x7f]             = 191;
+    m_row['.'] = m_row['L'] = m_row['O'] = m_row['\n']= m_row['\r']                          = 223;
     m_row['W'] = m_row['E'] = m_row['R'] = m_row['T'] = m_row['Y'] = m_row['U'] = m_row['I'] = 239;
     m_row['S'] = m_row['D'] = m_row['F'] = m_row['G'] = m_row['H'] = m_row['J'] = m_row['K'] = 247;
     m_row['X'] = m_row['C'] = m_row['V'] = m_row['B'] = m_row['N'] = m_row['M'] = m_row[','] = 251;
     m_row['Q'] = m_row['A'] = m_row['Z'] = m_row[' '] = m_row['/'] = m_row[';'] = m_row['P'] = 253;
     m_row[0x1b] = 254;
 
+    // Lowercase versions of above
+                 m_row['l'] = m_row['o'] = 223;
+    m_row['w'] = m_row['e'] = m_row['r'] = m_row['t'] = m_row['y'] = m_row['u'] = m_row['i'] = 239;
+    m_row['s'] = m_row['d'] = m_row['f'] = m_row['g'] = m_row['h'] = m_row['j'] = m_row['k'] = 247;
+    m_row['x'] = m_row['c'] = m_row['v'] = m_row['b'] = m_row['n'] = m_row['m']              = 251;
+    m_row['q'] = m_row['a'] = m_row['z']                                        = m_row['p'] = 253;
+
+
     m_col['Q'] = m_col['X'] = m_col['S'] = m_col['W'] = m_col['.'] = m_col['8'] = m_col['1'] = 127;
     m_col['A'] = m_col['C'] = m_col['D'] = m_col['E'] = m_col['L'] = m_col['9'] = m_col['2'] = 191;
     m_col[0x1b]= m_col['Z'] = m_col['V'] = m_col['F'] = m_col['R'] = m_col['O'] = m_col['0'] = m_col['3'] = 223;
     m_col[' '] = m_col['B'] = m_col['G'] = m_col['T'] = m_col['\n']= m_col[':'] = m_col['4'] = 239;
     m_col['/'] = m_col['N'] = m_col['H'] = m_col['Y'] = m_col['\r']= m_col['-'] = m_col['5'] = 247;
-    m_col[';'] = m_col['M'] = m_col['J'] = m_col['U'] = m_col[0x7F]= m_col['6'] = 251;
-    m_col['P'] = m_col[','] = m_col['K'] = m_col['I'] = m_col['7'] = 253;
+    m_col[';'] = m_col['M'] = m_col['J'] = m_col['U'] = m_col[0x7F]= m_col['6']              = 251;
+    m_col['P'] = m_col[','] = m_col['K'] = m_col['I'] = m_col['7']                           = 253;
+
+    // Lowercase versions of above
+    m_col['q'] = m_col['x'] = m_col['s'] = m_col['w']                                        = 127;
+    m_col['a'] = m_col['c'] = m_col['d'] = m_col['e'] = m_col['l']                           = 191;
+                 m_col['z'] = m_col['v'] = m_col['f'] = m_col['r'] = m_col['o']              = 223;
+                 m_col['b'] = m_col['g'] = m_col['t']                                        = 239;
+                 m_col['n'] = m_col['h'] = m_col['y']                                        = 247;
+                 m_col['m'] = m_col['j'] = m_col['u']                                        = 251;
+    m_col['p']              = m_col['k'] = m_col['i']                                        = 253;
 
     // Shifted versions of keys
     m_row['!'] = m_row['"'] = m_row['#'] = m_row['$'] = m_row['%'] = m_row['&'] = m_row['\''] = 127;
