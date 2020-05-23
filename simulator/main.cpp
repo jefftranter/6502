@@ -55,6 +55,15 @@ void usage()
 }
 
 
+// Show version and license.
+void showVersion()
+{
+    cout << "Sim6502 6502 simulator version 0.1" << endl;
+    cout << "Copyright (c) 2020 Jeff Tranter <tranter@pobox.com>" << endl;
+    cout << "Licensed under the Apache License, Version 2.0." << endl;
+}
+
+
 // Handle command line options.
 static void parse_args(int argc, char **argv)
 {
@@ -104,11 +113,11 @@ int main(int argc, char **argv)
     }
 
     if (v_option) {
-        cout << "Sim6502 6502 simulator version 0.1" << endl;
-        cout << "Copyright (c) 2020 Jeff Tranter <tranter@pobox.com>" << endl;
-        cout << "Licensed under the Apache License, Version 2.0." << endl;
+        showVersion();
         exit(0);
     }
+
+    showVersion();
 
     // Set up Control-C interrupt handler
     signal(SIGINT, signal_callback_handler);
