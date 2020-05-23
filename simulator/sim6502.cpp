@@ -729,7 +729,7 @@ void Sim6502::step()
         break;
 
     case 0x11: // ora (xx),y
-        m_regA |= read(read(operand1) + 256 * read(operand1 + 1)) + m_regY;
+        m_regA |= read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
         (m_regA & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         cout << "ora ($" << setw(2) << (int)operand1 << "),y" << endl;
@@ -2026,9 +2026,7 @@ void Sim6502::step()
         break;
 
     default: // Invalid instruction, handle as NOP
-        //cout << "???" << endl;
-        cout << "??? unhandled opcode: " << setw(2) << (int)opcode << endl;
-        exit(1);
+        cout << "???" << endl;
         break;
     }
 
