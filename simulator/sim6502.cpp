@@ -1,4 +1,4 @@
-/*
+/
  * Class to emulate a 6502 CPU and system with RAM, ROM, and peripherals.
  */
 
@@ -901,7 +901,7 @@ void Sim6502::step()
         break;
 
     case 0x31: // and (xx),y
-        m_regA &= read(read(operand1) + 256 * read(operand1 + 1)) + m_regY;
+        m_regA &= read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
         (m_regA & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         cout << "and ($" << setw(2) << (int)operand1 << "),y" << endl;
@@ -1063,7 +1063,7 @@ void Sim6502::step()
         break;
 
     case 0x51: // eor (xx),y
-        m_regA ^= read(read(operand1) + 256 * read(operand1 + 1)) + m_regY;
+        m_regA ^= read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
         (m_regA & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         cout << "eor ($" << setw(2) << (int)operand1 << "),y" << endl;
@@ -1260,7 +1260,7 @@ void Sim6502::step()
         if (m_regP & D_BIT) {
             cout << "Warning: Decimal mode not implemented." << endl;
         }
-        tmp3 = read(read(operand1) + 256 * read(operand1 + 1)) + m_regY;
+        tmp3 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
         if (m_regP & C_BIT) tmp3++; // Add 1 if carry set
         ((tmp3 & 0x80) != 0) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         ((tmp3 < 0x00) || (tmp3 > 0xff)) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
@@ -1896,12 +1896,12 @@ void Sim6502::step()
         if (m_regP & D_BIT) {
             cout << "Warning: Decimal mode not implemented." << endl;
         }
-        tmp3 = m_regA - read(read(operand1) + 256 * read(operand1 + 1)) + m_regY; // Subtract operand
+        tmp3 = m_regA - read(read(operand1) + 256 * read(operand1 + 1) + m_regY); // Subtract operand
         if (!(m_regP & C_BIT)) tmp3--; // Subtract 1 if carry not set
         ((tmp3 & 0x80) != 0) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         ((tmp3 >= 0) && (tmp3 <= 0xff)) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         ((tmp3 & 0xff) == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((tmp3 & 0x80) != ((read(read(operand1) + 256 * read(operand1 + 1)) + m_regY) & 0x80)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
+        ((tmp3 & 0x80) != ((read(read(operand1) + 256 * read(operand1 + 1) + m_regY)) & 0x80)) ? m_regP |= V_BIT : m_regP &= ~V_BIT; // Set V flag
         m_regA = tmp3 & 0xff; // Mask result to 8 bits
         cout << "sbc ($" << setw(2) << (int)operand1 << "),y" << endl;
         len = 2;
