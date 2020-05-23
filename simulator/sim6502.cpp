@@ -209,14 +209,18 @@ void Sim6502::setPC(uint16_t val)
 
 void Sim6502::write(uint16_t address, uint8_t byte)
 {
-    if (isRam(address) || isRom(address)) {
+    if (isRam(address)) {
         m_memory[address] = byte;
+    } else if (isRom(address)) {
+        cout << "Memory: attempt to write to ROM address $" << setw(4) << address << endl;
     } else if (isVideo(address)) {
         writeVideo(address, byte);
     } else if (isPeripheral(address)) {
         writePeripheral(address, byte);
     } else if (isKeyboard(address)) {
         writeKeyboard(address, byte);
+    } else {
+        cout << "Memory: Invalid write to $" << setw(4) << address << endl;
     }
 }
 
@@ -633,9 +637,9 @@ void Sim6502::step()
     uint8_t opcode = m_memory[m_regPC];
     uint8_t operand1 = m_memory[m_regPC + 1];
     uint8_t operand2 = m_memory[m_regPC + 2];
-    uint8_t tmp1;
-    uint8_t tmp2;
-    int tmp3;
+    uint8_t tmp1 =0;
+    uint8_t tmp2 = 0;
+    int16_t tmp3 = 0;
 
     switch (opcode) {
 
@@ -1984,6 +1988,7 @@ void Sim6502::step()
         m_regP |= D_BIT;
         cout << "Warning: Decimal mode not implemented." << endl;
         cout << "sed" << endl;
+        exit(1);
         break;
 
     case 0xf9: // sbc xxxx,y
@@ -2029,6 +2034,11 @@ void Sim6502::step()
         cout << "???" << endl;
         break;
     }
+
+    assert(tmp1 >= 0);
+    assert(tmp1 <= 0xff);
+    assert(tmp2 >= 0);
+    assert(tmp2 <= 0xff);
 
     m_regPC += len;
 }
