@@ -5,6 +5,10 @@
 #include <cstdint>
 #include <list>
 #include <queue>
+#include <istream>
+#include <ostream>
+#include <fstream>
+#include <fstream>
 
 using namespace std;
 
@@ -183,4 +187,7 @@ public:
     std::list<uint16_t> m_breakpoints; // Breakpoint list
 
     std::queue<char> m_keyboardFifo = {}; // Holds keyboard input
+
+    ofstream m_serialOut; // File for emulating serial port output
+    ifstream m_serialIn; // File for emulating serial port input
 };

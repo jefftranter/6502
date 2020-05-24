@@ -5,13 +5,24 @@
 #include <cassert>
 #include <iostream>
 #include <iomanip>
-#include <fstream>
 #include "sim6502.h"
 
 using namespace std;
 
 Sim6502::Sim6502()
 {
+    // Open files for simulating serial i/o.
+
+    m_serialIn.open("serial.in", ios::binary);
+    if (!m_serialIn.is_open()) {
+        cout << "Error: Unable to open serial port file 'serial.in'" << endl;
+    }
+    m_serialOut.open("serial.out", ios::binary);
+    if (!m_serialOut.is_open()) {
+        cout << "Error: Unable to open serial port file 'serial.out'" << endl;
+    }
+
+    // Keyboard lookup tables
     m_row['1'] = m_row['2'] = m_row['3'] = m_row['4'] = m_row['5'] = m_row['6'] = m_row['7'] = 127;
     m_row['8'] = m_row['9'] = m_row['0'] = m_row[':'] = m_row['-'] = m_row[0x7f]             = 191;
     m_row['.'] = m_row['L'] = m_row['O'] = m_row['\n']= m_row['\r']                          = 223;
@@ -70,6 +81,8 @@ Sim6502::Sim6502()
 
 Sim6502::~Sim6502()
 {
+    m_serialIn.close();
+    m_serialOut.close();
 }
 
 void Sim6502::setRamRange(uint16_t start, uint16_t end)
@@ -235,8 +248,6 @@ void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 
 void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 {
-    // TODO: More fully simulate 6850 UART.
-
     if (address == m_peripheralStart) {
         m_6850_control_reg = byte;
         cout << "Peripheral: Wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
@@ -307,9 +318,12 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
     } else if (address == m_peripheralStart + 1) {
         m_6850_data_reg = byte;
         if (isprint(byte)) {
-            cout << "Peripheral: Wrote '" << hex << uppercase << setw(2) << (char)byte << "' to MC6850 Data Register" << endl;
+            cout << "Peripheral: Wrote '" << (char)byte << "' to MC6850 Data Register" << endl;
         } else {
-            cout << "Peripheral: Wrote $" << hex << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
+            cout << "Peripheral: Wrote $" << hex << setfill('0') << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
+        }
+        if (byte != 0x00) { // Filter out NULLs
+            m_serialOut << (char)byte << flush;
         }
     } else {
         assert(false); // Should never be reached
@@ -345,16 +359,24 @@ uint8_t Sim6502::read(uint16_t address)
 
 uint8_t Sim6502::readPeripheral(uint16_t address)
 {
-    // TODO: More fully simulate 6850 UART.
-
     if (address == m_peripheralStart) {
-        // Return RDRF and TDRE true.
-        cout << "Peripheral: Read $0x03 from MC6850 Status Register" << endl;
-        return 0x03;
+        if (!m_serialIn.eof()) {
+            cout << "Peripheral: Read $03 from MC6850 Status Register" << endl; // Return RDRF and TDRE true.
+            return 0x03;
+        } else {
+            cout << "Peripheral: Read $02 from MC6850 Status Register" << endl; // Return RDRF false and TDRE true.
+            return 0x02;
+        }
     }
     if (address == m_peripheralStart + 1) {
-        cout << "Peripheral: Read 'A' from MC6850 Data Register" << endl;
-        return 'A';
+        char byte;
+        m_serialIn.read(&byte, 1);
+        if (isprint(byte)) {
+            cout << "Peripheral: Read '" << (char)byte << "' from MC6850 Data Register" << endl;
+        } else {
+            cout << "Peripheral: Read $" << hex << setfill('0') << setw(2) << (int)byte << " from MC6850 Data Register" << endl;
+        }
+        return byte;
     }
     assert(false); // Should never be reached
 }
