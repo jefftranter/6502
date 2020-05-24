@@ -1,15 +1,13 @@
 Known Bugs:
 
-- Some math results are incorrect (random?)
 - Extra newline in output
 
 To Do:
 
+- Make debug output configurable
 - Simulate OSI 6850 UART serial port for LOAD/SAVE
-- Implement more instructions
 - More command line options
 - Proper support for lower case chars and make caps lock a toggle
-- Make debug output optional
 - Qt-based GUI
 - Add support for multiple RAM ranges?
 - Simulated Sound/Bank/Color/Video register
