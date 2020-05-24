@@ -672,9 +672,17 @@ void Sim6502::step()
     switch (opcode) {
 
     case 0x00: // brk
+        m_regPC +=2; // Increment PC by 2
+        m_regP |= B_BIT; // Set B flag
+        write(STACK + m_regSP, (m_regPC + 2) >> 8); // Push PC high byte
+        m_regSP--;
+        write(STACK + m_regSP, (m_regPC + 2) & 0xff); // Push PC low byte
+        m_regSP--;
+        write(STACK + m_regSP, m_regP); // Push P
+        m_regSP--;
+        m_regPC = m_memory[0xfffe] + m_memory[0xffff] * 256; // Set PC from IRQ vector
         cout << "brk" << endl;
-        cout << "Exited due to brk at address $" << hex << setw(4) << m_regPC << endl;
-        exit(1);
+        len = 0;
         break;
 
     case 0x01: // ora (xx,x)
@@ -2023,7 +2031,6 @@ void Sim6502::step()
         m_regP |= D_BIT;
         cout << "Warning: Decimal mode not implemented." << endl;
         cout << "sed" << endl;
-        exit(1);
         break;
 
     case 0xf9: // sbc xxxx,y
@@ -2066,7 +2073,7 @@ void Sim6502::step()
         break;
 
     default: // Invalid instruction, handle as NOP
-        cout << "???" << endl;
+        cout << "??? (invalid instruction $" << setw(2) << (int)opcode << ")" << endl;
         break;
     }
 
