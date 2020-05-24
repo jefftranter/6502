@@ -199,9 +199,9 @@ public:
     bool m_logErrors = true;
     bool m_logWarnings = true;
     bool m_logSerial = true;
-    bool m_logKeyboard = true;
-    bool m_logMemory = true;
-    bool m_logVideo = true;
-    bool m_logInstructions = true;
-    bool m_logRegisters = true;
+    bool m_logKeyboard = false;
+    bool m_logMemory = false;
+    bool m_logVideo = false;
+    bool m_logInstructions = false;
+    bool m_logRegisters = false;
 };

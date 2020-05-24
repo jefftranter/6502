@@ -202,6 +202,7 @@ int main(int argc, char **argv)
                 cout << "Trace        . [<instructions>]" << endl;
                 cout << "Send IRQ     IRQ" << endl;
                 cout << "Send NMI     NMI" << endl;
+                cout << "Logging      L <+/-><category>" << endl;
 
             } else if (tokens[0] == "q" || tokens[0] == "Q") {
                 exit(0);
