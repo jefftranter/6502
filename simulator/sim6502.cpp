@@ -2,6 +2,7 @@
  * Class to emulate a 6502 CPU and system with RAM, ROM, and peripherals.
  */
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <iomanip>
@@ -254,7 +255,7 @@ void Sim6502::write(uint16_t address, uint8_t byte)
     } else if (isKeyboard(address)) {
         writeKeyboard(address, byte);
     } else {
-        cout << "Memory: Invalid write to $" << setw(4) << address << endl;
+        cout << "Memory: Write to unused memory at $" << setw(4) << address << endl;
     }
 }
 
@@ -371,8 +372,10 @@ uint8_t Sim6502::read(uint16_t address)
     }
     if (isKeyboard(address)) {
         return readKeyboard(address);
+    } else {
+        cout << "Memory: Read from unused memory at $" << setw(4) << address << endl;
+        return 0; // Unused, read as zero
     }
-    return 0; // Unused, read as zero                
 }
 
 uint8_t Sim6502::readPeripheral(uint16_t address)
@@ -659,21 +662,33 @@ void Sim6502::dumpVideo()
     cout << "+--------------------------------+" << endl;
 }
 
+
 void Sim6502::setBreakpoint(uint16_t address)
 {
-    // TODO: Check for duplicate breakpoint?
-    m_breakpoints.push_back(address);
+    // Don't add breakpoint if it already exists.
+    auto it = std::find(m_breakpoints.begin(), m_breakpoints.end(), address);
+    if (it == m_breakpoints.end()) {
+        m_breakpoints.push_back(address);
+    }
 }
+
 
 void Sim6502::clearBreakpoint(uint16_t address)
 {
-    m_breakpoints.remove(address);
+    auto it = std::find(m_breakpoints.begin(), m_breakpoints.end(), address);
+    if (it == m_breakpoints.end()) {
+        cout << "No breakpoint at $" << setw(4) << hex << address << endl;
+    } else {
+        m_breakpoints.remove(address);
+    }
 }
+
 
 std::list<uint16_t> Sim6502::getBreakpoints() const
 {
     return m_breakpoints;
 }
+
 
 void Sim6502::step()
 {
@@ -701,6 +716,10 @@ void Sim6502::step()
         m_regPC = m_memory[0xfffe] + m_memory[0xffff] * 256; // Set PC from IRQ vector
         cout << "brk" << endl;
         len = 0;
+        if (m_stopBRK) {
+            m_stop = true;
+            m_stopReason = "brk instruction";
+        }
         break;
 
     case 0x01: // ora (xx,x)
@@ -2090,8 +2109,12 @@ void Sim6502::step()
         len = 3;
         break;
 
-    default: // Invalid instruction, handle as NOP
+    default: // Invalid instruction
         cout << "??? (invalid instruction $" << setw(2) << (int)opcode << ")" << endl;
+        if (m_stopInvalid) {
+            m_stop = true;
+            m_stopReason = "invalid instruction";
+        }
         break;
     }
 
@@ -2101,4 +2124,17 @@ void Sim6502::step()
     assert(tmp2 <= 0xff);
 
     m_regPC += len;
+}
+
+
+bool Sim6502::stop()
+{
+    return m_stop;
+}
+
+
+string Sim6502::stopReason()
+{
+    m_stop = false;
+    return m_stopReason;
 }

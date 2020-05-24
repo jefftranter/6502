@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     // Parse the command line arguments
     parse_args(argc, argv);
 
-    // Set some outout defaults.
+    // Set some output defaults.
     cout << uppercase << hex;
 
     if (h_option) {
@@ -200,8 +200,8 @@ int main(int argc, char **argv)
                 cout << "Dump Video   V" << endl;
                 cout << "Reset        X" << endl;
                 cout << "Trace        . [<instructions>]" << endl;
-                cout << "Simulate IRQ IRQ" << endl;
-                cout << "Simulate NMI NMI" << endl;
+                cout << "Send IRQ     IRQ" << endl;
+                cout << "Send NMI     NMI" << endl;
 
             } else if (tokens[0] == "q" || tokens[0] == "Q") {
                 exit(0);
@@ -218,6 +218,10 @@ int main(int argc, char **argv)
                     sim.dumpRegisters();
                     if (control_c) {
                         cout << endl << "Control-C interrupt" << endl;
+                        break;
+                    }
+                    if (sim.stop()) {
+                        cout << "Stopped due to " << sim.stopReason() << endl;
                         break;
                     }
                 }
@@ -307,6 +311,10 @@ int main(int argc, char **argv)
                         cout << endl << "Control-C interrupt" << endl;
                         break;
                     }
+                    if (sim.stop()) {
+                        cout << "Stopped due to " << sim.stopReason() << endl;
+                        break;
+                    } 
                 }
 
             } else if ((tokens[0] == "x" || tokens[0] == "X")) {

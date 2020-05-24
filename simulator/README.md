@@ -6,3 +6,25 @@ but is still pretty rough around the edges.
 
 It is written in standard C++ and should be portable, but has only
 been tested on Linux with the gcc compiler.
+
+Usage: sim6502 [<options>]
+Options:
+-h                   Show command line usage
+-v                   Show software version and copyright
+-l <file>            Load raw file into memory
+-a <address>         Address to load raw file
+-r <address>         Set PC to address
+-R                   Reset on startup
+
+Commands:
+Breakpoint   B [-][<address>]
+Dump         D [<start>] [<end>]
+Go           G [<address>]
+Help         ?
+Quit         Q
+Registers    R [<register> <value>]
+Dump Video   V
+Reset        X
+Trace        . [<instructions>]
+Send IRQ     IRQ
+Send NMI     NMI

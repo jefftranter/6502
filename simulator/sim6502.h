@@ -137,9 +137,8 @@ public:
     void clearBreakpoint(uint16_t address);
     std::list<uint16_t> getBreakpoints() const;
 
-    // TODO: Breakpoint hit (callback?).
-    // TODO: Keyboard/peripheral input (callback?).
-    // TODO: Illegal instruction (callback?).
+    bool stop(); // Return whether trace/go should stop due to event.
+    string stopReason(); // Return reason for stop
 
   protected:
 
@@ -183,11 +182,16 @@ public:
     uint8_t m_col[128]{0}; // Keyboard column lookup table by key
     bool m_shifted[128]{false}; // Flags keys that need to be shifted
 
-    // TODO: Might want to use set rather than list
     std::list<uint16_t> m_breakpoints; // Breakpoint list
 
     std::queue<char> m_keyboardFifo = {}; // Holds keyboard input
 
     ofstream m_serialOut; // File for emulating serial port output
     ifstream m_serialIn; // File for emulating serial port input
+
+    // Flags to set whether to stop run/trace on specific events
+    bool m_stop = false;
+    string m_stopReason = "none";
+    bool m_stopInvalid = true;
+    bool m_stopBRK = true;
 };
