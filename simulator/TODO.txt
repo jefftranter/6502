@@ -6,7 +6,6 @@ To Do:
 
 - Simulate OSI 6850 UART serial port for LOAD/SAVE with files
 - Make debug output configurable
-- Only read/write effective addresses once
 - Handle decimal mode
 - Proper support for lower case chars and make caps lock a toggle
 
