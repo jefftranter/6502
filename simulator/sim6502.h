@@ -19,7 +19,7 @@ public:
     // CPU types. Currently only MOS6502 is supported.
     enum CpuType { MOS6502, Rockwell65C02, WDC65C02, WDC65816 };
 
-    // Perpheral types. Currently only M6850 is supported.
+    // Peripheral types. Currently only M6850 is supported.
     enum PeripheralType { MC6850, MC6820 };
 
     // Processor status register bits
@@ -194,4 +194,14 @@ public:
     string m_stopReason = "none";
     bool m_stopInvalid = true;
     bool m_stopBRK = true;
+
+    // Flags to control logging output
+    bool m_logErrors = true;
+    bool m_logWarnings = true;
+    bool m_logSerial = true;
+    bool m_logKeyboard = true;
+    bool m_logMemory = true;
+    bool m_logVideo = true;
+    bool m_logInstructions = true;
+    bool m_logRegisters = true;
 };

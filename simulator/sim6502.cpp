@@ -15,12 +15,16 @@ Sim6502::Sim6502()
     // Open files for simulating serial i/o.
 
     m_serialIn.open("serial.in", ios::binary);
-    if (!m_serialIn.is_open()) {
-        cout << "Error: Unable to open serial port file 'serial.in'" << endl;
+    if (m_logErrors) {
+        if (!m_serialIn.is_open()) {
+            cout << "Error: Unable to open serial port file 'serial.in'" << endl;
+        }
     }
     m_serialOut.open("serial.out", ios::binary);
-    if (!m_serialOut.is_open()) {
-        cout << "Error: Unable to open serial port file 'serial.out'" << endl;
+    if (m_logErrors) {
+        if (!m_serialOut.is_open()) {
+            cout << "Error: Unable to open serial port file 'serial.out'" << endl;
+        }
     }
 
     // Keyboard lookup tables
@@ -247,7 +251,9 @@ void Sim6502::write(uint16_t address, uint8_t byte)
     if (isRam(address)) {
         m_memory[address] = byte;
     } else if (isRom(address)) {
-        cout << "Memory: attempt to write to ROM address $" << setw(4) << address << endl;
+        if (m_logMemory) {
+            cout << "Memory: attempt to write to ROM address $" << setw(4) << address << endl;
+        }
     } else if (isVideo(address)) {
         writeVideo(address, byte);
     } else if (isPeripheral(address)) {
@@ -255,13 +261,17 @@ void Sim6502::write(uint16_t address, uint8_t byte)
     } else if (isKeyboard(address)) {
         writeKeyboard(address, byte);
     } else {
-        cout << "Memory: Write to unused memory at $" << setw(4) << address << endl;
+        if (m_logMemory) {
+            cout << "Memory: Write to unused memory at $" << setw(4) << address << endl;
+        }
     }
 }
 
 void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 {
-    cout << "Video: Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
+    if (m_logVideo) {
+        cout << "Video: Wrote $" << setw(2) << hex << (int)byte << " to video RAM at $" << hex << setw(4) << address << endl;
+    }
     m_memory[address] = byte;
 }
 
@@ -269,77 +279,82 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 {
     if (address == m_peripheralStart) {
         m_6850_control_reg = byte;
-        cout << "Peripheral: Wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
 
-        switch (byte & 0x03) {
-        case 0x00:
-            cout << "Peripheral: Clock: divide by 1" << endl;
-            break;
-        case 0x01:
-            cout << "Peripheral: Clock: divide by 16" << endl;
-            break;
-        case 0x02:
-            cout << "Peripheral: Clock: divide by 64" << endl;
-            break;
-        case 0x03:
-            cout << "Peripheral: Clock: master reset" << endl;
-            break;
-        }
+        if (m_logSerial) {
+            cout << "Serial: Wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
 
-        switch ((byte >> 2) & 0x07) {
-        case 0x00:
-            cout << "Peripheral: Protocol 7E2" << endl;
-            break;
-        case 0x01:
-            cout << "Peripheral: Protocol 7O2" << endl;
-            break;
-        case 0x02:
-            cout << "Peripheral: Protocol 7E1" << endl;
-            break;
-        case 0x03:
-            cout << "Peripheral: Protocol 7O1" << endl;
-            break;
-        case 0x04:
-            cout << "Peripheral: Protocol 8N2" << endl;
-            break;
-        case 0x05:
-            cout << "Peripheral: Protocol 8N1" << endl;
-            break;
-        case 0x06:
-            cout << "Peripheral: Protocol 78E1" << endl;
-            break;
-        case 0x07:
-            cout << "Peripheral: Protocol 8O1" << endl;
-            break;
-        }
+            switch (byte & 0x03) {
+            case 0x00:
+                cout << "Serial: Clock: divide by 1" << endl;
+                break;
+            case 0x01:
+                cout << "Serial: Clock: divide by 16" << endl;
+                break;
+            case 0x02:
+                cout << "Serial: Clock: divide by 64" << endl;
+                break;
+            case 0x03:
+                cout << "Serial: Clock: master reset" << endl;
+                break;
+            }
 
-        switch ((byte >> 5) & 0x03) {
-        case 0x00:
-            cout << "Peripheral: /RTS low, TX int. disabled" << endl;
-            break;
-        case 0x01:
-            cout << "Peripheral: /RTS low, TX int. enabled" << endl;
-            break;
-        case 0x02:
-            cout << "Peripheral: /RTS high, TX int. disabled" << endl;
-            break;
-        case 0x03:
-            cout << "Peripheral: /RTS low, transmit break" << endl;
-            break;
-        }
+            switch ((byte >> 2) & 0x07) {
+            case 0x00:
+                cout << "Serial: Protocol 7E2" << endl;
+                break;
+            case 0x01:
+                cout << "Serial: Protocol 7O2" << endl;
+                break;
+            case 0x02:
+                cout << "Serial: Protocol 7E1" << endl;
+                break;
+            case 0x03:
+                cout << "Serial: Protocol 7O1" << endl;
+                break;
+            case 0x04:
+                cout << "Serial: Protocol 8N2" << endl;
+                break;
+            case 0x05:
+                cout << "Serial: Protocol 8N1" << endl;
+                break;
+            case 0x06:
+                cout << "Serial: Protocol 78E1" << endl;
+                break;
+            case 0x07:
+                cout << "Serial: Protocol 8O1" << endl;
+                break;
+            }
 
-        if (byte & 0x80) {
-            cout << "Peripheral: Enable interrupts" << endl;
-        } else {
-            cout << "Peripheral: Disable interrupts" << endl;
+            switch ((byte >> 5) & 0x03) {
+            case 0x00:
+                cout << "Serial: /RTS low, TX int. disabled" << endl;
+                break;
+            case 0x01:
+                cout << "Serial: /RTS low, TX int. enabled" << endl;
+                break;
+            case 0x02:
+                cout << "Serial: /RTS high, TX int. disabled" << endl;
+                break;
+            case 0x03:
+                cout << "Serial: /RTS low, transmit break" << endl;
+                break;
+            }
+
+            if (byte & 0x80) {
+                cout << "Serial: Enable interrupts" << endl;
+            } else {
+                cout << "Serial: Disable interrupts" << endl;
+            }
         }
 
     } else if (address == m_peripheralStart + 1) {
         m_6850_data_reg = byte;
-        if (isprint(byte)) {
-            cout << "Peripheral: Wrote '" << (char)byte << "' to MC6850 Data Register" << endl;
-        } else {
-            cout << "Peripheral: Wrote $" << hex << setfill('0') << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
+        if (m_logSerial) {
+            if (isprint(byte)) {
+                cout << "Serial: Wrote '" << (char)byte << "' to MC6850 Data Register" << endl;
+            } else {
+                cout << "Serial: Wrote $" << hex << setfill('0') << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
+            }
         }
         if (byte != 0x00) { // Filter out NULLs
             m_serialOut << (char)byte << flush;
@@ -353,7 +368,9 @@ void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
 {
     assert(isKeyboard(address));
     m_keyboardRowRegister = byte;
-    cout << "Keyboard: wrote $" << hex << setw(2) << (int)byte << " to row register" << endl;
+    if (m_logKeyboard) {
+        cout << "Keyboard: wrote $" << hex << setw(2) << (int)byte << " to row register" << endl;
+    }
 }
 
 uint8_t Sim6502::read(uint16_t address)
@@ -373,7 +390,9 @@ uint8_t Sim6502::read(uint16_t address)
     if (isKeyboard(address)) {
         return readKeyboard(address);
     } else {
-        cout << "Memory: Read from unused memory at $" << setw(4) << address << endl;
+        if (m_logMemory) {
+            cout << "Memory: Read from unused memory at $" << setw(4) << address << endl;
+        }
         return 0; // Unused, read as zero
     }
 }
@@ -382,10 +401,10 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
 {
     if (address == m_peripheralStart) {
         if (!m_serialIn.eof()) {
-            cout << "Peripheral: Read $03 from MC6850 Status Register" << endl; // Return RDRF and TDRE true.
+            cout << "Serial: Read $03 from MC6850 Status Register" << endl; // Return RDRF and TDRE true.
             return 0x03;
         } else {
-            cout << "Peripheral: Read $02 from MC6850 Status Register" << endl; // Return RDRF false and TDRE true.
+            cout << "Serial: Read $02 from MC6850 Status Register" << endl; // Return RDRF false and TDRE true.
             return 0x02;
         }
     }
@@ -393,9 +412,9 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
         char byte;
         m_serialIn.read(&byte, 1);
         if (isprint(byte)) {
-            cout << "Peripheral: Read '" << (char)byte << "' from MC6850 Data Register" << endl;
+            cout << "Serial: Read '" << (char)byte << "' from MC6850 Data Register" << endl;
         } else {
-            cout << "Peripheral: Read $" << hex << setfill('0') << setw(2) << (int)byte << " from MC6850 Data Register" << endl;
+            cout << "Serial: Read $" << hex << setfill('0') << setw(2) << (int)byte << " from MC6850 Data Register" << endl;
         }
         return byte;
     }
@@ -405,17 +424,20 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
 
 void Sim6502::pressKey(char key)
 {
-    if (isprint(key)) {
-        cout << "Keyboard: pressKey '" << key << "'" << endl;
-    } else {
-        cout << "Keyboard: pressKey " << hex << (int)key << endl;
-    }
-
-    if ((m_row[(int)key] == 0) || (m_col[(int)key] == 0)) {
+    if (m_logKeyboard) {
         if (isprint(key)) {
-            cout << "Keyboard: Error: Unrecognized key '" << key << "'" << endl;
+            cout << "Keyboard: pressKey '" << key << "'" << endl;
         } else {
-            cout << "Keyboard: Error: Unrecognized key " << hex << (int)key << endl;
+            cout << "Keyboard: pressKey " << hex << (int)key << endl;
+        }
+    }
+    if ((m_row[(int)key] == 0) || (m_col[(int)key] == 0)) {
+        if (m_logKeyboard) {
+            if (isprint(key)) {
+                cout << "Keyboard: Error: Unrecognized key '" << key << "'" << endl;
+            } else {
+                cout << "Keyboard: Error: Unrecognized key " << hex << (int)key << endl;
+            }
         }
         return;
     }
@@ -433,7 +455,9 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
 {
     assert(isKeyboard(address));
 
-    cout << "Keyboard: scanning row $" << (int)m_keyboardRowRegister << endl;
+    if (m_logKeyboard) {
+        cout << "Keyboard: scanning row $" << (int)m_keyboardRowRegister << endl;
+    }
 
     if (!m_sendingCharacter) {
         dumpVideo(); // Show screen
@@ -473,40 +497,56 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
     if (m_keyboardRowRegister == m_desiredRow) {
         m_tries++; // Need to send key pressed 4 times for software debouncing, then send no key pressed 4 times.
         if (m_tries < 4) {
-            if (isprint(m_keyboardCharacter)) {
-                cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
-            } else {
-                cout << "Keyboard: sent key " << hex << (int)m_keyboardCharacter << endl;
+            if (m_logKeyboard) {
+                if (isprint(m_keyboardCharacter)) {
+                    cout << "Keyboard: sent key '" << m_keyboardCharacter << "'" << endl;
+                } else {
+                    cout << "Keyboard: sent key " << hex << (int)m_keyboardCharacter << endl;
+                }
             }
         } else if (m_tries < 8) {
-            cout << "Keyboard: sent no key pressed" << endl;
+            if (m_logKeyboard) {
+                cout << "Keyboard: sent no key pressed" << endl;
+            }
             m_columnData = 0xff;
         } else {
-            cout << "Keyboard: finished key press cycle" << endl;
+            if (m_logKeyboard) {
+                cout << "Keyboard: finished key press cycle" << endl;
+            }
             m_sendingCharacter = false;
             m_shift = false;
         }
-        cout << "Keyboard: returning column data $" << (int)m_columnData << endl;
+        if (m_logKeyboard) {
+            cout << "Keyboard: returning column data $" << (int)m_columnData << endl;
+        }
         return m_columnData;
     }
 
     if (m_keyboardRowRegister == 254) { // Modifier row
         if (m_shift) {
-            cout << "Keyboard: returning column data $" << (251&254) << " for left shift and shift lock pressed" << endl;
+            if (m_logKeyboard) {
+                cout << "Keyboard: returning column data $" << (251&254) << " for left shift and shift lock pressed" << endl;
+            }
             return (251&254); // Return both left shift and shift lock pressed
         } else {
-            cout << "Keyboard: returning column data $" << 254 << " for shift lock pressed" << endl;
+            if (m_logKeyboard) {
+                cout << "Keyboard: returning column data $" << 254 << " for shift lock pressed" << endl;
+            }
             return 254; // Return shift lock pressed
         }
     }
 
-    cout << "Keyboard: returning no key pressed" << endl;
+    if (m_logKeyboard) {
+        cout << "Keyboard: returning no key pressed" << endl;
+    }
     return 0xff; // No key pressed.
 }
 
 uint8_t Sim6502::readVideo(uint16_t address)
 {
-    cout << "Video: read $" << setw(2) << hex << (int)m_memory[address] << " from video RAM at $" << hex << setw(4) << address << endl;
+    if (m_logVideo) {
+        cout << "Video: read $" << setw(2) << hex << (int)m_memory[address] << " from video RAM at $" << hex << setw(4) << address << endl;
+    }
     return m_memory[address];
 }
 
@@ -559,7 +599,9 @@ bool Sim6502::loadMemory(string filename, uint16_t startAddress)
         inFile.close();
         return true;
     } else {
-        cerr << "Error: Unable to open file '" << filename << "' for reading." << endl;
+        if (m_logErrors) {
+            cerr << "Error: Unable to open file '" << filename << "' for reading." << endl;
+        }
         return false;
     }
 }
@@ -578,7 +620,9 @@ bool Sim6502::saveMemory(string filename, uint16_t startAddress, uint16_t endAdd
         outFile.close();
         return true;
     } else {
-        cerr << "Error: Unable to open file '" << filename << "' for writing." << endl;
+        if (m_logErrors) {
+            cerr << "Error: Unable to open file '" << filename << "' for writing." << endl;
+        }
         return false;
     }
 }
@@ -1218,7 +1262,9 @@ void Sim6502::step()
 
     case 0x61: // adc (xx,x)
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = (operand1 + m_regX) & 0xff;
         tmp3 = read(read(tmp1) + 256 * read(tmp1 + 1));
@@ -1234,7 +1280,9 @@ void Sim6502::step()
 
     case 0x65: // adc xx
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read(operand1);
         tmp3 = m_regA + tmp1; // Add operand
@@ -1272,7 +1320,9 @@ void Sim6502::step()
 
     case 0x69: // adc #xx
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp3 = m_regA + operand1; // Add immediate operand
         if (m_regP & C_BIT) tmp3++; // Add 1 if carry set
@@ -1303,7 +1353,9 @@ void Sim6502::step()
 
     case 0x6d: // adc xxxx
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read(operand1 + 256 * operand2);
         tmp3 = m_regA + tmp1; // Add operand
@@ -1349,7 +1401,9 @@ void Sim6502::step()
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
         assert(tmp1 <= 0xffff);
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp3 = tmp1;
         if (m_regP & C_BIT) tmp3++; // Add 1 if carry set
@@ -1364,7 +1418,9 @@ void Sim6502::step()
 
     case 0x75: // adc xx,x
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read((operand1 + m_regX) & 0xff);
         tmp3 = (m_regA + tmp1) & 0xff; // Add operand
@@ -1397,7 +1453,9 @@ void Sim6502::step()
 
     case 0x79: // adc xxxx,y
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read(operand1 + 256 * operand2 + m_regY);
         tmp3 = m_regA + tmp1; // Add operand
@@ -1413,7 +1471,9 @@ void Sim6502::step()
 
     case 0x7d: // adc xxxx,x
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read(operand1 + 256 * operand2 + m_regX);
         tmp3 = m_regA + tmp1; // Add operand
@@ -1926,7 +1986,9 @@ void Sim6502::step()
 
     case 0xe1: // sbc (xx,x)
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = (operand1 + m_regX) & 0xff;
         tmp3 = m_regA - (read(tmp1) + 256 * read(tmp1 + 1)); // Subtract operand
@@ -1951,7 +2013,9 @@ void Sim6502::step()
 
     case 0xe5: // sbc xx
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp3 = m_regA - read(operand1); // Subtract operand
         if (!(m_regP & C_BIT)) tmp3--; // Subtract 1 if carry not set
@@ -1983,7 +2047,9 @@ void Sim6502::step()
 
     case 0xe9: // sbc #
         if (m_regP & D_BIT) {
-           cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp3 = m_regA - operand1; // Subtract immediate operand
         if (!(m_regP & C_BIT)) tmp3--; // Subtract 1 if carry not set
@@ -2011,7 +2077,9 @@ void Sim6502::step()
 
     case 0xed: // sbc xxxx
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read(operand1 + 256 * operand2);
         tmp3 = m_regA - tmp1; // Subtract operand
@@ -2052,7 +2120,9 @@ void Sim6502::step()
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
         assert(tmp1 <= 0xffff);
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+                if (m_logWarnings) {
+                    cout << "Warning: Decimal mode not implemented." << endl;
+                }
         }
         tmp3 = m_regA - tmp1; // Subtract operand
         if (!(m_regP & C_BIT)) tmp3--; // Subtract 1 if carry not set
@@ -2067,7 +2137,9 @@ void Sim6502::step()
 
     case 0xf5: // sbc xx,x
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read((operand1 + m_regX) & 0xff);
         tmp3 = m_regA - tmp1; // Subtract operand
@@ -2092,13 +2164,17 @@ void Sim6502::step()
 
     case 0xf8: // sed
         m_regP |= D_BIT;
-        cout << "Warning: Decimal mode not implemented." << endl;
+        if (m_logWarnings) {
+            cout << "Warning: Decimal mode not implemented." << endl;
+        }
         cout << "sed" << endl;
         break;
 
     case 0xf9: // sbc xxxx,y
         if (m_regP & D_BIT) {
+            if (m_logWarnings) {
             cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read(operand1 + 256 * operand2 + m_regY);
         tmp3 = m_regA - tmp1; // Subtract operand
@@ -2114,7 +2190,9 @@ void Sim6502::step()
 
     case 0xfd: // sbc xxxx,x
         if (m_regP & D_BIT) {
-            cout << "Warning: Decimal mode not implemented." << endl;
+            if (m_logWarnings) {
+                cout << "Warning: Decimal mode not implemented." << endl;
+            }
         }
         tmp1 = read(operand1 + 256 * operand2 + m_regX);
         tmp3 = m_regA - tmp1; // Subtract operand
