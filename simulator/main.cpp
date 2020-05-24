@@ -200,6 +200,8 @@ int main(int argc, char **argv)
                 cout << "Dump Video   V" << endl;
                 cout << "Reset        X" << endl;
                 cout << "Trace        . [<instructions>]" << endl;
+                cout << "Simulate IRQ IRQ" << endl;
+                cout << "Simulate NMI NMI" << endl;
 
             } else if (tokens[0] == "q" || tokens[0] == "Q") {
                 exit(0);
@@ -312,6 +314,12 @@ int main(int argc, char **argv)
 
             } else if ((tokens[0] == "v" || tokens[0] == "V")) {
             sim.dumpVideo();
+
+            } else if ((tokens[0] == "irq" || tokens[0] == "IRQ")) {
+            sim.irq();
+
+            } else if ((tokens[0] == "nmi" || tokens[0] == "NMI")) {
+            sim.nmi();
 
             } else {
                 cout << "Invalid command. Type '?' for help." << endl;

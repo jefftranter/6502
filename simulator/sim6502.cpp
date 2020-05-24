@@ -150,14 +150,32 @@ void Sim6502::setCpuType(const CpuType &type)
 
 void Sim6502::irq()
 {
-    // TODO: Implement full IRQ handling
-    m_regPC = m_memory[0xfffe] + m_memory[0xffff] * 256;
+    // Ignore if I bit is set.
+    if (m_regP & I_BIT) {
+        return;
+    }
+
+    write(STACK + m_regSP, (m_regPC + 2) >> 8); // Push PC high byte
+    m_regSP--;
+    write(STACK + m_regSP, (m_regPC + 2) & 0xff); // Push PC low byte
+    m_regSP--;
+    write(STACK + m_regSP, m_regP); // Push P
+    m_regSP--;
+    m_regP |= I_BIT; // Set I flag
+    m_regPC = m_memory[0xfffe] + m_memory[0xffff] * 256; // Set PC from IRQ vector
+    cout << "irq interrupt" << endl;
 }
 
 void Sim6502::nmi()
 {
-    // TODO: Implement full NMI handling
-    m_regPC = m_memory[0xfffa] + m_memory[0xfffb] * 256;
+    write(STACK + m_regSP, (m_regPC + 2) >> 8); // Push PC high byte
+    m_regSP--;
+    write(STACK + m_regSP, (m_regPC + 2) & 0xff); // Push PC low byte
+    m_regSP--;
+    write(STACK + m_regSP, m_regP); // Push P
+    m_regSP--;
+    m_regPC = m_memory[0xfffa] + m_memory[0xfffb] * 256; // Set PC from NMI vector
+    cout << "nmi interrupt" << endl;
 }
 
 uint8_t Sim6502::aReg() const

@@ -4,15 +4,14 @@ Known Bugs:
 
 To Do:
 
+- Options to stop on break, invalid instruction, interrupt
+- Simulate OSI 6850 UART serial port for LOAD/SAVE with files
 - Make debug output configurable
-- Simulate OSI 6850 UART serial port for LOAD/SAVE
 - More command line options
 - Proper support for lower case chars and make caps lock a toggle
 - Qt-based GUI
 - Add support for multiple RAM ranges?
 - Simulated Sound/Bank/Color/Video register
-- Simulate BRK
-- Simulate IRQ and NMI
 - Option for Rockwell instructions
 - Option for 65C02 instructions
 - Option for 65816 instructions
