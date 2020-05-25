@@ -1,11 +1,10 @@
 Known Bugs:
 
-- No way to enter no keyboard input when prompted
+- Programs in serial.in need CR/LF line endings.
 - Extra newline in output
 
 To Do:
 
-- Simulate OSI 6850 UART serial port for LOAD/SAVE with files
 - Handle decimal mode
 - Proper support for lower case chars and make caps lock a toggle
 
