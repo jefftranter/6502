@@ -2527,6 +2527,10 @@ void Sim6502::step()
     assert(tmp2 <= 0xff);
 
     m_regPC += len;
+
+    if (m_logRegisters) {
+        dumpRegisters();
+    }
 }
 
 
@@ -2540,4 +2544,49 @@ string Sim6502::stopReason()
 {
     m_stop = false;
     return m_stopReason;
+}
+
+void Sim6502::loggingStatus()
+{
+    cout << "Logging status:" << endl;
+    cout << "errors:       " << (m_logErrors       ? "on" : "off" ) << endl;
+    cout << "warnings:     " << (m_logWarnings     ? "on" : "off" ) << endl;
+    cout << "serial:       " << (m_logSerial       ? "on" : "off" ) << endl;
+    cout << "keyboard:     " << (m_logKeyboard     ? "on" : "off" ) << endl;
+    cout << "memory:       " << (m_logMemory       ? "on" : "off" ) << endl;
+    cout << "video:        " << (m_logVideo        ? "on" : "off" )<< endl;
+    cout << "instructions: " << (m_logInstructions ? "on" : "off" ) << endl;
+    cout << "registers:    " << (m_logRegisters    ? "on" : "off" ) << endl;
+}
+
+void Sim6502::enableLogging(string category, bool enable)
+{
+    if (category == "errors") {
+        m_logErrors = enable;
+    } else if (category == "warnings") {
+        m_logWarnings = enable;
+    } else if (category == "serial") {
+        m_logSerial = enable;
+    } else if (category == "keyboard") {
+        m_logKeyboard = enable;
+    } else if (category == "memory") {
+        m_logMemory = enable;
+    } else if (category == "video") {
+        m_logVideo = enable;
+    } else if (category == "instructions") {
+        m_logInstructions = enable;
+    } else if (category == "registers") {
+        m_logRegisters = enable;
+    } else if (category == "all") {
+        m_logErrors = enable;
+        m_logWarnings = enable;
+        m_logSerial = enable;
+        m_logKeyboard = enable;
+        m_logMemory = enable;
+        m_logVideo = enable;
+        m_logInstructions = enable;
+        m_logRegisters = enable;
+    } else {
+        cout << "Invalid logging category " << category << endl;
+    }
 }

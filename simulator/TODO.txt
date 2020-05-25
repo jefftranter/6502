@@ -1,11 +1,11 @@
 Known Bugs:
 
+- No way to enter no keyboard input when prompted
 - Extra newline in output
 
 To Do:
 
 - Simulate OSI 6850 UART serial port for LOAD/SAVE with files
-- Make debug output configurable
 - Handle decimal mode
 - Proper support for lower case chars and make caps lock a toggle
 

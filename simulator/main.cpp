@@ -202,7 +202,7 @@ int main(int argc, char **argv)
                 cout << "Trace        . [<instructions>]" << endl;
                 cout << "Send IRQ     IRQ" << endl;
                 cout << "Send NMI     NMI" << endl;
-                cout << "Logging      L <+/-><category>" << endl;
+                cout << "Logging      L [<+/-><category>]" << endl;
 
             } else if (tokens[0] == "q" || tokens[0] == "Q") {
                 exit(0);
@@ -216,7 +216,6 @@ int main(int argc, char **argv)
                 control_c = false;
                 for (int i = 0; i < instructions; i++) {
                     sim.step();
-                    sim.dumpRegisters();
                     if (control_c) {
                         cout << endl << "Control-C interrupt" << endl;
                         break;
@@ -302,7 +301,6 @@ int main(int argc, char **argv)
                 control_c = false;
                 while (true) {
                     sim.step();
-                    //sim.dumpRegisters();
                     if (std::find(breakpoints.begin(), breakpoints.end(), sim.pc()) != breakpoints.end()) {
                         cout << "Breakpoint hit at $" << hex << setw(4) << sim.pc() << endl;
                         sim.dumpRegisters();
@@ -322,13 +320,28 @@ int main(int argc, char **argv)
                 sim.reset();
 
             } else if ((tokens[0] == "v" || tokens[0] == "V")) {
-            sim.dumpVideo();
+                sim.dumpVideo();
 
             } else if ((tokens[0] == "irq" || tokens[0] == "IRQ")) {
-            sim.irq();
+                sim.irq();
 
             } else if ((tokens[0] == "nmi" || tokens[0] == "NMI")) {
-            sim.nmi();
+                sim.nmi();
+
+            } else if ((tokens[0] == "l" || tokens[0] == "L")) {
+                if (tokens.size() == 1) {
+                    sim.loggingStatus();
+                }
+                if (tokens.size() == 2) {
+                    string category = tokens[1];
+                    if (category[0] == '+') {
+                        sim.enableLogging(category.substr(1), true);
+                    } else if (category[0] == '-') {
+                        sim.enableLogging(category.substr(1), false);
+                    } else {
+                        cout << "Invalid argument" << endl;
+                    }
+                }
 
             } else {
                 cout << "Invalid command. Type '?' for help." << endl;
