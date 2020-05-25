@@ -84,11 +84,13 @@ Sim6502::Sim6502()
         = true;
 }
 
+
 Sim6502::~Sim6502()
 {
     m_serialIn.close();
     m_serialOut.close();
 }
+
 
 void Sim6502::setRamRange(uint16_t start, uint16_t end)
 {
@@ -97,12 +99,14 @@ void Sim6502::setRamRange(uint16_t start, uint16_t end)
     m_ramEnd = end;
 }
 
+
 void Sim6502::setRomRange1(uint16_t start, uint16_t end)
 {
     assert(start <= end);
     m_romStart1 = start;
     m_romEnd1 = end;
 }
+
 
 void Sim6502::setRomRange2(uint16_t start, uint16_t end)
 {
@@ -111,11 +115,13 @@ void Sim6502::setRomRange2(uint16_t start, uint16_t end)
     m_romEnd2 = end;
 }
 
+
 void Sim6502::videoRange(uint16_t &start, uint16_t &end) const
 {
     start = m_videoStart;
     end = m_videoEnd;
 }
+
 
 void Sim6502::setVideoRange(uint16_t start, uint16_t end)
 {
@@ -124,16 +130,19 @@ void Sim6502::setVideoRange(uint16_t start, uint16_t end)
     m_videoEnd = end;
 }
 
+
 void Sim6502::setPeripheral(PeripheralType type, uint16_t start)
 {
     assert(type == MC6850);
     m_peripheralStart = start;
 }
 
+
 void Sim6502::setKeyboard(uint16_t start)
 {
     m_keyboardStart = start;
 }
+
 
 void Sim6502::reset()
 {
@@ -146,12 +155,14 @@ Sim6502::CpuType Sim6502::cpuType()
     return m_cpuType;
 }
 
+
 void Sim6502::setCpuType(const CpuType &type)
 {
     // TODO: Add support for other CPU variants.
     assert(m_cpuType == MOS6502);
     m_cpuType = type;
 }
+
 
 void Sim6502::irq()
 {
@@ -188,60 +199,72 @@ uint8_t Sim6502::aReg() const
     return m_regA;
 }
 
+
 void Sim6502::setAReg(uint8_t val)
 {
     m_regA = val;
 }
+
 
 uint8_t Sim6502::xReg() const
 {
     return m_regX;
 }
 
+
 void Sim6502::setXReg(uint8_t val)
 {
     m_regX = val;
 }
+
 
 uint8_t Sim6502::yReg() const
 {
     return m_regY;
 }
 
+
 void Sim6502::setYReg(uint8_t val)
 {
     m_regY = val;
 }
+
 
 uint8_t Sim6502::pReg() const
 {
     return m_regP;
 }
 
+
 void Sim6502::setPReg(uint8_t val)
 {
     m_regP = val;
 }
+
 
 uint8_t Sim6502::sp() const
 {
     return m_regSP;
 }
 
+
 void Sim6502::setSP(uint8_t val)
 {
     m_regSP = val;
 }
+
 
 uint16_t Sim6502::pc() const
 {
     return m_regPC;
 }
 
+
 void Sim6502::setPC(uint16_t val)
 {
     m_regPC = val;
 }
+
 
 void Sim6502::write(uint16_t address, uint8_t byte)
 {
@@ -267,6 +290,7 @@ void Sim6502::write(uint16_t address, uint8_t byte)
     }
 }
 
+
 void Sim6502::writeVideo(uint16_t address, uint8_t byte)
 {
     if (m_logVideo) {
@@ -274,6 +298,7 @@ void Sim6502::writeVideo(uint16_t address, uint8_t byte)
     }
     m_memory[address] = byte;
 }
+
 
 void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
 {
@@ -364,6 +389,7 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
     }
 }
 
+
 void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
 {
     assert(isKeyboard(address));
@@ -372,6 +398,7 @@ void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
         cout << "Keyboard: wrote $" << hex << setw(2) << (int)byte << " to row register" << endl;
     }
 }
+
 
 uint8_t Sim6502::read(uint16_t address)
 {
@@ -396,6 +423,7 @@ uint8_t Sim6502::read(uint16_t address)
         return 0; // Unused, read as zero
     }
 }
+
 
 uint8_t Sim6502::readPeripheral(uint16_t address)
 {
@@ -480,13 +508,17 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
             m_keyboardFifo.pop(); // And remove it from fifo
         } else {
             // Prompt for (keys) to press
-            cout << "Keyboard: input: " << flush;
+            cout << "Keyboard: input (or \"none\"): " << flush;
             string s;
             getline(cin, s);
 
             if (cin.eof()) {
                 cout << endl;
                 exit(0);
+                return 0xff;
+            }
+
+            if (s == "none") {
                 return 0xff;
             }
 
@@ -555,6 +587,7 @@ uint8_t Sim6502::readKeyboard(uint16_t address)
     return 0xff; // No key pressed.
 }
 
+
 uint8_t Sim6502::readVideo(uint16_t address)
 {
     if (m_logVideo) {
@@ -562,6 +595,7 @@ uint8_t Sim6502::readVideo(uint16_t address)
     }
     return m_memory[address];
 }
+
 
 bool Sim6502::isRam(uint16_t address) const
 {
@@ -2559,6 +2593,7 @@ string Sim6502::stopReason()
     return m_stopReason;
 }
 
+
 void Sim6502::loggingStatus()
 {
     cout << "Logging status:" << endl;
@@ -2571,6 +2606,7 @@ void Sim6502::loggingStatus()
     cout << "instructions: " << (m_logInstructions ? "on" : "off" ) << endl;
     cout << "registers:    " << (m_logRegisters    ? "on" : "off" ) << endl;
 }
+
 
 void Sim6502::enableLogging(string category, bool enable)
 {

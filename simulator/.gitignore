@@ -1,0 +1,3 @@
+*.o
+serial.out
+sim6502
