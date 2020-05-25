@@ -281,7 +281,7 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
         m_6850_control_reg = byte;
 
         if (m_logSerial) {
-            cout << "Serial: Wrote $" << hex << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
+            cout << "Serial: Wrote $" << hex << setfill('0') << setw(2) << (int)byte << " to MC6850 Control Register" << endl;
 
             switch (byte & 0x03) {
             case 0x00:
@@ -400,12 +400,25 @@ uint8_t Sim6502::read(uint16_t address)
 uint8_t Sim6502::readPeripheral(uint16_t address)
 {
     if (address == m_peripheralStart) {
+        // Send ready if still characters to read from serial inout file.
+        // Send not ready if end of file reached.
         if (!m_serialIn.eof()) {
-            cout << "Serial: Read $03 from MC6850 Status Register" << endl; // Return RDRF and TDRE true.
+            if (m_logSerial) {
+                cout << "Serial: Read $03 from MC6850 Status Register" << endl; // Return RDRF and TDRE true.
+            }
             return 0x03;
         } else {
-            cout << "Serial: Read $02 from MC6850 Status Register" << endl; // Return RDRF false and TDRE true.
-            return 0x02;
+            if (m_logSerial) {
+                cout << "Serial: EOF reached for serial.in. Reopening file." << endl;
+                cout << "Serial: Sending space to exit LOAD mode." << endl;
+                cout << "Serial: Read $02 from MC6850 Status Register" << endl;
+            }
+            // Close input file and open it again in case users runs LOAD command again.
+            m_serialIn.close();
+            m_serialIn.open("serial.in", ios::binary);
+            // Hack: Send space on keyboard to exit from LOAD mode.
+            pressKey(' ');
+            return 0x02; // Return RDRF false and TDRE true.
         }
     }
     if (address == m_peripheralStart + 1) {
@@ -2587,6 +2600,7 @@ void Sim6502::enableLogging(string category, bool enable)
         m_logInstructions = enable;
         m_logRegisters = enable;
     } else {
-        cout << "Invalid logging category " << category << endl;
+        cout << "Invalid logging category " << category << "." << endl;
+        cout << "Valid categories are: errors, warnings, serial, keyboard, memory, video, instructions, registers, and all." << endl;
     }
 }

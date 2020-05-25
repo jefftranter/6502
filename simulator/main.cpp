@@ -51,7 +51,7 @@ void usage()
     cout << "-l <file>            Load raw file into memory" << endl;
     cout << "-a <address>         Address to load raw file" << endl;
     cout << "-r <address>         Set PC to address" << endl;
-    cout << "-R                   Reset on startup" << endl;
+    cout << "-R                   Don't reset on startup" << endl;
 }
 
 
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
         cout << "Loaded " << filename << " at address $" << uppercase << hex << setfill('0') << setw(4) << a_option << endl;
     }
 
-    if (R_option) {
+    if (!R_option) {
         sim.reset();
     }
 

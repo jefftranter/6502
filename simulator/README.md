@@ -14,7 +14,7 @@ Options:
 -l <file>            Load raw file into memory
 -a <address>         Address to load raw file
 -r <address>         Set PC to address
--R                   Reset on startup
+-R                   Don't reset on startup
 
 Commands:
 Breakpoint   B [-][<address>]
@@ -28,3 +28,4 @@ Reset        X
 Trace        . [<instructions>]
 Send IRQ     IRQ
 Send NMI     NMI
+Logging      L [<+/-><category>]

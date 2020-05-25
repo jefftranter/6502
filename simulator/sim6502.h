@@ -203,7 +203,7 @@ public:
     // Flags to control logging output
     bool m_logErrors = true;
     bool m_logWarnings = true;
-    bool m_logSerial = true;
+    bool m_logSerial = false;
     bool m_logKeyboard = false;
     bool m_logMemory = false;
     bool m_logVideo = false;
