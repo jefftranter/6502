@@ -1,7 +1,6 @@
 Known Bugs:
 
 - Programs in serial.in need CR/LF line endings.
-- Extra newline in output
 
 To Do:
 

@@ -736,11 +736,11 @@ void Sim6502::dumpRegisters()
 
 void Sim6502::dumpVideo()
 {
-    cout << "+-------------------------+" << endl;
+    cout << "+------------------------+" << endl;
 
     for (int row = 4; row < 28; row++) {
         cout << "|";
-        for (int col = 5; col < 30; col++) {
+        for (int col = 5; col < 29; col++) {
             char c = m_memory[0xd000 + (row * 32) + col];
             if ((c >= 0x20) && (c <= 0x7c)) {
                 cout << c;
@@ -750,7 +750,7 @@ void Sim6502::dumpVideo()
         }
         cout << "|" << endl;
     }
-    cout << "+-------------------------+" << endl;
+    cout << "+------------------------+" << endl;
 }
 
 
@@ -2095,7 +2095,7 @@ void Sim6502::step()
 
     case 0xc0: // cpy #xx
         (m_regY == operand1) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((m_regY < operand1) & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        (m_regY < operand1) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regY >= operand1) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         if (m_logInstructions) {
             cout << "cpy #$" << setw(2) << (int)operand1 << endl;
@@ -2118,7 +2118,7 @@ void Sim6502::step()
     case 0xc4: // cpy xx
         tmp1 = read(operand1);
         (m_regY == tmp1) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((m_regY < tmp1) & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        (m_regY < tmp1) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regY >= tmp1) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         if (m_logInstructions) {
             cout << "cpy $" << setw(2) << (int)operand1 << endl;
@@ -2179,7 +2179,7 @@ void Sim6502::step()
     case 0xcc: // cpy xxxx
         tmp1 = read(operand1 + 256 * operand2);
         (m_regY == tmp1) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
-        ((m_regY < tmp1) & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
+        (m_regY < tmp1) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regY >= tmp1) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
         if (m_logInstructions) {
             cout << "cpy $" << setw(4) << operand1 + 256 * operand2 << endl;
