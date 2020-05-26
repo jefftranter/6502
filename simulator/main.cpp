@@ -195,6 +195,7 @@ int main(int argc, char **argv)
                 cout << "Dump         D [<start>] [<end>]" << endl;
                 cout << "Go           G [<address>]" << endl;
                 cout << "Help         ?" << endl;
+                cout << "Memory       M <address> <data> ..." << endl;
                 cout << "Quit         Q" << endl;
                 cout << "Registers    R [<register> <value>]" << endl;
                 cout << "Dump Video   V" << endl;
@@ -340,6 +341,25 @@ int main(int argc, char **argv)
                         sim.enableLogging(category.substr(1), false);
                     } else {
                         cout << "Invalid argument" << endl;
+                    }
+                }
+
+            } else if ((tokens[0] == "m" || tokens[0] == "M")) {
+                if (tokens.size() < 3) {
+                    cout << "Invalid argument" << endl;
+                } else {
+                    int address = stoi(tokens[1], nullptr, 16);
+                    for (unsigned int i = 2; i < tokens.size(); i++) {
+                        int data = stoi(tokens[i], nullptr, 16);
+                        if (address > 0xffff) {
+                            cout << "Invalid address argument" << endl;
+                            break;
+                        }
+                        if (data > 0xff) {
+                            cout << "Invalid data argument" << endl;
+                            break;
+                        }
+                        sim.write(address - 2 + i, data);
                     }
                 }
 

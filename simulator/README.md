@@ -21,6 +21,7 @@ Breakpoint   B [-][<address>]
 Dump         D [<start>] [<end>]
 Go           G [<address>]
 Help         ?
+Memory       M <address> <data> ...
 Quit         Q
 Registers    R [<register> <value>]
 Dump Video   V
