@@ -13,14 +13,13 @@ using namespace std;
 Sim6502::Sim6502()
 {
     // Open files for simulating serial i/o.
-
-    m_serialIn.open("serial.in", ios::binary);
+    m_serialIn.open(m_serialInFilename, ios::binary);
     if (m_logErrors) {
         if (!m_serialIn.is_open()) {
             cout << "Error: Unable to open serial port file 'serial.in'" << endl;
         }
     }
-    m_serialOut.open("serial.out", ios::binary);
+    m_serialOut.open(m_serialOutFilename, ios::binary);
     if (m_logErrors) {
         if (!m_serialOut.is_open()) {
             cout << "Error: Unable to open serial port file 'serial.out'" << endl;

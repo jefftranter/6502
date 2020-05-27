@@ -191,6 +191,9 @@ public:
 
     std::queue<char> m_keyboardFifo = {}; // Holds keyboard input
 
+    string m_serialInFilename = "serial.in"; // Default filename for serial port input
+    string m_serialOutFilename = "serial.out"; // Default filename for serial port input
+
     ofstream m_serialOut; // File for emulating serial port output
     ifstream m_serialIn; // File for emulating serial port input
 
