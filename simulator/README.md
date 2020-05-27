@@ -30,3 +30,18 @@ Trace        . [<instructions>]
 Send IRQ     IRQ
 Send NMI     NMI
 Logging      L [<+/-><category>]
+
+Breakpoints can be added by specifying an address, or removed by
+preceding the address with a minus sign.
+
+Logging can be enabled or disabled by prepending a category name with
+"+" or "-" respectively. Tying just "L" will list the logging
+categories.
+
+The Dump command will dump a range of addresses, dump 16 addresses if
+the end address is not specified, or continue after the last address
+if no arguments are specified.
+
+The serial port is simulated by reading input from a file serial.in
+and output to the file serial.out. This allows using the BASIC LOAD
+and SAVE commands to load and save programs.

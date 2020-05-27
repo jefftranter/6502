@@ -8,7 +8,6 @@ To Do:
 - Proper support for lower case chars and make caps lock a toggle
 
 - Qt-based GUI
-- Add support for multiple RAM ranges?
 - Simulated Sound/Bank/Color/Video register
 - Option for Rockwell instructions
 - Option for 65C02 instructions
