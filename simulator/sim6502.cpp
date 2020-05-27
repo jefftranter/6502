@@ -725,7 +725,8 @@ void Sim6502::dumpRegisters()
     (m_regP & C_BIT) ? s += "C" : s += "c";
 
     cout << hex << setfill('0') << "PC=$" << setw(4) << m_regPC
-         << " ($" << setw(2) << (int)m_memory[m_regPC] << ")"
+         << " ($" << setw(2) << (int)m_memory[m_regPC] << ") "
+         <<  opcode[m_memory[m_regPC]]
          << " A=$" << setw(2) << (int)m_regA
          << " X=$" << setw(2) << (int)m_regX
          << " Y=$" << setw(2) << (int)m_regY

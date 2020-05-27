@@ -4,11 +4,12 @@ Known Bugs:
 
 To Do:
 
+- Step over function?
+- Watchpoint (break on memory access)
+- Qt-based GUI
 - Handle decimal mode
 - Proper support for lower case chars and make caps lock a toggle
-
-- Qt-based GUI
-- Simulated Sound/Bank/Color/Video register
+- Simulate Sound/Bank/Color/Video register
 - Option for Rockwell instructions
 - Option for 65C02 instructions
 - Option for 65816 instructions
