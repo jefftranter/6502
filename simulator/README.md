@@ -25,14 +25,17 @@ Memory       M <address> <data> ...
 Quit         Q
 Registers    R [<register> <value>]
 Dump Video   V
+Watchpoint   W [-][<address>]
 Reset        X
 Trace        . [<instructions>]
 Send IRQ     IRQ
 Send NMI     NMI
 Logging      L [<+/-><category>]
 
-Breakpoints can be added by specifying an address, or removed by
-preceding the address with a minus sign.
+Breakpoints or watchpoints can be added by specifying an address, or
+removed by preceding the address with a minus sign. Breakpoints cause
+execution to stop when an instruction is fetched at that address.
+Watchpoints stop when memory is read or written from that address.
 
 Logging can be enabled or disabled by prepending a category name with
 "+" or "-" respectively. Tying just "L" will list the logging

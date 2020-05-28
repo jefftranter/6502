@@ -1,11 +1,12 @@
 Known Bugs:
 
 - Programs in serial.in need CR/LF line endings.
+- stoi() can throw exception for invalid values
 
 To Do:
 
 - Step over function?
-- Watchpoint (break on memory access)
+- Options (e.g. stop on invalid, stop on BRK).
 - Qt-based GUI
 - Handle decimal mode
 - Proper support for lower case chars and make caps lock a toggle

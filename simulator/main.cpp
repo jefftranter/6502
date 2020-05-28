@@ -199,6 +199,7 @@ int main(int argc, char **argv)
                 cout << "Quit         Q" << endl;
                 cout << "Registers    R [<register> <value>]" << endl;
                 cout << "Dump Video   V" << endl;
+                cout << "Watchpoint   W [-][<address>]" << endl;
                 cout << "Reset        X" << endl;
                 cout << "Trace        . [<instructions>]" << endl;
                 cout << "Send IRQ     IRQ" << endl;
@@ -285,6 +286,25 @@ int main(int argc, char **argv)
                     } else {
                         cout << "Removing breakpoint at $" << hex << setw(4) << -address << endl;
                         sim.clearBreakpoint(-address);
+                    }
+                }
+
+            } else if ((tokens[0] == "w" || tokens[0] == "W")) {
+
+                if (tokens.size() == 1) {
+                    // List watchpoints
+                    for (auto b: sim.getWatchpoints()) {
+                        cout << "Watchpoint at $" << hex << setw(4) <<  b << endl;
+                    }
+                } else if (tokens.size() == 2) {
+                    // Clear watchpoint
+                    int address = stoi(tokens[1], nullptr, 16);
+                    if (address > 0) {
+                        cout << "Adding watchpoint at $" << hex << setw(4) << address << endl;
+                        sim.setWatchpoint(address);
+                    } else {
+                        cout << "Removing watchpoint at $" << hex << setw(4) << -address << endl;
+                        sim.clearWatchpoint(-address);
                     }
                 }
 

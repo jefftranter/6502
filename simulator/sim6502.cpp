@@ -270,6 +270,13 @@ void Sim6502::write(uint16_t address, uint8_t byte)
     assert(address >= 0);
     assert(address <= 0xffff);
 
+    if (!m_watchpoints.empty()) {
+        if (std::find(m_watchpoints.begin(), m_watchpoints.end(), address) != m_watchpoints.end()) {
+            m_stop = true;
+            m_stopReason = "watchpoint hit";
+        }
+    }
+
     if (isRam(address)) {
         m_memory[address] = byte;
     } else if (isRom(address)) {
@@ -403,6 +410,13 @@ uint8_t Sim6502::read(uint16_t address)
 {
     assert(address >= 0);
     assert(address <= 0xffff);
+
+    if (!m_watchpoints.empty()) {
+        if (std::find(m_watchpoints.begin(), m_watchpoints.end(), address) != m_watchpoints.end()) {
+            m_stop = true;
+            m_stopReason = "watchpoint hit";
+        }
+    }
 
     if (isRam(address) || isRom(address)) {
         return m_memory[address];
@@ -778,6 +792,33 @@ void Sim6502::clearBreakpoint(uint16_t address)
 std::list<uint16_t> Sim6502::getBreakpoints() const
 {
     return m_breakpoints;
+}
+
+
+void Sim6502::setWatchpoint(uint16_t address)
+{
+    // Don't add watchpoint if it already exists.
+    auto it = std::find(m_watchpoints.begin(), m_watchpoints.end(), address);
+    if (it == m_watchpoints.end()) {
+        m_watchpoints.push_back(address);
+    }
+}
+
+
+void Sim6502::clearWatchpoint(uint16_t address)
+{
+    auto it = std::find(m_watchpoints.begin(), m_watchpoints.end(), address);
+    if (it == m_watchpoints.end()) {
+        cout << "No watchpoint at $" << setw(4) << hex << address << endl;
+    } else {
+        m_watchpoints.remove(address);
+    }
+}
+
+
+std::list<uint16_t> Sim6502::getWatchpoints() const
+{
+    return m_watchpoints;
 }
 
 

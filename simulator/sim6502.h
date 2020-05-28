@@ -159,6 +159,11 @@ public:
     void clearBreakpoint(uint16_t address);
     std::list<uint16_t> getBreakpoints() const;
 
+    // Watchpoint support
+    void setWatchpoint(uint16_t address);
+    void clearWatchpoint(uint16_t address);
+    std::list<uint16_t> getWatchpoints() const;
+
     bool stop(); // Return whether trace/go should stop due to event.
     string stopReason(); // Return reason for stop
     // Flags to control logging output
@@ -210,6 +215,8 @@ public:
     bool m_shifted[128]{false}; // Flags keys that need to be shifted
 
     std::list<uint16_t> m_breakpoints; // Breakpoint list
+
+    std::list<uint16_t> m_watchpoints; // Watchpoint list
 
     std::queue<char> m_keyboardFifo = {}; // Holds keyboard input
 
