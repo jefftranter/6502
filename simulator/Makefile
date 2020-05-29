@@ -18,11 +18,6 @@ sim6502.o: sim6502.cpp sim6502.h
 main.o: sim6502.h main.cpp
 	$(CXX) $(CXXFLAGS) -c main.cpp
 
-rom.bin: rom.o
-	ld65 -t none -vm -m rom.map -o rom.bin rom.o
-
-rom.o:	rom.s
-	ca65 -g -l rom.lst rom.s
 clean:
 	$(RM) sim6502.o main.o sim6502
 	$(RM) *.o *.lst *.map *.bin
