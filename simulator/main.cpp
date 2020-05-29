@@ -262,9 +262,15 @@ int main(int argc, char **argv)
                             sim.setSP(stoi(tokens[2], nullptr, 16));
                         } else if ((tokens[1] == "p") || (tokens[1] == "P")) {
                             sim.setPReg(stoi(tokens[2], nullptr, 16));
+                        } else {
+                            cout << "Invalid argument" << endl;
                         }
                     }
-                    sim.dumpRegisters();
+                    if (tokens.size() == 1 || tokens.size() == 3) {
+                        sim.dumpRegisters();
+                    } else {
+                        cout << "Invalid argument" << endl;
+                    }
                 }
                 catch (const std::invalid_argument &a) {
                     cout << "Invalid argument" << endl;
