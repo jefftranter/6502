@@ -83,10 +83,22 @@ static void parse_args(int argc, char **argv)
             filename = optarg;
             break;
         case'a':
-            a_option = stoi(optarg, nullptr, 16);
+            try {
+                a_option = stoi(optarg, nullptr, 16);
+            }
+            catch (const std::invalid_argument &a) {
+                std::cerr << "Invalid argument to -a option" << endl;
+                exit(1);
+            }
             break;
         case'r':
-            r_option = stoi(optarg, nullptr, 16);
+            try {
+                r_option = stoi(optarg, nullptr, 16);
+            }
+            catch (const std::invalid_argument &a) {
+                std::cerr << "Invalid argument to -r option" << endl;
+                exit(1);
+            }
             break;
         case'R':
             R_option = 1;
@@ -210,131 +222,158 @@ int main(int argc, char **argv)
                 exit(0);
 
             } else if (tokens[0] == ".") {
-                int instructions = 1;
-                // Get optional number of instructions to trace
-                if (tokens.size() == 2) {
-                    instructions = stoi(tokens[1], nullptr, 16);
-                }
-                control_c = false;
-                for (int i = 0; i < instructions; i++) {
-                    sim.step();
-                    if (control_c) {
-                        cout << endl << "Control-C interrupt" << endl;
-                        break;
+                try {
+                    int instructions = 1;
+                    // Get optional number of instructions to trace
+                    if (tokens.size() == 2) {
+                        instructions = stoi(tokens[1], nullptr, 16);
                     }
-                    if (sim.stop()) {
-                        cout << "Stopped due to " << sim.stopReason() << endl;
-                        break;
+                    control_c = false;
+                    for (int i = 0; i < instructions; i++) {
+                        sim.step();
+                        if (control_c) {
+                            cout << endl << "Control-C interrupt" << endl;
+                            break;
+                        }
+                        if (sim.stop()) {
+                            cout << "Stopped due to " << sim.stopReason() << endl;
+                            break;
+                        }
                     }
                 }
+                catch (const std::invalid_argument &a) {
+                    cout << "Invalid argument" << endl;
 
-            } else if (tokens[0] == "r" || tokens[0] == "R") {
-                if (tokens.size() == 3) {
-                    // User specified register name and new value
-                    // PC 1234 A 01 X 02 Y 03 SP 04 P 05
-                    if ((tokens[1] == "pc") || (tokens[1] == "PC")) {
-                        sim.setPC(stoi(tokens[2], nullptr, 16));
-                    } else if ((tokens[1] == "a") || (tokens[1] == "A")) {
-                        sim.setAReg(stoi(tokens[2], nullptr, 16));
-                    } else if ((tokens[1] == "x") || (tokens[1] == "X")) {
-                        sim.setXReg(stoi(tokens[2], nullptr, 16));
-                    } else if ((tokens[1] == "y") || (tokens[1] == "Y")) {
-                        sim.setYReg(stoi(tokens[2], nullptr, 16));
-                    } else if ((tokens[1] == "sp") || (tokens[1] == "SP")) {
-                        sim.setSP(stoi(tokens[2], nullptr, 16));
-                    } else if ((tokens[1] == "p") || (tokens[1] == "P")) {
-                        sim.setPReg(stoi(tokens[2], nullptr, 16));
-                    }
                 }
-                sim.dumpRegisters();
+            } else if (tokens[0] == "r" || tokens[0] == "R") {
+                try {
+                    if (tokens.size() == 3) {
+                        // User specified register name and new value
+                        // PC 1234 A 01 X 02 Y 03 SP 04 P 05
+                        if ((tokens[1] == "pc") || (tokens[1] == "PC")) {
+                            sim.setPC(stoi(tokens[2], nullptr, 16));
+                        } else if ((tokens[1] == "a") || (tokens[1] == "A")) {
+                            sim.setAReg(stoi(tokens[2], nullptr, 16));
+                        } else if ((tokens[1] == "x") || (tokens[1] == "X")) {
+                            sim.setXReg(stoi(tokens[2], nullptr, 16));
+                        } else if ((tokens[1] == "y") || (tokens[1] == "Y")) {
+                            sim.setYReg(stoi(tokens[2], nullptr, 16));
+                        } else if ((tokens[1] == "sp") || (tokens[1] == "SP")) {
+                            sim.setSP(stoi(tokens[2], nullptr, 16));
+                        } else if ((tokens[1] == "p") || (tokens[1] == "P")) {
+                            sim.setPReg(stoi(tokens[2], nullptr, 16));
+                        }
+                    }
+                    sim.dumpRegisters();
+                }
+                catch (const std::invalid_argument &a) {
+                    cout << "Invalid argument" << endl;
+                }
 
             } else if ((tokens[0] == "d" || tokens[0] == "D")) {
+                try {
+                    int start, end;
 
-                int start, end;
+                    // Start address specified
+                    if (tokens.size() > 1) {
+                        start = stoi(tokens[1], nullptr, 16);
+                    } else {
+                        // Default start to last end address plus one.
+                        start = lastDumpAddress;
+                    }
 
-                // Start address specified
-                if (tokens.size() > 1) {
-                    start = stoi(tokens[1], nullptr, 16);
-                } else {
-                    // Default start to last end address plus one.
-                    start = lastDumpAddress;
+                    // End address specified
+                    if (tokens.size() > 2) {
+                        end = stoi(tokens[2], 0, 16);
+                    } else {
+                        // Default to dumping 16 addresses.
+                        end = start + 15;
+                    }
+                    sim.dumpMemory(start, end);
+                    lastDumpAddress = end + 1;
                 }
-
-                // End address specified
-                if (tokens.size() > 2) {
-                    end = stoi(tokens[2], 0, 16);
-                } else {
-                    // Default to dumping 16 addresses.
-                    end = start + 15;
+                catch (const std::invalid_argument &a) {
+                    cout << "Invalid argument" << endl;
                 }
-                sim.dumpMemory(start, end);
-                lastDumpAddress = end + 1;
 
             } else if ((tokens[0] == "b" || tokens[0] == "B")) {
-
-                if (tokens.size() == 1) {
-                    // List breakpoints
-                    for (auto b: sim.getBreakpoints()) {
-                        cout << "Breakpoint at $" << hex << setw(4) <<  b << endl;
+                try {
+                    if (tokens.size() == 1) {
+                        // List breakpoints
+                        for (auto b: sim.getBreakpoints()) {
+                            cout << "Breakpoint at $" << hex << setw(4) <<  b << endl;
+                        }
+                    } else if (tokens.size() == 2) {
+                        // Clear breakpoint
+                        int address = stoi(tokens[1], nullptr, 16);
+                        if (address > 0) {
+                            cout << "Adding breakpoint at $" << hex << setw(4) << address << endl;
+                            sim.setBreakpoint(address);
+                        } else {
+                            cout << "Removing breakpoint at $" << hex << setw(4) << -address << endl;
+                            sim.clearBreakpoint(-address);
+                        }
                     }
-                } else if (tokens.size() == 2) {
-                    // Clear breakpoint
-                    int address = stoi(tokens[1], nullptr, 16);
-                    if (address > 0) {
-                        cout << "Adding breakpoint at $" << hex << setw(4) << address << endl;
-                        sim.setBreakpoint(address);
-                    } else {
-                        cout << "Removing breakpoint at $" << hex << setw(4) << -address << endl;
-                        sim.clearBreakpoint(-address);
-                    }
+                }
+                catch (const std::invalid_argument &a) {
+                    cout << "Invalid argument" << endl;
                 }
 
             } else if ((tokens[0] == "w" || tokens[0] == "W")) {
-
-                if (tokens.size() == 1) {
-                    // List watchpoints
-                    for (auto b: sim.getWatchpoints()) {
-                        cout << "Watchpoint at $" << hex << setw(4) <<  b << endl;
+                try {
+                    if (tokens.size() == 1) {
+                        // List watchpoints
+                        for (auto b: sim.getWatchpoints()) {
+                            cout << "Watchpoint at $" << hex << setw(4) <<  b << endl;
+                        }
+                    } else if (tokens.size() == 2) {
+                        // Clear watchpoint
+                        int address = stoi(tokens[1], nullptr, 16);
+                        if (address > 0) {
+                            cout << "Adding watchpoint at $" << hex << setw(4) << address << endl;
+                            sim.setWatchpoint(address);
+                        } else {
+                            cout << "Removing watchpoint at $" << hex << setw(4) << -address << endl;
+                            sim.clearWatchpoint(-address);
+                        }
                     }
-                } else if (tokens.size() == 2) {
-                    // Clear watchpoint
-                    int address = stoi(tokens[1], nullptr, 16);
-                    if (address > 0) {
-                        cout << "Adding watchpoint at $" << hex << setw(4) << address << endl;
-                        sim.setWatchpoint(address);
-                    } else {
-                        cout << "Removing watchpoint at $" << hex << setw(4) << -address << endl;
-                        sim.clearWatchpoint(-address);
-                    }
+                }
+                catch (const std::invalid_argument &a) {
+                    cout << "Invalid argument" << endl;
                 }
 
             } else if ((tokens[0] == "g" || tokens[0] == "G")) {
+                try {
+                    // Get optional go address
+                    if (tokens.size() == 2) {
+                        int address;
+                        address = stoi(tokens[1], nullptr, 16);
+                        sim.setPC(address);
+                    }
 
-                // Get optional go address
-                if (tokens.size() == 2) {
-                    int address = stoi(tokens[1], nullptr, 16);
-                    sim.setPC(address);
+                    // Run until breakpoint hit.
+                    std::list<uint16_t> breakpoints = sim.getBreakpoints();
+
+                    control_c = false;
+                    while (true) {
+                        sim.step();
+                        if (std::find(breakpoints.begin(), breakpoints.end(), sim.pc()) != breakpoints.end()) {
+                            cout << "Breakpoint hit at $" << hex << setw(4) << sim.pc() << endl;
+                            sim.dumpRegisters();
+                            break;
+                        }
+                        if (control_c) {
+                            cout << endl << "Control-C interrupt" << endl;
+                            break;
+                        }
+                        if (sim.stop()) {
+                            cout << "Stopped due to " << sim.stopReason() << endl;
+                            break;
+                        }
+                    }
                 }
-
-                // Run until breakpoint hit.
-                std::list<uint16_t> breakpoints = sim.getBreakpoints();
-
-                control_c = false;
-                while (true) {
-                    sim.step();
-                    if (std::find(breakpoints.begin(), breakpoints.end(), sim.pc()) != breakpoints.end()) {
-                        cout << "Breakpoint hit at $" << hex << setw(4) << sim.pc() << endl;
-                        sim.dumpRegisters();
-                        break;
-                    }
-                    if (control_c) {
-                        cout << endl << "Control-C interrupt" << endl;
-                        break;
-                    }
-                    if (sim.stop()) {
-                        cout << "Stopped due to " << sim.stopReason() << endl;
-                        break;
-                    } 
+                catch (const std::invalid_argument &a) {
+                    cout << "Invalid address argument" << endl;
                 }
 
             } else if ((tokens[0] == "x" || tokens[0] == "X")) {
@@ -368,9 +407,21 @@ int main(int argc, char **argv)
                 if (tokens.size() < 3) {
                     cout << "Invalid argument" << endl;
                 } else {
-                    int address = stoi(tokens[1], nullptr, 16);
+                    int address;
+                    try {
+                        address = stoi(tokens[1], nullptr, 16);
+                    }
+                    catch (const std::invalid_argument &a) {
+                        address = 0x10000; // To make it fail later
+                    }
                     for (unsigned int i = 2; i < tokens.size(); i++) {
-                        int data = stoi(tokens[i], nullptr, 16);
+                        int data;
+                        try {
+                            data = stoi(tokens[i], nullptr, 16);
+                        }
+                        catch (const std::invalid_argument &a) {
+                            data = 0x100; // To make it fail later
+                        }
                         if (address > 0xffff) {
                             cout << "Invalid address argument" << endl;
                             break;

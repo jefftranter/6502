@@ -1,7 +1,6 @@
 Known Bugs:
 
 - Programs in serial.in need CR/LF line endings.
-- stoi() can throw exception for invalid values
 
 To Do:
 
