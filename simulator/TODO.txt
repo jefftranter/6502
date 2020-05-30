@@ -1,19 +1,18 @@
-Known Bugs:
+Known Bugs/Issues:
 
 - Programs in serial.in need CR/LF line endings.
 
 To Do:
 
-- Step over function?
 - Options (e.g. stop on invalid, stop on BRK).
-- Qt-based GUI
+- Step over function?
 - Handle decimal mode
-- Proper support for lower case chars and make caps lock a toggle
 - Simulate Sound/Bank/Color/Video register
 - Option for Rockwell instructions
 - Option for 65C02 instructions
 - Option for 65816 instructions
 - Support loading RAM or ROM from other file formats (S record file, Intel hex, etc.)
-- Disassembler
+- Full disassembler
 - Simulate 610 board: additional RAM, Second 6550 UART, 6820 PIA, floppy disk
 - Optimize performance
+- GUI
