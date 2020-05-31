@@ -215,7 +215,7 @@ int main(int argc, char **argv)
                 cout << "Registers    R [<register> <value>]" << endl;
                 cout << "Unassemble   U [<address>] [<end>]" << endl;
                 cout << "Dump Video   V" << endl;
-                cout << "Watchpoint   W [-][<address>]" << endl;
+                cout << "Watchpoint   W [-][<address>] r,w,rw" << endl;
                 cout << "Reset        X" << endl;
                 cout << "Step         . [<instructions>]" << endl;
                 cout << "Step Over    +" << endl;
@@ -363,19 +363,39 @@ int main(int argc, char **argv)
                 try {
                     if (tokens.size() == 1) {
                         // List watchpoints
-                        for (auto b: sim.getWatchpoints()) {
-                            cout << "Watchpoint at $" << hex << setw(4) <<  b << endl;
+                        for (auto b: sim.getReadWatchpoints()) {
+                            cout << "Read watchpoint at $" << hex << setw(4) <<  b << endl;
                         }
-                    } else if (tokens.size() == 2) {
-                        // Clear watchpoint
+                        for (auto b: sim.getWriteWatchpoints()) {
+                            cout << "Write watchpoint at $" << hex << setw(4) <<  b << endl;
+                        }
+                    } else if (tokens.size() == 3) {
                         int address = stoi(tokens[1], nullptr, 16);
-                        if (address > 0) {
-                            cout << "Adding watchpoint at $" << hex << setw(4) << address << endl;
-                            sim.setWatchpoint(address);
+                        string type = tokens[2];
+                        if (type != "r" && type != "w" && type != "rw") {
+                            cout << "Invalid argument" << endl;
                         } else {
-                            cout << "Removing watchpoint at $" << hex << setw(4) << -address << endl;
-                            sim.clearWatchpoint(-address);
+                            if (type == "r" || type == "rw") {
+                                if (address > 0) {
+                                    cout << "Adding read watchpoint at $" << hex << setw(4) << address << endl;
+                                    sim.setReadWatchpoint(address);
+                                } else {
+                                    cout << "Removing read watchpoint at $" << hex << setw(4) << -address << endl;
+                                    sim.clearReadWatchpoint(-address);
+                                }
+                            }
+                            if (type == "w" || type == "rw") {
+                                if (address > 0) {
+                                    cout << "Adding write watchpoint at $" << hex << setw(4) << address << endl;
+                                    sim.setWriteWatchpoint(address);
+                                } else {
+                                    cout << "Removing write watchpoint at $" << hex << setw(4) << -address << endl;
+                                    sim.clearWriteWatchpoint(-address);
+                                }
+                            }
                         }
+                    } else {
+                        cout << "Invalid argument" << endl;
                     }
                 }
                 catch (const std::invalid_argument &a) {

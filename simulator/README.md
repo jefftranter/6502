@@ -26,7 +26,7 @@ Quit         Q
 Registers    R [<register> <value>]
 Unassemble   U [<address>] [<end>]
 Dump Video   V
-Watchpoint   W [-][<address>]
+Watchpoint   W [-][<address>] r,w,rw
 Reset        X
 Step         . [<instructions>]
 Step Over    +
@@ -37,7 +37,9 @@ Logging      L [<+/-><category>]
 Breakpoints or watchpoints can be added by specifying an address, or
 removed by preceding the address with a minus sign. Breakpoints cause
 execution to stop when an instruction is fetched at that address.
-Watchpoints stop when memory is read or written from that address.
+Watchpoints stop when memory is read or written from that address. You
+append "r", "w", or "rw" to a watchpoint to indicate that it should
+trigger on a read, write, or both.
 
 Logging can be enabled or disabled by prepending a category name with
 "+" or "-" respectively. Tying just "L" will list the logging

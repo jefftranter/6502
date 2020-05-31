@@ -213,9 +213,12 @@ public:
     std::list<uint16_t> getBreakpoints() const;
 
     // Watchpoint support
-    void setWatchpoint(uint16_t address);
-    void clearWatchpoint(uint16_t address);
-    std::list<uint16_t> getWatchpoints() const;
+    void setReadWatchpoint(uint16_t address);
+    void setWriteWatchpoint(uint16_t address);
+    void clearReadWatchpoint(uint16_t address);
+    void clearWriteWatchpoint(uint16_t address);
+    std::list<uint16_t> getReadWatchpoints() const;
+    std::list<uint16_t> getWriteWatchpoints() const;
 
     bool stop(); // Return whether trace/go should stop due to event.
     string stopReason(); // Return reason for stop
@@ -269,7 +272,8 @@ public:
 
     std::list<uint16_t> m_breakpoints; // Breakpoint list
 
-    std::list<uint16_t> m_watchpoints; // Watchpoint list
+    std::list<uint16_t> m_readWatchpoints; // Read watchpoint list
+    std::list<uint16_t> m_writeWatchpoints; // Write watchpoint list
 
     std::queue<char> m_keyboardFifo = {}; // Holds keyboard input
 

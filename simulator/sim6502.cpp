@@ -272,10 +272,10 @@ void Sim6502::write(uint16_t address, uint8_t byte)
     assert(address >= 0);
     assert(address <= 0xffff);
 
-    if (!m_watchpoints.empty()) {
-        if (std::find(m_watchpoints.begin(), m_watchpoints.end(), address) != m_watchpoints.end()) {
+    if (!m_writeWatchpoints.empty()) {
+        if (std::find(m_writeWatchpoints.begin(), m_writeWatchpoints.end(), address) != m_writeWatchpoints.end()) {
             m_stop = true;
-            m_stopReason = "watchpoint hit";
+            m_stopReason = "write watchpoint hit";
         }
     }
 
@@ -413,10 +413,10 @@ uint8_t Sim6502::read(uint16_t address)
     assert(address >= 0);
     assert(address <= 0xffff);
 
-    if (!m_watchpoints.empty()) {
-        if (std::find(m_watchpoints.begin(), m_watchpoints.end(), address) != m_watchpoints.end()) {
+    if (!m_readWatchpoints.empty()) {
+        if (std::find(m_readWatchpoints.begin(), m_readWatchpoints.end(), address) != m_readWatchpoints.end()) {
             m_stop = true;
-            m_stopReason = "watchpoint hit";
+            m_stopReason = "read watchpoint hit";
         }
     }
 
@@ -906,30 +906,57 @@ std::list<uint16_t> Sim6502::getBreakpoints() const
 }
 
 
-void Sim6502::setWatchpoint(uint16_t address)
+void Sim6502::setReadWatchpoint(uint16_t address)
 {
     // Don't add watchpoint if it already exists.
-    auto it = std::find(m_watchpoints.begin(), m_watchpoints.end(), address);
-    if (it == m_watchpoints.end()) {
-        m_watchpoints.push_back(address);
+    auto it = std::find(m_readWatchpoints.begin(), m_readWatchpoints.end(), address);
+    if (it == m_readWatchpoints.end()) {
+        m_readWatchpoints.push_back(address);
     }
 }
 
 
-void Sim6502::clearWatchpoint(uint16_t address)
+void Sim6502::clearReadWatchpoint(uint16_t address)
 {
-    auto it = std::find(m_watchpoints.begin(), m_watchpoints.end(), address);
-    if (it == m_watchpoints.end()) {
-        cout << "No watchpoint at $" << setw(4) << hex << address << endl;
+    auto it = std::find(m_readWatchpoints.begin(), m_readWatchpoints.end(), address);
+    if (it == m_readWatchpoints.end()) {
+        cout << "No read watchpoint at $" << setw(4) << hex << address << endl;
     } else {
-        m_watchpoints.remove(address);
+        m_readWatchpoints.remove(address);
     }
 }
 
 
-std::list<uint16_t> Sim6502::getWatchpoints() const
+std::list<uint16_t> Sim6502::getReadWatchpoints() const
 {
-    return m_watchpoints;
+    return m_readWatchpoints;
+}
+
+
+void Sim6502::setWriteWatchpoint(uint16_t address)
+{
+    // Don't add watchpoint if it already exists.
+    auto it = std::find(m_writeWatchpoints.begin(), m_writeWatchpoints.end(), address);
+    if (it == m_writeWatchpoints.end()) {
+        m_writeWatchpoints.push_back(address);
+    }
+}
+
+
+void Sim6502::clearWriteWatchpoint(uint16_t address)
+{
+    auto it = std::find(m_writeWatchpoints.begin(), m_writeWatchpoints.end(), address);
+    if (it == m_writeWatchpoints.end()) {
+        cout << "No write watchpoint at $" << setw(4) << hex << address << endl;
+    } else {
+        m_writeWatchpoints.remove(address);
+    }
+}
+
+
+std::list<uint16_t> Sim6502::getWriteWatchpoints() const
+{
+    return m_writeWatchpoints;
 }
 
 
