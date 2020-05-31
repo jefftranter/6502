@@ -217,7 +217,8 @@ int main(int argc, char **argv)
                 cout << "Dump Video   V" << endl;
                 cout << "Watchpoint   W [-][<address>]" << endl;
                 cout << "Reset        X" << endl;
-                cout << "Trace        . [<instructions>]" << endl;
+                cout << "Step         . [<instructions>]" << endl;
+                cout << "Step Over    +" << endl;
                 cout << "Send IRQ     IRQ" << endl;
                 cout << "Send NMI     NMI" << endl;
                 cout << "Logging      L [<+/-><category>]" << endl;
@@ -228,7 +229,7 @@ int main(int argc, char **argv)
             } else if (tokens[0] == ".") {
                 try {
                     int instructions = 1;
-                    // Get optional number of instructions to trace
+                    // Get optional number of instructions to step
                     if (tokens.size() == 2) {
                         instructions = stoi(tokens[1], nullptr, 16);
                     }
@@ -249,6 +250,10 @@ int main(int argc, char **argv)
                     cout << "Invalid argument" << endl;
 
                 }
+
+            } else if (tokens[0] == "+") {
+                sim.step(true);
+
             } else if (tokens[0] == "r" || tokens[0] == "R") {
                 try {
                     if (tokens.size() == 3) {

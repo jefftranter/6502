@@ -28,7 +28,8 @@ Unassemble   U [<address>] [<end>]
 Dump Video   V
 Watchpoint   W [-][<address>]
 Reset        X
-Trace        . [<instructions>]
+Step         . [<instructions>]
+Step Over    +
 Send IRQ     IRQ
 Send NMI     NMI
 Logging      L [<+/-><category>]

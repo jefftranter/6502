@@ -933,7 +933,7 @@ std::list<uint16_t> Sim6502::getWatchpoints() const
 }
 
 
-void Sim6502::step()
+void Sim6502::step(bool over)
 {
     // This is written for speed and efficiency and not elegance and readability.
 
@@ -944,6 +944,19 @@ void Sim6502::step()
     uint8_t tmp1 =0;
     uint8_t tmp2 = 0;
     int16_t tmp3 = 0;
+
+    // If stepping over, just move PC to the next instruction.
+    if (over) {
+        Sim6502::AddressMode mode = Sim6502::addressModeTable[opcode]; // Get addressing mode
+        len = Sim6502::lengthTable[mode]; // Get instruction length
+        m_regPC += len; // Point to next instruction
+
+        if (m_logRegisters) {
+            dumpRegisters();
+        }
+
+        return;
+    }
 
     switch (opcode) {
 

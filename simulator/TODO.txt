@@ -5,8 +5,8 @@ Known Bugs/Issues:
 
 To Do:
 
+- Support configuring watchpoints for read, write, or both
 - Options (e.g. stop on invalid, stop on BRK).
-- Step over function?
 - Handle decimal mode
 - Simulate Sound/Bank/Color/Video register
 - Option for Rockwell instructions

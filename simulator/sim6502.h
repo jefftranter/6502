@@ -135,7 +135,7 @@ public:
     void nmi();
 
     // Step CPU one instruction.
-    void step();
+    void step(bool over = false);
 
     // Set/get registers (A, X, Y, SR, SP, PC)
     uint8_t aReg() const;
