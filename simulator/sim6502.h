@@ -35,9 +35,21 @@ public:
     // Stack address
     const uint16_t STACK = 0x0100;
 
-    // Opcodes for disassembly
+    // Addressing modes, used for disassembly
+    enum AddressMode
+        {
+         implicit, absolute, absoluteX, absoluteY, accumulator, immediate, indirectX,
+         indirectY, indirect, relative, zeroPage, zeroPageX, zeroPageY
+        };
 
-    const char *opcode[256] =
+    // Lookup table of addressing modes. Given addressing mode, returns length of instruction in bytes.
+    const int lengthTable[13] =
+        {
+         1, 3, 3, 3, 1, 2, 2, 2, 3, 2, 2, 2, 2
+        };
+
+    // Opcodes for disassembly. Given opcode number, returns instruction name string.
+    const char *opCodeTable[256] =
         {
          "brk", "ora", "???", "???", "???", "ora", "asl", "???", "php", "ora", "asla", "???", "???", "ora", "asl", "???",
          "bpl", "ora", "???", "???", "???", "ora", "asl", "???", "clc", "ora", "???",  "???", "???", "ora", "asl", "???",
@@ -55,6 +67,44 @@ public:
          "bne", "cmp", "???", "???", "???", "cmp", "dec", "???", "cld", "cmp", "???",  "???", "???", "cmp", "dec", "???",
          "cpx", "sbc", "???", "???", "cpx", "sbc", "inc", "???", "inx", "sbc", "nop",  "???", "cpx", "sbc", "inc", "???",
          "beq", "sbc", "???", "???", "???", "sbc", "inc", "???", "sed", "sbc", "???",  "???", "???", "sbc", "inc", "???"
+        };
+
+    // Lookup table of addressing modes. Gven opcode number, returns addressing mode.
+
+    const AddressMode addressModeTable[256] =
+        {
+         implicit,  indirectX, implicit,    implicit, implicit,  zeroPage,  zeroPage,  implicit,
+         implicit,  immediate, accumulator, implicit, implicit,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, implicit,  zeroPageX, zeroPageX, implicit,
+         implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, absoluteX, implicit,
+         absolute,  indirectX, implicit,    implicit, zeroPage,  zeroPage,  zeroPage,  implicit,
+         implicit,  immediate, accumulator, implicit, absolute,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, implicit,  zeroPageX, zeroPageX, implicit,
+         implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, absoluteX, implicit,
+         implicit,  indirectX, implicit,    implicit, implicit,  zeroPage,  zeroPage,  implicit,
+         implicit,  immediate, accumulator, implicit, absolute,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, implicit,  zeroPageX, zeroPageX, implicit,
+         implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, absoluteX, implicit,
+         implicit,  indirectX, implicit,    implicit, implicit,  zeroPage,  zeroPage,  implicit,
+         implicit,  immediate, accumulator, implicit, indirect,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, implicit,  zeroPageX, zeroPageX, implicit,
+         implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, absoluteX, implicit,
+         implicit,  indirectX, implicit,    implicit, zeroPage,  zeroPage,  zeroPage,  implicit,
+         implicit,  implicit,  implicit,    implicit, absolute,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, zeroPageX, zeroPageX, zeroPageY, implicit,
+         implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, implicit,  implicit,
+         immediate, indirectX, immediate,   implicit, zeroPage,  zeroPage,  zeroPage,  implicit,
+         implicit,  immediate, implicit,    implicit, absolute,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, zeroPageX, zeroPageX, zeroPageY, implicit,
+         implicit,  absoluteY, implicit,    implicit, absoluteX, absoluteX, absoluteY, implicit,
+         immediate, indirectX, implicit,    implicit, zeroPage,  zeroPage,  zeroPage,  implicit,
+         implicit,  immediate, implicit,    implicit, absolute,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, implicit,  zeroPageX, zeroPageX, implicit,
+         implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, absoluteX, implicit,
+         immediate, indirectX, implicit,    implicit, zeroPage,  zeroPage,  zeroPage,  implicit,
+         implicit,  immediate, implicit,    implicit, absolute,  absolute,  absolute,  implicit,
+         relative,  indirectY, implicit,    implicit, implicit,  zeroPageX, zeroPageX, implicit,
+         implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, absoluteX, implicit
         };
 
     Sim6502();
@@ -144,6 +194,9 @@ public:
 
     // Dump memory to standard output
     void dumpMemory(uint16_t startAddress, uint16_t endAddress, bool showAscii=true);
+
+    // Disassemble memory to standard output. Returns next address to disassemble.
+    uint16_t disassembleMemory(uint16_t startAddress, uint16_t endAddress, bool showAscii=true);
 
     // Dump registers to standard output
     void dumpRegisters();

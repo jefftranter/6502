@@ -24,6 +24,7 @@ Help         ?
 Memory       M <address> <data> ...
 Quit         Q
 Registers    R [<register> <value>]
+Unassemble   U [<address>] [<end>]
 Dump Video   V
 Watchpoint   W [-][<address>]
 Reset        X

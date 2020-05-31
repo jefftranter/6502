@@ -181,6 +181,7 @@ void Sim6502::irq()
     cout << "irq interrupt" << endl;
 }
 
+
 void Sim6502::nmi()
 {
     write(STACK + m_regSP, (m_regPC + 2) >> 8); // Push PC high byte
@@ -192,6 +193,7 @@ void Sim6502::nmi()
     m_regPC = m_memory[0xfffa] + m_memory[0xfffb] * 256; // Set PC from NMI vector
     cout << "nmi interrupt" << endl;
 }
+
 
 uint8_t Sim6502::aReg() const
 {
@@ -500,6 +502,11 @@ void Sim6502::pressKey(char key)
     m_desiredRow = m_row[(int)key];
     m_columnData = m_col[(int)key];
     m_shift = m_shifted[(int)key];
+
+    // <Esc> or 0x1b is special case where we want Shift Lock pressed as well.
+    if (key == 0x1b) {
+        m_columnData &= 0xfe;
+    }
     m_sendingCharacter = true;
     m_tries = 0;
 }
@@ -616,11 +623,13 @@ bool Sim6502::isRam(uint16_t address) const
     return (address >= m_ramStart && address <= m_ramEnd);
 }
 
+
 bool Sim6502::isRom(uint16_t address) const
 {
     // TODO: May want to optimize using array lookup
     return (address >= m_romStart1 && address <= m_romEnd1) || (address >= m_romStart2 && address <= m_romEnd2);
 }
+
 
 bool Sim6502::isPeripheral(uint16_t address) const
 {
@@ -628,10 +637,12 @@ bool Sim6502::isPeripheral(uint16_t address) const
     return address >= m_peripheralStart && address <= m_peripheralStart + 1;
 }
 
+
 bool Sim6502::isVideo(uint16_t address) const
 {
     return (address >= m_videoStart && address <= m_videoEnd);
 }
+
 
 bool Sim6502::isKeyboard(uint16_t address) const
 {
@@ -639,11 +650,13 @@ bool Sim6502::isKeyboard(uint16_t address) const
     return address == m_keyboardStart;
 }
 
+
 bool Sim6502::isUnused(uint16_t address) const
 {
     // TODO: May want to optimize using array lookup
     return (!isRam(address) && !isRom(address) &&!isPeripheral(address));
 }
+
 
 bool Sim6502::loadMemory(string filename, uint16_t startAddress)
 {
@@ -666,6 +679,7 @@ bool Sim6502::loadMemory(string filename, uint16_t startAddress)
     }
 }
 
+
 bool Sim6502::saveMemory(string filename, uint16_t startAddress, uint16_t endAddress)
 {
     // TODO: Add support for file formats other than binary
@@ -687,6 +701,7 @@ bool Sim6502::saveMemory(string filename, uint16_t startAddress, uint16_t endAdd
     }
 }
 
+
 void Sim6502::setMemory(uint16_t startAddress, uint16_t endAddress, uint8_t byte)
 {
     assert(startAddress <= endAddress);
@@ -695,6 +710,7 @@ void Sim6502::setMemory(uint16_t startAddress, uint16_t endAddress, uint8_t byte
         m_memory[i] = byte;
     }
 }
+
 
 void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress, bool showAscii)
 {
@@ -725,6 +741,100 @@ void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress, bool showAs
     cout << endl;
 }
 
+
+uint16_t Sim6502::disassembleMemory(uint16_t startAddress, uint16_t endAddress, bool showAscii)
+{
+    assert(startAddress <= endAddress);
+    int address = startAddress;
+
+    while (address < endAddress) {
+
+        int instruction = m_memory[address];
+        const char *opcode = Sim6502::opCodeTable[instruction];
+        Sim6502::AddressMode mode = Sim6502::addressModeTable[instruction];
+        int length = Sim6502::lengthTable[mode];
+
+        // Disassembly format:
+        // 1000  01        nop
+        // 1001  02 03     lda    #$AA
+        // 1003  04 05 06  jsr    $1234
+        // 0000  A0 00     ldy    #$00
+
+        cout << hex << uppercase << setfill('0') << setw(4) << address << "  ";
+
+        for (int i = 0; i < length; i++) {
+            cout << hex << setw(2) << (int)m_memory[address + i] << " ";
+        }
+
+        if (length == 1) {
+            cout << "       ";
+        } else if (length == 2) {
+            cout << "    ";
+        } else if (length == 3) {
+            cout << " ";
+        }
+
+        switch (mode) {
+        case implicit: // e.g. rts
+            cout << opcode << endl;
+            break;
+        case absolute: //  e.g. lda $1234
+            cout << opcode << "    $" << setw(4) << m_memory[address + 1] + 256 * m_memory[address + 2] << endl;
+            break;
+        case absoluteX: // e.g. lda $1234,x
+            cout << opcode << "    $" << setw(4) << m_memory[address + 1] + 256 * m_memory[address + 2] << ",x" << endl;
+            break;
+        case absoluteY: // e.g. lda $1234,y
+            cout << opcode << "    $" << setw(4) << m_memory[address + 1] + 256 * m_memory[address + 2] << ",y" << endl;
+            break;
+        case accumulator: // e.g. asla
+            cout << opcode << endl;
+            break;
+        case immediate: // e.g. lda #$12
+            cout << opcode << "    #$" << setw(2) << (int)m_memory[address + 1] << endl;
+            break;
+        case indirectX: // e.g. lda ($12,x)
+            cout << opcode << "    ($" << setw(2) << (int)m_memory[address + 1] << ",x)" << endl;
+            break;
+        case indirectY: // e.g. lda ($12),y
+            cout << opcode << "    ($" << setw(2) << (int)m_memory[address + 1] << "),y" << endl;
+            break;
+        case indirect: // e.g. jmp ($1234)
+            cout << opcode << "    ($" << setw(4) << m_memory[address + 1] + 256 * m_memory[address + 2] << ")" << endl;
+            break;
+        case relative: // # e.g. bne $1234
+            {
+                int offset = m_memory[address + 1];
+                int dest;
+                if (offset < 128) {
+                    dest = address + offset + 2;
+                } else {
+                    dest = address - (256 - offset) + 2;
+                }
+                if (dest < 0) {
+                    dest = 65536 + dest;
+                }
+                cout << opcode << "    $" << setw(4) << (int)dest << endl;
+                break;
+            }
+        case zeroPage: // # e.g. lda $12
+            cout << opcode << "    $" << setw(2) << (int)m_memory[address + 1] << endl;
+            break;
+        case zeroPageX: // # e.g. lda $12,x
+            cout << opcode << "    $" << setw(2) << (int)m_memory[address + 1] << ",x" << endl;
+            break;
+        case zeroPageY: // # e.g. lda $12,y
+            cout << opcode << "    $" << setw(2) << (int)m_memory[address + 1] << ",y" << endl;
+            break;
+        }
+
+        address += length;
+    }
+
+    return address;
+}
+
+
 void Sim6502::dumpRegisters()
 {
     string s;
@@ -740,13 +850,14 @@ void Sim6502::dumpRegisters()
 
     cout << hex << setfill('0') << "PC=$" << setw(4) << m_regPC
          << " ($" << setw(2) << (int)m_memory[m_regPC] << ") "
-         <<  opcode[m_memory[m_regPC]]
+         <<  opCodeTable[m_memory[m_regPC]]
          << " A=$" << setw(2) << (int)m_regA
          << " X=$" << setw(2) << (int)m_regX
          << " Y=$" << setw(2) << (int)m_regY
          << " SP=$01" << setw(2) << (int)m_regSP
          << " P=" << s << endl;
 }
+
 
 void Sim6502::dumpVideo()
 {

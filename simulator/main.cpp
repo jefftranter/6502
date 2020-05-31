@@ -25,6 +25,9 @@ bool control_c = false;
 // Last address use by dump command.
 int lastDumpAddress = 0;
 
+// Last address use by unassenble command.
+int lastDisassembleAddress = 0;
+
 // Command line options.
 int h_option = 0;
 int v_option = 0;
@@ -210,6 +213,7 @@ int main(int argc, char **argv)
                 cout << "Memory       M <address> <data> ..." << endl;
                 cout << "Quit         Q" << endl;
                 cout << "Registers    R [<register> <value>]" << endl;
+                cout << "Unassemble   U [<address>] [<end>]" << endl;
                 cout << "Dump Video   V" << endl;
                 cout << "Watchpoint   W [-][<address>]" << endl;
                 cout << "Reset        X" << endl;
@@ -297,6 +301,31 @@ int main(int argc, char **argv)
                     }
                     sim.dumpMemory(start, end);
                     lastDumpAddress = end + 1;
+                }
+                catch (const std::invalid_argument &a) {
+                    cout << "Invalid argument" << endl;
+                }
+
+            } else if ((tokens[0] == "u" || tokens[0] == "U")) {
+                try {
+                    int start, end;
+
+                    // Start address specified
+                    if (tokens.size() > 1) {
+                        start = stoi(tokens[1], nullptr, 16);
+                    } else {
+                        // Default start to last end address plus one.
+                        start = lastDisassembleAddress;
+                    }
+
+                    // End address specified
+                    if (tokens.size() > 2) {
+                        end = stoi(tokens[2], 0, 16);
+                    } else {
+                        // Default to disassembling 16 addresses.
+                        end = start + 15;
+                    }
+                    lastDisassembleAddress = sim.disassembleMemory(start, end);
                 }
                 catch (const std::invalid_argument &a) {
                     cout << "Invalid argument" << endl;

@@ -1,6 +1,7 @@
 Known Bugs/Issues:
 
 - Programs in serial.in need CR/LF line endings.
+- Keyboard input is not returning <Esc> key?
 
 To Do:
 
@@ -12,7 +13,6 @@ To Do:
 - Option for 65C02 instructions
 - Option for 65816 instructions
 - Support loading RAM or ROM from other file formats (S record file, Intel hex, etc.)
-- Full disassembler
 - Simulate 610 board: additional RAM, Second 6550 UART, 6820 PIA, floppy disk
 - Optimize performance
 - GUI
