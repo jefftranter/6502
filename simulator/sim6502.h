@@ -70,7 +70,6 @@ public:
         };
 
     // Lookup table of addressing modes. Gven opcode number, returns addressing mode.
-
     const AddressMode addressModeTable[256] =
         {
          implicit,  indirectX, implicit,    implicit, implicit,  zeroPage,  zeroPage,  implicit,
@@ -107,7 +106,10 @@ public:
          implicit,  absoluteY, implicit,    implicit, implicit,  absoluteX, absoluteX, implicit
         };
 
+    // Constructor
     Sim6502();
+
+    // Destructor
     ~Sim6502();
 
     CpuType cpuType();
@@ -222,10 +224,9 @@ public:
 
     bool stop(); // Return whether trace/go should stop due to event.
     string stopReason(); // Return reason for stop
+
     // Flags to control logging output
-
     void loggingStatus();
-
     void enableLogging(string category, bool enable = true);
 
   protected:
