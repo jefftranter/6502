@@ -68,7 +68,7 @@
        .include "6522.inc"
 
         COUNT = $4119
-        
+
         LDA #$00
         STA IER             ; disable all interrupts
         LDA #%11000000

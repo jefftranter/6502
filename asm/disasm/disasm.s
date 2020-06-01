@@ -30,7 +30,7 @@
 ; and not the data bytes in memory. This allows the output to be fed
 ; back to an assembler.
 ; SOURCEONLY = 1
-        
+
 ; Uncomment next line to link with start address of $A000 for Multi I/0 Board EEPROM.
 ; .org $A000
 

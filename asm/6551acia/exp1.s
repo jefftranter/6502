@@ -6,7 +6,7 @@
 
 ; RxC pin at 19200bps outputs 16X or 307.2KHz
 ; 115200bps would be 1.8432 MHz. Too high for VIA to generate.
-     
+
 ; Would be good enhancement to wire RTS and CTS to the serial port for H/W handshaking. Also DCD?
 
        .include "6551.inc"

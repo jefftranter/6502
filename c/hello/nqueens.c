@@ -20,7 +20,7 @@ int  nsq        = 0;
 void print_board()
 {
   int i;
-  
+
   printf("+");
   for (i = 0; i < n ; i++)
     printf("---");
@@ -52,7 +52,7 @@ int piece(int n)
   /* first try the cache */
   if (board[cache[n]] == n)
     return cache[n];
-  
+
   for (i = 0 ; i < nsq ; i++)
     if (board[i] == n) {
       cache[n] = i; /* cache it for next time */
@@ -83,7 +83,7 @@ void check_board()
       if (board[r*n+c] != 0 && board[r*n+c] != i)
 	return;
     }
-    
+
     /* not a solution if piece in same \ diagonal */
     for (j = -n ; j < n ; j++) {
       r = p / n + j;
@@ -156,8 +156,8 @@ int main(void)
     tries++;
     check_board();
   } while (next_board());
-  
+
   printf("FOUND %d SOLUTIONS AFTER %ld TRIES.\n", solutions, tries);
-        
+
   return 0;
 }

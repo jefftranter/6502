@@ -152,7 +152,7 @@ SRVT     .word  IL_BBR               ; ($40-$5F) Backward Branch Relative
 
 ERRSTR   .byte " AT "                ; " AT " string used in error reporting.  Tom was right about this.
          .byte $80                   ; String terminator
-         
+
 LBL002   .word  ILTBL                ; Address of IL program table
 
 ;

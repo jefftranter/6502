@@ -65,7 +65,7 @@ DISP1:  LDA     $008C,Y         ; GET CHARACTER
         CPY     #$06 
         BCC     DISP1
         JMP     $1F3D           ; DONE, KEY DOWN?
-            
+
 ; XXXXXX TABLES XXXXX
 
 VALTBL:

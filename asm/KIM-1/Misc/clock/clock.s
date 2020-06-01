@@ -13,7 +13,7 @@
         DISPZ  = $185C
 
         .ORG   	$0200
- 
+
 START:  LDX     #$EA            ; SET NO. OF LOOPS FOR 1 SECOND
 LOOP:   DEX
         LDA     HOURS           ; STORE HOURS IN Fb

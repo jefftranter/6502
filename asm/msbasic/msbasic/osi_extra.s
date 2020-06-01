@@ -122,7 +122,7 @@ SaveFile:
         STA     Destination
         LDA     #>RAMSTART2
         STA     Destination+1
-   
+
         SEC
         LDA     MEMSIZ                     ; Length is end address minus start address
         SBC     Destination

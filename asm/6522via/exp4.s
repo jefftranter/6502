@@ -22,7 +22,7 @@
 
     LDA #$00
     STA IER             ; disable all interrupts
-        
+
     LDA #%00100000
     STA ACR             ; T1 single shot PB7 disabled, T2 pulse count mode
 

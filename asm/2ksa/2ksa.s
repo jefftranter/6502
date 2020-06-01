@@ -261,7 +261,7 @@ OPCTAB: ; Machine language opcodes pointed to by OPCPTR
         .byte   $CE,$EE,$2C,$4C,$20,$BC,$FF,$7D,$3D,$DD,$5D,$BD,$1D,$FD,$9D,$1E
         .byte   $5E,$3E,$7E,$DE,$FE,$BE,$FF,$FF,$FF,$79,$39,$D9,$59,$B9,$19,$F9
         .byte   $99,$6C,$FF
-        
+
 ; Subroutine MATCH. Search table for match to reference, X points to
 ; search parameters on page zero. Sets z if match found, returns
 ; number of matching record in X.
@@ -514,7 +514,7 @@ OK:     STX     SYMPTR          ; Store operand.
 DONE:   LDA     #'-'            ; "-"
         RTS                     ; OK, return.
 NOTZPG: NOP                     ; Continue.
-        
+
 ; Subroutine ENCODE (part 4). Look up operand; add if required.
 
         LDX     #$50            ; Look up operand.

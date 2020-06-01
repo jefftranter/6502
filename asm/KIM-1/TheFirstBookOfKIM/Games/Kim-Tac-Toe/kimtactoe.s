@@ -256,7 +256,7 @@ SEMO:   STY     MODE            ; SET STARTING PLAY
         NOP
 
 ; ***** SUBROUTINE "DISPLAY" *****
- 
+
 DISPLAY: LDA    #$7F
         STA     PADD            ; OPEN DISPLAY CHANELS
         INC     RATE

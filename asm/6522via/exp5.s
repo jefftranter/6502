@@ -44,7 +44,7 @@
 
     LDA #%11000000
     STA IER             ; enable T1 interrupts
-        
+
     LDA #%01000000
     STA ACR             ; T1 continuous, PB7 disabled
 
@@ -92,7 +92,7 @@ ISR:
     STA MINUTES
     CMP #60             ; reached 1 hour?
     BNE DONE            ; if not, done for now
-        
+
 ;    LDA #'H'            ; for test purposes
 ;    JSR ECHO
 

@@ -5,7 +5,7 @@
 ; 2000000 / 20 = 100 kHz on PA0 line.
 ; Could do this in 9 cycles but want a round number.
 ; PA1 is 50 kHz, PA2 is 25 kHz etc.
-       
+
        .org $0280
        .include "6522.inc"
 

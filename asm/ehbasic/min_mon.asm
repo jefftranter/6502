@@ -227,7 +227,7 @@ SaveFile:
         STA     Destination
         LDA     Smemh
         STA     Destination+1
-   
+
         SEC
         LDA     Svarl                      ; Length is end address (Svarl, svarh) - start address
         SBC     Destination

@@ -447,7 +447,7 @@ Ram_top		= $5000	; end of user RAM+1 (set as needed, should be page aligned)
 ; run from the load address.
 
 JMP	RES_vec
-        
+
 ; BASIC cold start entry point
 
 ; new page 2 initialisation, copy block to ccflag on

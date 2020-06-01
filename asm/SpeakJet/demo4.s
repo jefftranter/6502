@@ -130,7 +130,7 @@ Pause:
     lda  #1
     jsr  SendPhoneme
     rts
- 
+
 
 ; Send Phoneme stored in A.
 SendPhoneme:

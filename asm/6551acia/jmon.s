@@ -13,7 +13,7 @@
 ;                      Avoid endless loop in PrintString if string too long.
 
 ;  This version uses the serial port on the Multi I/O board.
-        
+
  .include "6551.inc"
 
 ; Constants
