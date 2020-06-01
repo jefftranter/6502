@@ -791,7 +791,11 @@ uint16_t Sim6502::disassembleMemory(uint16_t startAddress, uint16_t endAddress, 
             cout << opcode << endl;
             break;
         case immediate: // e.g. lda #$12
-            cout << opcode << "    #$" << setw(2) << (int)m_memory[address + 1] << endl;
+            if (isprint(m_memory[address+ 1])) {
+                cout << opcode << "    #'" << m_memory[address + 1] << "'" << endl;
+            } else {
+                cout << opcode << "    #$" << setw(2) << (int)m_memory[address + 1] << endl;
+            }
             break;
         case indirectX: // e.g. lda ($12,x)
             cout << opcode << "    ($" << setw(2) << (int)m_memory[address + 1] << ",x)" << endl;
