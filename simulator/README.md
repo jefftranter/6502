@@ -20,8 +20,9 @@ Commands:
 Breakpoint   B [-][<address>]
 Dump         D [<start>] [<end>]
 Go           G [<address>]
-Help         ?
+Logging      L [<+/-><category>]
 Memory       M <address> <data> ...
+Options      O
 Quit         Q
 Registers    R [<register> <value>]
 Unassemble   U [<address>] [<end>]
@@ -32,7 +33,6 @@ Step         . [<instructions>]
 Step Over    +
 Send IRQ     IRQ
 Send NMI     NMI
-Logging      L [<+/-><category>]
 
 Breakpoints or watchpoints can be added by specifying an address, or
 removed by preceding the address with a minus sign. Breakpoints cause

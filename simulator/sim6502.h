@@ -229,6 +229,16 @@ public:
     void loggingStatus();
     void enableLogging(string category, bool enable = true);
 
+    // Control of options
+    bool stopInvalid();
+    void setStopInvalid(bool option);
+    bool stopBrk();
+    void setStopBrk(bool option);
+    string serialInputFile();
+    void setSerialInputFile(string filename);
+    string serialOutputFile();
+    void setSerialOutputFile(string filename);
+
   protected:
 
     CpuType m_cpuType = MOS6502; // CPU type
@@ -287,6 +297,8 @@ public:
     // Flags to set whether to stop run/trace on specific events
     bool m_stop = false;
     string m_stopReason = "none";
+
+    // Control of options
     bool m_stopInvalid = true;
     bool m_stopBRK = true;
 

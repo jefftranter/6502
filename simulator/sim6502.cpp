@@ -2860,3 +2860,51 @@ void Sim6502::enableLogging(string category, bool enable)
         cout << "Valid categories are: errors, warnings, serial, keyboard, memory, video, instructions, registers, and all." << endl;
     }
 }
+
+
+bool Sim6502::stopInvalid()
+{
+    return m_stopInvalid;
+}
+
+
+void Sim6502::setStopInvalid(bool value)
+{
+    m_stopInvalid = value;
+}
+
+
+bool Sim6502::stopBrk()
+{
+    return m_stopBRK;
+}
+
+
+void Sim6502::setStopBrk(bool value)
+{
+    m_stopBRK = value;
+}
+
+
+string Sim6502::serialInputFile()
+{
+    return m_serialInFilename;
+}
+
+
+void Sim6502::setSerialInputFile(string filename)
+{
+    m_serialInFilename = filename;
+}
+
+
+string Sim6502::serialOutputFile()
+{
+    return m_serialOutFilename;
+}
+
+
+void Sim6502::setSerialOutputFile(string filename)
+{
+    m_serialOutFilename = filename;
+}

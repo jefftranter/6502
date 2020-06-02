@@ -5,7 +5,6 @@ Known Bugs/Issues:
 
 To Do:
 
-- Options (e.g. stop on invalid, stop on BRK).
 - Handle decimal mode
 - Simulate Sound/Bank/Color/Video register
 - Option for Rockwell instructions

@@ -209,8 +209,9 @@ int main(int argc, char **argv)
                 cout << "Breakpoint   B [-][<address>]" << endl;
                 cout << "Dump         D [<start>] [<end>]" << endl;
                 cout << "Go           G [<address>]" << endl;
-                cout << "Help         ?" << endl;
+                cout << "Logging      L [<+/-><category>]" << endl;
                 cout << "Memory       M <address> <data> ..." << endl;
+                cout << "Options      O" << endl;
                 cout << "Quit         Q" << endl;
                 cout << "Registers    R [<register> <value>]" << endl;
                 cout << "Unassemble   U [<address>] [<end>]" << endl;
@@ -221,7 +222,7 @@ int main(int argc, char **argv)
                 cout << "Step Over    +" << endl;
                 cout << "Send IRQ     IRQ" << endl;
                 cout << "Send NMI     NMI" << endl;
-                cout << "Logging      L [<+/-><category>]" << endl;
+                cout << "Help         ?" << endl;
 
             } else if (tokens[0] == "q" || tokens[0] == "Q") {
                 exit(0);
@@ -492,6 +493,34 @@ int main(int argc, char **argv)
                         }
                         sim.write(address - 2 + i, data);
                     }
+                }
+
+            } else if ((tokens[0] == "o" || tokens[0] == "O")) {
+                string line;
+                cout << "Set Options (type new value or <Enter> to leave unchanged)" << endl;
+                cout <<  "Stop on invalid instruction (" << (sim.stopInvalid() ? "Y/n" : "y/N") << ")? " << flush;
+                getline(cin, line);
+                if (line == "y" || line == "Y") {
+                    sim.setStopInvalid(true);
+                } else if (line == "n" || line == "N") {
+                    sim.setStopInvalid(false);
+                }
+                cout <<  "Stop on BRK instruction (" << (sim.stopBrk() ? "Y/n" : "y/N") << ")? " << flush;
+                getline(cin, line);
+                if (line == "y" || line == "Y") {
+                    sim.setStopBrk(true);
+                } else if (line == "n" || line == "N") {
+                    sim.setStopBrk(false);
+                }
+                cout << "Serial input file (" << sim.serialInputFile() << ")? " << flush;
+                getline(cin, line);
+                if (!line.empty()) {
+                    sim.setSerialInputFile(line);
+                }
+                cout << "Serial output file (" << sim.serialOutputFile() << ")? " << flush;
+                getline(cin, line);
+                if (!line.empty()) {
+                    sim.setSerialOutputFile(line);
                 }
 
             } else {
