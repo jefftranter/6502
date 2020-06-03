@@ -726,16 +726,19 @@ void Sim6502::dumpMemory(uint16_t startAddress, uint16_t endAddress, bool showAs
             printed = 0;
         }    
         cout << " " << setfill('0') << setw(2) << (int)m_memory[i];
-        printed++;
-        if (printed == 16) {
-            cout << "  ";
-            for (int j = i - 16 ; j < i; j++) {
-                if (isprint(m_memory[j])) {
-                    cout << (char)m_memory[j];
-                } else {
-                    cout << ".";
+
+        if (showAscii) {
+            printed++;
+            if (printed == 16) {
+                cout << "  ";
+                for (int j = i - 16 ; j < i; j++) {
+                    if (isprint(m_memory[j])) {
+                        cout << (char)m_memory[j];
+                    } else {
+                        cout << ".";
+                    }
+                    printed = 0;
                 }
-                printed = 0;
             }
         }
     }
