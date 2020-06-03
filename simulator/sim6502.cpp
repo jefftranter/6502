@@ -19,6 +19,7 @@ Sim6502::Sim6502()
             cout << "Error: Unable to open serial port file 'serial.in'" << endl;
         }
     }
+
     m_serialOut.open(m_serialOutFilename, ios::binary);
     if (m_logErrors) {
         if (!m_serialOut.is_open()) {
@@ -2895,6 +2896,17 @@ string Sim6502::serialInputFile()
 void Sim6502::setSerialInputFile(string filename)
 {
     m_serialInFilename = filename;
+
+    m_serialIn.close();
+
+    m_serialIn.open(m_serialInFilename, ios::binary);
+    if (m_logErrors) {
+        if (!m_serialIn.is_open()) {
+            cout << "Error: Unable to open serial port file 'serial.in'" << endl;
+        }
+    }
+
+
 }
 
 
@@ -2907,4 +2919,13 @@ string Sim6502::serialOutputFile()
 void Sim6502::setSerialOutputFile(string filename)
 {
     m_serialOutFilename = filename;
+
+    m_serialOut.close();
+
+    m_serialOut.open(m_serialOutFilename, ios::binary);
+    if (m_logErrors) {
+        if (!m_serialOut.is_open()) {
+            cout << "Error: Unable to open serial port file 'serial.out'" << endl;
+        }
+    }
 }

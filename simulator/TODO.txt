@@ -5,6 +5,7 @@ Known Bugs/Issues:
 
 To Do:
 
+- Save/restore settings to persistent files
 - Handle decimal mode
 - Simulate Sound/Bank/Color/Video register
 - Option for Rockwell instructions
