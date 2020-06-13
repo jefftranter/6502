@@ -1,5 +1,5 @@
 This is a port of Enhanced BASIC 2.22 for the Replica 1. A copy of the
-orignal source is in the file source.zip. The original code came from
+original source is in the file source.zip. The original code came from
 http://mycorner.no-ip.org/6502/ehbasic/index.html
 
 To build it on a Linux system, use the provided make file, i.e. "make"
@@ -24,10 +24,9 @@ Woz monitor ROM and cannot be changed.
 
 ---
 
-Also included is a port to the Briel Computers Superboard ///, a
-replica of the Ohio Scientic Superboard II/Challenger 1P. To build
-this version use the make file Makefile.osi. You need a version of
-CC65 that supports the OSI C1P platform.
+Also included is a port to the Ohio Scientific Superboard
+II/Challenger 1P and compatibles like the Briel Computers Superboard
+///. To build this version use the make file Makefile.osi.
 
 SAVE enables output to the serial/cassette port (just like for the OSI
 BASIC in ROM). To turn off SAVE, do "POKE 517,0".
