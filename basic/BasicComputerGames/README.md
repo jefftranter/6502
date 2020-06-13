@@ -13,7 +13,7 @@ Most games have instructions in the .txt file corresponding to the
 Porting Notes:
 
 All programs have been tested on an Ohio Scientific Superboard II with
-8K of RAM.
+8K or 32K of RAM.
 
 The 24 column screen means that some output can be hard to read.
 
@@ -23,4 +23,4 @@ Banner.bas is not working. Need to review why (many people reported
 this on other systems).
 
 Blackjack.bas, CivilWar.bas, and SuperStarTrek.bas will not run on a
-system with only 8K of RAM and have not been tested.
+system with only 8K of RAM.
