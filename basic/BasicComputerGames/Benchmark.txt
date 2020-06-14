@@ -1,0 +1,5 @@
+The Creative Computing Benchmark, also called David Ahl's benchmark.
+Not part of the book Basic Computer Games, but written by the same
+author.
+
+See https://en.wikipedia.org/wiki/Creative_Computing_Benchmark
