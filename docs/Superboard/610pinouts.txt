@@ -1,0 +1,87 @@
+  Ohio Scientific Expansion Board Model 610 Rev B Connector Pinouts
+  =================================================================
+                   Jeff Tranter <tranter@pobox.com>
+                             15 Jun 2020
+
+
+J1 (Ribbon Cable to Main Board):
++-----+---------+-----+---------+
+| Pin | Signal  | Pin | Signal  |
++-----+---------+-----+---------+
+|   1 | /IRQ    |  21 | A9      |
+|   2 | /NMI    |  22 | A10     |
+|   3 | DD      |  23 | A11     |
+|   4 | /BD0    |  24 | A12     |
+|   5 | /BD1    |  25 | A13     |
+|   6 | /BD2    |  26 | A14     |
+|   7 | /BD3    |  27 | A15     |
+|   8 | GND     |  28 | GND     |
+|   9 | GND     |  29 | GND     |
+|  10 | GND     |  30 | GND     |
+|  11 |         |  31 | 02      |
+|  12 | A2      |  32 | R/W     |
+|  13 | A1      |  33 | /BD7    |
+|  14 | A0      |  34 | /BD6    |
+|  15 | A3      |  35 | /BD5    |
+|  16 | A4      |  36 | /BD4    |
+|  17 | A5      |  37 | GND     |
+|  18 | A6      |  38 | GND     |
+|  19 | A7      |  39 | GND     |
+|  20 | A8      |  40 | GND     |
++-----+---------+-----+---------+
+
+J2 (Expansion Connector):
++-----+---------+-----+---------+
+| Pin | Signal  | Pin | Signal  |
++-----+---------+-----+---------+
+|   1 | BA0     |  21 |         |
+|   2 | BA1     |  22 |         |
+|   3 | BA2     |  23 |         |
+|   4 | BA3     |  24 |         |
+|   5 | BA4     |  25 |         |
+|   6 | BA5     |  26 |         |
+|   7 | BA6     |  27 |         |
+|   8 | BA7     |  28 | BD4     |
+|   9 |         |  29 | BD5     |
+|  10 | BD0     |  30 | BD6     |
+|  11 | BD1     |  31 | BD7     |
+|  12 | BD2     |  32 |         |
+|  13 | BD2     |  33 | BA8     |
+|  14 |         |  34 | BA9     |
+|  15 | BR/W    |  35 | BA10    |
+|  16 | /BIRQ   |  36 | BA11    |
+|  17 | /BNMI   |  37 | BA12    |
+|  18 | BDD     |  38 | BA13    |
+|  19 | B02     |  39 | BA14    |
+|  20 |         |  40 | BA15    |
++-----+---------+-----+---------+
+
+J3 (Floppy or Data Separator):
++-----+-----------------------+
+| Pin | Signal                |
++-----+-----------------------+
+|   1 | Head Load             |
+|   2 | Low Current           |
+|   3 | Drive Select 1 & 2    |
+|   4 | Fault Reset           |
+|   5 | Step                  |
+|   6 | Direction             |
+|   7 | Erase Enable          |
+|   8 | Write Gate            |
+|   9 | Write Data            |
+|  10 | Separate Clock        |
+|  11 | Separate Data         |
+|  12 | Ground                |
+|  13 | Ground                |
+|  14 | +5V                   |
+|  15 | -9V (not used)        |
+|  16 | N.C.                  |
+|  17 | Index                 |
+|  18 | Side Select           |
+|  19 | Write Protect         |
+|  20 | Ready Drive 2         |
+|  21 | Sector (not used)     |
+|  22 | Fault (not used)      |
+|  23 | Track 00              |
+|  24 | Ready Drive 1         |
++-----+-----------------------+
