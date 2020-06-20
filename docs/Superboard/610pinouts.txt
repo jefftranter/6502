@@ -73,7 +73,7 @@ J3 (Floppy or Data Separator):
 |  11 | Separate Data         |
 |  12 | Ground                |
 |  13 | Ground                |
-|  14 | +5V                   |
+|  14 | +5V (not connected)   |
 |  15 | -9V (not used)        |
 |  16 | N.C.                  |
 |  17 | Index                 |
