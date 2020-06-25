@@ -6,11 +6,11 @@
 ; Output value to screen.
 ; Enhancement would be to make this interrupt driven but want to keep it simple for now.
 
-; example
-; input was 100KHz
+; Example:
+; Input was 100KHz
 ; Counted $13AE pulses = 5038 * 20 Hz = 10,076 Hz
-; If wanted to convert to Hz, good sample are might be 16,32, 64 since could multiply by shifting it.
-; input was an audio signal generator and then through a 74LS04 inverter to make sure levels were TTL.
+; If wanted to convert to Hz, good sample rates might be 16, 32, or 64 since could multiply by shifting it.
+; Input was an audio signal generator and then through a 74LS04 inverter to make sure levels were TTL.
 
     .org $0280
     .include "6522.inc"
