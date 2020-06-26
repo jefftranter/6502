@@ -1,15 +1,16 @@
 ; Real-Time Clock Example
 ;
-; Uses the clock circuit and VIA on the OSI 610 board to generate
-; interrupts at 10 ms intervals. An interrupt service routine will
-; increment counters for time including hours, minutes, and seconds.
+; Uses the clock circuit and 6820/6821 PIA on the OSI 610 board to
+; generate interrupts at 10 ms intervals. An interrupt service routine
+; will increment counters for time including hours, minutes, and
+; seconds.
 ;
 ; The following hardware needs to be set up:
 ;
 ; 1. You need an OSI 610 expander board fully populated with memory.
 ; The program location could be adjusted depending on the memory
-; available.
-; 2. Jumper pad for the the 6820 IRQ line (near pin 38) to the /IRQ
+; available; the program assumes 32K.
+; 2. Jumper pad from the 6820 IRQ line (near pin 38) to the /IRQ
 ; line (next to it and to the right when facing the front of the
 ; board).
 ; 3. Connect the 10mS timer signal (pad from U10 pin 9) to the pad for
@@ -17,22 +18,23 @@
 ;
 ; There is a Basic program provided in the file time.bas that can also
 ; be run to show how the clock runs even while Basic is executing. To
-; ensure that Basic does not wipe out the program, from cold start,
-; enter 30000 to the MEMORY SIZE? prompt.
+; ensure that Basic does not wipe out the clock program, from cold
+; start enter 30000 to the MEMORY SIZE? prompt.
 ;
 ; The timer hardware is not exactly 10 ms, so the clock is not
-; particularly accurate but could be calibrated in software to improce
+; particularly accurate but could be calibrated in software to improve
 ; accuracy.
 ;
 ; This version count 100ths of seconds, seconds, minutes, and hours.
-; Once it runs it returns and is all interrupt driven.
+; Once it runs, it returns and is all interrupt driven.
 ; Could use from BASIC and PEEK the time values. Have to make sure
 ; program does not use memory used by BASIC.  Also risk of clobbering IRQ
-; vector because it is set to $0100 which is in the stack (programmed in
+; vector because it is set to $01C0 which is in the stack (programmed in
 ; ROM so we can't change it at run time).
 ;
 ; TODO:
-; Make fine adjustment to compensate for clock frequency.
+; Make fine adjustment to compensate for clock frequency: 100 Hz is
+; actually 98.304 Hz (+/- depending on crystal)
 
         .org    $7530   ; First reserved memory if 30000 was entered for MEMORY SIZE?
 
@@ -52,33 +54,37 @@ SECONDS:        .res 1  ; counts seconds
 MINUTES:        .res 1  ; counts minutes
 HOURS:          .res 1  ; counts hours
 
+;
+; Initialization routine
+;
 INIT:   SEI             ; mask interrupts
         LDA     #$4C    ; JMP ISR instruction
         STA     IRQ     ; Store at interrupt vector
-        LDA     #<ISR
+        LDA     #<ISR   ; Low byte
         STA     IRQ+1
-        LDA     #>ISR
+        LDA     #>ISR   ; Hgh byte
         STA     IRQ+2
 
-        LDA     #0      ; Set clock to zero
+        LDA     #0      ; Set clock to all zeroes
         STA     JIFFIES
         STA     SECONDS
         STA     MINUTES
         STA     HOURS
 
-; Set port A for interrupt when CA1 goes low
+; Set PIA port A for interrupt when CA1 goes low
 
         LDA     #%11000001
         STA     CREGA   ; Write to control register
+        CLI             ; Enable interrupts
+        RTS             ; Done, return
 
-        CLI             ; enable interrupts
-        RTS             ; Done
-
+;
 ; Interrupt service routine
+;
 ISR:    PHA             ; save A
         BIT     CREGA   ; Clears interrupt
 
-        LDA     JIFFIES
+        LDA     JIFFIES ; Increment jiffies counter
         CLC
         ADC     #1
         STA     JIFFIES
