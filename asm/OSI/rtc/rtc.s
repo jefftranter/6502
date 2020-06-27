@@ -2,8 +2,7 @@
 ;
 ; Uses the clock circuit and 6820/6821 PIA on the OSI 610 board to
 ; generate interrupts at 10 ms intervals. An interrupt service routine
-; will increment counters for time including hours, minutes, and
-; seconds.
+; increments counters for time including hours, minutes, and seconds.
 ;
 ; The following hardware needs to be set up:
 ;
@@ -27,16 +26,12 @@
 ;
 ; This version count 100ths of seconds, seconds, minutes, and hours.
 ; Once it runs, it returns and is all interrupt driven.
-; Could use from BASIC and PEEK the time values. Have to make sure
-; program does not use memory used by BASIC.  Also risk of clobbering IRQ
-; vector because it is set to $01C0 which is in the stack (programmed in
-; ROM so we can't change it at run time).
 ;
-; TODO:
-; Make fine adjustment to compensate for clock frequency: 100 Hz is
-; actually 98.304 Hz (+/- depending on crystal)
+; There is a risk of clobbering the IRQ vector because it is set to
+; $01C0 which is in the stack (programmed in ROM so we can't change it
+; at run time).
 
-        .org    $7530   ; First reserved memory if 30000 was entered for MEMORY SIZE?
+        .org    $7530   ; Start of reserved memory if 30000 was entered for MEMORY SIZE?
 
 ; 6820/6821 PIA Chip registers
 
@@ -50,14 +45,14 @@
         IRQ     = $01C0 ; IRQ vector
 
 JIFFIES:        .res 1  ; 100ths of seconds
-SECONDS:        .res 1  ; counts seconds
-MINUTES:        .res 1  ; counts minutes
-HOURS:          .res 1  ; counts hours
+SECONDS:        .res 1  ; seconds
+MINUTES:        .res 1  ; minutes
+HOURS:          .res 1  ; hours
 
 ;
 ; Initialization routine
 ;
-INIT:   SEI             ; mask interrupts
+INIT:   SEI             ; Mask interrupts
         LDA     #$4C    ; JMP ISR instruction
         STA     IRQ     ; Store at interrupt vector
         LDA     #<ISR   ; Low byte
@@ -65,16 +60,15 @@ INIT:   SEI             ; mask interrupts
         LDA     #>ISR   ; Hgh byte
         STA     IRQ+2
 
-        LDA     #0      ; Set clock to all zeroes
+        LDA     #0      ; Set clock values to all zeroes
         STA     JIFFIES
         STA     SECONDS
         STA     MINUTES
         STA     HOURS
 
-; Set PIA port A for interrupt when CA1 goes low
-
-        LDA     #%11000001
+        LDA     #%00000101 ; Set PIA port A for interrupt when CA1 goes low.
         STA     CREGA   ; Write to control register
+
         CLI             ; Enable interrupts
         RTS             ; Done, return
 
@@ -82,13 +76,19 @@ INIT:   SEI             ; mask interrupts
 ; Interrupt service routine
 ;
 ISR:    PHA             ; save A
-        BIT     CREGA   ; Clears interrupt
+        BIT     PORTA   ; Clears interrupt
 
         LDA     JIFFIES ; Increment jiffies counter
         CLC
         ADC     #1
         STA     JIFFIES
-        CMP     #100    ; reached 1 second?
+
+; Note: Frequency of 100 Hz timer signal is actually 98.304 Hz (+/-
+; depending on crystal). Can tweak the number below if your system is
+; slightly different. Could make a fine adjustment, say every minute
+; or every hour, to make timer even more accurate over the long term.
+
+        CMP     #98     ; reached 1 second?
         BNE     DONE    ; if not, done for now
 
         LDA     #0      ; reset jiffies
