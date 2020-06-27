@@ -1,4 +1,4 @@
-rts.lod: rtc.s
+rtc.lod: rtc.s
 	ca65 -g -l rtc.lst rtc.s
 	ld65 -t none -vm -o rtc.bin rtc.o
 	../bintolod -s 7530 -l 7534 rtc.bin >rtc.lod
