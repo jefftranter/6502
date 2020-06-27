@@ -4,7 +4,7 @@ rts: rtc.s
 	../bintolod -s 7530 -l 7534 rtc.bin >rtc.lod
 
 upload:
-	ascii-xfr -s example1.lod >/dev/ttyUSB0 
+	ascii-xfr -s rtc.lod >/dev/ttyUSB0
 
 clean:
 	$(RM) rtc.o rtc.lst rtc.bin rtc.lod
