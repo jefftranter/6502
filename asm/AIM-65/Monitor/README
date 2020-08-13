@@ -1,0 +1,6 @@
+This is the Rockwell AIM-65 monitor source to be compiled with the ca65 cross assembler.
+All source line numbers are the same as in the Rockwell manual "AIM 65 MICROCOMPUTER MONITOR PROGRAM LISTING".
+
+Requires:
+ - cc65 cross compiler
+ - enscript and ps2pdf for a nice pdf listing
