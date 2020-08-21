@@ -41,7 +41,7 @@
 440 ?"     WAY BETWEEN 1 AND 2                      ..."
 450 ?"                                             . . ."
 460 ?"     VALUES MAY APPROACH 9.0, WHICH         6  7  8"
-470 ?"     ITSELF IS EQUIVALENT TO 1.0"         
+470 ?"     ITSELF IS EQUIVALENT TO 1.0"
 480 ?"                                            COURSE"
 490 ?"     ONE WARP FACTOR IS THE SIZE OF "
 500 ?"     ONE QUADTANT.  THEREFORE, TO GET"
