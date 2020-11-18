@@ -3,6 +3,15 @@
 ; Source reconstruction and commentary Copyright (C) J.G.Harston
 ; Port to CC65 by Jeff Tranter
 
+; Macros to pack instruction mnemonics into two high bytes
+.macro MNEML c1,c2,c3
+        .byte ((c2 & $1F) << 5 + (c3 & $1F)) & $FF
+.endmacro
+
+.macro MNEMH c1,c2,c3
+        .byte ((c1 & $1F) << 2 + (c2 & $1F) / 8) & $FF
+.endmacro
+
 ; MOS Entry Points:
         OS_CLI  = $FFF7
         OSBYTE  = $FFF4
@@ -519,24 +528,126 @@ L83DF: ; &83E6
 ; Packed mnemonic table, low bytes
 ; --------------------------------
 L8451:
-        .byte   $4B, $83, $84, $89, $96, $B8, $B9, $D8, $D9, $F0
-        .byte   $01, $10, $81, $90, $89, $93, $A3, $A4, $A9, $38
-        .byte   $39, $78, $01, $13, $21, $63, $73, $B1, $A9, $C5
-        .byte   $0C, $C3, $D3, $C4, $F2, $41, $83, $B0, $81, $43
-        .byte   $6C, $72, $EC, $F2, $A3, $C3, $18, $19, $34, $B0
-        .byte   $72, $98, $99, $81, $98, $99, $14, $35
-
+        MNEML 'B','R','K'
+        MNEML 'C','L','C'
+        MNEML 'C','L','D'
+        MNEML 'C','L','I'
+        MNEML 'C','L','V'
+        MNEML 'D','E','X'
+        MNEML 'D','E','Y'
+        MNEML 'I','N','X'
+        MNEML 'I','N','Y'
+        MNEML 'N','O','P'
+        MNEML 'P','H','A'
+        MNEML 'P','H','P'
+        MNEML 'P','L','A'
+        MNEML 'P','L','P'
+        MNEML 'R','T','I'
+        MNEML 'R','T','S'
+        MNEML 'S','E','C'
+        MNEML 'S','E','D'
+        MNEML 'S','E','I'
+        MNEML 'T','A','X'
+        MNEML 'T','A','Y'
+        MNEML 'T','S','X'
+        MNEML 'T','X','A'
+        MNEML 'T','X','S'
+        MNEML 'T','Y','A'
+        MNEML 'B','C','C'
+        MNEML 'B','C','S'
+        MNEML 'B','E','Q'
+        MNEML 'B','M','I'
+        MNEML 'B','N','E'
+        MNEML 'B','P','L'
+        MNEML 'B','V','C'
+        MNEML 'B','V','S'
+        MNEML 'A','N','D'
+        MNEML 'E','O','R'
+        MNEML 'O','R','A'
+        MNEML 'A','D','C'
+        MNEML 'C','M','P'
+        MNEML 'L','D','A'
+        MNEML 'S','B','C'
+        MNEML 'A','S','L'
+        MNEML 'L','S','R'
+        MNEML 'R','O','L'
+        MNEML 'R','O','R'
+        MNEML 'D','E','C'
+        MNEML 'I','N','C'
+        MNEML 'C','P','X'
+        MNEML 'C','P','Y'
+        MNEML 'B','I','T'
+        MNEML 'J','M','P'
+        MNEML 'J','S','R'
+        MNEML 'L','D','X'
+        MNEML 'L','D','Y'
+        MNEML 'S','T','A'
+        MNEML 'S','T','X'
+        MNEML 'S','T','Y'
+        MNEML 'O','P','T'
+        MNEML 'E','Q','U'
 
 ; Packed mnemonic table, high bytes
 ; ---------------------------------
 L848B:
-        .byte   $0A, $0D, $0D, $0D, $0D, $10, $10, $25, $25, $39
-        .byte   $41, $41, $41, $41, $4A, $4A, $4C, $4C, $4C, $50
-        .byte   $50, $52, $53, $53, $53, $08, $08, $08, $09, $09
-        .byte   $0A, $0A, $0A, $05, $15, $3E, $04, $0D, $30, $4C
-        .byte   $06, $32, $49, $49, $10, $25, $0E, $0E, $09, $29
-        .byte   $2A, $30, $30, $4E, $4E, $4E, $3E, $16
-
+        MNEMH 'B','R','K'
+        MNEMH 'C','L','C'
+        MNEMH 'C','L','D'
+        MNEMH 'C','L','I'
+        MNEMH 'C','L','V'
+        MNEMH 'D','E','X'
+        MNEMH 'D','E','Y'
+        MNEMH 'I','N','X'
+        MNEMH 'I','N','Y'
+        MNEMH 'N','O','P'
+        MNEMH 'P','H','A'
+        MNEMH 'P','H','P'
+        MNEMH 'P','L','A'
+        MNEMH 'P','L','P'
+        MNEMH 'R','T','I'
+        MNEMH 'R','T','S'
+        MNEMH 'S','E','C'
+        MNEMH 'S','E','D'
+        MNEMH 'S','E','I'
+        MNEMH 'T','A','X'
+        MNEMH 'T','A','Y'
+        MNEMH 'T','S','X'
+        MNEMH 'T','X','A'
+        MNEMH 'T','X','S'
+        MNEMH 'T','Y','A'
+        MNEMH 'B','C','C'
+        MNEMH 'B','C','S'
+        MNEMH 'B','E','Q'
+        MNEMH 'B','M','I'
+        MNEMH 'B','N','E'
+        MNEMH 'B','P','L'
+        MNEMH 'B','V','C'
+        MNEMH 'B','V','S'
+        MNEMH 'A','N','D'
+        MNEMH 'E','O','R'
+        MNEMH 'O','R','A'
+        MNEMH 'A','D','C'
+        MNEMH 'C','M','P'
+        MNEMH 'L','D','A'
+        MNEMH 'S','B','C'
+        MNEMH 'A','S','L'
+        MNEMH 'L','S','R'
+        MNEMH 'R','O','L'
+        MNEMH 'R','O','R'
+        MNEMH 'D','E','C'
+        MNEMH 'I','N','C'
+        MNEMH 'C','P','X'
+        MNEMH 'C','P','Y'
+        MNEMH 'B','I','T'
+        MNEMH 'J','M','P'
+        MNEMH 'J','S','R'
+        MNEMH 'L','D','X'
+        MNEMH 'L','D','Y'
+        MNEMH 'S','T','A'
+        MNEMH 'S','T','X'
+        MNEMH 'S','T','Y'
+        MNEMH 'O','P','T'
+        MNEMH 'E','Q','U'
 
 ; Opcode base table
 ; -----------------
@@ -870,328 +981,392 @@ L86CC:
 ; Parse (zp),Y addressing mode
 ; ----------------------------
 L86D3:
- cpx    #$36
- bne    $873F
- jsr    $8A97
- cmp    #$28
- bne    $8715
- jsr    $8821
- jsr    $8A97
- cmp    #$29
- bne    $86FB
- jsr    $8A97
- cmp    #$2C
- bne    $870D
- jsr    $882C
- jsr    $8A97
- cmp    #$59
- bne    $870D
- beq    $86C8
- cmp    #$2C
- bne    $870D
- jsr    $8A97
- cmp    #$58
- bne    $870D
- jsr    $8A97
- cmp    #$29
- beq    $86C8
- brk
- .byte  $03
- eor    #$6E
- .byte  'd'
- adc    $78
- brk
- dec    $0A
- jsr    $8821
- jsr    $8A97
- cmp    #$2C
- bne    $8735
- jsr    $882C
- jsr    $8A97
- cmp    #$58
- beq    $8735
- cmp    #$59
- bne    $870D
- jsr    $882F
- jmp    $879A
- jsr    $8832
- lda    $2B
- bne    $872F
- jmp    $86A8
- cpx    #$2F
- bcs    $876E
- cpx    #$2D
- bcs    $8750
- jsr    $8A97
- cmp    #$41
- beq    $8767
- dec    $0A
- jsr    $8821
- jsr    $8A97
- cmp    #$2C
- bne    $8738
- jsr    $882C
- jsr    $8A97
- cmp    #$58
- beq    $8738
- jmp    $870D
- jsr    $8832
- ldy    #$01
- bne    $879C
- cpx    #$32
- bcs    $8788
- cpx    #$31
- beq    $8782
- jsr    $8A97
- cmp    #$23
- bne    $8780
- jmp    $86C5
- dec    $0A
- jsr    $8821
- jmp    $8735
- cpx    #$33
- beq    $8797
- bcs    $87B2
- jsr    $8A97
- cmp    #$28
- beq    $879F
- dec    $0A
- jsr    $8821
- ldy    #$03
- jmp    $862B
- jsr    $882C
- jsr    $882C
- jsr    $8821
- jsr    $8A97
- cmp    #$29
- beq    $879A
- jmp    $870D
- cpx    #$39
- bcs    $8813
- lda    $3D
- eor    #$01
- and    #$1F
- pha
- cpx    #$37
- bcs    $87F0
- jsr    $8A97
- cmp    #$23
- bne    $87CC
- pla
- jmp    $86C5
- dec    $0A
- jsr    $8821
- pla
- sta    $37
- jsr    $8A97
- cmp    #$2C
- beq    $87DE
- jmp    $8735
- jsr    $8A97
- and    #$1F
- cmp    $37
- bne    $87ED
- jsr    $882C
- jmp    $8735
- jmp    $870D
- jsr    $8821
- pla
- sta    $37
- jsr    $8A97
- cmp    #$2C
- bne    $8810
- jsr    $8A97
- and    #$1F
- cmp    $37
- bne    $87ED
- jsr    $882C
- lda    $2B
- beq    $8810
- jmp    $86CC
- jmp    $8738
- bne    $883A
- jsr    $8821
- lda    $2A
- sta    $28
- ldy    #$00
- jmp    $862B
- jsr    $9B1D
- jsr    $92F0
- ldy    $1B
- sty    $0A
- rts
- jsr    $882F
- jsr    $8832
- lda    $29
- clc
- adc    #$04
- sta    $29
- rts
- ldx    #$01
- ldy    $0A
- inc    $0A
- lda    ($0B),y
- cmp    #$42
- beq    $8858
- inx
- cmp    #$57
- beq    $8858
- ldx    #$04
- cmp    #$44
- beq    $8858
- cmp    #$53
- beq    $886A
- jmp    $982A
- txa
- pha
- jsr    $8821
- ldx    #$29
- jsr    $BE44
- pla
- tay
- jmp    $862B
- jmp    $8C0E
- lda    $28
- pha
- jsr    $9B1D
- bne    $8867
- pla
- sta    $28
- jsr    $8827
- ldy    #$FF
- bne    $8864
- pha
- clc
- tya
- adc    $37
- sta    $39
- ldy    #$00
- tya
- adc    $38
- sta    $3A
- pla
- sta    ($37),y
- iny
- lda    ($39),y
- sta    ($37),y
- cmp    #$0D
- bne    $888D
- rts
- and    #$0F
- sta    $3D
- sty    $3E
- iny
- lda    ($37),y
- cmp    #$3A
- bcs    $88DA
- cmp    #$30
- bcc    $88DA
- and    #$0F
- pha
- ldx    $3E
- lda    $3D
- asl    a
- rol    $3E
- bmi    $88D5
- asl    a
- rol    $3E
- bmi    $88D5
- adc    $3D
- sta    $3D
- txa
- adc    $3E
- asl    $3D
- rol    a
- bmi    $88D5
- bcs    $88D5
- sta    $3E
- pla
- adc    $3D
- sta    $3D
- bcc    $889D
- inc    $3E
- bpl    $889D
- pha
- pla
- ldy    #$00
- sec
- rts
- dey
- lda    #$8D
- jsr    $887C
- lda    $37
- adc    #$02
- sta    $39
- lda    $38
- adc    #$00
- sta    $3A
- lda    ($37),y
- sta    ($39),y
- dey
- bne    $88EC
- ldy    #$03
- lda    $3E
- ora    #$40
- sta    ($37),y
- dey
- lda    $3D
- and    #$3F
- ora    #$40
- sta    ($37),y
- dey
- lda    $3D
- and    #$C0
- sta    $3D
- lda    $3E
- and    #$C0
- lsr    a
- lsr    a
- ora    $3D
- lsr    a
- lsr    a
- eor    #$54
- sta    ($37),y
- jsr    $8944
- jsr    $8944
- jsr    $8944
- ldy    #$00
- clc
- rts
- cmp    #$7B
- bcs    $8924
- cmp    #$5F
- bcs    $893C
- cmp    #$5B
- bcs    $8924
- cmp    #$41
- bcs    $893C
- cmp    #$3A
- bcs    $8924
- cmp    #$30
- rts
- cmp    #$2E
- bne    $8936
- rts
- lda    ($37),y
- inc    $37
- bne    $894A
- inc    $38
- rts
- jsr    $8944
- lda    ($37),y
- rts
- ldy    #$00
- sty    $3B
- sty    $3C
- lda    ($37),y
- cmp    #$0D
- beq    $894A
- cmp    #$20
- bne    $8966
- jsr    $8944
- bne    $8957
- cmp    #$26
- bne    $897C
+        cpx    #$36
+        bne    $873F
+        jsr    $8A97            ; Skip spaces
+L86DA:
+        cmp    #'('
+        bne    $8715
+        jsr    $8821
+        jsr    $8A97            ; Skip spaces
+        cmp    #')'
+        bne    $86FB
+        jsr    $8A97            ; Skip spaces
+        cmp    #','             ; No comman, jump to Index error
+        bne    $870D
+        jsr    $882C
+        jsr    $8A97            ; Skip spaces
+        cmp    #'Y'             ; (z),Y missing Y, jump to Index error
+        bne    $870D
+        beq    $86C8
+
+; Parse (zp,X) addressing mode
+; ----------------------------
+L86FB:
+        cmp    #','             ; No comma, jump to Index error
+        bne    $870D
+        jsr    $8A97            ; Skip spaces
+        cmp    #'X'             ; zp,X missing X, jump to Index error
+        bne    $870D
+        jsr    $8A97
+        cmp    #')'             ; zp,X) - jump to process
+        beq    $86C8
+L870D:
+        brk
+        .byte  $03,"Index"
+        brk
+L8715:
+        dec    $0A
+        jsr    $8821
+        jsr    $8A97            ; Skip spaces
+        cmp    #','             ; No command - jump to process as abs,X
+        bne    $8735
+        jsr    $882C
+        jsr    $8A97            ; Skip spaces
+        cmp    #'X'             ; abs,X - jump to process
+        beq    $8735
+        cmp    #'Y'             ; Not abs,Y - jump to Index error
+        bne    $870D
+L872F:
+        jsr    $882F
+        jmp    $879A
+
+; abs and abs,X
+; -------------
+L8735:
+        jsr    $8832
+L8738:
+        lda    $2B
+        bne    $872F
+        jmp    $86A8
+L873F:
+        cpx    #$2F
+        bcs    $876E
+        cpx    #$2D
+        bcs    $8750
+        jsr    $8A97            ; Skip spaces
+        cmp    #'A'             ; ins A -
+        beq    $8767
+        dec    $0A
+L8750:
+        jsr    $8821
+        jsr    $8A97            ; Skip spaces
+        cmp    #','
+        bne    $8738            ; No comma, jump to ...
+        jsr    $882C
+        jsr    $8A97            ; Skip spaces
+        cmp    #'X'
+        beq    $8738            ; Jump with address,X
+        jmp    $870D            ; Otherwise, jump to Index error
+L8767:
+        jsr    $8832
+        ldy    #$01
+        bne    $879C
+L876E:
+        cpx    #$32
+        bcs    $8788
+        cpx    #$31
+        beq    $8782
+        jsr    $8A97            ; Skip spaces
+        cmp    #'#'
+        bne    $8780            ; Not #, jump with address
+        jmp    $86C5
+L8780:
+        dec    $0A
+L8782:
+        jsr    $8821
+        jmp    $8735
+L8788:
+        cpx    #$33
+        beq    $8797
+        bcs    $87B2
+        jsr    $8A97            ; Skip spaces
+        cmp    #'('
+        beq    $879F            ; Jump With (... addressing mode
+        dec    $0A
+L8797:
+        jsr    $8821
+L879A:
+        ldy    #$03
+L879C:
+        jmp    $862B
+L879F:
+        jsr    $882C
+        jsr    $882C
+        jsr    $8821
+        jsr    $8A97            ; Skip spaces
+        cmp    #')'
+        beq    $879A
+        jmp    $870D            ; No ) - jump to Index error
+L87B2:
+        cpx    #$39
+        bcs    $8813
+        lda    $3D
+        eor    #$01
+        and    #$1F
+        pha
+        cpx    #$37
+        bcs    $87F0
+        jsr    $8A97            ; Skip spaces
+        cmp    #'#'
+        bne    $87CC
+        pla
+        jmp    $86C5
+L8735L:
+        dec    $0A
+        jsr    $8821
+        pla
+        sta    $37
+        jsr    $8A97
+        cmp    #','
+        beq    $87DE
+        jmp    $8735
+L87DE:
+        jsr    $8A97
+        and    #$1F
+        cmp    $37
+        bne    $87ED
+        jsr    $882C
+        jmp    $8735
+L87ED:
+        jmp    $870D            ; Jump to Index error
+L87F0:
+        jsr    $8821
+        pla
+        sta    $37
+        jsr    $8A97
+        cmp    #','
+        bne    $8810
+        jsr    $8A97
+        and    #$1F
+        cmp    $37
+        bne    $87ED
+        jsr    $882C
+        lda    $2B
+        beq    $8810            ; High byte=0, continue
+        jmp    $86CC            ; value>255, jump to Byte error
+L8810:
+        jmp    $8738
+L8813:
+        bne    $883A
+        jsr    $8821
+        lda    $2A
+        sta    $28
+        ldy    #$00
+        jmp    $862B
+L8821:
+        jsr    $9B1D
+        jsr    $92F0
+L8827:
+        ldy    $1B
+        sty    $0A
+        rts
+L882C:
+        jsr    $882F
+L882F:
+        jsr    $8832
+L8832:
+        lda    $29
+        clc
+        adc    #$04
+        sta    $29
+        rts
+L883A:
+        ldx    #$01             ; Prepare for one byte
+        ldy    $0A
+        inc    $0A              ; Increment address
+        lda    ($0B),y          ; Get next character
+        cmp    #'B'
+        beq    $8858            ; EQUB
+        inx                     ; Prepare for two bytes
+        cmp    #'W'
+        beq    $8858            ; EQUW
+        ldx    #$04             ; Prepare for four bytes
+        cmp    #'D'
+        beq    $8858            ; EQUD
+        cmp    #'S'
+        beq    $886A            ; EQUS
+        jmp    $982A            ; Syntax error
+L8858:
+        txa
+        pha
+        jsr    $8821
+        ldx    #$29
+        jsr    $BE44
+        pla
+        tay
+L8864:
+        jmp    $862B
+L8867:
+        jmp    $8C0E
+L886A:
+        lda    $28
+        pha
+        jsr    $9B1D
+        bne    $8867
+        pla
+        sta    $28
+        jsr    $8827
+        ldy    #$FF
+        bne    $8864
+L887C:
+        pha
+        clc
+        tya
+        adc    $37
+        sta    $39
+        ldy    #$00
+        tya
+        adc    $38
+        sta    $3A
+        pla
+        sta    ($37),y
+L888D:
+        iny
+        lda    ($39),y
+        sta    ($37),y
+        cmp    #$0D
+        bne    $888D
+        rts
+L8897:
+        and    #$0F
+        sta    $3D
+        sty    $3E
+L889D:
+        iny
+        lda    ($37),y
+        cmp    #'9'+1
+        bcs    $88DA
+        cmp    #'0'
+        bcc    $88DA
+        and    #$0F
+        pha
+        ldx    $3E
+        lda    $3D
+        asl    a
+        rol    $3E
+        bmi    $88D5
+        asl    a
+        rol    $3E
+        bmi    $88D5
+        adc    $3D
+        sta    $3D
+        txa
+        adc    $3E
+        asl    $3D
+        rol    a
+        bmi    $88D5
+        bcs    $88D5
+        sta    $3E
+        pla
+        adc    $3D
+        sta    $3D
+        bcc    $889D
+        inc    $3E
+        bpl    $889D
+        pha
+L99D5:
+        pla
+        ldy    #$00
+        sec
+        rts
+L88DA:
+        dey
+        lda    #$8D
+        jsr    $887C
+        lda    $37
+        adc    #$02
+        sta    $39
+        lda    $38
+        adc    #$00
+        sta    $3A
+L88EC:
+        lda    ($37),y
+        sta    ($39),y
+        dey
+        bne    $88EC
+        ldy    #$03
+L88F5:
+        lda    $3E
+        ora    #$40
+        sta    ($37),y
+        dey
+        lda    $3D
+        and    #$3F
+        ora    #$40
+        sta    ($37),y
+        dey
+        lda    $3D
+        and    #$C0
+        sta    $3D
+        lda    $3E
+        and    #$C0
+        lsr    a
+        lsr    a
+        ora    $3D
+        lsr    a
+        lsr    a
+        eor    #$54
+        sta    ($37),y
+        jsr    $8944            ; Increment $37/8
+        jsr    $8944            ; Increment $37/8
+        jsr    $8944            ; Increment $37/8
+        ldy    #$00
+L8924:
+        clc
+        rts
+L8926:
+        cmp    #$7B
+        bcs    $8924
+        cmp    #$5F
+        bcs    $893C
+        cmp    #$5B
+        bcs    $8924
+        cmp    #$41
+        bcs    L893C
+L8936:
+        cmp    #$3A
+        bcs    $8924
+        cmp    #$30
+L893C:
+        rts
+L893D:
+        cmp    #$2E
+        bne    $8936
+        rts
+L8942:
+        lda    ($37),y
+L8944:
+        inc    $37
+        bne    $894A
+        inc    $38
+L894A:
+        rts
+L894B:
+        jsr    $8944            ; Increment $37/8
+        lda    ($37),y
+        rts
+
+; Tokenise line at &37/8
+; ======================
+L8951:
+        ldy    #$00
+        sty    $3B              ; Set tokenizer to left-hand-side
+L8955:
+        sty    $3C
+L8957:
+        lda    ($37),y          ; Get current character
+        cmp    #$0D
+        beq    $894A            ; Exit with <cr>
+        cmp    #$20
+        bne    $8966            ; Skip <spc>
+L8961:
+        jsr    $8944
+        bne    $8957            ; Increment $37/8 and check next character
+L8966:
+        cmp    #'&'
+        bne    $897C            ; Jump if not '&'
+L896A:
  jsr    $894B
  jsr    $8936
  bcs    $896A
@@ -8185,8 +8360,6 @@ L86D3:
  bne    $BFEC
  jmp    $8B9B
  brk
- .byte  'R'
- .byte  'o'
- .byte  'g'
- adc    $72
+ .byte  "Roger"
  brk
+LC000:
