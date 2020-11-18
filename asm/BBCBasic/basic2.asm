@@ -776,85 +776,100 @@ L862B:
         lda    $0440            ; Get P% low byte
         sta    $37
         sty    $39
- ldx    $28
- cpx    #$04
- ldx    $0441
- stx    $38
- bcc    $8643
- lda    $043C
- ldx    $043D
- sta    $3A
- stx    $3B
- tya
- beq    $8672
- bpl    $8650
- ldy    $36
- beq    $8672
- dey
- lda    $0029,y
- bit    $39
- bpl    $865B
- lda    $0600,y
- sta    ($3A),y
- inc    $0440
- bne    $8665
- inc    $0441
- bcc    $866F
- inc    $043C
- bne    $866F
- inc    $043D
- tya
- bne    $8650
- rts
- cpx    #$22
- bcs    $86B7
- jsr    $8821
- clc
- lda    $2A
- sbc    $0440
- tay
- lda    $2B
- sbc    $0441
- cpy    #$01
- dey
- sbc    #$00
- beq    $86B2
- cmp    #$FF
- beq    $86AD
- lda    $28
- lsr    a
- beq    $86A5
- brk
- ora    ($4F,x)
- adc    $74,x
- jsr    $666F
- jsr    $6172
- ror    $6567
- brk
- tay
- sty    $2A
- ldy    #$02
- jmp    $862B
- tya
- bmi    $86A6
- bpl    $8691
- tya
- bpl    $86A6
- bmi    $8691
- cpx    #$29
- bcs    $86D3
- jsr    $8A97
- cmp    #$23
- bne    $86DA
- jsr    $882F
- jsr    $8821
- lda    $2B
- beq    $86A8
- brk
- .byte  $02
- .byte  'B'
- adc    $6574,y
- brk
+        ldx    $28              ; Offset assembly (opt>3)
+        cpx    #$04
+        ldx    $0441            ; Get P% high byte
+        stx    $38
+        bcc    $8643            ; No offset assembly
+        lda    $043C
+        ldx    $043D            ; Get O%
+L8643:
+        sta    $3A              ; Store destination pointer
+        stx    $3B
+        tya
+        beq    $8672
+        bpl    $8650
+        ldy    $36
+        beq    $8672
+L8650:
+        dey                     ; Get opcode byte
+        lda    $0029,y
+        bit    $39              ; Opcode - jump to store it
+        bpl    $865B
+        lda    $0600,y          ; Get EQU byte
+L865B:
+        sta    ($3A),y          ; Store byte
+        inc    $0440            ; Increment P%
+        bne    $8665
+        inc    $0441
+L8665:
+        bcc    L866F
+        inc    $043C            ; Increment O%
+        bne    L866F
+        inc    $043D
+L866F:
+        tya
+        bne    L8650
+        rts
+
+L8673:
+        cpx    #$22
+        bcs    $86B7
+        jsr    $8821
+        clc
+        lda    $2A
+        sbc    $0440
+        tay
+        lda    $2B
+        sbc    $0441
+        cpy    #$01
+        dey
+        sbc    #$00
+        beq    $86B2
+        cmp    #$FF
+        beq    $86AD
+L8691:
+        lda    $28              ; Get OPT
+        lsr    a
+        beq    $86A5            ; If OPT.b0=0, ignore error
+        brk
+        .byte  $01,"Out of range"
+        brk
+L86A5:
+        tay
+L86A6:
+        sty    $2A
+L86A8:
+        ldy    #$02
+        jmp    $862B
+L86AD:
+        tya
+        bmi    L86A6
+        bpl    $8691
+L86B2:
+        tya
+        bpl    $86A6
+        bmi    $8691
+L86B7:
+        cpx    #$29
+        bcs    $86D3
+        jsr    $8A97            ; Skip spaces
+        cmp    #'#'
+        bne    $86DA
+        jsr    $882F
+L86C5:
+        jsr    $8821
+L86C8:
+        lda    $2B
+        beq    $86A8
+L86CC:
+        brk
+        .byte  $02,"Byte"
+         brk
+
+; Parse (zp),Y addressing mode
+; ----------------------------
+L86D3:
  cpx    #$36
  bne    $873F
  jsr    $8A97
