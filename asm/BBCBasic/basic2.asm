@@ -1,929 +1,781 @@
- .org   $8000
- cmp    #$01
- beq    $8023
- rts
- nop
- rts
- asl    $4201
- eor    ($53,x)
- eor    #$43
- brk
- plp
- .byte  'C'
- and    #$31
- and    $3238,y
- jsr    $6341
- .byte  'o'
- .byte  'r'
- ror    $0D0A
- brk
- brk
- .byte  $80
- brk
- brk
- lda    #$84
- jsr    $FFF4
- stx    $06
- sty    $07
- lda    #$83
- jsr    $FFF4
- sty    $18
- ldx    #$00
- stx    $1F
- stx    $0402
- stx    $0403
- dex
- stx    $23
- ldx    #$0A
- stx    $0400
- dex
- stx    $0401
- lda    #$01
- and    $11
- ora    $0D
- ora    $0E
- ora    $0F
- ora    $10
- bne    $8063
- lda    #$41
- sta    $0D
- lda    #$52
- sta    $0E
- lda    #$57
- sta    $0F
- lda    #$02
- sta    $0202
- lda    #$B4
- sta    $0203
- cli
- jmp    $8ADD
- eor    ($4E,x)
- .byte  'D'
- .byte  $80
- brk
- eor    ($42,x)
- .byte  'S'
- sty    $00,x
- eor    ($43,x)
- .byte  'S'
- sta    $00,x
- eor    ($44,x)
- lsr    $41,x
- jmp    $0096
- eor    ($53,x)
- .byte  'C'
- .byte  $97
- brk
- eor    ($53,x)
- lsr    a:$0098
- eor    ($54,x)
- lsr    a:$0099
- eor    ($55,x)
- .byte  'T'
- .byte  'O'
- dec    $10
- .byte  'B'
- .byte  'G'
- eor    $54
- txs
- ora    ($42,x)
- bvc    $80FA
- .byte  'T'
- cmp    $03,x
- .byte  'C'
- .byte  'O'
- jmp    $554F
- .byte  'R'
- .byte  $FB
- .byte  $02
- .byte  'C'
- eor    ($4C,x)
- jmp    $02D6
- .byte  'C'
- pha
- eor    ($49,x)
- lsr    $02D7
- .byte  'C'
- pha
- .byte  'R'
- bit    $BD
- brk
- .byte  'C'
- jmp    $4145
- .byte  'R'
- cld
- ora    ($43,x)
- jmp    $534F
- eor    $D9
- .byte  $03
- .byte  'C'
- jmp    $DA47
- ora    ($43,x)
- jmp    $DB53
- ora    ($43,x)
- .byte  'O'
- .byte  'S'
- .byte  $9B
- brk
- .byte  'C'
- .byte  'O'
- eor    $4E,x
- .byte  'T'
- .byte  $9C
- ora    ($44,x)
- eor    ($54,x)
- eor    ($DC,x)
- jsr    $4544
- .byte  'G'
- sta    $4400,x
- eor    $46
- cmp    $4400,x
- eor    $4C
- eor    $54
- eor    $C7
- bpl    $8144
- eor    #$56
- sta    ($00,x)
- .byte  'D'
- eor    #$4D
- dec    $4402,x
- .byte  'R'
- eor    ($57,x)
- .byte  $DF
- .byte  $02
- eor    $4E
- .byte  'D'
- bvc    $8166
- .byte  'O'
- .byte  'C'
- sbc    ($01,x)
- eor    $4E
- .byte  'D'
- cpx    #$01
- eor    $4E
- lsr    $45,x
- jmp    $504F
- eor    $E2
- .byte  $02
- eor    $4C
- .byte  'S'
- eor    $8B
- .byte  $14
- eor    $56
- eor    ($4C,x)
- ldy    #$00
- eor    $52
- jmp    $019E
- eor    $52
- .byte  'R'
- .byte  'O'
- .byte  'R'
- sta    $04
- eor    $4F
- lsr    $C5
- ora    ($45,x)
- .byte  'O'
- .byte  'R'
- .byte  $82
- brk
- eor    $52
- .byte  'R'
- .byte  $9F
- ora    ($45,x)
- cli
- bvc    $80F3
- brk
- eor    $58
- .byte  'T'
- ldx    #$01
- lsr    $4F
- .byte  'R'
- .byte  $E3
- .byte  $02
- lsr    $41
- jmp    $4553
- .byte  $A3
- ora    ($46,x)
- lsr    $08A4
- .byte  'G'
- .byte  'O'
- .byte  'T'
- .byte  'O'
- sbc    $12
- .byte  'G'
- eor    $54
- bit    $BE
- brk
- .byte  'G'
- eor    $54
- lda    $00
- .byte  'G'
- .byte  'O'
- .byte  'S'
- eor    $42,x
- cpx    $12
- .byte  'G'
- .byte  'C'
- .byte  'O'
- jmp    $02E6
- pha
- eor    #$4D
- eor    $4D
- .byte  $93
- .byte  'C'
- eor    #$4E
- bvc    $81E6
- .byte  'T'
- inx
- .byte  $02
- eor    #$46
- .byte  $E7
- .byte  $02
- eor    #$4E
- .byte  'K'
- eor    $59
- bit    $BF
- brk
- eor    #$4E
- .byte  'K'
- eor    $59
- ldx    $00
- eor    #$4E
- .byte  'T'
- tay
- brk
- eor    #$4E
- .byte  'S'
- .byte  'T'
- .byte  'R'
- plp
- .byte  $A7
- brk
- jmp    $5349
- .byte  'T'
- cmp    #$10
- jmp    $4E49
- eor    $86
- brk
- jmp    $414F
- .byte  'D'
- iny
- .byte  $02
- jmp    $4D4F
- eor    $4D
- .byte  $92
- .byte  'C'
- jmp    $434F
- eor    ($4C,x)
- nop
- .byte  $02
- jmp    $4645
- .byte  'T'
- bit    $28
- cpy    #$00
- jmp    $4E45
- lda    #$00
- jmp    $5445
- sbc    #$04
- jmp    $474F
- .byte  $AB
- brk
- jmp    $AA4E
- brk
- eor    $4449
- bit    $28
- cmp    ($00,x)
- eor    $444F
- eor    $EB
- .byte  $02
- eor    $444F
- .byte  $83
- brk
- eor    $564F
- eor    $EC
- .byte  $02
- lsr    $5845
- .byte  'T'
- sbc    $4E02
- eor    $57
- dex
- ora    ($4E,x)
- .byte  'O'
- .byte  'T'
- ldy    $4F00
- jmp    $CB44
- ora    ($4F,x)
- lsr    $02EE
- .byte  'O'
- lsr    $46
- .byte  $87
- brk
- .byte  'O'
- .byte  'R'
- sty    $00
- .byte  'O'
- bvc    $8271
- lsr    $4E49
- stx    $4F00
- bvc    $8279
- lsr    $554F
- .byte  'T'
- ldx    $4F00
- bvc    $8282
- lsr    $5055
- lda    $4F00
- .byte  'S'
- .byte  'C'
- jmp    $FF49
- .byte  $02
- bvc    $829D
- eor    #$4E
- .byte  'T'
- sbc    ($02),y
- bvc    $8293
- .byte  'G'
- eor    $90
- .byte  'C'
- bvc    $82AC
- .byte  'R'
- .byte  $8F
- .byte  'C'
- bvc    $82A6
- .byte  $AF
- ora    ($50,x)
- jmp    $544F
- beq    $8267
- bvc    $82B6
- eor    #$4E
- .byte  'T'
- plp
- bcs    $826D
- bvc    $82C1
- .byte  'O'
- .byte  'C'
- .byte  $F2
- asl    a
- bvc    $82C4
- .byte  'S'
- lda    ($01),y
- .byte  'R'
- eor    $54
- eor    $52,x
- lsr    $01F8
- .byte  'R'
- eor    $50
- eor    $41
- .byte  'T'
- sbc    $00,x
- .byte  'R'
- eor    $50
- .byte  'O'
- .byte  'R'
- .byte  'T'
- inc    $01,x
- .byte  'R'
- eor    $41
- .byte  'D'
- .byte  $F3
- .byte  $02
- .byte  'R'
- eor    $4D
- .byte  $F4
- jsr    $5552
- lsr    $01F9
- .byte  'R'
- eor    ($44,x)
- .byte  $B2
- brk
- .byte  'R'
- eor    $53
- .byte  'T'
- .byte  'O'
- .byte  'R'
- eor    $F7
- .byte  $12
- .byte  'R'
- eor    #$47
- pha
- .byte  'T'
- bit    $28
- .byte  $C2
- brk
- .byte  'R'
- lsr    $B344
- ora    ($52,x)
- eor    $4E
- eor    $4D,x
- .byte  'B'
- eor    $52
- cpy    $5310
- .byte  'T'
- eor    $50
- dey
- brk
- .byte  'S'
- eor    ($56,x)
- eor    $CD
- .byte  $02
- .byte  'S'
- .byte  'G'
- lsr    a:$00B4
- .byte  'S'
- eor    #$4E
- lda    $00,x
- .byte  'S'
- eor    ($52),y
- ldx    $00,y
- .byte  'S'
- bvc    $8327
- .byte  $89
- brk
- .byte  'S'
- .byte  'T'
- .byte  'R'
- bit    $C3
- brk
- .byte  'S'
- .byte  'T'
- .byte  'R'
- eor    #$4E
- .byte  'G'
- bit    $28
- cpy    $00
- .byte  'S'
- .byte  'O'
- eor    $4E,x
- .byte  'D'
- .byte  $D4
- .byte  $02
- .byte  'S'
- .byte  'T'
- .byte  'O'
- bvc    $82FC
- ora    ($54,x)
- eor    ($4E,x)
- .byte  $B7
- brk
- .byte  'T'
- pha
- eor    $4E
- sty    $5414
- .byte  'O'
- clv
- brk
- .byte  'T'
- eor    ($42,x)
- plp
- txa
- brk
- .byte  'T'
- .byte  'R'
- eor    ($43,x)
- eor    $FC
- .byte  $12
- .byte  'T'
- eor    #$4D
- eor    $91
- .byte  'C'
- .byte  'T'
- .byte  'R'
- eor    $45,x
- lda    $5501,y
- lsr    $4954
- jmp    $02FD
- eor    $53,x
- .byte  'R'
- tsx
- brk
- lsr    $44,x
- eor    $EF,x
- .byte  $02
- lsr    $41,x
- jmp    $00BB
- lsr    $50,x
- .byte  'O'
- .byte  'S'
- ldy    $5701,x
- eor    #$44
- .byte  'T'
- pha
- inc    $5002,x
- eor    ($47,x)
- eor    $D0
- brk
- bvc    $83AA
- .byte  'R'
- .byte  $CF
- brk
- .byte  'T'
- eor    #$4D
- eor    $D1
- brk
- jmp    $4D4F
- eor    $4D
- .byte  $D2
- brk
- pha
- eor    #$4D
- eor    $4D
- .byte  $D3
- brk
- sei
- .byte  'G'
- cpy    #$B4
- .byte  $FC
- .byte  $03
- ror    a
- .byte  $D4
- .byte  $33
- .byte  $9E
- .byte  $DA
- .byte  $07
- .byte  'o'
- sta    $C2F7
- .byte  $9F
- ldx    $E9
- sta    ($46),y
- dex
- sta    $B9,x
- lda    $78E2
- cmp    ($FE),y
- tay
- cmp    ($80),y
- .byte  '|'
- .byte  $CB
- eor    ($6D,x)
- lda    ($49),y
- dey
- tya
- ldy    $BE,x
- .byte  $DC
- cpy    $D2
- .byte  $2F
- ror    $BD,x
- .byte  $BF
- rol    $CC
- and    $94EE,y
- .byte  $C2
- clv
- ldy    $2431
- .byte  $9C
- .byte  $DA
- ldx    $A3,y
- .byte  $F3
- rol    a
- bmi    $8333
- cmp    #$6F
- eor    $584C,x
- .byte  $D2
- rol    a
- sta    $BD99
- cpy    $7D
- adc    $E82F,x
- iny
- lsr    $72,x
- cpy    $88
- cpy    $C27A
- .byte  'D'
- cpx    $23
- txs
- cpx    $95
- ora    $2F,x
- sbc    ($9A),y
- .byte  $04
- .byte  $1F
- adc    $E4E4,x
- inc    $B6
- ora    ($D0),y
- stx    $B195
- ldy    #$C2
- .byte  $BF
- .byte  $BF
- ldx    $AEAE
- .byte  $AF
- lda    $ABA8
- ldy    $A9A8
- .byte  $BF
- lda    #$AE
- .byte  $AB
- .byte  $AF
- .byte  $AF
- .byte  $AB
- tax
- .byte  $BF
- ldx    $AFB1
- ldy    $ACAC
- ldx    $ABA7
- ldy    $BFBF
- .byte  $AB
- .byte  $AB
- .byte  $AB
- .byte  $AB
- .byte  $AF
- .byte  $AB
- lda    #$A7
- ldx    $AE
- ldy    $ACAB
- .byte  $AB
- .byte  $B3
- .byte  $AF
- bcs    $83C1
- bcs    $83C3
- bcs    $83C6
- ldy    $8F90
- .byte  $BF
- lda    $8A,x
- txa
- .byte  $8F
- ldx    $BF98,y
- .byte  $92
- .byte  $92
- .byte  $92
- .byte  $92
- ldy    $BF,x
- stx    $92BF
- .byte  $BF
- stx    $8B8E
- .byte  $8B
- sta    ($93),y
- txa
- .byte  $93
- ldy    $B7,x
- clv
- clv
- .byte  $93
- tya
- tsx
- .byte  $8B
- .byte  $93
- .byte  $93
- .byte  $93
- ldx    $B9,y
- sty    $93,x
- sta    $BB93
- .byte  $8B
- .byte  $BB
- .byte  $BF
- tsx
- clv
- lda    $938A,x
- .byte  $92
- .byte  $BB
- ldy    $BE,x
- .byte  'K'
- .byte  $83
- sty    $89
- stx    $B8,y
- lda    $D9D8,y
- beq    $845D
- bpl    $83DF
- bcc    $83E9
- .byte  $93
- .byte  $A3
- ldy    $A9
- sec
- and    $0178,y
- .byte  $13
- and    ($63,x)
- .byte  's'
- lda    ($A9),y
- cmp    $0C
- .byte  $C3
- .byte  $D3
- cpy    $F2
- eor    ($83,x)
- bcs    $83F9
- .byte  'C'
- jmp    ($EC72)
- .byte  $F2
- .byte  $A3
- .byte  $C3
- clc
- ora    $B034,y
- .byte  'r'
- tya
- sta    $9881,y
- sta    $3514,y
- asl    a
- ora    $0D0D
- ora    $1010
- and    $25
- and    $4141,y
- eor    ($41,x)
- lsr    a
- lsr    a
- jmp    $4C4C
- bvc    $84F0
- .byte  'R'
- .byte  'S'
- .byte  'S'
- .byte  'S'
- php
- php
- php
- ora    #$09
- asl    a
- asl    a
- asl    a
- ora    $15
- rol    $0D04,x
- bmi    $84FF
- asl    $32
- eor    #$49
- bpl    $84DE
- asl    $090E
- and    #$2A
- bmi    $84F0
- lsr    $4E4E
- rol    a:$0016,x
- clc
- cld
- cli
- clv
- dex
- dey
- inx
- iny
- nop
- pha
- php
- pla
- plp
- rti
- rts
- sec
- sed
- sei
- tax
- tay
- tsx
- txa
- txs
- tya
- bcc    $8490
- beq    $8512
- bne    $84F4
- bvc    $8556
- and    ($41,x)
- ora    ($61,x)
- cmp    ($A1,x)
- sbc    ($06,x)
- lsr    $26
- ror    $C6
- inc    $E0
- cpy    #$20
- jmp    $A220
- ldy    #$81
- stx    $84
- lda    #$FF
- sta    $28
- jmp    $8BA3
- lda    #$03
- sta    $28
- jsr    $8A97
- cmp    #$5D
- beq    $84FD
- jsr    $986D
- dec    $0A
- jsr    $85BA
- dec    $0A
- lda    $28
- lsr    a
- bcc    $857E
- lda    $1E
- adc    #$04
- sta    $3F
- lda    $38
- jsr    $B545
- lda    $37
- jsr    $B562
- ldx    #$FC
- ldy    $39
- bpl    $8536
- ldy    $36
- sty    $38
- beq    $8556
- ldy    #$00
- inx
- bne    $854C
- jsr    $BC25
- ldx    $3F
- jsr    $B565
- dex
- bne    $8544
- ldx    #$FD
- lda    ($3A),y
- jsr    $B562
- iny
- dec    $38
- bne    $853C
- inx
- bpl    $8565
- jsr    $B565
- jsr    $B558
- jsr    $B558
- jmp    $8556
- ldy    #$00
- lda    ($0B),y
- cmp    #$3A
- beq    $8577
- cmp    #$0D
- beq    $857B
- jsr    $B50E
- iny
- bne    $8567
- cpy    $0A
- bcc    $8571
- jsr    $BC25
- ldy    $0A
- dey
- iny
- lda    ($0B),y
- cmp    #$3A
- beq    $858C
- cmp    #$0D
- bne    $8581
- jsr    $9859
- dey
- lda    ($0B),y
- cmp    #$3A
- beq    $85A2
- lda    $0C
- cmp    #$07
- bne    $859F
- jmp    $8AF6
- jsr    $9890
- jmp    $8508
- jsr    $9582
- beq    $8604
- bcs    $8604
- jsr    $BD94
- jsr    $AE3A
- sta    $27
- jsr    $B4B4
- jsr    $8827
- ldx    #$03
- jsr    $8A97
- ldy    #$00
- sty    $3D
- cmp    #$3A
- beq    $862B
- cmp    #$0D
- beq    $862B
- cmp    #$5C
- beq    $862B
- cmp    #$2E
- beq    $85A5
- dec    $0A
- ldy    $0A
- inc    $0A
- lda    ($0B),y
- bmi    $8607
- cmp    #$20
- beq    $85F1
- ldy    #$05
- asl    a
- asl    a
- asl    a
- asl    a
- rol    $3D
- rol    $3E
- dey
- bne    $85E6
- dex
- bne    $85D5
- ldx    #$3A
- lda    $3D
- cmp    $8450,x
- bne    $8601
- ldy    $848A,x
- cpy    $3E
- beq    $8620
- dex
- bne    $85F5
- jmp    $982A
- ldx    #$22
- cmp    #$80
- beq    $8620
- inx
- cmp    #$82
- beq    $8620
- inx
- cmp    #$84
- bne    $8604
- inc    $0A
- iny
- lda    ($0B),y
- cmp    #$41
- bne    $8604
- lda    $84C4,x
- sta    $29
- ldy    #$01
- cpx    #$1A
- bcs    $8673
- lda    $0440
- sta    $37
- sty    $39
+; Source for 6502 BASIC II
+; BBC BASIC Copyright (C) 1982/1983 Acorn Computer and Roger Wilson
+; Source reconstruction and commentary Copyright (C) J.G.Harston
+; Port to CC65 by Jeff Tranter
+
+; MOS Entry Points:
+        OS_CLI  = $FFF7
+        OSBYTE  = $FFF4
+        OSWORD  = $FFF1
+        OSWRCH  = $FFEE
+        OSWRCR  = $FFEC
+        OSNEWL  = $FFE7
+        OSASCI  = $FFE3
+        OSRDCH  = $FFE0
+        OSFILE  = $FFDD
+        OSARGS  = $FFDA
+        OSBGET  = $FFD7
+        OSBPUT  = $FFD4
+        OSGBPB  = $FFD1
+        OSFIND  = $FFCE
+        BRKV    = $0202
+        WRCHV   = $020E
+
+; Dummy variables for non-Atom code
+        OSECHO  = $0000
+        OSLOAD  = $0000
+        OSSAVE  = $0000
+        OSRDAR  = $0000
+        OSSTAR  = $0000
+        OSSHUT  = $0000
+
+; BASIC token values
+        tknAND  = $80
+        tknDIV  = $81
+        tknEOR  = $82
+        tknMOD  = $83
+        tknOR   = $84
+        tknERROR = $85
+        tknLINE = $86
+        tknOFF  = $87
+        tknSTEP = $88
+        tknSPC  = $89
+        tknTAB  = $8A
+        tknELSE = $8B
+        tknTHEN = $8C
+        tknERL  = $9E
+        tknEXP  = $A1
+        tknEXT  = $A2
+        tknFN   = $A4
+        tknLOG  = $AB
+        tknTO   = $B8
+        tknAUTO = $C6
+        tknPTRc = $CF
+        tknDATA = $DC
+        tknDEF  = $DD
+        tknRENUMBER = $CC
+        tknDIM  = $DE
+        tknEND  = $E0
+        tknFOR  = $E3
+        tknGOSUB = $E4
+        tknGOTO = $E5
+        tknIF   = $E7
+        tknLOCAL = $EA
+        tknMODE = $EB
+        tknON   = $EE
+        tknPRINT = $F1
+        tknPROC = $F2
+        tknREPEAT = $F5
+        tknSTOP = $FA
+        tknLOMEM = $92
+        tknHIMEM = $93
+        tknREPORT = $F6
+
+        .org    $8000
+
+; BBC Code Header
+
+L8000:
+        cmp     #$01            ; Language entry
+        beq     L8023
+        rts
+        nop
+
+        .byte   $60             ; ROM type=Lang+Tube+6502 BASIC
+        .byte   L800E-L8000     ; Offset to copyright string
+        .byte   $01             ; ROM version number, 2=$01, 3=$03
+        .byte   "BASIC"         ; ROM title
+L800E:
+        .byte   0
+        .byte   "(C)1982 Acorn" ; ROM copyright string
+        .byte   10
+        .byte   13
+        .byte   0
+        .word   $8000
+        .word   $0000
+
+; Language startup
+
+L8023:
+        lda     #$84            ; Read top of memory
+        jsr     OSBYTE
+        stx     $06             ; Set HIMEM
+        sty     $07
+        lda     #$83
+        jsr     OSBYTE          ; Read bottom of memory
+        sty     $18             ; Set PAGE
+        ldx     #$00
+        stx     $1F             ; Set LISTO to 0
+        stx     $0402           ; Set @5 to 0000xxxx
+        stx     $0403
+        dex                     ; Set WIDTH to $FF
+        stx     $23
+        ldx     #$0A            ; Set @% to $0000090A
+        stx     $0400
+        dex
+        stx     $0401
+        lda     #$01            ; Check RND seed
+        and     $11
+        ora     $0D
+        ora     $0E
+        ora     $0F             ; If nonzero, skip past
+        ora     $10
+        bne     L8063
+        lda     #$41            ; Set RND seed to $575241
+        sta     $0D
+        lda     #$52
+        sta     $0E
+        lda     #$57            ; "ARW" - Acorn Roger Wilson?
+        sta     $0F
+L8063:
+        lda     #$02            ; Set up error handler
+        sta     BRKV
+        lda     #$B4
+        sta     $0203
+        cli                     ; Enable IRQs, jump to immediate loop
+        jmp     $8ADD
+
+; TOKEN TABLE
+; ===========
+; string, token (b7=1), flag
+;
+; Token flag:
+; Bit 0 - Conditional tokenisation (don't tokenise if followed by an alphabetic character).
+; Bit 1 - Go into "middle of Statement" mode.
+; Bit 2 - Go into "Start of Statement" mode.
+; Bit 3 - FN/PROC keyword - don't tokenise the name of the subroutine.
+; Bit 4 - Start tokenising a line number now (after a GOTO, etc...).
+; Bit 5 - Don't tokenise rest of line (REM, DATA, etc...)
+; Bit 6 - Pseudo variable flag - add &40 to token if at the start of a statement/hex number
+; Bit 7 - Unused - used externally for quote toggle.
+
+L8071:
+        .byte   "AND",$80,$00   ; 00000000
+        .byte   "ABS",$94,$00   ; 00000000
+        .byte   "ACS",$95,$00   ; 00000000
+        .byte   "ADVAL",$96,$00 ; 00000000
+        .byte   "ASC",$97,$00   ; 00000000
+        .byte   "ASN",$98,$00   ; 00000000
+        .byte   "ATN",$99,$00   ; 00000000
+        .byte   "AUTO",$C6,$10  ; 00010000
+        .byte   "BGET",$9A,$01  ; 00000001
+        .byte   "BPUT",$D5,$03  ; 00000011
+        .byte   "COLOUR",$FB,$02 ; 00000010
+        .byte   "CALL",$D6,$02  ; 00000010
+        .byte   "CHAIN",$D7,$02 ; 00000010
+        .byte   "CHR$",$BD,$00  ; 00000000
+        .byte   "CLEAR",$D8,$01 ; 00000001
+        .byte   "CLOSE",$D9,$03 ; 00000011
+        .byte   "CLG",$DA,$01   ; 00000001
+        .byte   "CLS",$DB,$01   ; 00000001
+        .byte   "COS",$9B,$00   ; 00000000
+        .byte   "COUNT",$9C,$01 ; 00000001
+        .byte   "DATA",$DC,$20  ; 00100000
+        .byte   "DEG",$9D,$00   ; 00000000
+        .byte   "DEF",$DD,$00   ; 00000000
+        .byte   "DELETE",$C7,$10 ; 00010000
+        .byte   "DIV",$81,$00   ; 00000000
+        .byte   "DIM",$DE,$02   ; 00000010
+        .byte   "DRAW",$DF,$02  ; 00000010
+        .byte   "ENDPROC",$E1,$01 ; 00000001
+        .byte   "END",$E0,$01   ; 00000001
+        .byte   "ENVELOPE",$E2,$02 ; 00000010
+        .byte   "ELSE",$8B,$14  ; 00010100
+        .byte   "EVAL",$A0,$00  ; 00000000
+        .byte   "ERL",$9E,$01   ; 00000001
+        .byte   "ERROR",$85,$04 ; 00000100
+        .byte   "EOF",$C5,$01   ; 00000001
+        .byte   "EOR",$82,$00   ; 00000000
+        .byte   "ERR",$9F,$01   ; 00000001
+        .byte   "EXP",$A1,$00   ; 00000000
+        .byte   "EXT",$A2,$01   ; 00000001
+        .byte   "FOR",$E3,$02   ; 00000010
+        .byte   "FALSE",$A3,$01 ; 00000001
+        .byte   "FN",$A4,$08    ; 00001000
+        .byte   "GOTO",$E5,$12  ; 00010010
+        .byte   "GET$",$BE,$00  ; 00000000
+        .byte   "GET",$A5,$00   ; 00000000
+        .byte   "GOSUB",$E4,$12 ; 00010010
+        .byte   "GCOL",$E6,$02  ; 00000010
+        .byte   "HIMEM",$93,$43 ; 00100011
+        .byte   "INPUT",$E8,$02 ; 00000010
+        .byte   "IF",$E7,$02    ; 00000010
+        .byte   "INKEY$",$BF,$00 ; 00000000
+        .byte   "INKEY",$A6,$00 ; 00000000
+        .byte   "INT",$A8,$00   ; 00000000
+        .byte   "INSTR(",$A7,$00 ; 00000000
+        .byte   "LIST",$C9,$10  ; 00010000
+        .byte   "LINE",$86,$00  ; 00000000
+        .byte   "LOAD",$C8,$02  ; 00000010
+        .byte   "LOMEM",$92,$43 ; 01000011
+        .byte   "LOCAL",$EA,$02 ; 00000010
+        .byte   "LEFT$(",$C0,$00 ; 00000000
+        .byte   "LEN",$A9,$00   ; 00000000
+        .byte   "LET",$E9,$04   ; 00000100
+        .byte   "LOG",$AB,$00   ; 00000000
+        .byte   "LN",$AA,$00    ; 00000000
+        .byte   "MID$(",$C1,$00 ; 00000000
+        .byte   "MODE",$EB,$02  ; 00000010
+        .byte   "MOD",$83,$00   ; 00000000
+        .byte   "MOVE",$EC,$02  ; 00000010
+        .byte   "NEXT",$ED,$02  ; 00000010
+        .byte   "NEW",$CA,$01   ; 00000001
+        .byte   "NOT",$AC,$00   ; 00000000
+        .byte   "OLD",$CB,$01   ; 00000001
+        .byte   "ON",$EE,$02    ; 00000010
+        .byte   "OFF",$87,$00   ; 00000000
+        .byte   "OR",$84,$00    ; 00000000
+        .byte   "OPENIN",$8E,$00 ; 00000000
+        .byte   "OPENOUT",$AE,$00 ; 00000000
+        .byte   "OPENUP",$AD,$00 ; 00000000
+        .byte   "OSCLI",$FF,$02 ; 00000010
+        .byte   "PRINT",$F1,$02 ; 00000010
+        .byte   "PAGE",$90,$43  ; 01000011
+        .byte   "PTR",$8F,$43   ; 01000011
+        .byte   "PI",$AF,$01    ; 00000001
+        .byte   "PLOT",$F0,$02  ; 00000010
+        .byte   "POINT(",$B0,$00 ; 00000000
+        .byte   "PROC",$F2,$0A  ; 00001010
+        .byte   "POS",$B1,$01   ; 00000001
+        .byte   "RETURN",$F8,$01 ; 00000001
+        .byte   "REPEAT",$F5,$00 ; 00000000
+        .byte   "REPORT",$F6,$01 ; 00000001
+        .byte   "READ",$F3,$02  ; 00000010
+        .byte   "REM",$F4,$20   ; 00100000
+        .byte   "RUN",$F9,$01   ; 00000001
+        .byte   "RAD",$B2,$00   ; 00000000
+        .byte   "RESTORE",$F7,$12 ; 00010010
+        .byte   "RIGHT$(",$C2,$00 ; 00000000
+        .byte   "RND",$B3,$01   ; 00000001
+        .byte   "RENUMBER",$CC,$10 ; 00010000
+        .byte   "STEP",$88,$00  ; 00000000
+        .byte   "SAVE",$CD,$02  ; 00000010
+        .byte   "SGN",$B4,$00   ; 00000000
+        .byte   "SIN",$B5,$00   ; 00000000
+        .byte   "SQR",$B6,$00   ; 00000000
+        .byte   "SPC",$89,$00   ; 00000000
+        .byte   "STR$",$C3,$00  ; 00000000
+        .byte   "STRING$(",$C4,$00 ; 00000000
+        .byte   "SOUND",$D4,$02 ; 00000010
+        .byte   "STOP",$FA,$01  ; 00000001
+        .byte   "TAN",$B7,$00   ; 00000000
+        .byte   "THEN",$8C,$14  ; 00010100
+        .byte   "TO",$B8,$00    ; 00000000
+        .byte   "TAB(",$8A,$00  ; 00000000
+        .byte   "TRACE",$FC,$12 ; 00010010
+        .byte   "TIME",$91,$43  ; 01000011
+        .byte   "TRUE",$B9,$01  ; 00000001
+        .byte   "UNTIL",$FD,$02 ; 00000010
+        .byte   "USR",$BA,$00   ; 00000000
+        .byte   "VDU",$EF,$02   ; 00000010
+        .byte   "VAL",$BB,$00   ; 00000000
+        .byte   "VPOS",$BC,$01  ; 00000001
+        .byte   "WIDTH",$FE,$02 ; 00000010
+        .byte   "PAGE",$D0,$00  ; 00000000
+        .byte   "PTR",$CF,$00   ; 00000000
+        .byte   "TIME",$D1,$00  ; 00000000
+        .byte   "LOMEM",$D2,$00 ; 00000000
+        .byte   "HIMEM",$D3,$00 ; 00000000
+
+; FUNCTION/COMMAND DISPATCH TABLE, ADDRESS LOW BYTES
+; ==================================================
+L836D:
+        .byte   $BF78 & $FF     ; &8E - OPENIN
+        .byte   $BF47 & $FF     ; &8F - PTR
+        .byte   $AEC0 & 255     ; &90 - PAGE
+        .byte   $AEB4 & 255     ; &91 - TIME
+        .byte   $AEFC & 255     ; &92 - LOMEM
+        .byte   $AF03 & 255     ; &93 - HIMEM
+        .byte   $AD6A & $FF     ; &94 - ABS
+        .byte   $A8D4 & $FF     ; &95 - ACS
+        .byte   $AB33 & $FF     ; &96 - ADVAL
+        .byte   $AC9E & $FF     ; &97 - ASC
+        .byte   $A8DA & $FF     ; &98 - ASN
+        .byte   $A907 & $FF     ; &99 - ATN
+        .byte   $BF6F & $FF     ; &9A - BGET
+        .byte   $A98D & $FF     ; &9B - COS
+        .byte   $AEF7 & $FF     ; &9C - COUNT
+        .byte   $ABC2 & $FF     ; &9D - DEG
+        .byte   $AF9F & $FF     ; &9E - ERL
+        .byte   $AFA6 & $FF     ; &9F - ERR
+        .byte   $ABE9 & $FF     ; &A0 - EVAL
+        .byte   $AA91 & $FF     ; &A1 - EXP
+        .byte   $BF46 & $FF     ; &A2 - EXT
+        .byte   $AECA & $FF     ; &A3 - FALSE
+        .byte   $B195 & $FF     ; &A4 - FN
+        .byte   $AFB9 & $FF     ; &A5 - GET
+        .byte   $ACAD & $FF     ; &A6 - INKEY
+        .byte   $ACE2 & $FF     ; &A7 - INSTR(
+        .byte   $AC78 & $FF     ; &A8 - INT
+        .byte   $AED1 & $FF     ; &A9 - LEN
+        .byte   $A7FE & $FF     ; &AA - LN
+        .byte   $ABA8 & $FF     ; &AB - LOG
+        .byte   $ACD1 & $FF     ; &AC - NOT
+        .byte   $BF80 & $FF     ; &AD - OPENUP
+        .byte   $BF7C & $FF     ; &AE - OPENOUT
+        .byte   $ABCB & $FF     ; &AF - PI
+        .byte   $AB41 & $FF     ; &B0 - POINT(
+        .byte   $AB6D & $FF     ; &B1 - POS
+        .byte   $ABB1 & $FF     ; &B2 - RAD
+        .byte   $AF49 & $FF     ; &B3 - RND
+        .byte   $AB88 & $FF     ; &B4 - SGN
+        .byte   $A998 & $FF     ; &B5 - SIN
+        .byte   $A7B4 & $FF     ; &B6 - SQR
+        .byte   $A6BE & $FF     ; &B7 - TAN
+        .byte   $AEDC & $FF     ; &B8 - TO
+        .byte   $ACC4 & $FF     ; &B9 - TRUE
+        .byte   $ABD2 & $FF     ; &BA - USR
+        .byte   $AC2F & $FF     ; &BB - VAL
+        .byte   $AB76 & $FF     ; &BC - VPOS
+        .byte   $B3BD & $FF     ; &BD - CHR$
+        .byte   $AFBF & $FF     ; &BE - GET$
+        .byte   $B026 & $FF     ; &BF - INKEY$
+        .byte   $AFCC & $FF     ; &C0 - LEFT$(
+        .byte   $B039 & $FF     ; &C1 - MID$(
+        .byte   $AFEE & $FF     ; &C2 - RIGHT$(
+        .byte   $B094 & $FF     ; &C3 - STR$(
+        .byte   $B0C2 & $FF     ; &C4 - STRING$(
+        .byte   $ACB8 & $FF     ; &C5 - EOF
+        .byte   $90AC & $FF     ; &C6 - AUTO
+        .byte   $8F31 & $FF     ; &C7 - DELETE
+        .byte   $BF24 & $FF     ; &C8 - LOAD
+        .byte   $B59C & $FF     ; &C9 - LIST
+        .byte   $8ADA & $FF     ; &CA - NEW
+        .byte   $8AB6 & $FF     ; &CB - OLD
+        .byte   $8FA3 & $FF     ; &CC - RENUMBER
+        .byte   $BEF3 & $FF     ; &CD - SAVE
+        .byte   $982A & $FF     ; &CE - unused
+        .byte   $BF30 & $FF     ; &CF - PTR
+        .byte   $9283 & $FF     ; &D0 - PAGE
+        .byte   $92C9 & $FF     ; &D1 - TIME
+        .byte   $926F & $FF     ; &D2 - LOMEM
+        .byte   $925D & $FF     ; &D3 - HIMEM
+        .byte   $B44C & $FF     ; &D4 - SOUND
+        .byte   $BF58 & $FF     ; &D5 - BPUT
+        .byte   $8ED2 & $FF     ; &D6 - CALL
+        .byte   $BF2A & $FF     ; &D7 - CHAIN
+        .byte   $928D & $FF     ; &D8 - CLEAR
+        .byte   $BF99 & $FF     ; &D9 - CLOSE
+        .byte   $8EBD & $FF     ; &DA - CLG
+        .byte   $8EC4 & $FF     ; &DB - CLS
+        .byte   $8B7D & $FF     ; &DC - DATA
+        .byte   $8B7D & $FF     ; &DD - DEF
+        .byte   $912F & $FF     ; &DE - DIM
+        .byte   $93E8 & $FF     ; &DF - DRAW
+        .byte   $8AC8 & $FF     ; &E0 - END
+        .byte   $9356 & $FF     ; &E1 - ENDPROC
+        .byte   $B472 & $FF     ; &E2 - ENVELOPE
+        .byte   $B7C4 & $FF     ; &E3 - FOR
+        .byte   $B888 & $FF     ; &E4 - GOSUB
+        .byte   $B8CC & $FF     ; &E5 - GOTO
+        .byte   $937A & $FF     ; &E6 - GCOL
+        .byte   $98C2 & $FF     ; &E7 - IF
+        .byte   $BA44 & $FF     ; &E8 - INPUT
+        .byte   $8BE4 & $FF     ; &E9 - LET
+        .byte   $9323 & $FF     ; &EA - LOCAL
+        .byte   $939A & $FF     ; &EB - MODE
+        .byte   $93E4 & $FF     ; &EC - MOVE
+        .byte   $B695 & $FF     ; &ED - NEXT
+        .byte   $B915 & $FF     ; &EE - ON
+        .byte   $942F & $FF     ; &EF - VDU
+        .byte   $93F1 & $FF     ; &F0 - PLOT
+        .byte   $8D9A & $FF     ; &F1 - PRINT
+        .byte   $9304 & $FF     ; &F2 - PROC
+        .byte   $BB1F & $FF     ; &F3 - READ
+        .byte   $8B7D & $FF     ; &F4 - REM
+        .byte   $BBE4 & $FF     ; &F5 - REPEAT
+        .byte   $BFE4 & $FF     ; &F6 - REPORT
+        .byte   $BAE6 & $FF     ; &F7 - RESTORE
+        .byte   $B8B6 & $FF     ; &F8 - RETURN
+        .byte   $BD11 & $FF     ; &F9 - RUN
+        .byte   $8AD0 & $FF     ; &FA - STOP
+        .byte   $938E & $FF     ; &FB - COLOUR
+        .byte   $9295 & $FF     ; &FC - TRACE
+        .byte   $BBB1 & $FF     ; &FD - UNTIL
+        .byte   $B4A0 & $FF     ; &FE - WIDTH
+        .byte   $BEC2 & $FF     ; &FF - OSCLI
+
+; FUNCTION/COMMAND DISPATCH TABLE, ADDRESS HIGH BYTES
+; ===================================================
+L83DF: ; &83E6
+        .byte   $BF78 / 256     ; &8E - OPENIN
+        .byte   $BF47 / 256     ; &8F - PTR
+        .byte   $AEC0 / 256     ; &90 - PAGE
+        .byte   $AEB4 / 256     ; &91 - TIME
+        .byte   $AEFC / 256     ; &92 - LOMEM
+        .byte   $AF03 / 256     ; &93 - HIMEM
+        .byte   $AD6A / 256     ; &94 - ABS
+        .byte   $A8D4 / 256     ; &95 - ACS
+        .byte   $AB33 / 256     ; &96 - ADVAL
+        .byte   $AC9E / 256     ; &97 - ASC
+        .byte   $A8DA / 256     ; &98 - ASN
+        .byte   $A907 / 256     ; &99 - ATN
+        .byte   $BF6F / 256     ; &9A - BGET
+        .byte   $A98D / 256     ; &9B - COS
+        .byte   $AEF7 / 256     ; &9C - COUNT
+        .byte   $ABC2 / 256     ; &9D - DEG
+        .byte   $AF9F / 256     ; &9E - ERL
+        .byte   $AFA6 / 256     ; &9F - ERR
+        .byte   $ABE9 / 256     ; &A0 - EVAL
+        .byte   $AA91 / 256     ; &A1 - EXP
+        .byte   $BF46 / 256     ; &A2 - EXT
+        .byte   $AECA / 256     ; &A3 - FALSE
+        .byte   $B195 / 256     ; &A4 - FN
+        .byte   $AFB9 / 256     ; &A5 - GET
+        .byte   $ACAD / 256     ; &A6 - INKEY
+        .byte   $ACE2 / 256     ; &A7 - INSTR(
+        .byte   $AC78 / 256     ; &A8 - INT
+        .byte   $AED1 / 256     ; &A9 - LEN
+        .byte   $A7FE / 256     ; &AA - LN
+        .byte   $ABA8 / 256     ; &AB - LOG
+        .byte   $ACD1 / 256     ; &AC - NOT
+        .byte   $BF80 / 256     ; &AD - OPENUP
+        .byte   $BF7C / 256     ; &AE - OPENOUT
+        .byte   $ABCB / 256     ; &AF - PI
+        .byte   $AB41 / 256     ; &B0 - POINT(
+        .byte   $AB6D / 256     ; &B1 - POS
+        .byte   $ABB1 / 256     ; &B2 - RAD
+        .byte   $AF49 / 256     ; &B3 - RND
+        .byte   $AB88 / 256     ; &B4 - SGN
+        .byte   $A998 / 256     ; &B5 - SIN
+        .byte   $A7B4 / 256     ; &B6 - SQR
+        .byte   $A6BE / 256     ; &B7 - TAN
+        .byte   $AEDC / 256     ; &B8 - TO
+        .byte   $ACC4 / 256     ; &B9 - TRUE
+        .byte   $ABD2 / 256     ; &BA - USR
+        .byte   $AC2F / 256     ; &BB - VAL
+        .byte   $AB76 / 256     ; &BC - VPOS
+        .byte   $B3BD / 256     ; &BD - CHR$
+        .byte   $AFBF / 256     ; &BE - GET$
+        .byte   $B026 / 256     ; &BF - INKEY$
+        .byte   $AFCC / 256     ; &C0 - LEFT$(
+        .byte   $B039 / 256     ; &C1 - MID$(
+        .byte   $AFEE / 256     ; &C2 - RIGHT$(
+        .byte   $B094 / 256     ; &C3 - STR$(
+        .byte   $B0C2 / 256     ; &C4 - STRING$(
+        .byte   $ACB8 / 256     ; &C5 - EOF
+        .byte   $90AC / 256     ; &C6 - AUTO
+        .byte   $8F31 / 256     ; &C7 - DELETE
+        .byte   $BF24 / 256     ; &C8 - LOAD
+        .byte   $B59C / 256     ; &C9 - LIST
+        .byte   $8ADA / 256     ; &CA - NEW
+        .byte   $8AB6 / 256     ; &CB - OLD
+        .byte   $8FA3 / 256     ; &CC - RENUMBER
+        .byte   $BEF3 / 256     ; &CD - SAVE
+        .byte   $982A / 256     ; &CE - unused
+        .byte   $BF30 / 256     ; &CF - PTR
+        .byte   $9283 / 256     ; &D0 - PAGE
+        .byte   $92C9 / 256     ; &D1 - TIME
+        .byte   $926F / 256     ; &D2 - LOMEM
+        .byte   $925D / 256     ; &D3 - HIMEM
+        .byte   $B44C / 256     ; &D4 - SOUND
+        .byte   $BF58 / 256     ; &D5 - BPUT
+        .byte   $8ED2 / 256     ; &D6 - CALL
+        .byte   $BF2A / 256     ; &D7 - CHAIN
+        .byte   $928D / 256     ; &D8 - CLEAR
+        .byte   $BF99 / 256     ; &D9 - CLOSE
+        .byte   $8EBD / 256     ; &DA - CLG
+        .byte   $8EC4 / 256     ; &DB - CLS
+        .byte   $8B7D / 256     ; &DC - DATA
+        .byte   $8B7D / 256     ; &DD - DEF
+        .byte   $912F / 256     ; &DE - DIM
+        .byte   $93E8 / 256     ; &DF - DRAW
+        .byte   $8AC8 / 256     ; &E0 - END
+        .byte   $9356 / 256     ; &E1 - ENDPROC
+        .byte   $B472 / 256     ; &E2 - ENVELOPE
+        .byte   $B7C4 / 256     ; &E3 - FOR
+        .byte   $B888 / 256     ; &E4 - GOSUB
+        .byte   $B8CC / 256     ; &E5 - GOTO
+        .byte   $937A / 256     ; &E6 - GCOL
+        .byte   $98C2 / 256     ; &E7 - IF
+        .byte   $BA44 / 256     ; &E8 - INPUT
+        .byte   $8BE4 / 256     ; &E9 - LET
+        .byte   $9323 / 256     ; &EA - LOCAL
+        .byte   $939A / 256     ; &EB - MODE
+        .byte   $93E4 / 256     ; &EC - MOVE
+        .byte   $B695 / 256     ; &ED - NEXT
+        .byte   $B915 / 256     ; &EE - ON
+        .byte   $942F / 256     ; &EF - VDU
+        .byte   $93F1 / 256     ; &F0 - PLOT
+        .byte   $8D9A / 256     ; &F1 - PRINT
+        .byte   $9304 / 256     ; &F2 - PROC
+        .byte   $BB1F / 256     ; &F3 - READ
+        .byte   $8B7D / 256     ; &F4 - REM
+        .byte   $BBE4 / 256     ; &F5 - REPEAT
+        .byte   $BFE4 / 256     ; &F6 - REPORT
+        .byte   $BAE6 / 256     ; &F7 - RESTORE
+        .byte   $B8B6 / 256     ; &F8 - RETURN
+        .byte   $BD11 / 256     ; &F9 - RUN
+        .byte   $8AD0 / 256     ; &FA - STOP
+        .byte   $938E / 256     ; &FB - COLOUR
+        .byte   $9295 / 256     ; &FC - TRACE
+        .byte   $BBB1 / 256     ; &FD - UNTIL
+        .byte   $B4A0 / 256     ; &FE - WIDTH
+        .byte   $BEC2 / 256     ; &FF - OSCLI
+
+; ASSEMBLER
+; =========
+;
+; Packed mnemonic table, low bytes
+; --------------------------------
+L8451:
+        .byte   $4B, $83, $84, $89, $96, $B8, $B9, $D8, $D9, $F0
+        .byte   $01, $10, $81, $90, $89, $93, $A3, $A4, $A9, $38
+        .byte   $39, $78, $01, $13, $21, $63, $73, $B1, $A9, $C5
+        .byte   $0C, $C3, $D3, $C4, $F2, $41, $83, $B0, $81, $43
+        .byte   $6C, $72, $EC, $F2, $A3, $C3, $18, $19, $34, $B0
+        .byte   $72, $98, $99, $81, $98, $99, $14, $35
+
+
+; Packed mnemonic table, high bytes
+; ---------------------------------
+L848B:
+        .byte   $0A, $0D, $0D, $0D, $0D, $10, $10, $25, $25, $39
+        .byte   $41, $41, $41, $41, $4A, $4A, $4C, $4C, $4C, $50
+        .byte   $50, $52, $53, $53, $53, $08, $08, $08, $09, $09
+        .byte   $0A, $0A, $0A, $05, $15, $3E, $04, $0D, $30, $4C
+        .byte   $06, $32, $49, $49, $10, $25, $0E, $0E, $09, $29
+        .byte   $2A, $30, $30, $4E, $4E, $4E, $3E, $16
+
+
+; Opcode base table
+; -----------------
+L84C5:
+
+; No arguments
+; ------------
+        BRK
+        CLC
+        CLD
+        CLI
+        CLV
+        DEX
+        DEY
+        INX
+        INY
+        NOP
+        PHA
+        PHP
+        PLA
+        PLP
+        RTI
+        RTS
+        SEC
+        SED
+        SEI
+        TAX
+        TAY
+        TSX
+        TXA
+        TXS
+        TYA
+
+; Branches
+; --------
+        .byte   $90, $B0, $F0, $30 ; BMI, BCC, BCS, BEQ
+        .byte   $D0, $10, $50, $70 ; BNE, BPL, BVC, BVS
+
+; Arithmetic
+; ----------
+        .byte   $21, $41, $01, $61 ; AND, EOR, ORA, ADC
+        .byte   $C1, $A1, $E1, $06 ; CMP, LDA, SBC, ASL
+        .byte   $46, $26, $66, $C6 ; LSR, ROL, ROR, DEC
+        .byte   $E6, $E0, $C0, $20 ; INC, CPX, CPY, BIT
+
+; Others
+; ------
+        .byte   $4C, $20, $A2, $A0 ; JMP, JSR, LDX, LDY
+        .byte   $81, $86, $84      ; STA, STX, STY
+
+; Exit Assembler
+; --------------
+L84FD:
+        lda     #$FF            ; Set OPT to 'BASIC'
+L84FF:
+        sta     $28             ; Set OPT, return to execution loop
+        jmp     $8BA3
+L8504:
+        lda     #$03            ; Set OPT 3, default on entry to '['
+        sta     $28
+L8508:
+        jsr    $8A97            ; Skip spaces
+        cmp    #']'             ; ']' - exit assembler
+        beq    $84FD
+        jsr    $986D
+L8512:
+        dec    $0A
+        jsr    $85BA
+        dec    $0A
+        lda    $28
+        lsr    a
+        bcc    $857E
+        lda    $1E
+        adc    #$04
+        sta    $3F
+        lda    $38
+        jsr    $B545
+        lda    $37
+        jsr    $B562
+        ldx    #$FC
+        ldy    $39
+        bpl    $8536
+        ldy    $36
+L8536:
+        sty    $38
+        beq    $8556
+        ldy    #$00
+L853C:
+        inx
+        bne    $854C
+        jsr    $BC25            ; Print newline
+        ldx    $3F
+
+L8644:
+        jsr    $B565            ; Print a space
+        dex                     ; Loop to print spaces
+        bne    $8544
+        ldx    #$FD
+L854C:
+        lda    ($3A),y
+        jsr    $B562
+        iny
+        dec    $38
+        bne    L853C
+L8556:
+        inx
+        bpl    $8565
+        jsr    $B565
+        jsr    $B558
+        jsr    $B558
+        jmp    $8556
+L8565:
+        ldy    #$00
+L8567:
+        lda    ($0B),y
+        cmp    #$3A
+        beq    $8577
+        cmp    #$0D
+        beq    $857B
+L8571:
+        jsr    $B50E            ; Print character or token
+        iny
+        bne    $8567
+L8577:
+        cpy    $0A
+        bcc    $8571
+L857B:
+        jsr    $BC25            ; Print newline
+L857E:
+        ldy    $0A
+        dey
+L8581:
+        iny
+        lda    ($0B),y
+        cmp    #$3A
+        beq    $858C
+        cmp    #$0D
+        bne    L8581
+L858C:
+        jsr    $9859
+        dey
+        lda    ($0B),y
+        cmp    #$3A
+        beq    $85A2
+        lda    $0C
+        cmp    #$07
+        bne    $859F
+        jmp    $8AF6
+L859F:
+        jsr    $9890
+L85A2:
+        jmp    $8508
+L85A5:
+        jsr    $9582
+        beq    $8604
+        bcs    $8604
+        jsr    $BD94
+        jsr    $AE3A            ; Find P%
+        sta    $27
+        jsr    $B4B4
+        jsr    $8827
+L85BA:
+        ldx    #$03             ; Prepare to fetch three characters
+        jsr    $8A97            ; Skip spaces
+        ldy    #$00
+        sty    $3D
+        cmp    #':'             ; End of statement
+        beq    $862B
+        cmp    #$0D             ; End of line
+        beq    $862B
+        cmp    #'\'            ; Comment
+        beq    $862B
+        cmp    #'.'             ; Label
+        beq    $85A5
+        dec    $0A
+L85D5:
+        ldy    $0A              ; Get current character, inc. index
+        inc    $0A
+        lda    ($0B),y          ; Token, check for tokenied AND, EOR, OR
+        bmi    $8607
+        cmp    #$20             ; Space, step past
+        beq    $85F1
+        ldy    #$05
+        asl    a                ; Compact first character
+        asl    a
+        asl    a
+L85E6:
+        asl    a
+        rol    $3D
+        rol    $3E
+        dey
+        bne    $85E6
+        dex                     ; Loop to fetch three characters
+        bne    $85D5
+
+; The current opcode has now been compressed into two bytes
+; ---------------------------------------------------------
+L85F1:
+        ldx    #$3A             ; Point to end of opcode lookup table
+        lda    $3D              ; Get low byte of compacted mnemonic
+L85F5:
+        cmp    L8451-1,x        ; Low half doesn't match
+        bne    $8601
+        ldy    L848B-1,x        ; Check high half
+        cpy    $3E              ; Mnemonic matches
+        beq    $8620
+L8601:
+        dex                     ; Loop through opcode lookup table
+        bne    $85F5
+L8604:
+        jmp    $982A            ; Mnemonic not matched, Mistake
+L8607:
+        ldx    #$22             ; opcode number for 'AND'
+        cmp    #tknAND          ; Tokenised 'AND'
+        beq    $8620
+        inx                     ; opcode number for 'EOR'
+        cmp    #tknEOR          ; Tokenized 'EOR'
+        beq    $8620
+        inx                     ; opcode number for 'ORA'
+        cmp    #tknOR           ; Not tokenized 'OR'
+        bne    L8604
+        inc    $0A              ; Get next character
+        iny
+        lda    ($0B),y
+        cmp    #'A'             ; Ensure 'OR' followed by 'A'
+        bne    L8604
+
+; Opcode found
+; ------------
+L8620:
+        lda    L84C5-1,x        ; Get base opcode
+        sta    $29
+        ldy    #$01             ; Y=1 for one byte
+        cpx    #$1A             ; Opcode $1A+ have arguments
+        bcs    $8673
+L862B:
+        lda    $0440            ; Get P% low byte
+        sta    $37
+        sty    $39
  ldx    $28
  cpx    #$04
  ldx    $0441
@@ -1589,7 +1441,7 @@
  jsr    $986D
  ldx    $0B
  ldy    $0C
- jsr    $FFF7
+ jsr    OS_CLI
  lda    #$0D
  ldy    $0A
  dey
@@ -1827,28 +1679,28 @@
  pla
  tay
  lda    $27
- jsr    $FFD4
+ jsr    OSBPUT
  tax
  beq    $8D64
  bmi    $8D57
  ldx    #$03
  lda    $2A,x
- jsr    $FFD4
+ jsr    OSBPUT
  dex
  bpl    $8D4D
  bmi    $8D30
  ldx    #$04
  lda    $046C,x
- jsr    $FFD4
+ jsr    OSBPUT
  dex
  bpl    $8D59
  bmi    $8D30
  lda    $36
- jsr    $FFD4
+ jsr    OSBPUT
  tax
  beq    $8D30
  lda    $05FF,x
- jsr    $FFD4
+ jsr    OSBPUT
  dex
  bne    $8D6C
  beq    $8D30
@@ -1943,9 +1795,9 @@
  jsr    $AE56
  jsr    $92F0
  lda    #$1F
- jsr    $FFEE
+ jsr    OSWRCH
  pla
- jsr    $FFEE
+ jsr    OSWRCH
  jsr    $9456
  jmp    $8E6A
  jsr    $92DD
@@ -2018,7 +1870,7 @@
  jsr    $9857
  jsr    $BC28
  lda    #$0C
- jsr    $FFEE
+ jsr    OSWRCH
  jmp    $8B9B
  jsr    $9B1D
  jsr    $92EE
@@ -2511,7 +2363,7 @@
  ldy    #$00
  sty    $2E
  lda    #$02
- jsr    $FFF1
+ jsr    OSWORD
  jmp    $8B9B
  jsr    $8AAE
  jsr    $9B29
@@ -2588,7 +2440,7 @@
  jsr    $92DA
  jsr    $9852
  lda    #$12
- jsr    $FFEE
+ jsr    OSWRCH
  jmp    $93DA
  lda    #$11
  pha
@@ -2612,7 +2464,7 @@
  bne    $9372
  ldx    $2A
  lda    #$85
- jsr    $FFF4
+ jsr    OSBYTE
  cpx    $02
  tya
  sbc    $03
@@ -2627,7 +2479,7 @@
  sty    $05
  jsr    $BC28
  pla
- jsr    $FFEE
+ jsr    OSWRCH
  jsr    $9456
  jmp    $8B9B
  lda    #$04
@@ -2646,20 +2498,20 @@
  jsr    $92DA
  jsr    $9852
  lda    #$19
- jsr    $FFEE
+ jsr    OSWRCH
  pla
- jsr    $FFEE
+ jsr    OSWRCH
  jsr    $BE0B
  lda    $37
- jsr    $FFEE
+ jsr    OSWRCH
  lda    $38
- jsr    $FFEE
+ jsr    OSWRCH
  jsr    $9456
  lda    $2B
- jsr    $FFEE
+ jsr    OSWRCH
  jmp    $8B9B
  lda    $2B
- jsr    $FFEE
+ jsr    OSWRCH
  jsr    $8A97
  cmp    #$3A
  beq    $9453
@@ -2678,7 +2530,7 @@
  beq    $942A
  jmp    $8B96
  lda    $2A
- jmp    ($020E)
+ jmp    (WRCHV)
  ldy    #$01
  lda    ($37),y
  ldy    #$F6
@@ -5674,7 +5526,7 @@
  jsr    $92E3
  ldx    $2A
  lda    #$80
- jsr    $FFF4
+ jsr    OSBYTE
  txa
  jmp    $AEEA
  jsr    $92DD
@@ -5693,16 +5545,16 @@
  sta    $2C
  ldx    #$2A
  lda    #$09
- jsr    $FFF1
+ jsr    OSWORD
  lda    $2E
  bmi    $AB9D
  jmp    $AED8
  lda    #$86
- jsr    $FFF4
+ jsr    OSBYTE
  txa
  jmp    $AED8
  lda    #$86
- jsr    $FFF4
+ jsr    OSBYTE
  tya
  jmp    $AED8
  jsr    $A1DA
@@ -5858,7 +5710,7 @@
  jsr    $BFB5
  tax
  lda    #$7F
- jsr    $FFF4
+ jsr    OSBYTE
  txa
  beq    $ACAA
  lda    #$FF
@@ -6119,7 +5971,7 @@
  ldx    #$2A
  ldy    #$00
  lda    #$01
- jsr    $FFF1
+ jsr    OSWORD
  lda    #$40
  rts
  lda    #$00
@@ -6239,10 +6091,10 @@
  lda    #$81
  ldx    $2A
  ldy    $2B
- jmp    $FFF4
- jsr    $FFE0
+ jmp    OSBYTE
+ jsr    OSRDCH
  jmp    $AED8
- jsr    $FFE0
+ jsr    OSRDCH
  sta    $0600
  lda    #$01
  sta    $36
@@ -6829,9 +6681,9 @@
  tax
  stx    $0A
  lda    #$DA
- jsr    $FFF4
+ jsr    OSBYTE
  lda    #$7E
- jsr    $FFF4
+ jsr    OSBYTE
  ldx    #$FF
  stx    $28
  txs
@@ -6894,7 +6746,7 @@
  tya
  ldx    #$37
  ldy    #$00
- jsr    $FFF1
+ jsr    OSWORD
  jmp    $8B9B
  jsr    $8821
  jsr    $9852
@@ -6996,7 +6848,7 @@
  adc    #$30
  cmp    #$0D
  bne    $B567
- jsr    $FFEE
+ jsr    OSWRCH
  jmp    $BC28
  jsr    $B545
  lda    #$20
@@ -7007,7 +6859,7 @@
  jsr    $BC25
  pla
  inc    $1E
- jmp    ($020E)
+ jmp    (WRCHV)
  and    $1F
  beq    $B589
  txa
@@ -7551,17 +7403,17 @@
  php
  jsr    $BD94
  ldy    $4D
- jsr    $FFD7
+ jsr    OSBGET
  sta    $27
  plp
  bcc    $BA19
  lda    $27
  bne    $B9C4
- jsr    $FFD7
+ jsr    OSBGET
  sta    $36
  tax
  beq    $BA13
- jsr    $FFD7
+ jsr    OSBGET
  sta    $05FF,x
  dex
  bne    $BA0A
@@ -7571,13 +7423,13 @@
  beq    $B9C4
  bmi    $BA2B
  ldx    #$03
- jsr    $FFD7
+ jsr    OSBGET
  sta    $2A,x
  dex
  bpl    $BA21
  bmi    $BA39
  ldx    #$04
- jsr    $FFD7
+ jsr    OSBGET
  sta    $046C,x
  dex
  bpl    $BA2D
@@ -7813,10 +7665,10 @@
  iny
  ldx    #$37
  tya
- jsr    $FFF1
+ jsr    OSWORD
  bcc    $BC28
  jmp    $9838
- jsr    $FFE7
+ jsr    OSNEWL
  lda    #$00
  sta    $1E
  rts
@@ -8129,7 +7981,7 @@
  lda    #$FF
  sty    $3D
  ldx    #$37
- jsr    $FFDD
+ jsr    OSFILE
  lda    $18
  sta    $13
  ldy    #$00
@@ -8178,7 +8030,7 @@
  jsr    $BED2
  ldx    #$00
  ldy    #$06
- jsr    $FFF7
+ jsr    OS_CLI
  jmp    $8B9B
  jmp    $8C0E
  jsr    $9B1D
@@ -8191,7 +8043,7 @@
  lda    $18
  sta    $3A
  lda    #$82
- jsr    $FFF4
+ jsr    OSBYTE
  stx    $3B
  sty    $3C
  lda    #$00
@@ -8217,7 +8069,7 @@
  sta    $41
  tay
  ldx    #$37
- jsr    $FFDD
+ jsr    OSFILE
  jmp    $8B9B
  jsr    $BE62
  jmp    $8AF3
@@ -8231,7 +8083,7 @@
  tay
  ldx    #$2A
  lda    #$01
- jsr    $FFDA
+ jsr    OSARGS
  jmp    $8B9B
  sec
  lda    #$00
@@ -8241,7 +8093,7 @@
  jsr    $BFB5
  ldx    #$2A
  pla
- jsr    $FFDA
+ jsr    OSARGS
  lda    #$40
  rts
  jsr    $BFA9
@@ -8252,10 +8104,10 @@
  pla
  tay
  lda    $2A
- jsr    $FFD4
+ jsr    OSBPUT
  jmp    $8B9B
  jsr    $BFB5
- jsr    $FFD7
+ jsr    OSBGET
  jmp    $AED8
  lda    #$40
  bne    $BF82
@@ -8269,14 +8121,14 @@
  ldx    #$00
  ldy    #$06
  pla
- jsr    $FFCE
+ jsr    OSFIND
  jmp    $AED8
  jmp    $8C0E
  jsr    $BFA9
  jsr    $9852
  ldy    $2A
  lda    #$00
- jsr    $FFCE
+ jsr    OSFIND
  jmp    $8B9B
  lda    $0A
  sta    $1B
@@ -8304,7 +8156,7 @@
  sta    $38
  ldy    #$00
  beq    $BFDC
- jsr    $FFE3
+ jsr    OSASCI
  jsr    $894B
  bpl    $BFD9
  jmp    ($0037)
