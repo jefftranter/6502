@@ -142,7 +142,7 @@ L8063:
         lda     #$B4
         sta     $0203
         cli                     ; Enable IRQs, jump to immediate loop
-        jmp     $8ADD
+        jmp     L8ADD
 
 ; TOKEN TABLE
 ; ===========
@@ -349,8 +349,8 @@ L836D:
         .byte   $8F31 & $FF     ; &C7 - DELETE
         .byte   $BF24 & $FF     ; &C8 - LOAD
         .byte   $B59C & $FF     ; &C9 - LIST
-        .byte   $8ADA & $FF     ; &CA - NEW
-        .byte   $8AB6 & $FF     ; &CB - OLD
+        .byte   L8ADA & $FF     ; &CA - NEW
+        .byte   L8AB6 & $FF     ; &CB - OLD
         .byte   $8FA3 & $FF     ; &CC - RENUMBER
         .byte   $BEF3 & $FF     ; &CD - SAVE
         .byte   $982A & $FF     ; &CE - unused
@@ -371,7 +371,7 @@ L836D:
         .byte   $8B7D & $FF     ; &DD - DEF
         .byte   $912F & $FF     ; &DE - DIM
         .byte   $93E8 & $FF     ; &DF - DRAW
-        .byte   $8AC8 & $FF     ; &E0 - END
+        .byte   L8AC8 & $FF     ; &E0 - END
         .byte   $9356 & $FF     ; &E1 - ENDPROC
         .byte   $B472 & $FF     ; &E2 - ENVELOPE
         .byte   $B7C4 & $FF     ; &E3 - FOR
@@ -709,17 +709,17 @@ L8504:
         lda     #$03            ; Set OPT 3, default on entry to '['
         sta     $28
 L8508:
-        jsr    $8A97            ; Skip spaces
+        jsr    L8A97            ; Skip spaces
         cmp    #']'             ; ']' - exit assembler
-        beq    $84FD
+        beq    L84FD
         jsr    $986D
 L8512:
         dec    $0A
-        jsr    $85BA
+        jsr    L85BA
         dec    $0A
         lda    $28
         lsr    a
-        bcc    $857E
+        bcc    L857E
         lda    $1E
         adc    #$04
         sta    $3F
@@ -729,22 +729,22 @@ L8512:
         jsr    $B562
         ldx    #$FC
         ldy    $39
-        bpl    $8536
+        bpl    L8536
         ldy    $36
 L8536:
         sty    $38
-        beq    $8556
+        beq    L8556
         ldy    #$00
 L853C:
         inx
-        bne    $854C
+        bne    L854C
         jsr    $BC25            ; Print newline
         ldx    $3F
 
-L8644:
+L8544:
         jsr    $B565            ; Print a space
         dex                     ; Loop to print spaces
-        bne    $8544
+        bne    L8544
         ldx    #$FD
 L854C:
         lda    ($3A),y
@@ -754,26 +754,26 @@ L854C:
         bne    L853C
 L8556:
         inx
-        bpl    $8565
+        bpl    L8565
         jsr    $B565
         jsr    $B558
         jsr    $B558
-        jmp    $8556
+        jmp    L8556
 L8565:
         ldy    #$00
 L8567:
         lda    ($0B),y
         cmp    #$3A
-        beq    $8577
+        beq    L8577
         cmp    #$0D
-        beq    $857B
+        beq    L857B
 L8571:
         jsr    $B50E            ; Print character or token
         iny
-        bne    $8567
+        bne    L8567
 L8577:
         cpy    $0A
-        bcc    $8571
+        bcc    L8571
 L857B:
         jsr    $BC25            ; Print newline
 L857E:
@@ -783,7 +783,7 @@ L8581:
         iny
         lda    ($0B),y
         cmp    #$3A
-        beq    $858C
+        beq    L858C
         cmp    #$0D
         bne    L8581
 L858C:
@@ -791,45 +791,45 @@ L858C:
         dey
         lda    ($0B),y
         cmp    #$3A
-        beq    $85A2
+        beq    L85A2
         lda    $0C
         cmp    #$07
-        bne    $859F
-        jmp    $8AF6
+        bne    L859F
+        jmp    L8AF6
 L859F:
         jsr    $9890
 L85A2:
-        jmp    $8508
+        jmp    L8508
 L85A5:
         jsr    $9582
-        beq    $8604
-        bcs    $8604
+        beq    L8604
+        bcs    L8604
         jsr    $BD94
         jsr    $AE3A            ; Find P%
         sta    $27
         jsr    $B4B4
-        jsr    $8827
+        jsr    L8827
 L85BA:
         ldx    #$03             ; Prepare to fetch three characters
-        jsr    $8A97            ; Skip spaces
+        jsr    L8A97            ; Skip spaces
         ldy    #$00
         sty    $3D
         cmp    #':'             ; End of statement
-        beq    $862B
+        beq    L862B
         cmp    #$0D             ; End of line
-        beq    $862B
+        beq    L862B
         cmp    #'\'            ; Comment
-        beq    $862B
+        beq    L862B
         cmp    #'.'             ; Label
-        beq    $85A5
+        beq    L85A5
         dec    $0A
 L85D5:
         ldy    $0A              ; Get current character, inc. index
         inc    $0A
         lda    ($0B),y          ; Token, check for tokenied AND, EOR, OR
-        bmi    $8607
+        bmi    L8607
         cmp    #$20             ; Space, step past
-        beq    $85F1
+        beq    L85F1
         ldy    #$05
         asl    a                ; Compact first character
         asl    a
@@ -839,9 +839,9 @@ L85E6:
         rol    $3D
         rol    $3E
         dey
-        bne    $85E6
+        bne    L85E6
         dex                     ; Loop to fetch three characters
-        bne    $85D5
+        bne    L85D5
 
 ; The current opcode has now been compressed into two bytes
 ; ---------------------------------------------------------
@@ -850,22 +850,22 @@ L85F1:
         lda    $3D              ; Get low byte of compacted mnemonic
 L85F5:
         cmp    L8451-1,x        ; Low half doesn't match
-        bne    $8601
+        bne    L8601
         ldy    L848B-1,x        ; Check high half
         cpy    $3E              ; Mnemonic matches
-        beq    $8620
+        beq    L8620
 L8601:
         dex                     ; Loop through opcode lookup table
-        bne    $85F5
+        bne    L85F5
 L8604:
         jmp    $982A            ; Mnemonic not matched, Mistake
 L8607:
         ldx    #$22             ; opcode number for 'AND'
         cmp    #tknAND          ; Tokenised 'AND'
-        beq    $8620
+        beq    L8620
         inx                     ; opcode number for 'EOR'
         cmp    #tknEOR          ; Tokenized 'EOR'
-        beq    $8620
+        beq    L8620
         inx                     ; opcode number for 'ORA'
         cmp    #tknOR           ; Not tokenized 'OR'
         bne    L8604
@@ -882,7 +882,7 @@ L8620:
         sta    $29
         ldy    #$01             ; Y=1 for one byte
         cpx    #$1A             ; Opcode $1A+ have arguments
-        bcs    $8673
+        bcs    L8673
 L862B:
         lda    $0440            ; Get P% low byte
         sta    $37
@@ -891,27 +891,27 @@ L862B:
         cpx    #$04
         ldx    $0441            ; Get P% high byte
         stx    $38
-        bcc    $8643            ; No offset assembly
+        bcc    L8643            ; No offset assembly
         lda    $043C
         ldx    $043D            ; Get O%
 L8643:
         sta    $3A              ; Store destination pointer
         stx    $3B
         tya
-        beq    $8672
-        bpl    $8650
+        beq    L8672
+        bpl    L8650
         ldy    $36
-        beq    $8672
+        beq    L8672
 L8650:
         dey                     ; Get opcode byte
         lda    $0029,y
         bit    $39              ; Opcode - jump to store it
-        bpl    $865B
+        bpl    L865B
         lda    $0600,y          ; Get EQU byte
 L865B:
         sta    ($3A),y          ; Store byte
         inc    $0440            ; Increment P%
-        bne    $8665
+        bne    L8665
         inc    $0441
 L8665:
         bcc    L866F
@@ -921,12 +921,12 @@ L8665:
 L866F:
         tya
         bne    L8650
+L8672:
         rts
-
 L8673:
         cpx    #$22
-        bcs    $86B7
-        jsr    $8821
+        bcs    L86B7
+        jsr    L8821
         clc
         lda    $2A
         sbc    $0440
@@ -936,13 +936,13 @@ L8673:
         cpy    #$01
         dey
         sbc    #$00
-        beq    $86B2
+        beq    L86B2
         cmp    #$FF
-        beq    $86AD
+        beq    L86AD
 L8691:
         lda    $28              ; Get OPT
         lsr    a
-        beq    $86A5            ; If OPT.b0=0, ignore error
+        beq    L86A5            ; If OPT.b0=0, ignore error
         brk
         .byte  $01,"Out of range"
         brk
@@ -952,27 +952,27 @@ L86A6:
         sty    $2A
 L86A8:
         ldy    #$02
-        jmp    $862B
+        jmp    L862B
 L86AD:
         tya
         bmi    L86A6
-        bpl    $8691
+        bpl    L8691
 L86B2:
         tya
-        bpl    $86A6
-        bmi    $8691
+        bpl    L86A6
+        bmi    L8691
 L86B7:
         cpx    #$29
-        bcs    $86D3
-        jsr    $8A97            ; Skip spaces
+        bcs    L86D3
+        jsr    L8A97            ; Skip spaces
         cmp    #'#'
-        bne    $86DA
-        jsr    $882F
+        bne    L86DA
+        jsr    L882F
 L86C5:
-        jsr    $8821
+        jsr    L8821
 L86C8:
         lda    $2B
-        beq    $86A8
+        beq    L86A8
 L86CC:
         brk
         .byte  $02,"Byte"
@@ -982,178 +982,178 @@ L86CC:
 ; ----------------------------
 L86D3:
         cpx    #$36
-        bne    $873F
-        jsr    $8A97            ; Skip spaces
+        bne    L873F
+        jsr    L8A97            ; Skip spaces
 L86DA:
         cmp    #'('
-        bne    $8715
-        jsr    $8821
-        jsr    $8A97            ; Skip spaces
+        bne    L8715
+        jsr    L8821
+        jsr    L8A97            ; Skip spaces
         cmp    #')'
-        bne    $86FB
-        jsr    $8A97            ; Skip spaces
+        bne    L86FB
+        jsr    L8A97            ; Skip spaces
         cmp    #','             ; No comman, jump to Index error
-        bne    $870D
-        jsr    $882C
-        jsr    $8A97            ; Skip spaces
+        bne    L870D
+        jsr    L882C
+        jsr    L8A97            ; Skip spaces
         cmp    #'Y'             ; (z),Y missing Y, jump to Index error
-        bne    $870D
-        beq    $86C8
+        bne    L870D
+        beq    L86C8
 
 ; Parse (zp,X) addressing mode
 ; ----------------------------
 L86FB:
         cmp    #','             ; No comma, jump to Index error
-        bne    $870D
-        jsr    $8A97            ; Skip spaces
+        bne    L870D
+        jsr    L8A97            ; Skip spaces
         cmp    #'X'             ; zp,X missing X, jump to Index error
-        bne    $870D
-        jsr    $8A97
+        bne    L870D
+        jsr    L8A97
         cmp    #')'             ; zp,X) - jump to process
-        beq    $86C8
+        beq    L86C8
 L870D:
         brk
         .byte  $03,"Index"
         brk
 L8715:
         dec    $0A
-        jsr    $8821
-        jsr    $8A97            ; Skip spaces
+        jsr    L8821
+        jsr    L8A97            ; Skip spaces
         cmp    #','             ; No command - jump to process as abs,X
-        bne    $8735
-        jsr    $882C
-        jsr    $8A97            ; Skip spaces
+        bne    L8735
+        jsr    L882C
+        jsr    L8A97            ; Skip spaces
         cmp    #'X'             ; abs,X - jump to process
-        beq    $8735
+        beq    L8735
         cmp    #'Y'             ; Not abs,Y - jump to Index error
-        bne    $870D
+        bne    L870D
 L872F:
-        jsr    $882F
-        jmp    $879A
+        jsr    L882F
+        jmp    L879A
 
 ; abs and abs,X
 ; -------------
 L8735:
-        jsr    $8832
+        jsr    L8832
 L8738:
         lda    $2B
-        bne    $872F
-        jmp    $86A8
+        bne    L872F
+        jmp    L86A8
 L873F:
         cpx    #$2F
-        bcs    $876E
+        bcs    L876E
         cpx    #$2D
-        bcs    $8750
-        jsr    $8A97            ; Skip spaces
+        bcs    L8750
+        jsr    L8A97            ; Skip spaces
         cmp    #'A'             ; ins A -
-        beq    $8767
+        beq    L8767
         dec    $0A
 L8750:
-        jsr    $8821
-        jsr    $8A97            ; Skip spaces
+        jsr    L8821
+        jsr    L8A97            ; Skip spaces
         cmp    #','
-        bne    $8738            ; No comma, jump to ...
-        jsr    $882C
-        jsr    $8A97            ; Skip spaces
+        bne    L8738            ; No comma, jump to ...
+        jsr    L882C
+        jsr    L8A97            ; Skip spaces
         cmp    #'X'
-        beq    $8738            ; Jump with address,X
-        jmp    $870D            ; Otherwise, jump to Index error
+        beq    L8738            ; Jump with address,X
+        jmp    L870D            ; Otherwise, jump to Index error
 L8767:
-        jsr    $8832
+        jsr    L8832
         ldy    #$01
-        bne    $879C
+        bne    L879C
 L876E:
         cpx    #$32
-        bcs    $8788
+        bcs    L8788
         cpx    #$31
-        beq    $8782
-        jsr    $8A97            ; Skip spaces
+        beq    L8782
+        jsr    L8A97            ; Skip spaces
         cmp    #'#'
-        bne    $8780            ; Not #, jump with address
-        jmp    $86C5
+        bne    L8780            ; Not #, jump with address
+        jmp    L86C5
 L8780:
         dec    $0A
 L8782:
-        jsr    $8821
-        jmp    $8735
+        jsr    L8821
+        jmp    L8735
 L8788:
         cpx    #$33
-        beq    $8797
-        bcs    $87B2
-        jsr    $8A97            ; Skip spaces
+        beq    L8797
+        bcs    L87B2
+        jsr    L8A97            ; Skip spaces
         cmp    #'('
-        beq    $879F            ; Jump With (... addressing mode
+        beq    L879F            ; Jump With (... addressing mode
         dec    $0A
 L8797:
-        jsr    $8821
+        jsr    L8821
 L879A:
         ldy    #$03
 L879C:
-        jmp    $862B
+        jmp    L862B
 L879F:
-        jsr    $882C
-        jsr    $882C
-        jsr    $8821
-        jsr    $8A97            ; Skip spaces
+        jsr    L882C
+        jsr    L882C
+        jsr    L8821
+        jsr    L8A97            ; Skip spaces
         cmp    #')'
-        beq    $879A
-        jmp    $870D            ; No ) - jump to Index error
+        beq    L879A
+        jmp    L870D            ; No ) - jump to Index error
 L87B2:
         cpx    #$39
-        bcs    $8813
+        bcs    L8813
         lda    $3D
         eor    #$01
         and    #$1F
         pha
         cpx    #$37
-        bcs    $87F0
-        jsr    $8A97            ; Skip spaces
+        bcs    L87F0
+        jsr    L8A97            ; Skip spaces
         cmp    #'#'
-        bne    $87CC
+        bne    L87CC
         pla
-        jmp    $86C5
+        jmp    L86C5
 L87CC:
         dec    $0A
-        jsr    $8821
+        jsr    L8821
         pla
         sta    $37
-        jsr    $8A97
+        jsr    L8A97
         cmp    #','
-        beq    $87DE
-        jmp    $8735
+        beq    L87DE
+        jmp    L8735
 L87DE:
-        jsr    $8A97
+        jsr    L8A97
         and    #$1F
         cmp    $37
-        bne    $87ED
-        jsr    $882C
-        jmp    $8735
+        bne    L87ED
+        jsr    L882C
+        jmp    L8735
 L87ED:
-        jmp    $870D            ; Jump to Index error
+        jmp    L870D            ; Jump to Index error
 L87F0:
-        jsr    $8821
+        jsr    L8821
         pla
         sta    $37
-        jsr    $8A97
+        jsr    L8A97
         cmp    #','
-        bne    $8810
-        jsr    $8A97
+        bne    L8810
+        jsr    L8A97
         and    #$1F
         cmp    $37
-        bne    $87ED
-        jsr    $882C
+        bne    L87ED
+        jsr    L882C
         lda    $2B
-        beq    $8810            ; High byte=0, continue
-        jmp    $86CC            ; value>255, jump to Byte error
+        beq    L8810            ; High byte=0, continue
+        jmp    L86CC            ; value>255, jump to Byte error
 L8810:
-        jmp    $8738
+        jmp    L8738
 L8813:
-        bne    $883A
-        jsr    $8821
+        bne    L883A
+        jsr    L8821
         lda    $2A
         sta    $28
         ldy    #$00
-        jmp    $862B
+        jmp    L862B
 L8821:
         jsr    $9B1D
         jsr    $92F0
@@ -1162,9 +1162,9 @@ L8827:
         sty    $0A
         rts
 L882C:
-        jsr    $882F
+        jsr    L882F
 L882F:
-        jsr    $8832
+        jsr    L8832
 L8832:
         lda    $29
         clc
@@ -1177,38 +1177,38 @@ L883A:
         inc    $0A              ; Increment address
         lda    ($0B),y          ; Get next character
         cmp    #'B'
-        beq    $8858            ; EQUB
+        beq    L8858            ; EQUB
         inx                     ; Prepare for two bytes
         cmp    #'W'
-        beq    $8858            ; EQUW
+        beq    L8858            ; EQUW
         ldx    #$04             ; Prepare for four bytes
         cmp    #'D'
-        beq    $8858            ; EQUD
+        beq    L8858            ; EQUD
         cmp    #'S'
-        beq    $886A            ; EQUS
+        beq    L886A            ; EQUS
         jmp    $982A            ; Syntax error
 L8858:
         txa
         pha
-        jsr    $8821
+        jsr    L8821
         ldx    #$29
         jsr    $BE44
         pla
         tay
 L8864:
-        jmp    $862B
+        jmp    L862B
 L8867:
         jmp    $8C0E
 L886A:
         lda    $28
         pha
         jsr    $9B1D
-        bne    $8867
+        bne    L8867
         pla
         sta    $28
-        jsr    $8827
+        jsr    L8827
         ldy    #$FF
-        bne    $8864
+        bne    L8864
 L887C:
         pha
         clc
@@ -1226,7 +1226,7 @@ L888D:
         lda    ($39),y
         sta    ($37),y
         cmp    #$0D
-        bne    $888D
+        bne    L888D
         rts
 L8897:
         and    #$0F
@@ -1236,36 +1236,36 @@ L889D:
         iny
         lda    ($37),y
         cmp    #'9'+1
-        bcs    $88DA
+        bcs    L88DA
         cmp    #'0'
-        bcc    $88DA
+        bcc    L88DA
         and    #$0F
         pha
         ldx    $3E
         lda    $3D
         asl    a
         rol    $3E
-        bmi    $88D5
+        bmi    L88D5
         asl    a
         rol    $3E
-        bmi    $88D5
+        bmi    L88D5
         adc    $3D
         sta    $3D
         txa
         adc    $3E
         asl    $3D
         rol    a
-        bmi    $88D5
-        bcs    $88D5
+        bmi    L88D5
+        bcs    L88D5
         sta    $3E
         pla
         adc    $3D
         sta    $3D
-        bcc    $889D
+        bcc    L889D
         inc    $3E
-        bpl    $889D
+        bpl    L889D
         pha
-L99D5:
+L88D5:
         pla
         ldy    #$00
         sec
@@ -1273,7 +1273,7 @@ L99D5:
 L88DA:
         dey
         lda    #$8D
-        jsr    $887C
+        jsr    L887C
         lda    $37
         adc    #$02
         sta    $39
@@ -1284,7 +1284,7 @@ L88EC:
         lda    ($37),y
         sta    ($39),y
         dey
-        bne    $88EC
+        bne    L88EC
         ldy    #$03
 L88F5:
         lda    $3E
@@ -1308,42 +1308,42 @@ L88F5:
         lsr    a
         eor    #$54
         sta    ($37),y
-        jsr    $8944            ; Increment $37/8
-        jsr    $8944            ; Increment $37/8
-        jsr    $8944            ; Increment $37/8
+        jsr    L8944            ; Increment $37/8
+        jsr    L8944            ; Increment $37/8
+        jsr    L8944            ; Increment $37/8
         ldy    #$00
 L8924:
         clc
         rts
 L8926:
         cmp    #$7B
-        bcs    $8924
+        bcs    L8924
         cmp    #$5F
-        bcs    $893C
+        bcs    L893C
         cmp    #$5B
-        bcs    $8924
+        bcs    L8924
         cmp    #$41
         bcs    L893C
 L8936:
         cmp    #$3A
-        bcs    $8924
+        bcs    L8924
         cmp    #$30
 L893C:
         rts
 L893D:
         cmp    #$2E
-        bne    $8936
+        bne    L8936
         rts
 L8942:
         lda    ($37),y
 L8944:
         inc    $37
-        bne    $894A
+        bne    L894A
         inc    $38
 L894A:
         rts
 L894B:
-        jsr    $8944            ; Increment $37/8
+        jsr    L8944            ; Increment $37/8
         lda    ($37),y
         rts
 
@@ -1357,136 +1357,136 @@ L8955:
 L8957:
         lda    ($37),y          ; Get current character
         cmp    #$0D
-        beq    $894A            ; Exit with <cr>
+        beq    L894A            ; Exit with <cr>
         cmp    #$20
-        bne    $8966            ; Skip <spc>
+        bne    L8966            ; Skip <spc>
 L8961:
-        jsr    $8944
-        bne    $8957            ; Increment $37/8 and check next character
+        jsr    L8944
+        bne    L8957            ; Increment $37/8 and check next character
 L8966:
         cmp    #'&'
-        bne    $897C            ; Jump if not '&'
+        bne    L897C            ; Jump if not '&'
 L896A:
-        jsr    $894B            ; Increment $37/8 and get next character
-        jsr    $8936
-        bcs    $896A            ; Jump if numeric character
+        jsr    L894B            ; Increment $37/8 and get next character
+        jsr    L8936
+        bcs    L896A            ; Jump if numeric character
         cmp    #'A'
-        bcc    $8957            ; Loop back if <'A'
+        bcc    L8957            ; Loop back if <'A'
         cmp    #'F'+1
-        bcc    $896A            ; Step to next if 'A'..'F'
-        bcs    $8957            ; Loop back for next character
+        bcc    L896A            ; Step to next if 'A'..'F'
+        bcs    L8957            ; Loop back for next character
 L897C:
         cmp    #$22
-        bne    $898C
+        bne    L898C
 L8980:
-        jsr    $894B            ; Increment $37/8 and get next character
+        jsr    L894B            ; Increment $37/8 and get next character
         cmp    #$22
-        beq    $8961            ; Not quote, jump to process next character
+        beq    L8961            ; Not quote, jump to process next character
         cmp    #$0D
-        bne    $8980
+        bne    L8980
         rts
 L898C:
         cmp    #':'
-        bne    $8996
+        bne    L8996
         sty    $3B
         sty    $3C
-        beq    $8961
+        beq    L8961
 L8996:
         cmp    #','
-        beq    $8961
+        beq    L8961
         cmp    #'*'
-        bne    $89A3
+        bne    L89A3
         lda    $3B
-        bne    $89E3
+        bne    L89E3
         rts
 L89A3:
         cmp    #'.'
-        beq    $89B5
-        jsr    $8936
-        bcc    $89DF
+        beq    L89B5
+        jsr    L8936
+        bcc    L89DF
         ldx    $3C
-        beq    $89B5
-        jsr    $8897
-        bcc    $89E9
+        beq    L89B5
+        jsr    L8897
+        bcc    L89E9
 L89B5:
         lda    ($37),y
-        jsr    $893D
-        bcc    $89C2
-        jsr    $8944
-        jmp    $89B5
+        jsr    L893D
+        bcc    L89C2
+        jsr    L8944
+        jmp    L89B5
 L89C2:
         ldx    #$FF
         stx    $3B
         sty    $3C
-        jmp    $8957
+        jmp    L8957
 L89CB:
-        jsr    $8926
-        bcc    $89E3
+        jsr    L8926
+        bcc    L89E3
 L89D0:
         ldy    #$00
 L89D2:
         lda    ($37),y
-        jsr    $8926
-        bcc    $89C2
-        jsr    $8944
-        jmp    $89D2
+        jsr    L8926
+        bcc    L89C2
+        jsr    L8944
+        jmp    L89D2
 L89DF:
         cmp    #'A'
-        bcs    $89EC            ; Jump if letter
+        bcs    L89EC            ; Jump if letter
 L89E3:
         ldx    #$FF
         stx    $3B
         sty    $3C
 L89E9:
-        jmp    $8961
+        jmp    L8961
 L89EC:
         cmp    #'X'
-        bcs    $89CB            ; Jump if >='X', nothing starts with X,Y,Z
+        bcs    L89CB            ; Jump if >='X', nothing starts with X,Y,Z
         ldx    #L8071 & 255     ; Point to token table
         stx    $39
         ldx    #L8071 / 256
         stx    $3A
 L89F8:
         cmp    ($39),y
-        bcc    $89D2
-        bne    $8A0D
+        bcc    L89D2
+        bne    L8A0D
 L89FE:
         iny
         lda    ($39),y
-        bmi    $8A37
+        bmi    L8A37
         cmp    ($37),y
-        beq    $89FE
+        beq    L89FE
         lda    ($37),y
         cmp    #'.'
-        beq    $8A18
+        beq    L8A18
 L8A0D:
         iny
         lda    ($39),y
-        bpl    $8A0D
+        bpl    L8A0D
         cmp    #$FE
-        bne    $8A25
-        bcs    $89D0
+        bne    L8A25
+        bcs    L89D0
 L8A18:
         iny
 L8A19:
         lda    ($39),y
-        bmi    $8A37
+        bmi    L8A37
         inc    $39
-        bne    $8A19
+        bne    L8A19
         inc    $3A
-        bne    $8A19
+        bne    L8A19
 L8A25:
         sec
         iny
         tya
         adc    $39
         sta    $39
-        bcc    $8A30
+        bcc    L8A30
         inc    $3A
 L8A30:
         ldy    #$00
         lda    ($37),y
-        jmp    $89F8
+        jmp    L89F8
 L8A37:
         tax
         iny
@@ -1494,27 +1494,27 @@ L8A37:
         sta    $3D              ; Get token flag
         dey
         lsr    a
-        bcc    $8A48
+        bcc    L8A48
         lda    ($37),y
-        jsr    $8926
-        bcs    $89D0
+        jsr    L8926
+        bcs    L89D0
 L8A48:
         txa
         bit    $3D
-        bvc    $8A54
+        bvc    L8A54
         ldx    $3B
-        bne    $8A54
+        bne    L8A54
         clc                     ; Superfluous as all paths to here have CLC
         adc    #$40
 L8A54:
         dey
-        jsr    $887C
+        jsr    L887C
         ldy    #$00
         ldx    #$FF
         lda    $3D
         lsr    a
         lsr    a
-        bcc    $8A66
+        bcc    L8A66
         stx    $3B
         sty    $3C
 L8A66:
@@ -1524,26 +1524,26 @@ L8A66:
         sty    $3C
 L8A6D:
         lsr    a
-        bcc    $8A81
+        bcc    L8A81
         pha
         iny
 L8A72:
         lda    ($37),y
-        jsr    $8926
-        bcc    $8A7F
-        jsr    $8944
-        jmp    $8A72
+        jsr    L8926
+        bcc    L8A7F
+        jsr    L8944
+        jmp    L8A72
 L8A7F:
         dey
         pla
 L8A81:
         lsr    a
-        bcc    $8A86
+        bcc    L8A86
         stx    $3C
 L8A86:
         lsr    a
-        bcs    $8A96
-        jmp    $8961
+        bcs    L8A96
+        jmp    L8961
 
 ; Skip Spaces
 ; ===========
@@ -1552,7 +1552,7 @@ L8A8C:
         inc    $1B
         lda    ($19),y          ; Get current character
         cmp    #' '
-        beq    $8A8C            ; Loop until not space
+        beq    L8A8C            ; Loop until not space
 L8A96:
         rts
         
@@ -1563,7 +1563,7 @@ L8A97:
         inc    $0A
         lda    ($0B),y
         cmp    #$20
-        beq    $8A97
+        beq    L8A97
 L8AA1:
          rts
 L8AA2:
@@ -1572,9 +1572,9 @@ L8AA2:
         .byte "Missing ,"
         brk
 L8AAE:
-        jsr    $8A8C
+        jsr    L8A8C
         cmp    #','
-        bne    $8AA2
+        bne    L8AA2
         rts
 
 ; OLD - Attempt to restore program
@@ -1587,14 +1587,14 @@ L8AB6:
         sta    $37
         sta    ($37),y          ; Remove end marker
         jsr    $BE6F            ; Check program and set TOP
-        bne    $8AF3            ; Jump to clear heap and go to immediate mode
+        bne    L8AF3            ; Jump to clear heap and go to immediate mode
 
 ; END - Return to immediate mode
 ; ==============================
 L8AC8:
         jsr    $9857            ; Check end of statement
         jsr    $BE6F            ; Check program and set TOP
-        bne    $8AF6            ; Jump to immediate mode, keeping variables, etc
+        bne    L8AF6            ; Jump to immediate mode, keeping variables, etc
 
 ; STOP - Abort program with an error
 ; ==================================
@@ -1661,26 +1661,26 @@ L8B0B:
         sta    $38
         sty    $3B
         sty    $0A
-        jsr    $8957
+        jsr    L8957
         jsr    $97DF            ; Tokenise, jump forward if no line number
-        bcc    $8B38
+        bcc    L8B38
         jsr    $BC8D            ; Insert into program, jump back to immediate loop
-        jmp    $8AF3
+        jmp    L8AF3
 
 ; Command entered at immediate prompt
 ; -----------------------------------
 L8B38:
-        jsr    $8A97            ; Skip spaces at PtrA
+        jsr    L8A97            ; Skip spaces at PtrA
         cmp    #$C6             ; If command token, jump to execute command
         bcs    $8BB1
         bcc    $8BBF            ; Not command token, try variable assignment
 L8B41:
-        jmp    $8AF6            ; Jump back to immediate mode
+        jmp    L8AF6            ; Jump back to immediate mode
 
 ; [ - enter assembler
 ; ===================
 L8B44:
-        jmp    $8504            ; Jump to assembler
+        jmp    L8504            ; Jump to assembler
 
 ; =<value> - return from FN
 ; =========================
