@@ -12,6 +12,9 @@
         .byte ((c1 & $1F) << 2 + (c2 & $1F) / 8) & $FF
 .endmacro
 
+; Symbols
+        FAULT   = $FD
+
 ; MOS Entry Points:
         OS_CLI  = $FFF7
         OSBYTE  = $FFF4
@@ -1751,643 +1754,774 @@ L8B98:
 ; Main execution loop
 ; -------------------
 L8B9B:
- ldy    #$00
- lda    ($0B),y
- cmp    #$3A
- bne    $8B87
- ldy    $0A
- inc    $0A
- lda    ($0B),y
- cmp    #$20
- beq    $8BA3
- cmp    #$CF
- bcc    $8BBF
- tax
- lda    $82DF,x
- sta    $37
- lda    $8351,x
- sta    $38
- jmp    ($0037)
- ldx    $0B
- stx    $19
- ldx    $0C
- stx    $1A
- sty    $1B
- jsr    $95DD
- bne    $8BE9
- bcs    $8B60
- stx    $1B
- jsr    $9841
- jsr    $94FC
- ldx    #$05
- cpx    $2C
- bne    $8BDF
- inx
- jsr    $9531
- dec    $0A
- jsr    $9582
- beq    $8C0B
- bcc    $8BFB
- jsr    $BD94
- jsr    $9813
- lda    $27
- bne    $8C0E
- jsr    $8C1E
- jmp    $8B9B
- jsr    $BD94
- jsr    $9813
- lda    $27
- beq    $8C0E
- jsr    $B4B4
- jmp    $8B9B
- jmp    $982A
- brk
- asl    $54
- adc    $6570,y
- jsr    $696D
- .byte  's'
- adc    $7461
- .byte  'c'
- pla
- brk
- jsr    $BDEA
- lda    $2C
- cmp    #$80
- beq    $8CA2
- ldy    #$02
- lda    ($2A),y
- cmp    $36
- bcs    $8C84
- lda    $02
- sta    $2C
- lda    $03
- sta    $2D
- lda    $36
- cmp    #$08
- bcc    $8C43
- adc    #$07
- bcc    $8C43
- lda    #$FF
- clc
- pha
- tax
- lda    ($2A),y
- ldy    #$00
- adc    ($2A),y
- eor    $02
- bne    $8C5F
- iny
- adc    ($2A),y
- eor    $03
- bne    $8C5F
- sta    $2D
- txa
- iny
- sec
- sbc    ($2A),y
- tax
- txa
- clc
- adc    $02
- tay
- lda    $03
- adc    #$00
- cpy    $04
- tax
- sbc    $05
- bcs    $8CB7
- sty    $02
- stx    $03
- pla
- ldy    #$02
- sta    ($2A),y
- dey
- lda    $2D
- beq    $8C84
- sta    ($2A),y
- dey
- lda    $2C
- sta    ($2A),y
- ldy    #$03
- lda    $36
- sta    ($2A),y
- beq    $8CA1
- dey
- dey
- lda    ($2A),y
- sta    $2D
- dey
- lda    ($2A),y
- sta    $2C
- lda    $0600,y
- sta    ($2C),y
- iny
- cpy    $36
- bne    $8C97
- rts
- jsr    $BEBA
- cpy    #$00
- beq    $8CB4
- lda    $0600,y
- sta    ($2A),y
- dey
- bne    $8CA9
- lda    $0600
- sta    ($2A),y
- rts
- brk
- brk
- lsr    $206F
- .byte  'r'
- .byte  'o'
- .byte  'o'
- adc    $A500
- and    $80C9,y
- beq    $8CEE
- bcc    $8D03
- ldy    #$00
- lda    ($04),y
- tax
- beq    $8CE5
- lda    ($37),y
- sbc    #$01
- sta    $39
- iny
- lda    ($37),y
- sbc    #$00
- sta    $3A
- lda    ($04),y
- sta    ($39),y
- iny
- dex
- bne    $8CDD
- lda    ($04,x)
- ldy    #$03
- sta    ($37),y
- jmp    $BDDC
- ldy    #$00
- lda    ($04),y
- tax
- beq    $8CFF
- iny
- lda    ($04),y
- dey
- sta    ($37),y
- iny
- dex
- bne    $8CF5
- lda    #$0D
- bne    $8CE9
- ldy    #$00
- lda    ($04),y
- sta    ($37),y
- iny
- cpy    $39
- bcs    $8D26
- lda    ($04),y
- sta    ($37),y
- iny
- lda    ($04),y
- sta    ($37),y
- iny
- lda    ($04),y
- sta    ($37),y
- iny
- cpy    $39
- bcs    $8D26
- lda    ($04),y
- sta    ($37),y
- iny
- tya
- clc
- jmp    $BDE1
- dec    $0A
- jsr    $BFA9
- tya
- pha
- jsr    $8A8C
- cmp    #$2C
- bne    $8D77
- jsr    $9B29
- jsr    $A385
- pla
- tay
- lda    $27
- jsr    OSBPUT
- tax
- beq    $8D64
- bmi    $8D57
- ldx    #$03
- lda    $2A,x
- jsr    OSBPUT
- dex
- bpl    $8D4D
- bmi    $8D30
- ldx    #$04
- lda    $046C,x
- jsr    OSBPUT
- dex
- bpl    $8D59
- bmi    $8D30
- lda    $36
- jsr    OSBPUT
- tax
- beq    $8D30
- lda    $05FF,x
- jsr    OSBPUT
- dex
- bne    $8D6C
- beq    $8D30
- pla
- sty    $0A
- jmp    $8B98
- jsr    $BC25
- jmp    $8B96
- lda    #$00
- sta    $14
- sta    $15
- jsr    $8A97
- cmp    #$3A
- beq    $8D80
- cmp    #$0D
- beq    $8D80
- cmp    #$8B
- beq    $8D80
- bne    $8DD2
- jsr    $8A97
- cmp    #$23
- beq    $8D2B
- dec    $0A
- jmp    $8DBB
- lda    $0400
- beq    $8DBB
- lda    $1E
- beq    $8DBB
- sbc    $0400
- bcs    $8DAD
- tay
- jsr    $B565
- iny
- bne    $8DB5
- clc
- lda    $0400
- sta    $14
- ror    $15
- jsr    $8A97
- cmp    #$3A
- beq    $8D7D
- cmp    #$0D
- beq    $8D7D
- cmp    #$8B
- beq    $8D7D
- cmp    #$7E
- beq    $8DC1
- cmp    #$2C
- beq    $8DA6
- cmp    #$3B
- beq    $8D83
- jsr    $8E70
- bcc    $8DC3
- lda    $14
- pha
- lda    $15
- pha
- dec    $1B
- jsr    $9B29
- pla
- sta    $15
- pla
- sta    $14
- lda    $1B
- sta    $0A
- tya
- beq    $8E0E
- jsr    $9EDF
- lda    $14
- sec
- sbc    $36
- bcc    $8E0E
- beq    $8E0E
- tay
- jsr    $B565
- dey
- bne    $8E08
- lda    $36
- beq    $8DC3
- ldy    #$00
- lda    $0600,y
- jsr    $B558
- iny
- cpy    $36
- bne    $8E14
- beq    $8DC3
- jmp    $8AA2
- cmp    #$2C
- bne    $8E21
- lda    $2A
- pha
- jsr    $AE56
- jsr    $92F0
- lda    #$1F
- jsr    OSWRCH
- pla
- jsr    OSWRCH
- jsr    $9456
- jmp    $8E6A
- jsr    $92DD
- jsr    $8A8C
- cmp    #$29
- bne    $8E24
- lda    $2A
- sbc    $1E
- beq    $8E6A
- tay
- bcs    $8E5F
- jsr    $BC25
- beq    $8E5B
- jsr    $92E3
- ldy    $2A
- beq    $8E6A
- jsr    $B565
- dey
- bne    $8E5F
- beq    $8E6A
- jsr    $BC25
- clc
- ldy    $1B
- sty    $0A
- rts
- ldx    $0B
- stx    $19
- ldx    $0C
- stx    $1A
- ldx    $0A
- stx    $1B
- cmp    #$27
- beq    $8E67
- cmp    #$8A
- beq    $8E40
- cmp    #$89
- beq    $8E58
- sec
- rts
- jsr    $8A97
- jsr    $8E70
- bcc    $8E89
- cmp    #$22
- beq    $8EA7
- sec
- rts
- brk
- ora    #$4D
- adc    #$73
- .byte  's'
- adc    #$6E
- .byte  'g'
- jsr    $0022
- jsr    $B558
- iny
- lda    ($19),y
- cmp    #$0D
- beq    $8E98
- cmp    #$22
- bne    $8EA4
- iny
- sty    $1B
- lda    ($19),y
- cmp    #$22
- bne    $8E6A
- beq    $8EA4
- jsr    $9857
- lda    #$10
- bne    $8ECC
- jsr    $9857
- jsr    $BC28
- lda    #$0C
- jsr    OSWRCH
- jmp    $8B9B
- jsr    $9B1D
- jsr    $92EE
- jsr    $BD94
- ldy    #$00
- sty    $0600
- sty    $06FF
- jsr    $8A8C
- cmp    #$2C
- bne    $8F0C
- ldy    $1B
- jsr    $95D5
- beq    $8F1B
- ldy    $06FF
- iny
- lda    $2A
- sta    $0600,y
- iny
- lda    $2B
- sta    $0600,y
- iny
- lda    $2C
- sta    $0600,y
- inc    $0600
- jmp    $8EE0
- dec    $1B
- jsr    $9852
- jsr    $BDEA
- jsr    $8F1E
- cld
- jmp    $8B9B
- jmp    $AE43
- lda    $040C
- lsr    a
- lda    $0404
- ldx    $0460
- ldy    $0464
- jmp    ($002A)
- jmp    $982A
- jsr    $97DF
- bcc    $8F2E
- jsr    $BD94
- jsr    $8A97
- cmp    #$2C
- bne    $8F2E
- jsr    $97DF
- bcc    $8F2E
- jsr    $9857
- lda    $2A
- sta    $39
- lda    $2B
- sta    $3A
- jsr    $BDEA
- jsr    $BC2D
- jsr    $987B
- jsr    $9222
- lda    $39
- cmp    $2A
- lda    $3A
- sbc    $2B
- bcs    $8F53
- jmp    $8AF3
- lda    #$0A
- jsr    $AED8
- jsr    $97DF
- jsr    $BD94
- lda    #$0A
- jsr    $AED8
- jsr    $8A97
- cmp    #$2C
- bne    $8F8D
- jsr    $97DF
- lda    $2B
- bne    $8FDF
- lda    $2A
- beq    $8FDF
- inc    $0A
- dec    $0A
- jmp    $9857
- lda    $12
- sta    $3B
- lda    $13
- sta    $3C
- lda    $18
- sta    $38
- lda    #$01
- sta    $37
- rts
- jsr    $8F69
- ldx    #$39
- jsr    $BE0D
- jsr    $BE6F
- jsr    $8F92
- ldy    #$00
- lda    ($37),y
- bmi    $8FE7
- sta    ($3B),y
- iny
- lda    ($37),y
- sta    ($3B),y
- sec
- tya
- adc    $3B
- sta    $3B
- tax
- lda    $3C
- adc    #$00
- sta    $3C
- cpx    $06
- sbc    $07
- bcs    $8FD6
- jsr    $909F
- bcc    $8FB1
- brk
- brk
- cpy    $7320
- bvs    $903E
- .byte  'c'
- adc    $00
- brk
- .byte  'S'
- adc    #$6C
- jmp    ($0079)
- jsr    $8F9A
- ldy    #$00
- lda    ($37),y
- bmi    $900D
- lda    $3A
- sta    ($37),y
- lda    $39
- iny
- sta    ($37),y
- clc
- lda    $2A
- adc    $39
- sta    $39
- lda    #$00
- adc    $3A
- and    #$7F
- sta    $3A
- jsr    $909F
- bcc    $8FEA
- lda    $18
- sta    $0C
- ldy    #$00
- sty    $0B
- iny
- lda    ($0B),y
- bmi    $903A
- ldy    #$04
- lda    ($0B),y
- cmp    #$8D
- beq    $903D
- iny
- cmp    #$0D
- bne    $901C
- lda    ($0B),y
- bmi    $903A
- ldy    #$03
- lda    ($0B),y
- clc
- adc    $0B
- sta    $0B
- bcc    $901A
- inc    $0C
- bcs    $901A
- jmp    $8AF3
- jsr    $97EB
- jsr    $8F92
- ldy    #$00
- lda    ($37),y
- bmi    $9080
- lda    ($3B),y
- iny
- cmp    $2B
- bne    $9071
- lda    ($3B),y
- cmp    $2A
- bne    $9071
- lda    ($37),y
- sta    $3D
- dey
- lda    ($37),y
- sta    $3E
- ldy    $0A
- dey
- lda    $0B
- sta    $37
- lda    $0C
- sta    $38
- jsr    $88F5
- ldy    $0A
- bne    $901C
- jsr    $909F
- lda    $3B
- adc    #$02
- sta    $3B
- bcc    $9043
- inc    $3C
- bcs    $9043
- jsr    $BFCF
- lsr    $61
- adc    #$6C
- adc    $64
- jsr    $7461
- jsr    $B1C8
- .byte  $0B
- sta    $2B
- iny
- lda    ($0B),y
- sta    $2A
- jsr    $991F
- jsr    $BC25
- beq    $906D
- iny
- lda    ($37),y
- adc    $37
- sta    $37
- bcc    $90AB
- inc    $38
- clc
- rts
- jsr    $8F69
+        ldy    #$00             ; Get current character
+        lda    ($0B),y
+        cmp    #':'             ; Not <colon>, check for ELSE
+        bne    $8B87
+L8BA3:
+        ldy    $0A              ; Get program pointer, increment for next time
+        inc    $0A
+        lda    ($0B),y          ; Get current character
+        cmp    #$20
+        beq    $8BA3
+        cmp    #$CF             ; Not program command, jump to try variable assignment
+        bcc    $8BBF
+
+; Dispatch function/command
+; -------------------------
+L8BB1:
+        tax                     ; Index into dispatch table
+        lda    L836D-$8E,x      ; Get routine address from table
+        sta    $37
+        lda    L83DF-$8E,x
+        sta    $38
+        jmp    ($0037)          ; Jump to routine
+
+; Not a command byte, try variable assignment, or =, *, [
+; -------------------------------------------------------
+L8BBF:
+        ldx    $0B              ; Copy PtrA to PtrB
+        stx    $19
+        ldx    $0C
+        stx    $1A
+        sty    $1B              ; Check if variable or indirection
+        jsr    $95DD
+        bne    $8BE9            ; NE - jump for existing variable or indirection assignment
+        bcs    $8B60            ; CS - not variable assignment, try =, *, [ commands
+
+; Variable not found, create a new one
+; ------------------------------------
+        stx    $1B              ; Check for and step past '='
+        jsr    $9841
+        jsr    $94FC            ; Create new variable
+        ldx    #$05             ; X=&05 = float
+        cpx    $2C              ; Jump if dest. not a float
+        bne    L8BDF
+        inx                     ; X=&06
+L8BDF:
+        jsr    $9531
+        dec    $0A
+
+; LET variable = expression
+; =========================
+L8BE4:
+        jsr    $9582
+        beq    $8C0B
+L8BE9:
+        bcc    $8BFB
+        jsr    $BD94            ; Stack integer (address of data)
+        jsr    $9813            ; Check for end of statement
+        lda    $27              ; Get evaluation type
+        bne    $8C0E            ; If not string, error
+        jsr    $8C1E            ; Assign the string
+        jmp    $8B9B            ; Return to execution loop
+L8BFB:
+        jsr    $BD94            ; Stack integer (address of data)
+        jsr    $9813            ; Check for end of statement
+        lda    $27              ; Get evaluation type
+        beq    $8C0E            ; If not number, error
+        jsr    $B4B4            ; Assign the number
+        jmp    $8B9B            ; Return to execution loop
+L8C0B:
+        jmp    $982A
+L8C0E:
+        brk
+        .byte   $06, "Type mismatch"
+        brk
+L8C1E:
+        jsr    $BDEA            ; Unstack integer (address of data)
+        lda    $2C
+        cmp    #$80             ; Jump if absolute string $addr
+        beq    $8CA2
+        ldy    #$02
+        lda    ($2A),y
+        cmp    $36
+        bcs    $8C84
+        lda    $02
+        sta    $2C
+        lda    $03
+        sta    $2D
+        lda    $36
+        cmp    #$08
+        bcc    $8C43
+        adc    #$07
+        bcc    $8C43
+        lda    #$FF
+L8C43:
+        clc
+        pha
+        tax
+        lda    ($2A),y
+        ldy    #$00
+        adc    ($2A),y
+        eor    $02
+        bne    $8C5F
+        iny
+        adc    ($2A),y
+        eor    $03
+        bne    $8C5F
+        sta    $2D
+        txa
+        iny
+        sec
+        sbc    ($2A),y
+        tax
+L8C5F:
+        txa
+        clc
+        adc    $02
+        tay
+        lda    $03
+        adc    #$00
+        cpy    $04
+        tax
+        sbc    $05
+        bcs    $8CB7
+        sty    $02
+        stx    $03
+        pla
+        ldy    #$02
+        sta    ($2A),y
+        dey
+        lda    $2D
+        beq    $8C84
+        sta    ($2A),y
+        dey
+        lda    $2C
+        sta    ($2A),y
+L8C84:
+        ldy    #$03
+        lda    $36
+        sta    ($2A),y
+        beq    $8CA1
+        dey
+        dey
+        lda    ($2A),y
+        sta    $2D
+        dey
+        lda    ($2A),y
+        sta    $2C
+L8C97:
+        lda    $0600,y
+        sta    ($2C),y
+        iny
+        cpy    $36
+        bne    $8C97
+L8CA1:
+        rts
+L8CA2:
+        jsr    $BEBA
+        cpy    #$00
+        beq    $8CB4
+L8CA9:
+        lda    $0600,y
+        sta    ($2A),y
+        dey
+        bne    $8CA9
+        lda    $0600
+L8CB4:
+        sta    ($2A),y
+        rts
+L8CB7:
+        brk
+        .byte   $00, "No room"
+        brk
+L8CC1:
+        lda     $39
+        cmp     #$80
+        beq     $8CEE
+        bcc     $8D03
+        ldy     #$00
+         lda    ($04),y
+         tax
+         beq    $8CE5
+         lda    ($37),y
+         sbc    #$01
+         sta    $39
+         iny
+         lda    ($37),y
+         sbc    #$00
+         sta    $3A
+L8CDD:
+        lda    ($04),y
+        sta    ($39),y
+        iny
+        dex
+        bne    $8CDD
+L8CE5:
+        lda    ($04,x)
+        ldy    #$03
+L8CE9:
+        sta    ($37),y
+        jmp    $BDDC
+L8CEE:
+        ldy    #$00
+        lda    ($04),y
+        tax
+        beq    $8CFF
+L8CF5:
+        iny
+        lda    ($04),y
+        dey
+        sta    ($37),y
+        iny
+        dex
+        bne    $8CF5
+L8CFF:
+        lda    #$0D
+        bne    $8CE9
+L8D03:
+        ldy    #$00
+        lda    ($04),y
+        sta    ($37),y
+        iny
+        cpy    $39
+        bcs    $8D26
+        lda    ($04),y
+        sta    ($37),y
+        iny
+        lda    ($04),y
+        sta    ($37),y
+        iny
+        lda    ($04),y
+        sta    ($37),y
+        iny
+        cpy    $39
+        bcs    $8D26
+        lda    ($04),y
+        sta    ($37),y
+        iny
+L8D26:
+        tya
+        clc
+        jmp    $BDE1
+L8D2B:
+        dec    $0A
+        jsr    $BFA9
+L8D30:
+        tya
+        pha
+        jsr    $8A8C
+        cmp    #$2C
+        bne    $8D77
+        jsr    $9B29
+        jsr    $A385
+        pla
+        tay
+        lda    $27
+        jsr    OSBPUT
+        tax
+        beq    $8D64
+        bmi    $8D57
+        ldx    #$03
+L8D4D:
+        lda    $2A,x
+        jsr    OSBPUT
+        dex
+        bpl    $8D4D
+        bmi    $8D30
+L8D57:
+        ldx    #$04
+L8D59:
+        lda    $046C,x
+        jsr    OSBPUT
+        dex
+        bpl    $8D59
+        bmi    $8D30
+L8D64:
+        lda    $36
+        jsr    OSBPUT
+        tax
+        beq    $8D30
+L8D6C:
+        lda    $05FF,x
+        jsr    OSBPUT
+        dex
+        bne    $8D6C
+        beq    $8D30
+L8D77:
+        pla
+        sty    $0A
+        jmp    $8B98
+
+; End of PRINT statement
+; ----------------------
+L8D7D:
+        jsr    $BC25            ; Output new line and set COUNT to zero
+L8D80:
+        jmp    $8B96            ; Check end of statement, return to execution loop
+L8D83:
+        lda    #$00             ; Set current field to zero, hex/dec flag to decimal
+        sta    $14
+        sta    $15
+        jsr    $8A97            ; Get next non-space character
+        cmp    #':'             ; <colon> found, finish printing
+        beq    $8D80
+        cmp    #$0D             ; <cr> found, finish printing
+        beq    $8D80
+        cmp    #tknELSE         ; 'ELSE' found, finish printing
+        beq    $8D80
+        bne    $8DD2            ; Otherwise, continue into main loop
+
+; PRINT [~][print items]['][,][;]
+; ===============================
+L8D9A:
+        jsr    $8A97            ; Get next non-space char
+        cmp    #'#'             ; If '#' jump to do PRINT#
+        beq    $8D2B
+        dec    $0A              ; Jump into PRINT loop
+        jmp    $8DBB
+
+; Print a comma
+; -------------
+L8DA6:
+        lda    $0400            ; If field width zero, no padding needed, jump back into main loop
+        beq    $8DBB
+        lda    $1E              ; Get COUNT
+        beq    $8DBB            ; Zero, just started a new line, no padding, jump back into main loop
+        sbc    $0400            ; Get COUNT-field width
+        bcs    $8DAD            ; Loop to reduce until (COUNT MOD fieldwidth)<0
+        tay                     ; Y=number of spaces to get back to (COUNT MOD width)=zero
+L8DB5:
+        jsr    $B565            ; Loop to print required spaces
+        iny
+        bne    $8DB5
+L8DBB:
+        clc                     ; Prepare to print decimal
+        lda    $0400            ; Set current field width from @%
+        sta    $14
+L8DC1:
+        ror    $15              ; Set hex/dec flag from Carry
+L8DC3:
+        jsr    $8A97            ; Get next non-space character
+        cmp    #':'             ; End of statement if <colon> found
+        beq    $8D7D
+        cmp    #$0D             ; End if statement if <cr> found
+        beq    $8D7D
+        cmp    #tknELSE         ; End of statement if 'ELSE' found
+        beq    $8D7D
+L8DD2:
+        cmp    #'~'             ; Jump back to set hex/dec flag from Carry
+        beq    $8DC1
+        cmp    #','             ; Jump to pad to next print field
+        beq    $8DA6
+        cmp    #';'             ; Jump to check for end of print statement
+        beq    $8D83
+        jsr    $8E70            ; Check for ' TAB SPC, if print token found return to outer main loop
+        bcc    $8DC3
+
+; All print formatting have been checked, so it now must be an expression
+; -----------------------------------------------------------------------
+        lda    $14              ; Save field width and flags, as evaluator
+        pha                     ;  may call PRINT (eg FN, STR$, etc.)
+        lda    $15
+        pha
+        dec    $1B              ; Evaluate expression
+        jsr    $9B29
+        pla                     ; Restore field width and flags
+        sta    $15
+        pla
+        sta    $14
+        lda    $1B              ; Update program pointer
+        sta    $0A
+        tya                     ; If type=0, jump to print string
+        beq    $8E0E
+        jsr    $9EDF            ; Convert numeric value to string
+        lda    $14              ; Get current field width
+        sec                     ; A=width-stringlength
+        sbc    $36
+        bcc    $8E0E            ; length>width - print it
+        beq    $8E0E            ; length=width - print it
+        tay
+L8E08:
+        jsr    $B565            ; Loop to print required spaces to pad the number
+        dey
+        bne    $8E08
+
+; Print string in string buffer
+; -----------------------------
+L8E0E:
+        lda    $36              ; Null string, jump back to main loop
+        beq    $8DC3
+        ldy    #$00             ; Point to start of string
+L8E14:
+        lda    $0600,y          ; Print character from string buffer
+        jsr    $B558
+        iny                     ; Increment pointer, loop for full string
+        cpy    $36
+        bne    $8E14
+        beq    $8DC3            ; Jump back for next print item
+L8E21:
+        jmp    $8AA2
+L8E24:
+        cmp    #','             ; No comma, jump to TAB(x)
+        bne    $8E21
+        lda    $2A              ; Save X
+        pha
+        jsr    $AE56
+        jsr    $92F0
+
+; BBC - send VDU 31,x,y sequence
+; ------------------------------
+        lda    #$1F             ; TAB()
+        jsr    OSWRCH
+        pla                     ; X coord
+        jsr    OSWRCH
+        jsr    $9456            ; Y coord
+        jmp    $8E6A            ; Continue to next PRINT item
+L8E40:
+        jsr    $92DD
+        jsr    $8A8C
+        cmp    #')'
+        bne    $8E24
+        lda    $2A
+        sbc    $1E
+        beq    $8E6A
+        tay
+        bcs    $8E5F
+        jsr    $BC25
+        beq    $8E5B
+L8E58:
+        jsr    $92E3
+L8E5B:
+        ldy    $2A
+        beq    $8E6A
+L8E5F:
+        jsr    $B565
+        dey
+        bne    $8E5F
+        beq    $8E6A
+L8E67:
+        jsr    $BC25
+L8E6A:
+        clc
+        ldy    $1B
+        sty    $0A
+        rts
+L8E70:
+        ldx    $0B
+        stx    $19
+        ldx    $0C
+        stx    $1A
+        ldx    $0A
+        stx    $1B
+        cmp    #$27
+        beq    $8E67
+        cmp    #$8A
+        beq    $8E40
+        cmp    #$89
+        beq    $8E58
+        sec
+L8E89:
+        rts
+L8E8A:
+        jsr    $8A97            ; Skip spaces
+        jsr    $8E70
+        bcc    $8E89
+        cmp    #$22
+        beq    $8EA7
+        sec
+        rts
+L8E98:
+        brk
+        .byte $09, "Missing ", '"'
+        brk
+L8EA4:
+        jsr    $B558
+L8EA7:
+        iny
+        lda    ($19),y
+        cmp    #$0D
+        beq    $8E98
+        cmp    #$22
+        bne    $8EA4
+        iny
+        sty    $1B
+        lda    ($19),y
+        cmp    #$22
+        bne    $8E6A
+        beq    $8EA4
+
+; CLG
+; ===
+L8EBD:
+         jsr    $9857           ; Check end of statement
+         lda    #$10            ; Jump to do VDU 16
+         bne    $8ECC
+
+; CLS
+; ===
+L8EC4:
+        jsr    $9857            ; Check end of statement
+        jsr    $BC28            ; Set COUNT to zero
+        lda    #$0C             ; Do VDU 12
+L8ECC:
+        jsr    OSWRCH           ; Send A to OSWRCH, jump to execution loop
+        jmp    $8B9B
+
+; CALL numeric [,items ... ]
+; ==========================
+L8ED2:
+        jsr    $9B1D
+        jsr    $92EE
+        jsr    $BD94
+        ldy    #$00
+        sty    $0600
+L8EE0:
+        sty    $06FF
+        jsr    $8A8C
+        cmp    #$2C
+        bne    $8F0C
+        ldy    $1B
+        jsr    $95D5
+        beq    $8F1B
+        ldy    $06FF
+        iny
+        lda    $2A
+        sta    $0600,y
+        iny
+        lda    $2B
+        sta    $0600,y
+        iny
+        lda    $2C
+        sta    $0600,y
+        inc    $0600
+        jmp    $8EE0
+L8F0C:
+        dec    $1B
+        jsr    $9852
+        jsr    $BDEA
+        jsr    $8F1E
+        cld
+        jmp    $8B9B
+L8F1B:
+        jmp    $AE43
+
+;Call code
+;---------
+L8F1E:
+        lda    $040C            ; Get Carry from C%, A from A%
+        lsr    a
+        lda    $0404
+        ldx    $0460            ; Get X from X%, Y from Y%
+        ldy    $0464
+        jmp    ($002A)          ; Jump to address in IntA
+L8F2E:
+        jmp    $982A
+
+; DELETE linenum, linenum
+; =======================
+L8F31:
+        jsr    $97DF
+        bcc    $8F2E
+        jsr    $BD94
+        jsr    $8A97
+        cmp    #$2C
+        bne    $8F2E
+        jsr    $97DF
+        bcc    $8F2E
+        jsr    $9857
+        lda    $2A
+        sta    $39
+        lda    $2B
+        sta    $3A
+        jsr    $BDEA
+L8F53:
+        jsr    $BC2D
+        jsr    $987B
+        jsr    $9222
+        lda    $39
+        cmp    $2A
+        lda    $3A
+        sbc    $2B
+        bcs    $8F53
+        jmp    $8AF3
+L8F69:
+        lda    #$0A
+        jsr    $AED8
+        jsr    $97DF
+        jsr    $BD94
+        lda    #$0A
+        jsr    $AED8
+        jsr    $8A97
+        cmp    #$2C
+        bne    $8F8D
+        jsr    $97DF
+        lda    $2B
+        bne    $8FDF
+        lda    $2A
+        beq    $8FDF
+         inc    $0A
+L8F8D:
+         dec    $0A
+         jmp    $9857
+L8F92:
+        lda    $12
+        sta    $3B
+        lda    $13
+        sta    $3C
+L8F9A:
+        lda    $18
+        sta    $38
+        lda    #$01
+        sta    $37
+        rts
+
+; RENUMBER [linenume [,linenum]]
+; ==============================
+L8FA3:
+        jsr    $8F69
+        ldx    #$39
+        jsr    $BE0D
+        jsr    $BE6F
+        jsr    $8F92
+L8FB1:
+        ldy    #$00
+        lda    ($37),y          ; Line.hi>&7F, end of program
+        bmi    $8FE7
+        sta    ($3B),y
+        iny
+        lda    ($37),y
+        sta    ($3B),y
+        sec
+        tya
+        adc    $3B
+        sta    $3B
+        tax
+        lda    $3C
+        adc    #$00
+        sta    $3C
+        cpx    $06
+        sbc    $07
+        bcs    $8FD6
+        jsr    $909F
+        bcc    $8FB1
+L8FD6:
+        brk
+        .byte  $00, tknRENUMBER
+        .byte  " space"         ; Terminated by following BRK
+L8FDF:
+        brk
+        .byte  $00, "Silly"
+        brk
+
+L8FE7:
+
+X8FE7:
+        jsr    $8F9A
+L8FEA:
+        ldy    #$00
+        lda    ($37),y
+        bmi    $900D
+        lda    $3A
+        sta    ($37),y
+        lda    $39
+        iny
+        sta    ($37),y
+        clc
+        lda    $2A
+        adc    $39
+        sta    $39
+        lda    #$00
+        adc    $3A
+        and    #$7F
+        sta    $3A
+        jsr    $909F
+        bcc    $8FEA
+L900D:
+        lda    $18
+        sta    $0C
+        ldy    #$00
+        sty    $0B
+        iny
+        lda    ($0B),y
+        bmi    $903A
+L901A:
+        ldy    #$04
+L901C:
+        lda    ($0B),y
+        cmp    #$8D
+        beq    $903D
+        iny
+        cmp    #$0D
+        bne    $901C
+        lda    ($0B),y
+        bmi    $903A
+        ldy    #$03
+        lda    ($0B),y
+        clc
+        adc    $0B
+        sta    $0B
+        bcc    $901A
+        inc    $0C
+        bcs    $901A
+L903A:
+        jmp    $8AF3
+L903D:
+         jsr    $97EB
+         jsr    $8F92
+L9043:
+        ldy    #$00
+        lda    ($37),y
+        bmi    $9080
+        lda    ($3B),y
+        iny
+        cmp    $2B
+        bne    $9071
+        lda    ($3B),y
+        cmp    $2A
+        bne    $9071
+        lda    ($37),y
+        sta    $3D
+        dey
+        lda    ($37),y
+        sta    $3E
+        ldy    $0A
+        dey
+        lda    $0B
+        sta    $37
+        lda    $0C
+        sta    $38
+        jsr    $88F5
+L906D:
+        ldy    $0A
+        bne    $901C
+L9071:
+        jsr    $909F
+        lda    $3B
+        adc    #$02
+        sta    $3B
+        bcc    $9043
+        inc    $3C
+        bcs    $9043
+L9080:
+L9082:
+        jsr    $BFCF            ; Print inline text
+        .byte  "Failed at "
+        iny
+        lda    ($0B),y
+        sta    $2B
+        iny
+        lda    ($0B),y
+        sta    $2A
+        jsr    $991F            ; Print in decimal
+        jsr    $BC25            ; Print newline
+        beq    $906D
+L909F:
+        iny
+        lda    ($37),y
+        adc    $37
+        sta    $37
+        bcc    $90AB
+        inc    $38
+        clc
+L90AB:
+        rts
+
+; AUTO [numeric [, numeric ]]
+; ===========================
+L90AC:
+        jsr    $8F69
  lda    $2A
  pha
  jsr    $BDEA
@@ -8437,33 +8571,43 @@ L8B9B:
  ldy    $2A
  tya
  rts
- brk
- and    $694D
- .byte  's'
- .byte  's'
- adc    #$6E
- .byte  'g'
- jsr    $0023
- pla
- sta    $37
- pla
- sta    $38
- ldy    #$00
- beq    $BFDC
- jsr    OSASCI
- jsr    $894B
- bpl    $BFD9
- jmp    ($0037)
- jsr    $9857
- jsr    $BC25
- ldy    #$01
- lda    ($FD),y
- beq    $BFF6
- jsr    $B50E
- iny
- bne    $BFEC
- jmp    $8B9B
- brk
- .byte  "Roger"
- brk
+
+LBFC3:
+        brk
+        .byte   $2D, "Missing #"
+        brk
+
+; Print inline text
+; =================
+LBFCF:
+        pla                     ; Pop return address to pointer
+        sta    $37
+        pla
+        sta    $38
+        ldy    #$00             ; Jump into loop
+        beq    $BFDC
+LBFD9:
+        jsr    OSASCI           ; Print character
+LBFDC:
+        jsr    $894B            ; Update pointer, get character, loop if b7=0
+        bpl    $BFD9
+        jmp    ($0037)          ; Jump back to program
+
+; REPORT
+; ======
+LBFE4:
+        jsr    $9857            ; Check end of statement, print newline, clear COUNT
+        jsr    $BC25
+        ldy    #$01
+LBFEC:
+        lda    (FAULT),y        ; Get byte, exit if &00 terminator
+        beq    $BFF6
+        jsr    $B50E            ; Print character or token, loop for next
+        iny
+        bne    $BFEC
+LBFF6:
+        jmp    $8B9B            ; Jump to main execution loop
+        brk
+        .byte  "Roger"
+        brk
 LC000:
