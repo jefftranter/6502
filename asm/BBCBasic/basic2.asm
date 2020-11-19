@@ -349,12 +349,12 @@ L836D:
         .byte   $B0C2 & $FF     ; &C4 - STRING$(
         .byte   $ACB8 & $FF     ; &C5 - EOF
         .byte   $90AC & $FF     ; &C6 - AUTO
-        .byte   $8F31 & $FF     ; &C7 - DELETE
+        .byte   L8F31 & $FF     ; &C7 - DELETE
         .byte   $BF24 & $FF     ; &C8 - LOAD
         .byte   $B59C & $FF     ; &C9 - LIST
         .byte   L8ADA & $FF     ; &CA - NEW
         .byte   L8AB6 & $FF     ; &CB - OLD
-        .byte   $8FA3 & $FF     ; &CC - RENUMBER
+        .byte   L8FA3 & $FF     ; &CC - RENUMBER
         .byte   $BEF3 & $FF     ; &CD - SAVE
         .byte   $982A & $FF     ; &CE - unused
         .byte   $BF30 & $FF     ; &CF - PTR
@@ -364,14 +364,14 @@ L836D:
         .byte   $925D & $FF     ; &D3 - HIMEM
         .byte   $B44C & $FF     ; &D4 - SOUND
         .byte   $BF58 & $FF     ; &D5 - BPUT
-        .byte   $8ED2 & $FF     ; &D6 - CALL
+        .byte   L8ED2 & $FF     ; &D6 - CALL
         .byte   $BF2A & $FF     ; &D7 - CHAIN
         .byte   $928D & $FF     ; &D8 - CLEAR
         .byte   $BF99 & $FF     ; &D9 - CLOSE
-        .byte   $8EBD & $FF     ; &DA - CLG
-        .byte   $8EC4 & $FF     ; &DB - CLS
-        .byte   $8B7D & $FF     ; &DC - DATA
-        .byte   $8B7D & $FF     ; &DD - DEF
+        .byte   L8EBD & $FF     ; &DA - CLG
+        .byte   L8EC4 & $FF     ; &DB - CLS
+        .byte   L8B7D & $FF     ; &DC - DATA
+        .byte   L8B7D & $FF     ; &DD - DEF
         .byte   $912F & $FF     ; &DE - DIM
         .byte   $93E8 & $FF     ; &DF - DRAW
         .byte   L8AC8 & $FF     ; &E0 - END
@@ -383,7 +383,7 @@ L836D:
         .byte   $937A & $FF     ; &E6 - GCOL
         .byte   $98C2 & $FF     ; &E7 - IF
         .byte   $BA44 & $FF     ; &E8 - INPUT
-        .byte   $8BE4 & $FF     ; &E9 - LET
+        .byte   L8BE4 & $FF     ; &E9 - LET
         .byte   $9323 & $FF     ; &EA - LOCAL
         .byte   $939A & $FF     ; &EB - MODE
         .byte   $93E4 & $FF     ; &EC - MOVE
@@ -391,16 +391,16 @@ L836D:
         .byte   $B915 & $FF     ; &EE - ON
         .byte   $942F & $FF     ; &EF - VDU
         .byte   $93F1 & $FF     ; &F0 - PLOT
-        .byte   $8D9A & $FF     ; &F1 - PRINT
+        .byte   L8D9A & $FF     ; &F1 - PRINT
         .byte   $9304 & $FF     ; &F2 - PROC
         .byte   $BB1F & $FF     ; &F3 - READ
-        .byte   $8B7D & $FF     ; &F4 - REM
+        .byte   L8B7D & $FF     ; &F4 - REM
         .byte   $BBE4 & $FF     ; &F5 - REPEAT
         .byte   $BFE4 & $FF     ; &F6 - REPORT
         .byte   $BAE6 & $FF     ; &F7 - RESTORE
         .byte   $B8B6 & $FF     ; &F8 - RETURN
         .byte   $BD11 & $FF     ; &F9 - RUN
-        .byte   $8AD0 & $FF     ; &FA - STOP
+        .byte   L8AD0 & $FF     ; &FA - STOP
         .byte   $938E & $FF     ; &FB - COLOUR
         .byte   $9295 & $FF     ; &FC - TRACE
         .byte   $BBB1 & $FF     ; &FD - UNTIL
@@ -467,12 +467,12 @@ L83DF: ; &83E6
         .byte   $B0C2 / 256     ; &C4 - STRING$(
         .byte   $ACB8 / 256     ; &C5 - EOF
         .byte   $90AC / 256     ; &C6 - AUTO
-        .byte   $8F31 / 256     ; &C7 - DELETE
+        .byte   L8F31 / 256     ; &C7 - DELETE
         .byte   $BF24 / 256     ; &C8 - LOAD
         .byte   $B59C / 256     ; &C9 - LIST
-        .byte   $8ADA / 256     ; &CA - NEW
-        .byte   $8AB6 / 256     ; &CB - OLD
-        .byte   $8FA3 / 256     ; &CC - RENUMBER
+        .byte   L8ADA / 256     ; &CA - NEW
+        .byte   L8AB6 / 256     ; &CB - OLD
+        .byte   L8FA3 / 256     ; &CC - RENUMBER
         .byte   $BEF3 / 256     ; &CD - SAVE
         .byte   $982A / 256     ; &CE - unused
         .byte   $BF30 / 256     ; &CF - PTR
@@ -482,17 +482,17 @@ L83DF: ; &83E6
         .byte   $925D / 256     ; &D3 - HIMEM
         .byte   $B44C / 256     ; &D4 - SOUND
         .byte   $BF58 / 256     ; &D5 - BPUT
-        .byte   $8ED2 / 256     ; &D6 - CALL
+        .byte   L8ED2 / 256     ; &D6 - CALL
         .byte   $BF2A / 256     ; &D7 - CHAIN
         .byte   $928D / 256     ; &D8 - CLEAR
         .byte   $BF99 / 256     ; &D9 - CLOSE
-        .byte   $8EBD / 256     ; &DA - CLG
-        .byte   $8EC4 / 256     ; &DB - CLS
-        .byte   $8B7D / 256     ; &DC - DATA
-        .byte   $8B7D / 256     ; &DD - DEF
+        .byte   L8EBD / 256     ; &DA - CLG
+        .byte   L8EC4 / 256     ; &DB - CLS
+        .byte   L8B7D / 256     ; &DC - DATA
+        .byte   L8B7D / 256     ; &DD - DEF
         .byte   $912F / 256     ; &DE - DIM
         .byte   $93E8 / 256     ; &DF - DRAW
-        .byte   $8AC8 / 256     ; &E0 - END
+        .byte   L8AC8 / 256     ; &E0 - END
         .byte   $9356 / 256     ; &E1 - ENDPROC
         .byte   $B472 / 256     ; &E2 - ENVELOPE
         .byte   $B7C4 / 256     ; &E3 - FOR
@@ -501,7 +501,7 @@ L83DF: ; &83E6
         .byte   $937A / 256     ; &E6 - GCOL
         .byte   $98C2 / 256     ; &E7 - IF
         .byte   $BA44 / 256     ; &E8 - INPUT
-        .byte   $8BE4 / 256     ; &E9 - LET
+        .byte   L8BE4 / 256     ; &E9 - LET
         .byte   $9323 / 256     ; &EA - LOCAL
         .byte   $939A / 256     ; &EB - MODE
         .byte   $93E4 / 256     ; &EC - MOVE
@@ -509,16 +509,16 @@ L83DF: ; &83E6
         .byte   $B915 / 256     ; &EE - ON
         .byte   $942F / 256     ; &EF - VDU
         .byte   $93F1 / 256     ; &F0 - PLOT
-        .byte   $8D9A / 256     ; &F1 - PRINT
+        .byte   L8D9A / 256     ; &F1 - PRINT
         .byte   $9304 / 256     ; &F2 - PROC
         .byte   $BB1F / 256     ; &F3 - READ
-        .byte   $8B7D / 256     ; &F4 - REM
+        .byte   L8B7D / 256     ; &F4 - REM
         .byte   $BBE4 / 256     ; &F5 - REPEAT
         .byte   $BFE4 / 256     ; &F6 - REPORT
         .byte   $BAE6 / 256     ; &F7 - RESTORE
         .byte   $B8B6 / 256     ; &F8 - RETURN
         .byte   $BD11 / 256     ; &F9 - RUN
-        .byte   $8AD0 / 256     ; &FA - STOP
+        .byte   L8AD0 / 256     ; &FA - STOP
         .byte   $938E / 256     ; &FB - COLOUR
         .byte   $9295 / 256     ; &FC - TRACE
         .byte   $BBB1 / 256     ; &FD - UNTIL
@@ -707,7 +707,7 @@ L84FD:
         lda     #$FF            ; Set OPT to 'BASIC'
 L84FF:
         sta     $28             ; Set OPT, return to execution loop
-        jmp     $8BA3
+        jmp     L8BA3
 L8504:
         lda     #$03            ; Set OPT 3, default on entry to '['
         sta     $28
@@ -1201,7 +1201,7 @@ L8858:
 L8864:
         jmp    L862B
 L8867:
-        jmp    $8C0E
+        jmp    L8C0E
 L886A:
         lda    $28
         pha
@@ -1522,7 +1522,7 @@ L8A54:
         sty    $3C
 L8A66:
         lsr    a
-        bcc    $8A6D
+        bcc    L8A6D
         sty    $3B
         sty    $3C
 L8A6D:
@@ -1675,8 +1675,8 @@ L8B0B:
 L8B38:
         jsr    L8A97            ; Skip spaces at PtrA
         cmp    #$C6             ; If command token, jump to execute command
-        bcs    $8BB1
-        bcc    $8BBF            ; Not command token, try variable assignment
+        bcs    L8BB1
+        bcc    L8BBF            ; Not command token, try variable assignment
 L8B41:
         jmp    L8AF6            ; Jump back to immediate mode
 
@@ -1692,10 +1692,10 @@ L8B44:
 L8B47:
         tsx                     ; If stack is empty, jump to give error
         cpx    #$FC
-        bcs    $8B59
+        bcs    L8B59
         lda    $01FF            ; If pushed token<>'FN', give error
         cmp    #tknFN
-        bne    $8B59
+        bne    L8B59
         jsr    $9B1D            ; Evaluate expression
         jmp    $984C            ; Check for end of statement and return to pop from function
 L8B59:
@@ -1710,12 +1710,12 @@ L8B60:
         dey
         lda    ($0B),y
         cmp    #'='             ; Jump for '=', return from FN
-        beq    $8B47
+        beq    L8B47
         cmp    #'*'             ; Jump for '*', embedded *command
-        beq    $8B73
+        beq    L8B73
         cmp    #'['             ; Jump for '[', start assembler
-        beq    $8B44
-        bne    $8B96            ; Otherwise, see if end of statement
+        beq    L8B44
+        bne    L8B96            ; Otherwise, see if end of statement
 
 ; Embedded *command
 ; =================
@@ -1734,18 +1734,18 @@ L8B7D:
         lda    #$0D             ; Get program pointer
         ldy    $0A
         dey
-L8B782:
+L8B82:
         iny                     ; Loop until <cr> found
         cmp    ($0B),y
-        bne    $8B82
+        bne    L8B82
 L8B87:
         cmp    #tknELSE         ; If 'ELSE', jump to skip to end of line
-        beq    $8B7D
+        beq    L8B7D
         lda    $0C              ; Program in command buffer, jump back to immediate loop
         cmp    #$0700 /256
-        beq    $8B41
+        beq    L8B41
         jsr    $9890            ; Check for end of program, step past <cr>
-        bne    $8BA3
+        bne    L8BA3
 L8B96:
         dec    $0A
 L8B98:
@@ -1757,15 +1757,15 @@ L8B9B:
         ldy    #$00             ; Get current character
         lda    ($0B),y
         cmp    #':'             ; Not <colon>, check for ELSE
-        bne    $8B87
+        bne    L8B87
 L8BA3:
         ldy    $0A              ; Get program pointer, increment for next time
         inc    $0A
         lda    ($0B),y          ; Get current character
         cmp    #$20
-        beq    $8BA3
+        beq    L8BA3
         cmp    #$CF             ; Not program command, jump to try variable assignment
-        bcc    $8BBF
+        bcc    L8BBF
 
 ; Dispatch function/command
 ; -------------------------
@@ -1786,8 +1786,8 @@ L8BBF:
         stx    $1A
         sty    $1B              ; Check if variable or indirection
         jsr    $95DD
-        bne    $8BE9            ; NE - jump for existing variable or indirection assignment
-        bcs    $8B60            ; CS - not variable assignment, try =, *, [ commands
+        bne    L8BE9            ; NE - jump for existing variable or indirection assignment
+        bcs    L8B60            ; CS - not variable assignment, try =, *, [ commands
 
 ; Variable not found, create a new one
 ; ------------------------------------
@@ -1806,22 +1806,22 @@ L8BDF:
 ; =========================
 L8BE4:
         jsr    $9582
-        beq    $8C0B
+        beq    L8C0B
 L8BE9:
-        bcc    $8BFB
+        bcc    L8BFB
         jsr    $BD94            ; Stack integer (address of data)
         jsr    $9813            ; Check for end of statement
         lda    $27              ; Get evaluation type
-        bne    $8C0E            ; If not string, error
-        jsr    $8C1E            ; Assign the string
-        jmp    $8B9B            ; Return to execution loop
+        bne    L8C0E            ; If not string, error
+        jsr    L8C1E            ; Assign the string
+        jmp    L8B9B            ; Return to execution loop
 L8BFB:
         jsr    $BD94            ; Stack integer (address of data)
         jsr    $9813            ; Check for end of statement
         lda    $27              ; Get evaluation type
-        beq    $8C0E            ; If not number, error
+        beq    L8C0E            ; If not number, error
         jsr    $B4B4            ; Assign the number
-        jmp    $8B9B            ; Return to execution loop
+        jmp    L8B9B            ; Return to execution loop
 L8C0B:
         jmp    $982A
 L8C0E:
@@ -1830,22 +1830,23 @@ L8C0E:
         brk
 L8C1E:
         jsr    $BDEA            ; Unstack integer (address of data)
+L8C21:
         lda    $2C
         cmp    #$80             ; Jump if absolute string $addr
-        beq    $8CA2
+        beq    L8CA2
         ldy    #$02
         lda    ($2A),y
         cmp    $36
-        bcs    $8C84
+        bcs    L8C84
         lda    $02
         sta    $2C
         lda    $03
         sta    $2D
         lda    $36
         cmp    #$08
-        bcc    $8C43
+        bcc    L8C43
         adc    #$07
-        bcc    $8C43
+        bcc    L8C43
         lda    #$FF
 L8C43:
         clc
@@ -1855,11 +1856,11 @@ L8C43:
         ldy    #$00
         adc    ($2A),y
         eor    $02
-        bne    $8C5F
+        bne    L8C5F
         iny
         adc    ($2A),y
         eor    $03
-        bne    $8C5F
+        bne    L8C5F
         sta    $2D
         txa
         iny
@@ -1876,7 +1877,7 @@ L8C5F:
         cpy    $04
         tax
         sbc    $05
-        bcs    $8CB7
+        bcs    L8CB7
         sty    $02
         stx    $03
         pla
@@ -1884,7 +1885,7 @@ L8C5F:
         sta    ($2A),y
         dey
         lda    $2D
-        beq    $8C84
+        beq    L8C84
         sta    ($2A),y
         dey
         lda    $2C
@@ -1893,7 +1894,7 @@ L8C84:
         ldy    #$03
         lda    $36
         sta    ($2A),y
-        beq    $8CA1
+        beq    L8CA1
         dey
         dey
         lda    ($2A),y
@@ -1906,18 +1907,18 @@ L8C97:
         sta    ($2C),y
         iny
         cpy    $36
-        bne    $8C97
+        bne    L8C97
 L8CA1:
         rts
 L8CA2:
         jsr    $BEBA
         cpy    #$00
-        beq    $8CB4
+        beq    L8CB4
 L8CA9:
         lda    $0600,y
         sta    ($2A),y
         dey
-        bne    $8CA9
+        bne    L8CA9
         lda    $0600
 L8CB4:
         sta    ($2A),y
@@ -1929,12 +1930,12 @@ L8CB7:
 L8CC1:
         lda     $39
         cmp     #$80
-        beq     $8CEE
-        bcc     $8D03
+        beq     L8CEE
+        bcc     L8D03
         ldy     #$00
          lda    ($04),y
          tax
-         beq    $8CE5
+         beq    L8CE5
          lda    ($37),y
          sbc    #$01
          sta    $39
@@ -1947,7 +1948,7 @@ L8CDD:
         sta    ($39),y
         iny
         dex
-        bne    $8CDD
+        bne    L8CDD
 L8CE5:
         lda    ($04,x)
         ldy    #$03
@@ -1958,7 +1959,7 @@ L8CEE:
         ldy    #$00
         lda    ($04),y
         tax
-        beq    $8CFF
+        beq    L8CFF
 L8CF5:
         iny
         lda    ($04),y
@@ -1966,17 +1967,17 @@ L8CF5:
         sta    ($37),y
         iny
         dex
-        bne    $8CF5
+        bne    L8CF5
 L8CFF:
         lda    #$0D
-        bne    $8CE9
+        bne    L8CE9
 L8D03:
         ldy    #$00
         lda    ($04),y
         sta    ($37),y
         iny
         cpy    $39
-        bcs    $8D26
+        bcs    L8D26
         lda    ($04),y
         sta    ($37),y
         iny
@@ -1987,7 +1988,7 @@ L8D03:
         sta    ($37),y
         iny
         cpy    $39
-        bcs    $8D26
+        bcs    L8D26
         lda    ($04),y
         sta    ($37),y
         iny
@@ -2001,9 +2002,9 @@ L8D2B:
 L8D30:
         tya
         pha
-        jsr    $8A8C
+        jsr    L8A8C
         cmp    #$2C
-        bne    $8D77
+        bne    L8D77
         jsr    $9B29
         jsr    $A385
         pla
@@ -2011,81 +2012,82 @@ L8D30:
         lda    $27
         jsr    OSBPUT
         tax
-        beq    $8D64
-        bmi    $8D57
+        beq    L8D64
+        bmi    L8D57
         ldx    #$03
 L8D4D:
         lda    $2A,x
         jsr    OSBPUT
         dex
-        bpl    $8D4D
-        bmi    $8D30
+        bpl    L8D4D
+        bmi    L8D30
 L8D57:
         ldx    #$04
 L8D59:
         lda    $046C,x
         jsr    OSBPUT
         dex
-        bpl    $8D59
-        bmi    $8D30
+        bpl    L8D59
+        bmi    L8D30
 L8D64:
         lda    $36
         jsr    OSBPUT
         tax
-        beq    $8D30
+        beq    L8D30
 L8D6C:
         lda    $05FF,x
         jsr    OSBPUT
         dex
-        bne    $8D6C
-        beq    $8D30
+        bne    L8D6C
+        beq    L8D30
 L8D77:
         pla
         sty    $0A
-        jmp    $8B98
+        jmp    L8B98
 
 ; End of PRINT statement
 ; ----------------------
 L8D7D:
         jsr    $BC25            ; Output new line and set COUNT to zero
 L8D80:
-        jmp    $8B96            ; Check end of statement, return to execution loop
+        jmp    L8B96            ; Check end of statement, return to execution loop
 L8D83:
         lda    #$00             ; Set current field to zero, hex/dec flag to decimal
         sta    $14
         sta    $15
-        jsr    $8A97            ; Get next non-space character
+        jsr    L8A97            ; Get next non-space character
         cmp    #':'             ; <colon> found, finish printing
-        beq    $8D80
+        beq    L8D80
         cmp    #$0D             ; <cr> found, finish printing
-        beq    $8D80
+        beq    L8D80
         cmp    #tknELSE         ; 'ELSE' found, finish printing
-        beq    $8D80
-        bne    $8DD2            ; Otherwise, continue into main loop
+        beq    L8D80
+        bne    L8DD2            ; Otherwise, continue into main loop
 
 ; PRINT [~][print items]['][,][;]
 ; ===============================
 L8D9A:
-        jsr    $8A97            ; Get next non-space char
+        jsr    L8A97            ; Get next non-space char
         cmp    #'#'             ; If '#' jump to do PRINT#
-        beq    $8D2B
+        beq    L8D2B
         dec    $0A              ; Jump into PRINT loop
-        jmp    $8DBB
+        jmp    L8DBB
 
 ; Print a comma
 ; -------------
 L8DA6:
         lda    $0400            ; If field width zero, no padding needed, jump back into main loop
-        beq    $8DBB
+        beq    L8DBB
         lda    $1E              ; Get COUNT
-        beq    $8DBB            ; Zero, just started a new line, no padding, jump back into main loop
+L8DAD:
+        beq    L8DBB            ; Zero, just started a new line, no padding, jump back into main loop
         sbc    $0400            ; Get COUNT-field width
-        bcs    $8DAD            ; Loop to reduce until (COUNT MOD fieldwidth)<0
+        bcs    L8DAD            ; Loop to reduce until (COUNT MOD fieldwidth)<0
         tay                     ; Y=number of spaces to get back to (COUNT MOD width)=zero
 L8DB5:
         jsr    $B565            ; Loop to print required spaces
         iny
-        bne    $8DB5
+        bne    L8DB5
 L8DBB:
         clc                     ; Prepare to print decimal
         lda    $0400            ; Set current field width from @%
@@ -2093,22 +2095,22 @@ L8DBB:
 L8DC1:
         ror    $15              ; Set hex/dec flag from Carry
 L8DC3:
-        jsr    $8A97            ; Get next non-space character
+        jsr    L8A97            ; Get next non-space character
         cmp    #':'             ; End of statement if <colon> found
-        beq    $8D7D
+        beq    L8D7D
         cmp    #$0D             ; End if statement if <cr> found
-        beq    $8D7D
+        beq    L8D7D
         cmp    #tknELSE         ; End of statement if 'ELSE' found
-        beq    $8D7D
+        beq    L8D7D
 L8DD2:
         cmp    #'~'             ; Jump back to set hex/dec flag from Carry
-        beq    $8DC1
+        beq    L8DC1
         cmp    #','             ; Jump to pad to next print field
-        beq    $8DA6
+        beq    L8DA6
         cmp    #';'             ; Jump to check for end of print statement
-        beq    $8D83
-        jsr    $8E70            ; Check for ' TAB SPC, if print token found return to outer main loop
-        bcc    $8DC3
+        beq    L8D83
+        jsr    L8E70            ; Check for ' TAB SPC, if print token found return to outer main loop
+        bcc    L8DC3
 
 ; All print formatting have been checked, so it now must be an expression
 ; -----------------------------------------------------------------------
@@ -2125,37 +2127,37 @@ L8DD2:
         lda    $1B              ; Update program pointer
         sta    $0A
         tya                     ; If type=0, jump to print string
-        beq    $8E0E
+        beq    L8E0E
         jsr    $9EDF            ; Convert numeric value to string
         lda    $14              ; Get current field width
         sec                     ; A=width-stringlength
         sbc    $36
-        bcc    $8E0E            ; length>width - print it
-        beq    $8E0E            ; length=width - print it
+        bcc    L8E0E            ; length>width - print it
+        beq    L8E0E            ; length=width - print it
         tay
 L8E08:
         jsr    $B565            ; Loop to print required spaces to pad the number
         dey
-        bne    $8E08
+        bne    L8E08
 
 ; Print string in string buffer
 ; -----------------------------
 L8E0E:
         lda    $36              ; Null string, jump back to main loop
-        beq    $8DC3
+        beq    L8DC3
         ldy    #$00             ; Point to start of string
 L8E14:
         lda    $0600,y          ; Print character from string buffer
         jsr    $B558
         iny                     ; Increment pointer, loop for full string
         cpy    $36
-        bne    $8E14
-        beq    $8DC3            ; Jump back for next print item
+        bne    L8E14
+        beq    L8DC3            ; Jump back for next print item
 L8E21:
-        jmp    $8AA2
+        jmp    L8AA2
 L8E24:
         cmp    #','             ; No comma, jump to TAB(x)
-        bne    $8E21
+        bne    L8E21
         lda    $2A              ; Save X
         pha
         jsr    $AE56
@@ -2168,29 +2170,29 @@ L8E24:
         pla                     ; X coord
         jsr    OSWRCH
         jsr    $9456            ; Y coord
-        jmp    $8E6A            ; Continue to next PRINT item
+        jmp    L8E6A            ; Continue to next PRINT item
 L8E40:
         jsr    $92DD
-        jsr    $8A8C
+        jsr    L8A8C
         cmp    #')'
-        bne    $8E24
+        bne    L8E24
         lda    $2A
         sbc    $1E
-        beq    $8E6A
+        beq    L8E6A
         tay
-        bcs    $8E5F
+        bcs    L8E5F
         jsr    $BC25
-        beq    $8E5B
+        beq    L8E5B
 L8E58:
         jsr    $92E3
 L8E5B:
         ldy    $2A
-        beq    $8E6A
+        beq    L8E6A
 L8E5F:
         jsr    $B565
         dey
-        bne    $8E5F
-        beq    $8E6A
+        bne    L8E5F
+        beq    L8E6A
 L8E67:
         jsr    $BC25
 L8E6A:
@@ -2206,20 +2208,20 @@ L8E70:
         ldx    $0A
         stx    $1B
         cmp    #$27
-        beq    $8E67
+        beq    L8E67
         cmp    #$8A
-        beq    $8E40
+        beq    L8E40
         cmp    #$89
-        beq    $8E58
+        beq    L8E58
         sec
 L8E89:
         rts
 L8E8A:
-        jsr    $8A97            ; Skip spaces
-        jsr    $8E70
-        bcc    $8E89
+        jsr    L8A97            ; Skip spaces
+        jsr    L8E70
+        bcc    L8E89
         cmp    #$22
-        beq    $8EA7
+        beq    L8EA7
         sec
         rts
 L8E98:
@@ -2232,22 +2234,22 @@ L8EA7:
         iny
         lda    ($19),y
         cmp    #$0D
-        beq    $8E98
+        beq    L8E98
         cmp    #$22
-        bne    $8EA4
+        bne    L8EA4
         iny
         sty    $1B
         lda    ($19),y
         cmp    #$22
-        bne    $8E6A
-        beq    $8EA4
+        bne    L8E6A
+        beq    L8EA4
 
 ; CLG
 ; ===
 L8EBD:
          jsr    $9857           ; Check end of statement
          lda    #$10            ; Jump to do VDU 16
-         bne    $8ECC
+         bne    L8ECC
 
 ; CLS
 ; ===
@@ -2257,7 +2259,7 @@ L8EC4:
         lda    #$0C             ; Do VDU 12
 L8ECC:
         jsr    OSWRCH           ; Send A to OSWRCH, jump to execution loop
-        jmp    $8B9B
+        jmp    L8B9B
 
 ; CALL numeric [,items ... ]
 ; ==========================
@@ -2269,12 +2271,12 @@ L8ED2:
         sty    $0600
 L8EE0:
         sty    $06FF
-        jsr    $8A8C
+        jsr    L8A8C
         cmp    #$2C
-        bne    $8F0C
+        bne    L8F0C
         ldy    $1B
         jsr    $95D5
-        beq    $8F1B
+        beq    L8F1B
         ldy    $06FF
         iny
         lda    $2A
@@ -2286,14 +2288,14 @@ L8EE0:
         lda    $2C
         sta    $0600,y
         inc    $0600
-        jmp    $8EE0
+        jmp    L8EE0
 L8F0C:
         dec    $1B
         jsr    $9852
         jsr    $BDEA
-        jsr    $8F1E
+        jsr    L8F1E
         cld
-        jmp    $8B9B
+        jmp    L8B9B
 L8F1B:
         jmp    $AE43
 
@@ -2313,13 +2315,13 @@ L8F2E:
 ; =======================
 L8F31:
         jsr    $97DF
-        bcc    $8F2E
+        bcc    L8F2E
         jsr    $BD94
-        jsr    $8A97
+        jsr    L8A97
         cmp    #$2C
-        bne    $8F2E
+        bne    L8F2E
         jsr    $97DF
-        bcc    $8F2E
+        bcc    L8F2E
         jsr    $9857
         lda    $2A
         sta    $39
@@ -2334,8 +2336,8 @@ L8F53:
         cmp    $2A
         lda    $3A
         sbc    $2B
-        bcs    $8F53
-        jmp    $8AF3
+        bcs    L8F53
+        jmp    L8AF3
 L8F69:
         lda    #$0A
         jsr    $AED8
@@ -2343,14 +2345,14 @@ L8F69:
         jsr    $BD94
         lda    #$0A
         jsr    $AED8
-        jsr    $8A97
+        jsr    L8A97
         cmp    #$2C
-        bne    $8F8D
+        bne    L8F8D
         jsr    $97DF
         lda    $2B
-        bne    $8FDF
+        bne    L8FDF
         lda    $2A
-        beq    $8FDF
+        beq    L8FDF
          inc    $0A
 L8F8D:
          dec    $0A
@@ -2370,11 +2372,11 @@ L8F9A:
 ; RENUMBER [linenume [,linenum]]
 ; ==============================
 L8FA3:
-        jsr    $8F69
+        jsr    L8F69
         ldx    #$39
         jsr    $BE0D
         jsr    $BE6F
-        jsr    $8F92
+        jsr    L8F92
 L8FB1:
         ldy    #$00
         lda    ($37),y          ; Line.hi>&7F, end of program
@@ -2393,9 +2395,9 @@ L8FB1:
         sta    $3C
         cpx    $06
         sbc    $07
-        bcs    $8FD6
+        bcs    L8FD6
         jsr    $909F
-        bcc    $8FB1
+        bcc    L8FB1
 L8FD6:
         brk
         .byte  $00, tknRENUMBER
@@ -2405,7 +2407,7 @@ L8FDF:
         .byte  $00, "Silly"
         brk
 L8FE7:
-        jsr    $8F9A
+        jsr    L8F9A
 L8FEA:
         ldy    #$00
         lda    ($37),y
@@ -2424,7 +2426,7 @@ L8FEA:
         and    #$7F
         sta    $3A
         jsr    $909F
-        bcc    $8FEA
+        bcc    L8FEA
 L900D:
         lda    $18
         sta    $0C
@@ -2453,10 +2455,10 @@ L901C:
         inc    $0C
         bcs    $901A
 L903A:
-        jmp    $8AF3
+        jmp    L8AF3
 L903D:
-         jsr    $97EB
-         jsr    $8F92
+         jsr   $97EB
+         jsr   L8F92
 L9043:
         ldy    #$00
         lda    ($37),y
@@ -2479,7 +2481,7 @@ L9043:
         sta    $37
         lda    $0C
         sta    $38
-        jsr    $88F5
+        jsr    L88F5
 L906D:
         ldy    $0A
         bne    $901C
@@ -2518,7 +2520,7 @@ L90AB:
 ; AUTO [numeric [, numeric ]]
 ; ===========================
 L90AC:
-        jsr    $8F69
+        jsr    L8F69
         lda    $2A
         pha
         jsr    $BDEA
@@ -2528,7 +2530,7 @@ L90B5:
         lda    #$20
         jsr    $BC02
         jsr    $BDEA
-        jsr    $8951
+        jsr    L8951
         jsr    $BC8D
         jsr    $BD20
         pla
@@ -2540,7 +2542,7 @@ L90B5:
         inc    $2B
         bpl    $90B5
 L90D9:
-        jmp    $8AF3
+        jmp    L8AF3
 L90DC:
         jmp    $9218
 L90DF:
@@ -2576,7 +2578,7 @@ L90DF:
         lda    #$40
         sta    $27
         jsr    $B4B4
-        jsr    $8827
+        jsr    L8827
         jmp    $920B
 
 L9127:
@@ -2587,7 +2589,7 @@ L9127:
 ; DIM numvar [numeric] [(arraydef)]
 ; =================================
 L912F:
-        jsr    $8A97
+        jsr    L8A97
         tya
         clc
         adc    $0B
@@ -2637,7 +2639,7 @@ L916B:
         jsr    $AED8
 L9185:
         jsr    $BD94
-        jsr    $8821
+        jsr    L8821
         lda    $2B
         and    #$C0
         ora    $2C
@@ -2655,7 +2657,7 @@ L9185:
         tya
         pha
         jsr    $9231
-        jsr    $8A97
+        jsr    L8A97
         cmp    #$2C
         beq    $9185
         cmp    #')'
@@ -2710,10 +2712,10 @@ L91FC:
         cpx    $38
         bne    $91FC
 L920B:
-        jsr    $8A97
+        jsr    L8A97
         cmp    #$2C
         beq    $9215
-        jmp    $8B96
+        jmp    L8B96
 L9215:
         jmp    $912F
 L9218:
@@ -2770,7 +2772,7 @@ L925D:
         lda    $2B
         sta    $07
         sta    $05
-        jmp    $8B9B            ; Jump back to execution loop
+        jmp    L8B9B            ; Jump back to execution loop
 
 ; LOMEM=numeric
 ; =============
@@ -2788,7 +2790,7 @@ L926F:
  jsr    $92EB
  lda    $2B
  sta    $18
- jmp    $8B9B
+ jmp    L8B9B
  jsr    $9857
  jsr    $BD20
  beq    $928A
@@ -2798,7 +2800,7 @@ L926F:
  beq    $92B7
  cmp    #$87
  beq    $92C0
- jsr    $8821
+ jsr    L8821
  jsr    $9857
  lda    $2A
  sta    $21
@@ -2806,7 +2808,7 @@ L926F:
  sta    $22
  lda    #$FF
  sta    $20
- jmp    $8B9B
+ jmp    L8B9B
  inc    $0A
  jsr    $9857
  lda    #$FF
@@ -2821,8 +2823,8 @@ L926F:
  sty    $2E
  lda    #$02
  jsr    OSWORD
- jmp    $8B9B
- jsr    $8AAE
+ jmp    L8B9B
+ jsr    L8AAE
  jsr    $9B29
  jmp    $92F0
  jsr    $ADEC
@@ -2834,7 +2836,7 @@ L926F:
  beq    $92F7
  bpl    $92EA
  jmp    $A3E4
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $ADEC
  beq    $92F7
  bmi    $92EA
@@ -2848,7 +2850,7 @@ L926F:
  lda    #$F2
  jsr    $B197
  jsr    $9852
- jmp    $8B9B
+ jmp    L8B9B
  ldy    #$03
  lda    #$00
  sta    ($2A),y
@@ -2870,11 +2872,11 @@ L926F:
  inc    $0106,x
  ldy    $1B
  sty    $0A
- jsr    $8A97
+ jsr    L8A97
  cmp    #$2C
  beq    $9323
- jmp    $8B96
- jmp    $8B98
+ jmp    L8B96
+ jmp    L8B98
  tsx
  cpx    #$FC
  bcs    $9365
@@ -2891,7 +2893,7 @@ L926F:
  ora    $6142,y
  .byte  'd'
  jsr    $00EB
- jsr    $8821
+ jsr    L8821
  lda    $2A
  pha
  jsr    $92DA
@@ -2901,12 +2903,12 @@ L926F:
  jmp    $93DA
  lda    #$11
  pha
- jsr    $8821
+ jsr    L8821
  jsr    $9857
  jmp    $93DA
  lda    #$16
  pha
- jsr    $8821
+ jsr    L8821
  jsr    $9857
  jsr    $BEE7
  cpx    #$FF
@@ -2938,17 +2940,17 @@ L926F:
  pla
  jsr    OSWRCH
  jsr    $9456
- jmp    $8B9B
+ jmp    L8B9B
  lda    #$04
  bne    $93EA
  lda    #$05
  pha
  jsr    $9B1D
  jmp    $93FD
- jsr    $8821
+ jsr    L8821
  lda    $2A
  pha
- jsr    $8AAE
+ jsr    L8AAE
  jsr    $9B29
  jsr    $92EE
  jsr    $BD94
@@ -2966,10 +2968,10 @@ L926F:
  jsr    $9456
  lda    $2B
  jsr    OSWRCH
- jmp    $8B9B
+ jmp    L8B9B
  lda    $2B
  jsr    OSWRCH
- jsr    $8A97
+ jsr    L8A97
  cmp    #$3A
  beq    $9453
  cmp    #$0D
@@ -2977,15 +2979,15 @@ L926F:
  cmp    #$8B
  beq    $9453
  dec    $0A
- jsr    $8821
+ jsr    L8821
  jsr    $9456
- jsr    $8A97
+ jsr    L8A97
  cmp    #$2C
  beq    $942F
  cmp    #$3B
  bne    $9432
  beq    $942A
- jmp    $8B96
+ jmp    L8B96
  lda    $2A
  jmp    (WRCHV)
  ldy    #$01
@@ -3127,7 +3129,7 @@ L926F:
  lda    #$00
  ldy    #$01
  sta    ($3A),y
- jmp    $8CB7
+ jmp    L8CB7
  sta    $02
  rts
  ldy    #$01
@@ -3544,7 +3546,7 @@ L926F:
  .byte  'c'
  adc    ($70,x)
  adc    $00
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$3D
  bne    $9821
  rts
@@ -3613,8 +3615,8 @@ L926F:
  ldy    #$01
  sty    $0A
  rts
- jmp    $8AF6
- jmp    $8C0E
+ jmp    L8AF6
+ jmp    L8C0E
  jsr    $9B1D
  beq    $98BF
  bpl    $98CC
@@ -3628,7 +3630,7 @@ L926F:
  beq    $98F1
  cpx    #$8C
  beq    $98E1
- jmp    $8BA3
+ jmp    L8BA3
  inc    $0A
  jsr    $97DF
  bcc    $98DE
@@ -3644,7 +3646,7 @@ L926F:
  bne    $98F3
  sty    $0A
  beq    $98E3
- jmp    $8B87
+ jmp    L8B87
  lda    $2A
  cmp    $21
  lda    $2B
@@ -3855,7 +3857,7 @@ L926F:
  rol    a
  lda    #$01
  rts
- jmp    $8C0E
+ jmp    L8C0E
  txa
  beq    $9AE7
  bmi    $9A50
@@ -4108,7 +4110,7 @@ L926F:
  bcc    $9C45
  inc    $05
  bcs    $9C45
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $BD51
  jsr    $9DD1
  tay
@@ -4183,7 +4185,7 @@ L926F:
  lda    #$FF
  ldx    $27
  jmp    $9DD4
- jmp    $8C0E
+ jmp    L8C0E
  tay
  beq    $9D39
  bmi    $9D20
@@ -5988,7 +5990,7 @@ L926F:
  jmp    $AEEA
  jsr    $92DD
  jsr    $BD94
- jsr    $8AAE
+ jsr    L8AAE
  jsr    $AE56
  jsr    $92F0
  lda    $2A
@@ -6054,7 +6056,7 @@ L926F:
  tay
  rts
  jsr    $92E3
- jsr    $8F1E
+ jsr    L8F1E
  sta    $2A
  stx    $2B
  sty    $2C
@@ -6064,7 +6066,7 @@ L926F:
  cld
  lda    #$40
  rts
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $ADEC
  bne    $ABE6
  inc    $36
@@ -6091,7 +6093,7 @@ L926F:
  sty    $3B
  iny
  sty    $1B
- jsr    $8955
+ jsr    L8955
  jsr    $9B29
  jsr    $BDDC
  pla
@@ -6119,16 +6121,16 @@ L926F:
  sta    $19
  lda    #$06
  sta    $1A
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$2D
  beq    $AC66
  cmp    #$2B
  bne    $AC5E
- jsr    $8A8C
+ jsr    L8A8C
  dec    $1B
  jsr    $A07B
  jmp    $AC73
- jsr    $8A8C
+ jsr    L8A8C
  dec    $1B
  jsr    $A07B
  bcc    $AC73
@@ -6152,7 +6154,7 @@ L926F:
  jsr    $A3E7
  lda    #$40
  rts
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $ADEC
  bne    $AC9B
  lda    $36
@@ -6201,7 +6203,7 @@ L926F:
  beq    $AD12
  cpx    #$2C
  beq    $AD06
- jmp    $8AA2
+ jmp    L8AA2
  jsr    $BDB2
  jsr    $AE56
  jsr    $92F0
@@ -6250,7 +6252,7 @@ L926F:
  bne    $AD3C
  inc    $38
  bne    $AD3C
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $ADEC
  beq    $AD67
  bmi    $AD77
@@ -6286,7 +6288,7 @@ L926F:
  sta    $2D
  lda    #$40
  rts
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$22
  beq    $ADC9
  ldx    #$00
@@ -6318,7 +6320,7 @@ L926F:
  sty    $1B
  lda    #$00
  rts
- jmp    $8E98
+ jmp    L8E98
  ldy    $1B
  inc    $1B
  lda    ($19),y
@@ -6330,12 +6332,12 @@ L926F:
  beq    $ADC9
  cmp    #$2B
  bne    $AE05
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$8E
  bcc    $AE10
  cmp    #$C6
  bcs    $AE43
- jmp    $8BB1
+ jmp    L8BB1
  cmp    #$3F
  bcs    $AE20
  cmp    #$2E
@@ -6437,7 +6439,7 @@ L926F:
  jmp    $AE43
  lda    #$00
  beq    $AED8
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $ADEC
  bne    $AECE
  lda    $36
@@ -6606,8 +6608,8 @@ L926F:
  lda    #$00
  sta    $36
  rts
- jmp    $8C0E
- jmp    $8AA2
+ jmp    L8C0E
+ jmp    L8AA2
  jsr    $9B29
  bne    $B033
  cpx    #$2C
@@ -6655,7 +6657,7 @@ L926F:
  sty    $36
  lda    #$00
  rts
- jsr    $8A8C
+ jsr    L8A8C
  ldy    #$FF
  cmp    #$7E
  beq    $B0A1
@@ -6677,10 +6679,10 @@ L926F:
  jsr    $9EDF
  lda    #$00
  rts
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $92DD
  jsr    $BD94
- jsr    $8AAE
+ jsr    L8AAE
  jsr    $AE56
  bne    $B0BF
  jsr    $BDEA
@@ -6742,7 +6744,7 @@ L926F:
  bcs    $B11A
  iny
  sty    $0A
- jsr    $8A97
+ jsr    L8A97
  tya
  tax
  clc
@@ -6766,7 +6768,7 @@ L926F:
  bne    $B158
  iny
  lda    ($3C),y
- jsr    $8926
+ jsr    L8926
  bcs    $B12D
  txa
  tay
@@ -6844,7 +6846,7 @@ L926F:
  lda    #$00
  pha
  sta    $0A
- jsr    $8A97
+ jsr    L8A97
  cmp    #$28
  beq    $B24D
  dec    $0A
@@ -6854,7 +6856,7 @@ L926F:
  pha
  lda    $1A
  pha
- jsr    $8BA3
+ jsr    L8BA3
  pla
  sta    $1A
  pla
@@ -6865,7 +6867,7 @@ L926F:
  beq    $B226
  sta    $3F
  jsr    $BE0B
- jsr    $8CC1
+ jsr    L8CC1
  dec    $3F
  bne    $B21C
  pla
@@ -6920,14 +6922,14 @@ L926F:
  txa
  pha
  jsr    $B30D
- jsr    $8A97
+ jsr    L8A97
  cmp    #$2C
  beq    $B24D
  cmp    #$29
  bne    $B2B5
  lda    #$00
  pha
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$28
  bne    $B2B5
  jsr    $9B29
@@ -6940,7 +6942,7 @@ L926F:
  inx
  txa
  pha
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$2C
  beq    $B28E
  cmp    #$29
@@ -6990,7 +6992,7 @@ L926F:
  lda    $2D
  bne    $B2B5
  jsr    $BDCB
- jsr    $8C21
+ jsr    L8C21
  dec    $4D
  bne    $B2CA
  lda    $4E
@@ -7103,20 +7105,20 @@ L926F:
  cpx    #$07
  beq    $B401
  ldx    $0B
- jsr    $8942
+ jsr    L8942
  cmp    #$0D
  bne    $B3F9
  cpx    $37
  lda    $0C
  sbc    $38
  bcc    $B401
- jsr    $8942
+ jsr    L8942
  ora    #$00
  bmi    $B401
  sta    $09
- jsr    $8942
+ jsr    L8942
  sta    $08
- jsr    $8942
+ jsr    L8942
  cpx    $37
  lda    $0C
  sbc    $38
@@ -7144,7 +7146,7 @@ L926F:
  ldx    #$FF
  stx    $28
  txs
- jmp    $8BA3
+ jmp    L8BA3
  inc    $3A,x
  .byte  $E7
  .byte  $9E
@@ -7159,7 +7161,7 @@ L926F:
  cpx    #$8B
  sbc    ($3A),y
  cpx    #$0D
- jsr    $8821
+ jsr    L8821
  ldx    #$03
  lda    $2A
  pha
@@ -7180,7 +7182,7 @@ L926F:
  ldy    #$07
  ldx    #$05
  bne    $B48F
- jsr    $8821
+ jsr    L8821
  ldx    #$0D
  lda    $2A
  pha
@@ -7204,14 +7206,14 @@ L926F:
  ldx    #$37
  ldy    #$00
  jsr    OSWORD
- jmp    $8B9B
- jsr    $8821
+ jmp    L8B9B
+ jsr    L8821
  jsr    $9852
  ldy    $2A
  dey
  sty    $23
- jmp    $8B9B
- jmp    $8C0E
+ jmp    L8B9B
+ jmp    L8C0E
  jsr    $9B29
  jsr    $BE0B
  lda    $39
@@ -7333,7 +7335,7 @@ L926F:
  jsr    $92EE
  lda    $2A
  sta    $1F
- jmp    $8AF6
+ jmp    L8AF6
  iny
  lda    ($0B),y
  cmp    #$4F
@@ -7351,14 +7353,14 @@ L926F:
  sta    $2B
  plp
  bcc    $B5CF
- jsr    $8A97
+ jsr    L8A97
  cmp    #$2C
  beq    $B5D8
  jsr    $BDEA
  jsr    $BD94
  dec    $0A
  bpl    $B5DB
- jsr    $8A97
+ jsr    L8A97
  cmp    #$2C
  beq    $B5D8
  dec    $0A
@@ -7394,7 +7396,7 @@ L926F:
  lda    $2B
  sbc    $32
  bcc    $B61D
- jmp    $8AF6
+ jmp    L8AF6
  jsr    $9923
  ldx    #$FF
  stx    $4D
@@ -7540,14 +7542,14 @@ L926F:
  sty    $0B
  sta    $0C
  jsr    $9877
- jmp    $8BA3
+ jmp    L8BA3
  lda    $26
  sec
  sbc    #$0F
  sta    $26
  ldy    $1B
  sty    $0A
- jsr    $8A97
+ jsr    L8A97
  cmp    #$2C
  bne    $B7A1
  jmp    $B695
@@ -7579,7 +7581,7 @@ L926F:
  bcc    $B751
  bcc    $B741
  bcs    $B751
- jmp    $8B96
+ jmp    L8B96
  brk
  .byte  $22
  .byte  $E3
@@ -7616,7 +7618,7 @@ L926F:
  lda    $39
  sta    $0502,y
  tax
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$B8
  bne    $B7BD
  cpx    #$05
@@ -7633,7 +7635,7 @@ L926F:
  sta    $050B,y
  lda    #$01
  jsr    $AED8
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$88
  bne    $B81F
  jsr    $92DD
@@ -7658,7 +7660,7 @@ L926F:
  tya
  adc    #$0F
  sta    $26
- jmp    $8BA3
+ jmp    L8BA3
  jsr    $9B29
  jsr    $92FD
  lda    $26
@@ -7669,7 +7671,7 @@ L926F:
  sta    $4C
  jsr    $A38D
  jsr    $A699
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$88
  bne    $B875
  jsr    $9B29
@@ -7714,7 +7716,7 @@ L926F:
  lda    $05E5,x
  sty    $0B
  sta    $0C
- jmp    $8B9B
+ jmp    L8B9B
  jsr    $B99A
  jsr    $9857
  lda    $20
@@ -7724,14 +7726,14 @@ L926F:
  lda    $3E
  sty    $0B
  sta    $0C
- jmp    $8BA3
+ jmp    L8BA3
  jsr    $9857
  lda    #$33
  sta    $16
  lda    #$B4
  sta    $17
- jmp    $8B9B
- jsr    $8A97
+ jmp    L8B9B
+ jsr    L8A97
  cmp    #$87
  beq    $B8E4
  ldy    $0A
@@ -7741,14 +7743,14 @@ L926F:
  sta    $16
  lda    $0C
  sta    $17
- jmp    $8B7D
+ jmp    L8B7D
  brk
  .byte  $27
  inc    $7320
  adc    $746E,y
  adc    ($78,x)
  brk
- jsr    $8A97
+ jsr    L8A97
  cmp    #$85
  beq    $B8F2
  dec    $0A
@@ -7837,16 +7839,16 @@ L926F:
  pla
  jsr    $696C
  ror    a:$0065
- jmp    $8C0E
+ jmp    L8C0E
  jmp    $982A
  sty    $0A
- jmp    $8B98
+ jmp    L8B98
  dec    $0A
  jsr    $BFA9
  lda    $1B
  sta    $0A
  sty    $4D
- jsr    $8A97
+ jsr    L8A97
  cmp    #$2C
  bne    $B9CA
  lda    $4D
@@ -7874,7 +7876,7 @@ L926F:
  sta    $05FF,x
  dex
  bne    $BA0A
- jsr    $8C1E
+ jsr    L8C1E
  jmp    $B9DA
  lda    $27
  beq    $B9C4
@@ -7895,8 +7897,8 @@ L926F:
  jmp    $B9DA
  pla
  pla
- jmp    $8B98
- jsr    $8A97
+ jmp    L8B98
+ jsr    L8A97
  cmp    #$23
  beq    $B9CF
  cmp    #$86
@@ -7907,9 +7909,9 @@ L926F:
  lsr    $4D
  lda    #$FF
  sta    $4E
- jsr    $8E8A
+ jsr    L8E8A
  bcs    $BA69
- jsr    $8E8A
+ jsr    L8E8A
  bcc    $BA5F
  ldx    #$FF
  stx    $4E
@@ -7958,7 +7960,7 @@ L926F:
  lda    #$06
  sta    $1A
  jsr    $ADAD
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$2C
  beq    $BACA
  cmp    #$0D
@@ -7974,13 +7976,13 @@ L926F:
  jmp    $BA5A
  lda    #$00
  sta    $27
- jsr    $8C21
+ jsr    L8C21
  jmp    $BA5A
  ldy    #$00
  sty    $3D
  ldy    $18
  sty    $3E
- jsr    $8A97
+ jsr    L8A97
  dec    $0A
  cmp    #$3A
  beq    $BB07
@@ -7996,11 +7998,11 @@ L926F:
  sta    $1C
  lda    $3E
  sta    $1D
- jmp    $8B9B
- jsr    $8A97
+ jmp    L8B9B
+ jsr    L8A97
  cmp    #$2C
  beq    $BB1F
- jmp    $8B96
+ jmp    L8B96
  jsr    $9582
  beq    $BB15
  bcs    $BB32
@@ -8012,7 +8014,7 @@ L926F:
  jsr    $BD94
  jsr    $ADAD
  sta    $27
- jsr    $8C1E
+ jsr    L8C1E
  clc
  lda    $1B
  adc    $19
@@ -8029,14 +8031,14 @@ L926F:
  sta    $1A
  ldy    #$00
  sty    $1B
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$2C
  beq    $BBB0
  cmp    #$DC
  beq    $BBB0
  cmp    #$0D
  beq    $BB7A
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$2C
  beq    $BBB0
  cmp    #$0D
@@ -8084,7 +8086,7 @@ L926F:
  ora    $2D
  beq    $BBCD
  dec    $24
- jmp    $8B9B
+ jmp    L8B9B
  ldy    $05A3,x
  lda    $05B7,x
  jmp    $B8DD
@@ -8104,7 +8106,7 @@ L926F:
  lda    $0C
  sta    $05B8,x
  inc    $24
- jmp    $8BA3
+ jmp    L8BA3
  ldy    #$00
  lda    #$06
  bne    $BC09
@@ -8256,7 +8258,7 @@ L926F:
  lda    $18
  sta    $0C
  stx    $0B
- jmp    $8B0B
+ jmp    L8B0B
  lda    $12
  sta    $00
  sta    $02
@@ -8415,7 +8417,7 @@ L926F:
  cmp    $02
  bcc    $BE41
  rts
- jmp    $8CB7
+ jmp    L8CB7
  lda    $2A
  sta    $00,x
  lda    $2B
@@ -8488,8 +8490,8 @@ L926F:
  ldx    #$00
  ldy    #$06
  jsr    OS_CLI
- jmp    $8B9B
- jmp    $8C0E
+ jmp    L8B9B
+ jmp    L8C0E
  jsr    $9B1D
  bne    $BECF
  jsr    $BEB2
@@ -8527,9 +8529,9 @@ L926F:
  tay
  ldx    #$37
  jsr    OSFILE
- jmp    $8B9B
+ jmp    L8B9B
  jsr    $BE62
- jmp    $8AF3
+ jmp    L8AF3
  jsr    $BE62
  jmp    $BD14
  jsr    $BFA9
@@ -8541,7 +8543,7 @@ L926F:
  ldx    #$2A
  lda    #$01
  jsr    OSARGS
- jmp    $8B9B
+ jmp    L8B9B
  sec
  lda    #$00
  rol    a
@@ -8555,14 +8557,14 @@ L926F:
  rts
  jsr    $BFA9
  pha
- jsr    $8AAE
+ jsr    L8AAE
  jsr    $9849
  jsr    $92EE
  pla
  tay
  lda    $2A
  jsr    OSBPUT
- jmp    $8B9B
+ jmp    L8B9B
  jsr    $BFB5
  jsr    OSBGET
  jmp    $AED8
@@ -8580,20 +8582,20 @@ L926F:
  pla
  jsr    OSFIND
  jmp    $AED8
- jmp    $8C0E
+ jmp    L8C0E
  jsr    $BFA9
  jsr    $9852
  ldy    $2A
  lda    #$00
  jsr    OSFIND
- jmp    $8B9B
+ jmp    L8B9B
  lda    $0A
  sta    $1B
  lda    $0B
  sta    $19
  lda    $0C
  sta    $1A
- jsr    $8A8C
+ jsr    L8A8C
  cmp    #$23
  bne    $BFC3
  jsr    $92E3
@@ -8618,7 +8620,7 @@ LBFCF:
 LBFD9:
         jsr    OSASCI           ; Print character
 LBFDC:
-        jsr    $894B            ; Update pointer, get character, loop if b7=0
+        jsr    L894B            ; Update pointer, get character, loop if b7=0
         bpl    $BFD9
         jmp    ($0037)          ; Jump back to program
 
@@ -8635,7 +8637,7 @@ LBFEC:
         iny
         bne    $BFEC
 LBFF6:
-        jmp    $8B9B            ; Jump to main execution loop
+        jmp    L8B9B            ; Jump to main execution loop
         brk
         .byte  "Roger"
         brk
