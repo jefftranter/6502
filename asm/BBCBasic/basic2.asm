@@ -2378,7 +2378,7 @@ L8FA3:
 L8FB1:
         ldy    #$00
         lda    ($37),y          ; Line.hi>&7F, end of program
-        bmi    $8FE7
+        bmi    L8FE7
         sta    ($3B),y
         iny
         lda    ($37),y
@@ -2404,10 +2404,7 @@ L8FDF:
         brk
         .byte  $00, "Silly"
         brk
-
 L8FE7:
-
-X8FE7:
         jsr    $8F9A
 L8FEA:
         ldy    #$00
@@ -2522,240 +2519,272 @@ L90AB:
 ; ===========================
 L90AC:
         jsr    $8F69
- lda    $2A
- pha
- jsr    $BDEA
- jsr    $BD94
- jsr    $9923
- lda    #$20
- jsr    $BC02
- jsr    $BDEA
- jsr    $8951
- jsr    $BC8D
- jsr    $BD20
- pla
- pha
- clc
- adc    $2A
- sta    $2A
- bcc    $90B5
- inc    $2B
- bpl    $90B5
- jmp    $8AF3
- jmp    $9218
- dec    $0A
- jsr    $9582
- beq    $9127
- bcs    $9127
- jsr    $BD94
- jsr    $92DD
- jsr    $9222
- lda    $2D
- ora    $2C
- bne    $9127
- clc
- lda    $2A
- adc    $02
- tay
- lda    $2B
- adc    $03
- tax
- cpy    $04
- sbc    $05
- bcs    $90DC
- lda    $02
- sta    $2A
- lda    $03
- sta    $2B
- sty    $02
- stx    $03
- lda    #$00
- sta    $2C
- sta    $2D
- lda    #$40
- sta    $27
- jsr    $B4B4
- jsr    $8827
- jmp    $920B
- brk
- asl    a
- .byte  'B'
- adc    ($64,x)
- jsr    $00DE
- jsr    $8A97
- tya
- clc
- adc    $0B
- ldx    $0C
- bcc    $913C
- inx
- clc
- sbc    #$00
- sta    $37
- txa
- sbc    #$00
- sta    $38
- ldx    #$05
- stx    $3F
- ldx    $0A
- jsr    $9559
- cpy    #$01
- beq    $9127
- cmp    #$28
- beq    $916B
- cmp    #$24
- beq    $915E
- cmp    #$25
- bne    $9168
- dec    $3F
- iny
- inx
- lda    ($37),y
- cmp    #$28
- beq    $916B
- jmp    $90DF
- sty    $39
- stx    $0A
- jsr    $9469
- bne    $9127
- jsr    $94FC
- ldx    #$01
- jsr    $9531
- lda    $3F
- pha
- lda    #$01
- pha
- jsr    $AED8
- jsr    $BD94
- jsr    $8821
- lda    $2B
- and    #$C0
- ora    $2C
- ora    $2D
- bne    $9127
- jsr    $9222
- pla
- tay
- lda    $2A
- sta    ($02),y
- iny
- lda    $2B
- sta    ($02),y
- iny
- tya
- pha
- jsr    $9231
- jsr    $8A97
- cmp    #$2C
- beq    $9185
- cmp    #$29
- beq    $91B7
- jmp    $9127
- pla
- sta    $15
- pla
- sta    $3F
- lda    #$00
- sta    $40
- jsr    $9236
- ldy    #$00
- lda    $15
- sta    ($02),y
- adc    $2A
- sta    $2A
- bcc    $91D2
- inc    $2B
- lda    $03
- sta    $38
- lda    $02
- sta    $37
- clc
- adc    $2A
- tay
- lda    $2B
- adc    $03
- bcs    $9218
- tax
- cpy    $04
- sbc    $05
- bcs    $9218
- sty    $02
- stx    $03
- lda    $37
- adc    $15
- tay
- lda    #$00
- sta    $37
- bcc    $91FC
- inc    $38
- sta    ($37),y
- iny
- bne    $9203
- inc    $38
- cpy    $02
- bne    $91FC
- cpx    $38
- bne    $91FC
- jsr    $8A97
- cmp    #$2C
- beq    $9215
- jmp    $8B96
- jmp    $912F
- brk
- .byte  $0B
- dec    $7320,x
- bvs    $9280
- .byte  'c'
- adc    $00
- inc    $2A
- bne    $9230
- inc    $2B
- bne    $9230
- inc    $2C
- bne    $9230
- inc    $2D
- rts
- ldx    #$3F
- jsr    $BE0D
- ldx    #$00
- ldy    #$00
- lsr    $40
- ror    $3F
- bcc    $924B
- clc
- tya
- adc    $2A
- tay
- txa
- adc    $2B
- tax
- bcs    $925A
- asl    $2A
- rol    $2B
- lda    $3F
- ora    $40
- bne    $923A
- sty    $2A
- stx    $2B
- rts
- jmp    $9127
- jsr    $92EB
- lda    $2A
- sta    $06
- sta    $04
- lda    $2B
- sta    $07
- sta    $05
- jmp    $8B9B
- jsr    $92EB
- lda    $2A
- sta    $00
- sta    $02
- lda    $2B
- sta    $01
- sta    $03
- jsr    $BD2F
- beq    $928A
+        lda    $2A
+        pha
+        jsr    $BDEA
+L90B5:
+        jsr    $BD94
+        jsr    $9923
+        lda    #$20
+        jsr    $BC02
+        jsr    $BDEA
+        jsr    $8951
+        jsr    $BC8D
+        jsr    $BD20
+        pla
+        pha
+        clc
+        adc    $2A
+        sta    $2A
+        bcc    $90B5
+        inc    $2B
+        bpl    $90B5
+L90D9:
+        jmp    $8AF3
+L90DC:
+        jmp    $9218
+L90DF:
+        dec    $0A
+        jsr    $9582
+        beq    $9127
+        bcs    $9127
+        jsr    $BD94
+        jsr    $92DD
+        jsr    $9222
+        lda    $2D
+        ora    $2C
+        bne    $9127
+        clc
+        lda    $2A
+        adc    $02
+        tay
+        lda    $2B
+        adc    $03
+        tax
+        cpy    $04
+        sbc    $05
+        bcs    $90DC
+        lda    $02
+        sta    $2A
+        lda    $03
+        sta    $2B
+        sty    $02
+        stx    $03
+        lda    #$00
+        sta    $2C
+        sta    $2D
+        lda    #$40
+        sta    $27
+        jsr    $B4B4
+        jsr    $8827
+        jmp    $920B
+
+L9127:
+        brk
+        .byte  10, "Bad ", tknDIM
+        brk
+
+; DIM numvar [numeric] [(arraydef)]
+; =================================
+L912F:
+        jsr    $8A97
+        tya
+        clc
+        adc    $0B
+        ldx    $0C
+        bcc    $913C
+        inx
+        clc
+L913C:
+        sbc    #$00
+        sta    $37
+        txa
+        sbc    #$00
+        sta    $38
+        ldx    #$05
+        stx    $3F
+        ldx    $0A
+        jsr    $9559
+        cpy    #$01
+        beq    $9127
+        cmp    #'('
+        beq    $916B
+        cmp    #$24
+        beq    $915E
+        cmp    #$25
+        bne    $9168
+L915E:
+        dec    $3F
+        iny
+        inx
+        lda    ($37),y
+        cmp    #'('
+        beq    $916B
+L9168:
+        jmp    $90DF
+L916B:
+        sty    $39
+        stx    $0A
+        jsr    $9469
+        bne    $9127
+        jsr    $94FC
+        ldx    #$01
+        jsr    $9531
+        lda    $3F
+        pha
+        lda    #$01
+        pha
+        jsr    $AED8
+L9185:
+        jsr    $BD94
+        jsr    $8821
+        lda    $2B
+        and    #$C0
+        ora    $2C
+        ora    $2D
+        bne    $9127
+        jsr    $9222
+        pla
+        tay
+        lda    $2A
+        sta    ($02),y
+        iny
+        lda    $2B
+        sta    ($02),y
+        iny
+        tya
+        pha
+        jsr    $9231
+        jsr    $8A97
+        cmp    #$2C
+        beq    $9185
+        cmp    #')'
+        beq    $91B7
+        jmp    $9127
+L91B7:
+        pla
+        sta    $15
+        pla
+        sta    $3F
+        lda    #$00
+        sta    $40
+        jsr    $9236
+        ldy    #$00
+        lda    $15
+        sta    ($02),y
+        adc    $2A
+        sta    $2A
+        bcc    $91D2
+        inc    $2B
+L91D2:
+        lda    $03
+        sta    $38
+        lda    $02
+        sta    $37
+        clc
+        adc    $2A
+        tay
+        lda    $2B
+        adc    $03
+        bcs    $9218
+        tax
+        cpy    $04
+        sbc    $05
+        bcs    $9218
+        sty    $02
+        stx    $03
+        lda    $37
+        adc    $15
+        tay
+        lda    #$00
+        sta    $37
+        bcc    $91FC
+        inc    $38
+L91FC:
+        sta    ($37),y
+        iny
+        bne    $9203
+        inc    $38
+        cpy    $02
+        bne    $91FC
+        cpx    $38
+        bne    $91FC
+L920B:
+        jsr    $8A97
+        cmp    #$2C
+        beq    $9215
+        jmp    $8B96
+L9215:
+        jmp    $912F
+L9218:
+        brk
+        .byte  11, tknDIM, " space"
+        brk
+L9222:
+        inc    $2A
+        bne    $9230
+        inc    $2B
+        bne    $9230
+        inc    $2C
+        bne    $9230
+        inc    $2D
+L9230:
+        rts
+L9231:
+        ldx    #$3F
+        jsr    $BE0D
+L9236:
+        ldx    #$00
+        ldy    #$00
+L923A:
+        lsr    $40
+        ror    $3F
+        bcc    $924B
+        clc
+        tya
+        adc    $2A
+        tay
+        txa
+        adc    $2B
+        tax
+        bcs    $925A
+L924B:
+        asl    $2A
+        rol    $2B
+        lda    $3F
+        ora    $40
+        bne    $923A
+        sty    $2A
+        stx    $2B
+        rts
+L925A:
+        jmp    $9127
+
+; HIMEM=numeric
+; =============
+L925D:
+        jsr    $92EB            ; Set past '=', evaluate integer
+        lda    $2A              ; Set HIMEM and STACK
+        sta    $06
+        sta    $04
+        lda    $2B
+        sta    $07
+        sta    $05
+        jmp    $8B9B            ; Jump back to execution loop
+
+; LOMEM=numeric
+; =============
+L926F:
+        jsr    $92EB            ; Step past '=', evaluate integer
+        lda    $2A              ; Set LOMEM and VAREND
+        sta    $00
+        sta    $02
+        lda    $2B
+        sta    $01
+        sta    $03
+        jsr    $BD2F            ; Clear dynamic variables, jump to execution loop
+        beq    $928A
+
  jsr    $92EB
  lda    $2B
  sta    $18
