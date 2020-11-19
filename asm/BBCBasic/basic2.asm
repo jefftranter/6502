@@ -1112,7 +1112,7 @@ L87B2:
         bne    $87CC
         pla
         jmp    $86C5
-L8735L:
+L87CC:
         dec    $0A
         jsr    $8821
         pla
@@ -1367,245 +1367,326 @@ L8966:
         cmp    #'&'
         bne    $897C            ; Jump if not '&'
 L896A:
- jsr    $894B
- jsr    $8936
- bcs    $896A
- cmp    #$41
- bcc    $8957
- cmp    #$47
- bcc    $896A
- bcs    $8957
- cmp    #$22
- bne    $898C
- jsr    $894B
- cmp    #$22
- beq    $8961
- cmp    #$0D
- bne    $8980
- rts
- cmp    #$3A
- bne    $8996
- sty    $3B
- sty    $3C
- beq    $8961
- cmp    #$2C
- beq    $8961
- cmp    #$2A
- bne    $89A3
- lda    $3B
- bne    $89E3
- rts
- cmp    #$2E
- beq    $89B5
- jsr    $8936
- bcc    $89DF
- ldx    $3C
- beq    $89B5
- jsr    $8897
- bcc    $89E9
- lda    ($37),y
- jsr    $893D
- bcc    $89C2
- jsr    $8944
- jmp    $89B5
- ldx    #$FF
- stx    $3B
- sty    $3C
- jmp    $8957
- jsr    $8926
- bcc    $89E3
- ldy    #$00
- lda    ($37),y
- jsr    $8926
- bcc    $89C2
- jsr    $8944
- jmp    $89D2
- cmp    #$41
- bcs    $89EC
- ldx    #$FF
- stx    $3B
- sty    $3C
- jmp    $8961
- cmp    #$58
- bcs    $89CB
- ldx    #$71
- stx    $39
- ldx    #$80
- stx    $3A
- cmp    ($39),y
- bcc    $89D2
- bne    $8A0D
- iny
- lda    ($39),y
- bmi    $8A37
- cmp    ($37),y
- beq    $89FE
- lda    ($37),y
- cmp    #$2E
- beq    $8A18
- iny
- lda    ($39),y
- bpl    $8A0D
- cmp    #$FE
- bne    $8A25
- bcs    $89D0
- iny
- lda    ($39),y
- bmi    $8A37
- inc    $39
- bne    $8A19
- inc    $3A
- bne    $8A19
- sec
- iny
- tya
- adc    $39
- sta    $39
- bcc    $8A30
- inc    $3A
- ldy    #$00
- lda    ($37),y
- jmp    $89F8
- tax
- iny
- lda    ($39),y
- sta    $3D
- dey
- lsr    a
- bcc    $8A48
- lda    ($37),y
- jsr    $8926
- bcs    $89D0
- txa
- bit    $3D
- bvc    $8A54
- ldx    $3B
- bne    $8A54
- clc
- adc    #$40
- dey
- jsr    $887C
- ldy    #$00
- ldx    #$FF
- lda    $3D
- lsr    a
- lsr    a
- bcc    $8A66
- stx    $3B
- sty    $3C
- lsr    a
- bcc    $8A6D
- sty    $3B
- sty    $3C
- lsr    a
- bcc    $8A81
- pha
- iny
- lda    ($37),y
- jsr    $8926
- bcc    $8A7F
- jsr    $8944
- jmp    $8A72
- dey
- pla
- lsr    a
- bcc    $8A86
- stx    $3C
- lsr    a
- bcs    $8A96
- jmp    $8961
- ldy    $1B
- inc    $1B
- lda    ($19),y
- cmp    #$20
- beq    $8A8C
- rts
- ldy    $0A
- inc    $0A
- lda    ($0B),y
- cmp    #$20
- beq    $8A97
- rts
- brk
- ora    $4D
- adc    #$73
- .byte  's'
- adc    #$6E
- .byte  'g'
- jsr    $002C
- jsr    $8A8C
- cmp    #$2C
- bne    $8AA2
- rts
- jsr    $9857
- lda    $18
- sta    $38
- lda    #$00
- sta    $37
- sta    ($37),y
- jsr    $BE6F
- bne    $8AF3
- jsr    $9857
- jsr    $BE6F
- bne    $8AF6
- jsr    $9857
- brk
- brk
- .byte  'S'
- .byte  'T'
- .byte  'O'
- bvc    $8ADA
- jsr    $9857
- lda    #$0D
- ldy    $18
- sty    $13
- ldy    #$00
- sty    $12
- sty    $20
- sta    ($12),y
- lda    #$FF
- iny
- sta    ($12),y
- iny
- sty    $12
- jsr    $BD20
- ldy    #$07
- sty    $0C
- ldy    #$00
- sty    $0B
- lda    #$33
- sta    $16
- lda    #$B4
- sta    $17
- lda    #$3E
- jsr    $BC02
- lda    #$33
- sta    $16
- lda    #$B4
- sta    $17
- ldx    #$FF
- stx    $28
- stx    $3C
- txs
- jsr    $BD3A
- tay
- lda    $0B
- sta    $37
- lda    $0C
- sta    $38
- sty    $3B
- sty    $0A
- jsr    $8957
- jsr    $97DF
- bcc    $8B38
- jsr    $BC8D
- jmp    $8AF3
- jsr    $8A97
- cmp    #$C6
- bcs    $8BB1
- bcc    $8BBF
- jmp    $8AF6
- jmp    $8504
+        jsr    $894B            ; Increment $37/8 and get next character
+        jsr    $8936
+        bcs    $896A            ; Jump if numeric character
+        cmp    #'A'
+        bcc    $8957            ; Loop back if <'A'
+        cmp    #'F'+1
+        bcc    $896A            ; Step to next if 'A'..'F'
+        bcs    $8957            ; Loop back for next character
+L897C:
+        cmp    #$22
+        bne    $898C
+L8980:
+        jsr    $894B            ; Increment $37/8 and get next character
+        cmp    #$22
+        beq    $8961            ; Not quote, jump to process next character
+        cmp    #$0D
+        bne    $8980
+        rts
+L898C:
+        cmp    #':'
+        bne    $8996
+        sty    $3B
+        sty    $3C
+        beq    $8961
+L8996:
+        cmp    #','
+        beq    $8961
+        cmp    #'*'
+        bne    $89A3
+        lda    $3B
+        bne    $89E3
+        rts
+L89A3:
+        cmp    #'.'
+        beq    $89B5
+        jsr    $8936
+        bcc    $89DF
+        ldx    $3C
+        beq    $89B5
+        jsr    $8897
+        bcc    $89E9
+L89B5:
+        lda    ($37),y
+        jsr    $893D
+        bcc    $89C2
+        jsr    $8944
+        jmp    $89B5
+L89C2:
+        ldx    #$FF
+        stx    $3B
+        sty    $3C
+        jmp    $8957
+L89CB:
+        jsr    $8926
+        bcc    $89E3
+L89D0:
+        ldy    #$00
+L89D2:
+        lda    ($37),y
+        jsr    $8926
+        bcc    $89C2
+        jsr    $8944
+        jmp    $89D2
+L89DF:
+        cmp    #'A'
+        bcs    $89EC            ; Jump if letter
+L89E3:
+        ldx    #$FF
+        stx    $3B
+        sty    $3C
+L89E9:
+        jmp    $8961
+L89EC:
+        cmp    #'X'
+        bcs    $89CB            ; Jump if >='X', nothing starts with X,Y,Z
+        ldx    #L8071 & 255     ; Point to token table
+        stx    $39
+        ldx    #L8071 / 256
+        stx    $3A
+L89F8:
+        cmp    ($39),y
+        bcc    $89D2
+        bne    $8A0D
+L89FE:
+        iny
+        lda    ($39),y
+        bmi    $8A37
+        cmp    ($37),y
+        beq    $89FE
+        lda    ($37),y
+        cmp    #'.'
+        beq    $8A18
+L8A0D:
+        iny
+        lda    ($39),y
+        bpl    $8A0D
+        cmp    #$FE
+        bne    $8A25
+        bcs    $89D0
+L8A18:
+        iny
+L8A19:
+        lda    ($39),y
+        bmi    $8A37
+        inc    $39
+        bne    $8A19
+        inc    $3A
+        bne    $8A19
+L8A25:
+        sec
+        iny
+        tya
+        adc    $39
+        sta    $39
+        bcc    $8A30
+        inc    $3A
+L8A30:
+        ldy    #$00
+        lda    ($37),y
+        jmp    $89F8
+L8A37:
+        tax
+        iny
+        lda    ($39),y
+        sta    $3D              ; Get token flag
+        dey
+        lsr    a
+        bcc    $8A48
+        lda    ($37),y
+        jsr    $8926
+        bcs    $89D0
+L8A48:
+        txa
+        bit    $3D
+        bvc    $8A54
+        ldx    $3B
+        bne    $8A54
+        clc                     ; Superfluous as all paths to here have CLC
+        adc    #$40
+L8A54:
+        dey
+        jsr    $887C
+        ldy    #$00
+        ldx    #$FF
+        lda    $3D
+        lsr    a
+        lsr    a
+        bcc    $8A66
+        stx    $3B
+        sty    $3C
+L8A66:
+        lsr    a
+        bcc    $8A6D
+        sty    $3B
+        sty    $3C
+L8A6D:
+        lsr    a
+        bcc    $8A81
+        pha
+        iny
+L8A72:
+        lda    ($37),y
+        jsr    $8926
+        bcc    $8A7F
+        jsr    $8944
+        jmp    $8A72
+L8A7F:
+        dey
+        pla
+L8A81:
+        lsr    a
+        bcc    $8A86
+        stx    $3C
+L8A86:
+        lsr    a
+        bcs    $8A96
+        jmp    $8961
+
+; Skip Spaces
+; ===========
+L8A8C:
+        ldy    $1B              ; Get offset, increment it
+        inc    $1B
+        lda    ($19),y          ; Get current character
+        cmp    #' '
+        beq    $8A8C            ; Loop until not space
+L8A96:
+        rts
+        
+; Skip spaces at PtrA
+; -------------------
+L8A97:
+        ldy    $0A
+        inc    $0A
+        lda    ($0B),y
+        cmp    #$20
+        beq    $8A97
+L8AA1:
+         rts
+L8AA2:
+        brk
+        .byte  $05
+        .byte "Missing ,"
+        brk
+L8AAE:
+        jsr    $8A8C
+        cmp    #','
+        bne    $8AA2
+        rts
+
+; OLD - Attempt to restore program
+; ================================
+L8AB6:
+        jsr    $9857            ; Chek end of statement
+        lda    $18
+        sta    $38              ; Point $37/8 to PAGE
+        lda    #$00
+        sta    $37
+        sta    ($37),y          ; Remove end marker
+        jsr    $BE6F            ; Check program and set TOP
+        bne    $8AF3            ; Jump to clear heap and go to immediate mode
+
+; END - Return to immediate mode
+; ==============================
+L8AC8:
+        jsr    $9857            ; Check end of statement
+        jsr    $BE6F            ; Check program and set TOP
+        bne    $8AF6            ; Jump to immediate mode, keeping variables, etc
+
+; STOP - Abort program with an error
+; ==================================
+L8AD0:
+        jsr    $9857            ; Check end of statement
+        brk
+        .byte  $00
+        .byte  "STOP"
+        brk
+
+; NEW - Clear program, enter immediate mode
+; =========================================
+L8ADA:
+        jsr    $9857            ; Check end if statement
+
+; Start up with NEW program
+; -------------------------
+L8ADD:
+        lda    #$0D             ; TOP hi=PAGE hi
+        ldy    $18
+        sty    $13
+        ldy    #$00             ; TOP=PAGE, TRACE OFF
+        sty    $12
+        sty    $20
+        sta    ($12),y          ; ?(PAGE+0)=<cr>
+        lda    #$FF             ; ?(PAGE+1)=$FF
+        iny
+        sta    ($12),y
+        iny                     ; TOP=PAGE+2
+        sty    $12
+L8AF3:
+        jsr    $BD20            ; Clear variables, heap, stack
+
+; IMMEDIATE LOOP
+; ==============
+L8AF6:
+        ldy    #$07             ; PtrA=&0700 - input buffer
+        sty    $0C
+        ldy    #$00
+        sty    $0B
+        lda    #$B433 & 255     ; ON ERROR OFF
+        sta    $16
+        lda    #$B433 / 256
+        sta    $17
+        lda    #'>'             ; Print '>' prompt, read input to bufer at PtrA
+        jsr    $BC02
+
+; Execute line at program pointer in &0B/C
+; ----------------------------------------
+L8B0B:
+        lda    #$B433 & 255     ; ON ERROR OFF again
+        sta    $16
+        lda    #$B433 / 256
+        sta    $17
+        ldx    #$FF             ; OPT=$FF - not withing assembler
+        stx    $28
+        stx    $3C              ; Clear machine stack
+        txs
+        jsr    $BD3A            ; Clear DATA and stacks
+        tay
+        lda    $0B              ; Point $37/8 to program line
+        sta    $37
+        lda    $0C
+        sta    $38
+        sty    $3B
+        sty    $0A
+        jsr    $8957
+        jsr    $97DF            ; Tokenise, jump forward if no line number
+        bcc    $8B38
+        jsr    $BC8D            ; Insert into program, jump back to immediate loop
+        jmp    $8AF3
+
+; Command entered at immediate prompt
+; -----------------------------------
+L8B38:
+        jsr    $8A97            ; Skip spaces at PtrA
+        cmp    #$C6             ; If command token, jump to execute command
+        bcs    $8BB1
+        bcc    $8BBF            ; Not command token, try variable assignment
+L8B41:
+        jmp    $8AF6            ; Jump back to immediate mode
+
+; [ - enter assembler
+; ===================
+L8B44:
+        jmp    $8504            ; Jump to assembler
+
+; =<value> - return from FN
+; =========================
+; Stack needs to contain these items,
+;  ret_lo, ret_hi, PtrB_hi, PtrB_lo, PtrB_off, numparams, PtrA_hi, PtrA_lo, PtrA_off, tknFN
+L8B47:
  tsx
  cpx    #$FC
  bcs    $8B59
