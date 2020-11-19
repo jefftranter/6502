@@ -1687,47 +1687,70 @@ L8B44:
 ; Stack needs to contain these items,
 ;  ret_lo, ret_hi, PtrB_hi, PtrB_lo, PtrB_off, numparams, PtrA_hi, PtrA_lo, PtrA_off, tknFN
 L8B47:
- tsx
- cpx    #$FC
- bcs    $8B59
- lda    $01FF
- cmp    #$A4
- bne    $8B59
- jsr    $9B1D
- jmp    $984C
- brk
- .byte  $07
- lsr    $206F
- ldy    $00
- ldy    $0A
- dey
- lda    ($0B),y
- cmp    #$3D
- beq    $8B47
- cmp    #$2A
- beq    $8B73
- cmp    #$5B
- beq    $8B44
- bne    $8B96
- jsr    $986D
- ldx    $0B
- ldy    $0C
- jsr    OS_CLI
- lda    #$0D
- ldy    $0A
- dey
- iny
- cmp    ($0B),y
- bne    $8B82
- cmp    #$8B
- beq    $8B7D
- lda    $0C
- cmp    #$07
- beq    $8B41
- jsr    $9890
- bne    $8BA3
- dec    $0A
- jsr    $9857
+        tsx                     ; If stack is empty, jump to give error
+        cpx    #$FC
+        bcs    $8B59
+        lda    $01FF            ; If pushed token<>'FN', give error
+        cmp    #tknFN
+        bne    $8B59
+        jsr    $9B1D            ; Evaluate expression
+        jmp    $984C            ; Check for end of statement and return to pop from function
+L8B59:
+        brk
+        .byte  $07,"No ",tknFN
+        brk
+        
+; Check for =, *, [ commands
+; ==========================
+L8B60:
+        ldy    $0A              ; Step program pointer back and fetch char
+        dey
+        lda    ($0B),y
+        cmp    #'='             ; Jump for '=', return from FN
+        beq    $8B47
+        cmp    #'*'             ; Jump for '*', embedded *command
+        beq    $8B73
+        cmp    #'['             ; Jump for '[', start assembler
+        beq    $8B44
+        bne    $8B96            ; Otherwise, see if end of statement
+
+; Embedded *command
+; =================
+L8B73:
+        jsr    $986D            ; Update PtrA to current address
+        ldx    $0B
+        ldy    $0C
+        jsr    OS_CLI           ; Pass command at ptrA to OSCLI
+
+
+; DATA, DEF, REM, ELSE
+; ====================
+; Skip to end of line
+; -------------------
+L8B7D:
+        lda    #$0D             ; Get program pointer
+        ldy    $0A
+        dey
+L8B782:
+        iny                     ; Loop until <cr> found
+        cmp    ($0B),y
+        bne    $8B82
+L8B87:
+        cmp    #tknELSE         ; If 'ELSE', jump to skip to end of line
+        beq    $8B7D
+        lda    $0C              ; Program in command buffer, jump back to immediate loop
+        cmp    #$0700 /256
+        beq    $8B41
+        jsr    $9890            ; Check for end of program, step past <cr>
+        bne    $8BA3
+L8B96:
+        dec    $0A
+L8B98:
+        jsr    $9857
+
+; Main execution loop
+; -------------------
+L8B9B:
  ldy    #$00
  lda    ($0B),y
  cmp    #$3A
