@@ -2457,8 +2457,8 @@ L901C:
 L903A:
         jmp    L8AF3
 L903D:
-         jsr   $97EB
-         jsr   L8F92
+        jsr   $97EB
+        jsr   L8F92
 L9043:
         ldy    #$00
         lda    ($37),y
@@ -2580,7 +2580,6 @@ L90DF:
         jsr    $B4B4
         jsr    L8827
         jmp    $920B
-
 L9127:
         brk
         .byte  10, "Bad ", tknDIM
@@ -2954,119 +2953,181 @@ L9353:
 ;  ret_lo, ret_hi, PtrB_hi, PtrB_lo, PtrB_off, numparams, PtrA_hi, PtrA_lo, PtrA_off, tknPROC
 L9356:
         tsx                     ; If stack empty, jump to give error
- cpx    #$FC
- bcs    $9365
- lda    $01FF
- cmp    #$F2
- bne    $9365
- jmp    $9857
- brk
- ora    $6F4E
- jsr    $00F2
- .byte  $0C
- lsr    $746F
- jsr    $00EA
- ora    $6142,y
- .byte  'd'
- jsr    $00EB
- jsr    L8821
- lda    $2A
- pha
- jsr    $92DA
- jsr    $9852
- lda    #$12
- jsr    OSWRCH
- jmp    $93DA
- lda    #$11
- pha
- jsr    L8821
- jsr    $9857
- jmp    $93DA
- lda    #$16
- pha
- jsr    L8821
- jsr    $9857
- jsr    $BEE7
- cpx    #$FF
- bne    $93D7
- cpy    #$FF
- bne    $93D7
- lda    $04
- cmp    $06
- bne    $9372
- lda    $05
- cmp    $07
- bne    $9372
- ldx    $2A
- lda    #$85
- jsr    OSBYTE
- cpx    $02
- tya
- sbc    $03
- bcc    $9372
- cpx    $12
- tya
- sbc    $13
- bcc    $9372
- stx    $06
- stx    $04
- sty    $07
- sty    $05
- jsr    $BC28
- pla
- jsr    OSWRCH
- jsr    $9456
- jmp    L8B9B
- lda    #$04
- bne    $93EA
- lda    #$05
- pha
- jsr    $9B1D
- jmp    $93FD
- jsr    L8821
- lda    $2A
- pha
- jsr    L8AAE
- jsr    $9B29
- jsr    $92EE
- jsr    $BD94
- jsr    $92DA
- jsr    $9852
- lda    #$19
- jsr    OSWRCH
- pla
- jsr    OSWRCH
- jsr    $BE0B
- lda    $37
- jsr    OSWRCH
- lda    $38
- jsr    OSWRCH
- jsr    $9456
- lda    $2B
- jsr    OSWRCH
- jmp    L8B9B
- lda    $2B
- jsr    OSWRCH
- jsr    L8A97
- cmp    #$3A
- beq    $9453
- cmp    #$0D
- beq    $9453
- cmp    #$8B
- beq    $9453
- dec    $0A
- jsr    L8821
- jsr    $9456
- jsr    L8A97
- cmp    #$2C
- beq    $942F
- cmp    #$3B
- bne    $9432
- beq    $942A
- jmp    L8B96
- lda    $2A
- jmp    (WRCHV)
- ldy    #$01
+        cpx    #$FC
+        bcs    $9365
+        lda    $01FF            ; If pushed token<>'PROC', give error
+        cmp    #$F2
+        bne    $9365
+        jmp    $9857            ; Check for end of statement and return to pop from subroutine
+L9365:
+        brk
+        .byte  13, "No ", tknPROC ; Terminated by following BRK
+L936B:
+        brk
+        .byte  12, "Not ", tknLOCAL ; Terminated by following BRK
+L9372:
+        brk
+        .byte  $19, "Bad ", tknMODE
+        brk
+
+; GCOL numeric, numeric
+; =====================
+L937A:
+        jsr    L8821            ; Evaluate integer
+        lda    $2A
+        pha
+        jsr    $92DA            ; Step past comma, evaluate integer
+        jsr    $9852            ; Update program pointer, check for end of statement
+        lda    #$12             ; Send VDU 18 for GCOL
+        jsr    OSWRCH
+        jmp    $93DA            ; Jump to send two bytes to OSWRCH
+
+; COLOUR numeric
+; ==============
+L938E:
+        lda    #$11             ; Stack VDU 17 for COLOUR
+        pha
+        jsr    L8821            ; Evaluate integer, check end of statement
+        jsr    $9857
+        jmp    $93DA            ; Jump to send two bytes to OSWRCH
+
+; MODE numeric
+; ============
+L939A:
+        lda    #$16             ; Stack VDU 22 for MODE
+        pha
+        jsr    L8821            ; Evaluate integer, check end of statement
+        jsr    $9857
+
+; BBC - Check if changing MODE will move screen into stack
+; --------------------------------------------------------
+        jsr    $BEE7            ; Get machine address high word
+        cpx    #$FF             ; Not &xxFFxxxx, skip memory test
+        bne    $93D7
+        cpy    #$FF             ; Not &FFFFxxxx, skip memory test
+        bne    $93D7
+
+; MODE change in I/O processor, must check memory limits
+
+        lda    $04              ; STACK<>HIMEM, stack not empty, give 'Bad MODE' error
+        cmp    $06
+        bne    $9372
+        lda    $05
+        cmp    $07
+        bne    $9372
+        ldx    $2A              ; Get top of memory if we used this MODE
+        lda    #$85
+        jsr    OSBYTE
+        cpx    $02              ; Would be below VAREND, give error
+        tya
+        sbc    $03
+        bcc    $9372
+        cpx    $12              ; Would be below TOP, give error
+        tya
+        sbc    $13
+        bcc    $9372
+
+; BASIC stack is empty, screen would not hit heap or program
+
+        stx    $06              ; Set STACK and HIMEM to new address
+        stx    $04
+        sty    $07
+        sty    $05
+
+; Change MODE
+L93D7:
+        jsr    $BC28            ; Set COUNT to zero
+
+; Send two bytes to OSWRCH, stacked byte, then IntA
+; -------------------------------------------------
+L93DA:
+        pla                     ; Send stacked byte to OSWRCH
+        jsr    OSWRCH
+        jsr    $9456            ; Send IntA to OSWRCH, jump to execution loop
+        jmp    L8B9B
+
+; MOVE numeric, numeric
+; =====================
+L93E4:
+        lda    #$04             ; Jump forward to do PLOT 4 for MOVE
+        bne    $93EA
+
+; DRAW numeric, numeric
+; =====================
+L93E8:
+        lda    #$05             ; Do PLOT 5 for DRAW
+L93EA:
+        pha                     ; Evaluate first expression
+        jsr    $9B1D
+        jmp    $93FD            ; Jump to evaluate second expression and send to OSWRCH
+
+; PLOT numeric, numeric, numeric
+; ==============================
+L93F1:
+        jsr    L8821            ; Evaluate integer
+        lda    $2A
+        pha
+        jsr    L8AAE            ; Step past comma, evaluate expression
+        jsr    $9B29
+L93FD:
+        jsr    $92EE            ; Confirm numeric and ensure is integer
+        jsr    $BD94            ; Stack integer
+        jsr    $92DA            ; Step past command and evaluate integer
+        jsr    $9852            ; Update program pointer, check for end of statement
+        lda    #$19             ; Send VDU 25 for PLOT
+        jsr    OSWRCH
+        pla                     ; Send PLOT action
+        jsr    OSWRCH
+        jsr    $BE0B            ; Pop integer to temporary store at &37/8
+        lda    $37              ; Send first coordinate to OSWRCH
+        jsr    OSWRCH
+        lda    $38
+        jsr    OSWRCH
+        jsr    $9456            ; Send IntA to OSWRCH, second coordinate
+        lda    $2B              ; Send IntA high byte to OSWRCH
+        jsr    OSWRCH
+        jmp    L8B9B            ; Jump to execution loop
+L942A:
+        lda    $2B              ; Send IntA byte 2 to OSWRCH
+        jsr    OSWRCH
+
+; VDU num[,][;][...]
+; ==================
+L942F:
+        jsr    L8A97            ; Get next character
+L9432:
+        cmp    #$3A             ; If end of statement, jump to exit
+        beq    $9453
+        cmp    #$0D
+        beq    $9453
+        cmp    #$8B
+        beq    $9453
+        dec    $0A              ; Step back to current character
+        jsr    L8821            ; Evaluate integer and output low byte
+        jsr    $9456
+        jsr    L8A97            ; Get next character
+        cmp    #','             ; Comma, loop to read another number
+        beq    $942F
+        cmp    #';'             ; Not semicolon, loop to check for end of statement
+        bne    $9432
+        beq    $942A            ; Loop to output high byte and read another
+L9453:
+        jmp    L8B96            ; Jump to execution loop
+        
+; Send IntA to OSWRCH via WRCHV
+; =============================
+L9456:
+        lda    $2A
+        jmp    (WRCHV)
+
+; VARIABLE PROCESSING
+; ===================
+; Look for a FN/PROC in heap
+; --------------------------
+; On entry, (&37)+1=>FN/PROC token (ie, first character of name)
+;
+L945B:
+        ldy    #$01             ; Get PROC/FN character
  lda    ($37),y
  ldy    #$F6
  cmp    #$F2
