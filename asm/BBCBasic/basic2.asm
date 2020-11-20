@@ -2787,51 +2787,92 @@ L926F:
         jsr    $BD2F            ; Clear dynamic variables, jump to execution loop
         beq    $928A
 
- jsr    $92EB
- lda    $2B
- sta    $18
- jmp    L8B9B
- jsr    $9857
- jsr    $BD20
- beq    $928A
- jsr    $97DF
- bcs    $92A5
- cmp    #$EE
- beq    $92B7
- cmp    #$87
- beq    $92C0
- jsr    L8821
- jsr    $9857
- lda    $2A
- sta    $21
- lda    $2B
- sta    $22
- lda    #$FF
- sta    $20
- jmp    L8B9B
- inc    $0A
- jsr    $9857
- lda    #$FF
- bne    $92AE
- inc    $0A
- jsr    $9857
- lda    #$00
- beq    $92B2
- jsr    $92EB
- ldx    #$2A
- ldy    #$00
- sty    $2E
- lda    #$02
- jsr    OSWORD
- jmp    L8B9B
- jsr    L8AAE
- jsr    $9B29
- jmp    $92F0
- jsr    $ADEC
- beq    $92F7
- bmi    $92F4
- rts
- jsr    $9807
+; PAGE=numeric
+; ============
+L9283:
+        jsr    $92EB            ; Step past '=', evaluate integer
+        lda    $2B              ; Set PAGE
+        sta    $18
+L928A:
+        jmp    L8B9B            ; Jump to execution loop
+
+; CLEAR
+; =====
+L928D:
+        jsr    $9857            ; Check end of statement
+        jsr    $BD20            ; Clear heap, stack, data, variables
+        beq    $928A            ; Jump to execution loop
+
+; TRACE ON | OFF | numeric
+; ========================
+L9295:
+        jsr    $97DF            ; If line number, jump for TRACE linenum
+        bcs    L92A5
+        cmp    #$EE             ; Jump for TRACE ON
+        beq    $92B7
+        cmp    #$87             ; Jump for TRACE OFF
+        beq    $92C0
+        jsr    L8821            ; Evaluate integer
+
+; TRACE numeric
+; -------------
+L92A5:
+        jsr    $9857            ; Check end of statement
+        lda    $2A              ; Set trace limit low byte
+        sta    $21
+        lda    $2B
+L92AE:
+        sta    $22              ; Set trace limit high byte, set TRACE ON
+        lda    #$FF
+L92B2:
+        sta    $20              ; Set TRACE flag, return to execution loop
+        jmp    L8B9B
+
+; TRACE ON
+; --------
+L92B7:
+        inc    $0A              ; Step past, check end of statement
+        jsr    $9857
+        lda    #$FF             ; Jump to set TRACE &FFxx
+        bne    $92AE
+        
+; TRACE OFF
+; ---------
+L92C0:
+        inc    $0A              ; Step past, check end of statement
+        jsr    $9857
+        lda    #$00             ; Jump to set TRACE OFF
+        beq    $92B2
+
+; TIME=numeric
+; ============
+L92C9:
+        jsr    $92EB            ; Step past '=', evaluate integer
+        ldx    #$2A             ; Point to integer, set 5th byte to 0
+        ldy    #$00
+        sty    $2E
+        lda    #$02             ; Call OSWORD &02 to do TIME=
+        jsr    OSWORD
+        jmp    L8B9B
+
+; Evaluate <comma><numeric>
+; =========================
+L92DA:
+        jsr    L8AAE            ; Check for and step past comma
+L92DD:
+        jsr    $9B29
+        jmp    $92F0
+L92E3:
+        jsr    $ADEC
+        beq    $92F7
+        bmi    $92F4
+L92EA:
+        rts
+
+; Evaluate <equals><integer>
+; ==========================
+L92EB:
+        jsr    $9807    ; Check for equals, evaluate numeric
  lda    $27
  beq    $92F7
  bpl    $92EA
