@@ -2872,53 +2872,88 @@ L92EA:
 ; Evaluate <equals><integer>
 ; ==========================
 L92EB:
-        jsr    $9807    ; Check for equals, evaluate numeric
- lda    $27
- beq    $92F7
- bpl    $92EA
- jmp    $A3E4
- jmp    L8C0E
- jsr    $ADEC
- beq    $92F7
- bmi    $92EA
- jmp    $A2BE
- lda    $0B
- sta    $19
- lda    $0C
- sta    $1A
- lda    $0A
- sta    $1B
- lda    #$F2
- jsr    $B197
- jsr    $9852
- jmp    L8B9B
- ldy    #$03
- lda    #$00
- sta    ($2A),y
- beq    $9341
- tsx
- cpx    #$FC
- bcs    $936B
- jsr    $9582
- beq    $9353
- jsr    $B30D
- ldy    $2C
- bmi    $931B
- jsr    $BD94
- lda    #$00
- jsr    $AED8
- sta    $27
- jsr    $B4B4
- tsx
- inc    $0106,x
- ldy    $1B
- sty    $0A
- jsr    L8A97
- cmp    #$2C
- beq    $9323
- jmp    L8B96
- jmp    L8B98
- tsx
+        jsr    $9807            ; Check for equals, evaluate numeric
+L92EE:
+        lda    $27              ; Get result type
+L92F0:
+        beq    $92F7            ; String, jump to 'Type mismatch'
+        bpl    $92EA            ; Integer, return
+L92F4:
+        jmp    $A3E4            ; Real, jump to convert to integer
+L92F7:
+        jmp    L8C0E            ; Jump to 'Type mismatch' error
+
+; Evaluate <real>
+; ===============
+L92FA:
+        jsr    $ADEC            ; Evaluate expression
+
+; Ensure value is real
+; --------------------
+L92FD:
+        beq    $92F7            ; String, jump to 'Type mismatch'
+        bmi    $92EA            ; Real, return
+        jmp    $A2BE            ; Integer, jump to convert to real
+
+; PROCname [(parameters)]
+; =======================
+L9304:
+        lda    $0B              ; PtrB=PtrA=>after 'PROC' token
+        sta    $19
+        lda    $0C
+        sta    $1A
+        lda    $0A
+        sta    $1B
+        lda    #$F2             ; Call PROC/FN dispatcher
+        jsr    $B197            ; Will return here after ENDPROC
+        jsr    $9852            ; Check for end of statement
+        jmp    L8B9B            ; Return to execution loop
+
+; Make string zero length
+; -----------------------
+L931B:
+        ldy    #$03             ; Set length to zero
+        lda    #$00
+        sta    ($2A),y          ; Jump to look for next LOCAL item
+        beq    $9341
+
+; LOCAL variable [,variable ...]
+; ==============================
+L9323:
+        tsx                     ; Not inside subroutine, error
+        cpx    #$FC
+        bcs    $936B
+        jsr    $9582            ; Find variable, jump if bad variable name
+        beq    $9353
+        jsr    $B30D            ; Push value on stack, push variable info on stack
+        ldy    $2C              ; If a string, jump to make zero length
+        bmi    $931B
+        jsr    $BD94
+        lda    #$00             ; Set IntA to zero
+        jsr    $AED8
+        sta    $27              ; Set current variable to IntA (zero)
+        jsr    $B4B4
+
+; Next LOCAL item
+; ---------------
+L9341:
+        tsx                     ; Increment number of LOCAL items
+        inc    $0106,x
+        ldy    $1B              ; Update line pointer
+        sty    $0A
+        jsr    L8A97            ; Get next character
+        cmp    #$2C             ; Comma, loop back to do another item
+        beq    $9323
+        jmp    L8B96            ; Jump to main execution loop
+L9353:
+        jmp    L8B98
+
+; ENDPROC
+; =======
+; Stack needs to contain these items,
+;  ret_lo, ret_hi, PtrB_hi, PtrB_lo, PtrB_off, numparams, PtrA_hi, PtrA_lo, PtrA_off, tknPROC
+L9356:
+        tsx                     ; If stack empty, jump to give error
  cpx    #$FC
  bcs    $9365
  lda    $01FF
