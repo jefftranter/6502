@@ -3128,148 +3128,184 @@ L9456:
 ;
 L945B:
         ldy    #$01             ; Get PROC/FN character
- lda    ($37),y
- ldy    #$F6
- cmp    #$F2
- beq    $946F
- ldy    #$F8
- bne    $946F
- ldy    #$01
- lda    ($37),y
- asl    a
- tay
- lda    $0400,y
- sta    $3A
- lda    $0401,y
- sta    $3B
- lda    $3B
- beq    $94B2
- ldy    #$00
- lda    ($3A),y
- sta    $3C
- iny
- lda    ($3A),y
- sta    $3D
- iny
- lda    ($3A),y
- bne    $949A
- dey
- cpy    $39
- bne    $94B3
- iny
- bcs    $94A7
- iny
- lda    ($3A),y
- beq    $94B3
- cmp    ($37),y
- bne    $94B3
- cpy    $39
- bne    $9495
- iny
- lda    ($3A),y
- bne    $94B3
- tya
- adc    $3A
- sta    $2A
- lda    $3B
- adc    #$00
- sta    $2B
- rts
- lda    $3D
- beq    $94B2
- ldy    #$00
- lda    ($3C),y
- sta    $3A
- iny
- lda    ($3C),y
- sta    $3B
- iny
- lda    ($3C),y
- bne    $94D4
- dey
- cpy    $39
- bne    $9479
- iny
- bcs    $94E1
- iny
- lda    ($3C),y
- beq    $9479
- cmp    ($37),y
- bne    $9479
- cpy    $39
- bne    $94CF
- iny
- lda    ($3C),y
- bne    $9479
- tya
- adc    $3C
- sta    $2A
- lda    $3D
- adc    #$00
- sta    $2B
- rts
- ldy    #$01
- lda    ($37),y
- tax
- lda    #$F6
- cpx    #$F2
- beq    $9501
- lda    #$F8
- bne    $9501
- ldy    #$01
- lda    ($37),y
- asl    a
- sta    $3A
- lda    #$04
- sta    $3B
- lda    ($3A),y
- beq    $9516
- tax
- dey
- lda    ($3A),y
- sta    $3A
- stx    $3B
- iny
- bpl    $9507
- lda    $03
- sta    ($3A),y
- lda    $02
- dey
- sta    ($3A),y
- tya
- iny
- sta    ($02),y
- cpy    $39
- beq    $9558
- iny
- lda    ($37),y
- sta    ($02),y
- cpy    $39
- bne    $9527
- rts
- lda    #$00
- iny
- sta    ($02),y
- dex
- bne    $9533
- sec
- tya
- adc    $02
- bcc    $9541
- inc    $03
- ldy    $03
- cpy    $05
- bcc    $9556
- bne    $954D
- cmp    $04
- bcc    $9556
- lda    #$00
- ldy    #$01
- sta    ($3A),y
- jmp    L8CB7
- sta    $02
- rts
- ldy    #$01
+        lda    ($37),y
+        ldy    #$F6             ; Get PROC/FN character
+        cmp    #tknPROC         ; If PROC, jump to scan list
+        beq    $946F
+        ldy    #$F8             ; Point to FN list start and scan list
+        bne    $946F
+
+; Look for a variable in the heap
+; -------------------------------
+; On entry, (&37)+1=>first character of name
+;
+L9469:
+        ldy    #$01             ; Get first character of variable
+        lda    ($37),y
+        asl    a                ; Double it to index into index list
+        tay
+
+; Scan though linked lists in heap
+; --------------------------------
+L946F:
+        lda    $0400,y          ; Get start of linked list
+        sta    $3A
+        lda    $0401,y
+        sta    $3B
+L9479:
+        lda    $3B              ; End of list
+        beq    $94B2
+        ldy    #$00
+        lda    ($3A),y
+        sta    $3C
+        iny
+        lda    ($3A),y
+        sta    $3D
+        iny                     ; Jump if not null name
+        lda    ($3A),y
+        bne    $949A
+        dey
+        cpy    $39
+        bne    $94B3
+        iny
+        bcs    $94A7
+L9495:
+        iny
+        lda    ($3A),y
+        beq    $94B3
+L949A:
+        cmp    ($37),y
+        bne    $94B3
+        cpy    $39
+        bne    $9495
+        iny
+        lda    ($3A),y
+        bne    $94B3
+L94A7:
+        tya
+        adc    $3A
+        sta    $2A
+        lda    $3B
+        adc    #$00
+        sta    $2B
+L94B2:
+        rts
+L94B3:
+        lda    $3D
+        beq    $94B2
+        ldy    #$00
+        lda    ($3C),y
+        sta    $3A
+        iny
+        lda    ($3C),y
+        sta    $3B
+        iny
+        lda    ($3C),y
+        bne    $94D4
+        dey
+        cpy    $39
+        bne    $9479
+        iny
+        bcs    $94E1
+L94CF:
+        iny
+        lda    ($3C),y
+        beq    $9479
+L94D4:
+        cmp    ($37),y
+        bne    $9479
+        cpy    $39
+        bne    $94CF
+        iny
+        lda    ($3C),y
+        bne    $9479
+L94E1:
+        tya
+        adc    $3C
+        sta    $2A
+        lda    $3D
+        adc    #$00
+        sta    $2B
+        rts
+L94ED:
+        ldy    #$01
+        lda    ($37),y
+        tax
+        lda    #$F6
+        cpx    #$F2
+        beq    $9501
+        lda    #$F8
+        bne    $9501
+L94FC:
+        ldy    #$01
+        lda    ($37),y
+        asl    a
+L9501:
+        sta    $3A
+        lda    #$04
+        sta    $3B
+L9507:
+        lda    ($3A),y
+        beq    $9516
+        tax
+        dey
+        lda    ($3A),y
+        sta    $3A
+        stx    $3B
+        iny
+        bpl    $9507
+L9516:
+        lda    $03
+        sta    ($3A),y
+        lda    $02
+        dey
+        sta    ($3A),y
+        tya
+        iny
+        sta    ($02),y
+        cpy    $39
+        beq    $9558
+L9537:
+        iny
+        lda    ($37),y
+        sta    ($02),y
+        cpy    $39
+        bne    $9527
+        rts
+L9531:
+        lda    #$00
+L9533:
+        iny
+        sta    ($02),y
+        dex
+        bne    $9533
+L9539:
+        sec
+        tya
+        adc    $02
+        bcc    $9541
+        inc    $03
+L9541:
+        ldy    $03
+        cpy    $05
+        bcc    $9556
+        bne    $954D
+        cmp    $04
+        bcc    $9556
+L954D:
+        lda    #$00
+        ldy    #$01
+        sta    ($3A),y
+        jmp    L8CB7
+L9556:
+        sta    $02
+L9558:
+        rts
+
+; Check if variable name is valid
+; ===============================
+L9559:
+        ldy    #$01
  lda    ($37),y
  cmp    #$30
  bcc    $9579
