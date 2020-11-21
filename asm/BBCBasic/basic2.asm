@@ -822,7 +822,7 @@ L85BA:
         beq    L862B
         cmp    #$0D             ; End of line
         beq    L862B
-        cmp    #'\'            ; Comment
+        cmp    #'\'             ; Comment
         beq    L862B
         cmp    #'.'             ; Label
         beq    L85A5
@@ -2248,9 +2248,9 @@ L8EA7:
 ; CLG
 ; ===
 L8EBD:
-         jsr    L9857           ; Check end of statement
-         lda    #$10            ; Jump to do VDU 16
-         bne    L8ECC
+         jsr   L9857            ; Check end of statement
+         lda   #$10             ; Jump to do VDU 16
+         bne   L8ECC
 
 ; CLS
 ; ===
@@ -4415,10 +4415,10 @@ L9BE8:
 
 ; > numeric
 ; ---------
-  jsr    L9A9D                  ; Evaluate next and compare
-  beq    L9BB5                  ; Jump to return FALSE if =, TRUE if >
-  bcs    L9BB4
-  bcc    L9BB5                  ; Jump to return FALSE if <
+        jsr    L9A9D            ; Evaluate next and compare
+        beq    L9BB5            ; Jump to return FALSE if =, TRUE if >
+        bcs    L9BB4
+        bcc    L9BB5            ; Jump to return FALSE if <
 
 ; >= numeric
 ; ----------
@@ -5230,421 +5230,491 @@ LA0E1:
         sta    $49
 ; End of number found
 ; -------------------
-;LA0E8:
-        sty    $1B
- lda    $49
- ora    $48
- beq    $A11F
- jsr    $A1DA
- beq    $A11B
- lda    #$A8
- sta    $30
- lda    #$00
- sta    $2F
- sta    $2E
- jsr    $A303
- lda    $49
- bmi    $A111
- beq    $A118
- jsr    $A1F4
- dec    $49
- bne    $A108
- beq    $A118
- jsr    $A24D
- inc    $49
- bne    $A111
- jsr    $A65C
- sec
- lda    #$FF
- rts
- lda    $32
- sta    $2D
- and    #$80
- ora    $31
- bne    $A0F5
- lda    $35
- sta    $2A
- lda    $34
- sta    $2B
- lda    $33
- sta    $2C
- lda    #$40
- sec
- rts
- jsr    $A14B
- eor    #$FF
- sec
- rts
- iny
- lda    ($19),y
- cmp    #$2D
- beq    $A139
- cmp    #$2B
- bne    $A14E
- iny
- lda    ($19),y
- cmp    #$3A
- bcs    $A174
- sbc    #$2F
- bcc    $A174
- sta    $4A
- iny
- lda    ($19),y
- cmp    #$3A
- bcs    $A170
- sbc    #$2F
- bcc    $A170
- iny
- sta    $43
- lda    $4A
- asl    a
- asl    a
- adc    $4A
- asl    a
- adc    $43
- rts
- lda    $4A
- clc
- rts
- lda    #$00
- clc
- rts
- lda    $35
- adc    $42
- sta    $35
- lda    $34
- adc    $41
- sta    $34
- lda    $33
- adc    $40
- sta    $33
- lda    $32
- adc    $3F
- sta    $32
- lda    $31
- adc    $3E
- sta    $31
- rts
- pha
- ldx    $34
- lda    $31
- pha
- lda    $32
- pha
- lda    $33
- pha
- lda    $35
- asl    a
- rol    $34
- rol    $33
- rol    $32
- rol    $31
- asl    a
- rol    $34
- rol    $33
- rol    $32
- rol    $31
- adc    $35
- sta    $35
- txa
- adc    $34
- sta    $34
- pla
- adc    $33
- sta    $33
- pla
- adc    $32
- sta    $32
- pla
- adc    $31
- asl    $35
- rol    $34
- rol    $33
- rol    $32
- rol    a
- sta    $31
- pla
- rts
- lda    $31
- ora    $32
- ora    $33
- ora    $34
- ora    $35
- beq    $A1ED
- lda    $2E
- bne    $A1F3
- lda    #$01
- rts
- sta    $2E
- sta    $30
- sta    $2F
- rts
- clc
- lda    $30
- adc    #$03
- sta    $30
- bcc    $A1FF
- inc    $2F
- jsr    $A21E
- jsr    $A242
- jsr    $A242
- jsr    $A178
- bcc    $A21D
- ror    $31
- ror    $32
- ror    $33
- ror    $34
- ror    $35
- inc    $30
- bne    $A21D
- inc    $2F
- rts
- lda    $2E
- sta    $3B
- lda    $2F
- sta    $3C
- lda    $30
- sta    $3D
- lda    $31
- sta    $3E
- lda    $32
- sta    $3F
- lda    $33
- sta    $40
- lda    $34
- sta    $41
- lda    $35
- sta    $42
- rts
- jsr    $A21E
- lsr    $3E
- ror    $3F
- ror    $40
- ror    $41
- ror    $42
- rts
- sec
- lda    $30
- sbc    #$04
- sta    $30
- bcs    $A258
- dec    $2F
- jsr    $A23F
- jsr    $A208
- jsr    $A23F
- jsr    $A242
- jsr    $A242
- jsr    $A242
- jsr    $A208
- lda    #$00
- sta    $3E
- lda    $31
- sta    $3F
- lda    $32
- sta    $40
- lda    $33
- sta    $41
- lda    $34
- sta    $42
- lda    $35
- rol    a
- jsr    $A208
- lda    #$00
- sta    $3E
- sta    $3F
- lda    $31
- sta    $40
- lda    $32
- sta    $41
- lda    $33
- sta    $42
- lda    $34
- rol    a
- jsr    $A208
- lda    $32
- rol    a
- lda    $31
- adc    $35
- sta    $35
- bcc    $A2BD
- inc    $34
- bne    $A2BD
- inc    $33
- bne    $A2BD
- inc    $32
- bne    $A2BD
- inc    $31
- bne    $A2BD
- jmp    $A20B
- rts
- ldx    #$00
- stx    $35
- stx    $2F
- lda    $2D
- bpl    $A2CD
- jsr    $AD93
- ldx    #$FF
- stx    $2E
- lda    $2A
- sta    $34
- lda    $2B
- sta    $33
- lda    $2C
- sta    $32
- lda    $2D
- sta    $31
- lda    #$A0
- sta    $30
- jmp    $A303
- sta    $2E
- sta    $30
- sta    $2F
- rts
- pha
- jsr    $A686
- pla
- beq    $A2EC
- bpl    $A2FD
- sta    $2E
- lda    #$00
- sec
- sbc    $2E
- sta    $31
- lda    #$88
- sta    $30
- lda    $31
- bmi    $A2EC
- ora    $32
- ora    $33
- ora    $34
- ora    $35
- beq    $A2E6
- lda    $30
- ldy    $31
- bmi    $A2EC
- bne    $A33A
- ldx    $32
- stx    $31
- ldx    $33
- stx    $32
- ldx    $34
- stx    $33
- ldx    $35
- stx    $34
- sty    $35
- sec
- sbc    #$08
- sta    $30
- bcs    $A313
- dec    $2F
- bcc    $A313
- ldy    $31
- bmi    $A2EC
- asl    $35
- rol    $34
- rol    $33
- rol    $32
- rol    $31
- sbc    #$00
- sta    $30
- bcs    $A336
- dec    $2F
- bcc    $A336
- ldy    #$04
- lda    ($4B),y
- sta    $41
- dey
- lda    ($4B),y
- sta    $40
- dey
- lda    ($4B),y
- sta    $3F
- dey
- lda    ($4B),y
- sta    $3B
- dey
- sty    $42
- sty    $3C
- lda    ($4B),y
- sta    $3D
- ora    $3B
- ora    $3F
- ora    $40
- ora    $41
- beq    $A37A
- lda    $3B
- ora    #$80
- sta    $3E
- rts
- lda    #$71
- bne    $A387
- lda    #$76
- bne    $A387
- lda    #$6C
- sta    $4B
- lda    #$04
- sta    $4C
- ldy    #$00
- lda    $30
- sta    ($4B),y
- iny
- lda    $2E
- and    #$80
- sta    $2E
- lda    $31
- and    #$7F
- ora    $2E
- sta    ($4B),y
- lda    $32
- iny
- sta    ($4B),y
- lda    $33
- iny
- sta    ($4B),y
- lda    $34
- iny
- sta    ($4B),y
- rts
- jsr    $A7F5
- ldy    #$04
- lda    ($4B),y
- sta    $34
- dey
- lda    ($4B),y
- sta    $33
- dey
- lda    ($4B),y
- sta    $32
- dey
- lda    ($4B),y
- sta    $2E
- dey
- lda    ($4B),y
- sta    $30
- sty    $35
- sty    $2F
- ora    $2E
- ora    $32
- ora    $33
- ora    $34
- beq    $A3E1
- lda    $2E
- ora    #$80
- sta    $31
- rts
- jsr    $A3FE
- lda    $31
- sta    $2D
- lda    $32
- sta    $2C
- lda    $33
- sta    $2B
- lda    $34
- sta    $2A
- rts
- jsr    $A21E
- jmp    $A686
- lda    $30
+LA0E8:
+        sty    $1B              ; Store PtrB offset
+        lda    $49              ; Check exponent and 'decimal point' flag
+        ora    $48
+        beq    $A11F            ; No exponent, no decimal point, return integer
+        jsr    $A1DA
+        beq    $A11B
+LA0F5:
+        lda    #$A8
+        sta    $30
+        lda    #$00
+        sta    $2F
+        sta    $2E
+        jsr    $A303
+        lda    $49
+        bmi    $A111
+        beq    $A118
+LA108:
+        jsr    $A1F4
+        dec    $49
+        bne    $A108
+        beq    $A118
+LA111:
+        jsr    $A24D
+        inc    $49
+        bne    $A111
+LA118:
+        jsr    $A65C
+LA11B:
+        sec
+        lda    #$FF
+        rts
+LA11F:
+        lda    $32
+        sta    $2D
+        and    #$80
+        ora    $31
+        bne    $A0F5
+        lda    $35
+        sta    $2A
+        lda    $34
+        sta    $2B
+        lda    $33
+        sta    $2C
+        lda    #$40
+        sec
+        rts
+LA139:
+        jsr    $A14B            ; Scan following number
+        eor    #$FF             ; Negate it, return CS=Ok
+        sec
+        rts
+
+; Scan exponent, allows E E+ E- followed by one or two digits
+; -----------------------------------------------------------
+LA140:
+        iny                     ; Get next character
+        lda    ($19),y
+        cmp    #'-'             ; If '-', jump to scan and negate
+        beq    $A139
+        cmp    #'+'             ; If '+', just step past
+        bne    $A14E
+LA14B:
+        iny                     ; Get next character
+        lda    ($19),y
+LA14E:
+        cmp    #'9'+1           ; Not a digit, exit with CC and A=0
+        bcs    $A174
+        sbc    #'0'-1           ; Not a digit, exit with CC and A=0
+        bcc    $A174
+        sta    $4A              ; Store exponent digit
+        iny                     ; Get next character
+        lda    ($19),y
+        cmp    #'9'+1           ; Not a digit, exit with CC and A=exp
+        bcs    $A170
+        sbc    #'0'-1           ; Not a digit, exit with CC and A=exp
+        bcc    $A170
+        iny                     ; Step past digit, store current digit
+        sta    $43
+        lda    $4A              ; Get current exponent
+        asl    a                ; exp=exp*10
+        asl    a
+        adc    $4A
+        asl    a                ; exp=exp*10+digit
+        adc    $43
+        rts
+LA170:
+        lda    $4A              ; Get exp and return CC=Ok
+        clc
+        rts
+LA174:
+        lda    #$00             ; Return exp=0 and CC=Ok
+        clc
+        rts
+LA178:
+        lda    $35
+        adc    $42
+        sta    $35
+        lda    $34
+        adc    $41
+        sta    $34
+        lda    $33
+        adc    $40
+        sta    $33
+        lda    $32
+        adc    $3F
+        sta    $32
+        lda    $31
+        adc    $3E
+        sta    $31
+        rts
+LA197:
+        pha
+        ldx    $34
+        lda    $31
+        pha
+        lda    $32
+        pha
+        lda    $33
+        pha
+        lda    $35
+        asl    a
+        rol    $34
+        rol    $33
+        rol    $32
+        rol    $31
+        asl    a
+        rol    $34
+        rol    $33
+        rol    $32
+        rol    $31
+        adc    $35
+        sta    $35
+        txa
+        adc    $34
+        sta    $34
+        pla
+        adc    $33
+        sta    $33
+        pla
+        adc    $32
+        sta    $32
+        pla
+        adc    $31
+        asl    $35
+        rol    $34
+        rol    $33
+        rol    $32
+        rol    a
+        sta    $31
+        pla
+        rts
+LA1DA:
+        lda    $31
+        ora    $32
+        ora    $33
+        ora    $34
+        ora    $35
+        beq    $A1ED
+        lda    $2E
+        bne    $A1F3
+        lda    #$01
+        rts
+LA1ED:
+        sta    $2E
+        sta    $30
+        sta    $2F
+LA1F3:
+        rts
+LA1F4:
+        clc
+        lda    $30
+        adc    #$03
+        sta    $30
+        bcc    $A1FF
+        inc    $2F
+LA1FF:
+        jsr    $A21E
+        jsr    $A242
+        jsr    $A242
+LA208:
+        jsr    $A178
+LA20B:
+        bcc    $A21D
+        ror    $31
+        ror    $32
+        ror    $33
+        ror    $34
+        ror    $35
+        inc    $30
+        bne    $A21D
+        inc    $2F
+LA21D:
+        rts
+LA21E:
+        lda    $2E
+LA220:
+        sta    $3B
+        lda    $2F
+        sta    $3C
+        lda    $30
+        sta    $3D
+        lda    $31
+        sta    $3E
+        lda    $32
+        sta    $3F
+        lda    $33
+        sta    $40
+        lda    $34
+        sta    $41
+        lda    $35
+        sta    $42
+        rts
+LA23F:
+        jsr    $A21E
+LA242:
+        lsr    $3E
+        ror    $3F
+        ror    $40
+        ror    $41
+        ror    $42
+        rts
+LA24D:
+        sec
+        lda    $30
+        sbc    #$04
+        sta    $30
+        bcs    $A258
+        dec    $2F
+LA258:
+        jsr    $A23F
+        jsr    $A208
+        jsr    $A23F
+        jsr    $A242
+        jsr    $A242
+        jsr    $A242
+        jsr    $A208
+        lda    #$00
+        sta    $3E
+        lda    $31
+        sta    $3F
+        lda    $32
+        sta    $40
+        lda    $33
+        sta    $41
+        lda    $34
+        sta    $42
+        lda    $35
+        rol    a
+        jsr    $A208
+        lda    #$00
+        sta    $3E
+        sta    $3F
+        lda    $31
+        sta    $40
+        lda    $32
+        sta    $41
+        lda    $33
+        sta    $42
+        lda    $34
+        rol    a
+        jsr    $A208
+        lda    $32
+        rol    a
+        lda    $31
+LA2A4:
+        adc    $35
+        sta    $35
+        bcc    $A2BD
+        inc    $34
+        bne    $A2BD
+        inc    $33
+        bne    $A2BD
+        inc    $32
+        bne    $A2BD
+        inc    $31
+        bne    $A2BD
+        jmp    $A20B
+LA2BD:
+        rts
+LA2BE:
+        ldx    #$00
+        stx    $35
+        stx    $2F
+        lda    $2D
+        bpl    $A2CD
+        jsr    $AD93
+        ldx    #$FF
+LA2CD:
+        stx    $2E
+        lda    $2A
+        sta    $34
+        lda    $2B
+        sta    $33
+        lda    $2C
+        sta    $32
+        lda    $2D
+        sta    $31
+        lda    #$A0
+        sta    $30
+        jmp    $A303
+LA2E6:
+        sta    $2E
+        sta    $30
+        sta    $2F
+LA2EC:
+        rts
+LA2ED:
+        pha
+        jsr    $A686
+        pla
+        beq    $A2EC
+        bpl    $A2FD
+        sta    $2E
+        lda    #$00
+        sec
+        sbc    $2E
+LA2FD:
+        sta    $31
+        lda    #$88
+        sta    $30
+LA303:
+        lda    $31
+        bmi    $A2EC
+        ora    $32
+        ora    $33
+        ora    $34
+        ora    $35
+        beq    $A2E6
+        lda    $30
+LA313:
+        ldy    $31
+        bmi    $A2EC
+        bne    $A33A
+        ldx    $32
+        stx    $31
+        ldx    $33
+        stx    $32
+        ldx    $34
+        stx    $33
+        ldx    $35
+        stx    $34
+        sty    $35
+        sec
+        sbc    #$08
+        sta    $30
+        bcs    $A313
+        dec    $2F
+        bcc    $A313
+LA336:
+        ldy    $31
+        bmi    $A2EC
+LA33A:
+        asl    $35
+        rol    $34
+        rol    $33
+        rol    $32
+        rol    $31
+        sbc    #$00
+        sta    $30
+        bcs    $A336
+        dec    $2F
+        bcc    $A336
+LA34E:
+        ldy    #$04
+        lda    ($4B),y
+        sta    $41
+        dey
+        lda    ($4B),y
+        sta    $40
+        dey
+        lda    ($4B),y
+        sta    $3F
+        dey
+        lda    ($4B),y
+        sta    $3B
+        dey
+        sty    $42
+        sty    $3C
+        lda    ($4B),y
+        sta    $3D
+        ora    $3B
+        ora    $3F
+        ora    $40
+        ora    $41
+        beq    $A37A
+        lda    $3B
+        ora    #$80
+LA37A:
+        sta    $3E
+        rts
+LA37D:
+        lda    #$71
+        bne    $A387
+LA381:
+        lda    #$76
+        bne    $A387
+LA385:
+        lda    #$6C
+LA387:
+        sta    $4B
+        lda    #$04
+        sta    $4C
+LA38D:
+        ldy    #$00
+        lda    $30
+        sta    ($4B),y
+        iny
+        lda    $2E
+        and    #$80
+        sta    $2E
+        lda    $31
+        and    #$7F
+        ora    $2E
+        sta    ($4B),y
+        lda    $32
+        iny
+        sta    ($4B),y
+        lda    $33
+        iny
+        sta    ($4B),y
+        lda    $34
+        iny
+        sta    ($4B),y
+        rts
+LA3B2:
+        jsr    $A7F5
+LA3B5:
+        ldy    #$04
+        lda    ($4B),y
+        sta    $34
+        dey
+        lda    ($4B),y
+        sta    $33
+        dey
+        lda    ($4B),y
+        sta    $32
+        dey
+        lda    ($4B),y
+        sta    $2E
+        dey
+        lda    ($4B),y
+        sta    $30
+        sty    $35
+        sty    $2F
+        ora    $2E
+        ora    $32
+        ora    $33
+        ora    $34
+        beq    $A3E1
+        lda    $2E
+        ora    #$80
+ LA3E1:
+        sta    $31
+        rts
+
+; Convert real to integer
+; =======================
+LA3E4:
+        jsr    $A3FE            ; Convert real to integer
+LA3E7:
+        lda    $31              ; Copy to Integer Accumulator
+        sta    $2D
+        lda    $32
+        sta    $2C
+        lda    $33
+        sta    $2B
+        lda    $34
+        sta    $2A
+        rts
+LA3F8:
+        jsr    $A21E            ; Copy FloatA to FloatB
+        jmp    $A686            ; Set FloatA to zero and return
+
+; Convert float to integer
+; ========================
+; On entry, FloatA (&30-&34) holds a float
+; On exit,  FloatA (&30-&34) holds integer part
+; ---------------------------------------------
+; The real value is partially denormalised by repeatedly dividing the mantissa
+; by 2 and incrementing the exponent to multiply the number by 2, until the
+; exponent is &80, indicating that we have got to mantissa * 2^0.
+;
+LA3FE:
+        lda    $30              ; Exponent<&80, number<1, jump to return 0
  bpl    $A3F8
  jsr    $A453
  jsr    $A1DA
