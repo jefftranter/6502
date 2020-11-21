@@ -4095,7 +4095,7 @@ L9A39:
         jsr    $A21E
         jsr    $BD7E
         jsr    $A3B5
-        jmp    $9A62
+        jmp    L9A62
 L9A50:
         jsr    $BD51
         jsr    $9C42
@@ -4108,135 +4108,184 @@ L9A50:
 ; Compare FPA = FPB
 ; -----------------
 L9A62:
- ldx    $27
- ldy    #$00
- lda    $3B
- and    #$80
- sta    $3B
- lda    $2E
- and    #$80
- cmp    $3B
- bne    $9A92
- lda    $3D
- cmp    $30
- bne    $9A93
- lda    $3E
- cmp    $31
- bne    $9A93
- lda    $3F
- cmp    $32
- bne    $9A93
- lda    $40
- cmp    $33
- bne    $9A93
- lda    $41
- cmp    $34
- bne    $9A93
- rts
- ror    a
- eor    $3B
- rol    a
- lda    #$01
- rts
- jmp    L8C0E
- txa
- beq    $9AE7
- bmi    $9A50
- jsr    $BD94
- jsr    $9C42
- tay
- beq    $9A9A
- bmi    $9A39
- lda    $2D
- eor    #$80
- sta    $2D
- sec
- ldy    #$00
- lda    ($04),y
- sbc    $2A
- sta    $2A
- iny
- lda    ($04),y
- sbc    $2B
- sta    $2B
- iny
- lda    ($04),y
- sbc    $2C
- sta    $2C
- iny
- lda    ($04),y
- ldy    #$00
- eor    #$80
- sbc    $2D
- ora    $2A
- ora    $2B
- ora    $2C
- php
- clc
- lda    #$04
- adc    $04
- sta    $04
- bcc    $9AE5
- inc    $05
- plp
- rts
- jsr    $BDB2
- jsr    $9C42
- tay
- bne    $9A9A
- stx    $37
- ldx    $36
- ldy    #$00
- lda    ($04),y
- sta    $39
- cmp    $36
- bcs    $9AFF
- tax
- stx    $3A
- ldy    #$00
- cpy    $3A
- beq    $9B11
- iny
- lda    ($04),y
- cmp    $05FF,y
- beq    $9B03
- bne    $9B15
- lda    $39
- cmp    $36
- php
- jsr    $BDDC
- ldx    $37
- plp
- rts
- lda    $0B
- sta    $19
- lda    $0C
- sta    $1A
- lda    $0A
- sta    $1B
- jsr    $9B72
- cpx    #$84
- beq    $9B3A
- cpx    #$82
- beq    $9B55
- dec    $1B
- tay
- sta    $27
- rts
- jsr    $9B6B
- tay
- jsr    $92F0
- ldy    #$03
- lda    ($04),y
- ora    $002A,y
- sta    $002A,y
- dey
- bpl    $9B43
- jsr    $BDFF
- lda    #$40
- bne    $9B2C
- jsr    $9B6B
- tay
+        ldx    $27
+        ldy    #$00
+        lda    $3B
+        and    #$80
+        sta    $3B
+        lda    $2E
+        and    #$80
+        cmp    $3B
+        bne    $9A92
+        lda    $3D
+        cmp    $30
+        bne    $9A93
+        lda    $3E
+        cmp    $31
+        bne    $9A93
+        lda    $3F
+        cmp    $32
+        bne    $9A93
+        lda    $40
+        cmp    $33
+        bne    $9A93
+        lda    $41
+        cmp    $34
+        bne    $9A93
+L9A92:
+        rts
+
+L9A93:
+        ror    a
+        eor    $3B
+        rol    a
+        lda    #$01
+        rts
+
+L9A9A:
+        jmp    L8C0E            ; Jump to 'Type mismatch' error
+
+; Evaluate next expression and compare with previous
+; --------------------------------------------------
+L9A9D:
+        txa
+L9A9E:
+        beq    $9AE7            ; Jump if current is string
+        bmi    $9A50            ; Jump if current is float
+        jsr    $BD94            ; Stack integer
+        jsr    $9C42            ; Evaluate next expression
+        tay
+        beq    $9A9A            ; Error if string
+        bmi    $9A39            ; Float, jump to compare floats
+
+; Compare IntA with top of stack
+; ------------------------------
+        lda    $2D
+        eor    #$80
+        sta    $2D
+        sec
+        ldy    #$00
+        lda    ($04),y
+        sbc    $2A
+        sta    $2A
+        iny
+        lda    ($04),y
+        sbc    $2B
+        sta    $2B
+        iny
+        lda    ($04),y
+        sbc    $2C
+        sta    $2C
+        iny
+        lda    ($04),y
+        ldy    #$00
+        eor    #$80
+        sbc    $2D
+        ora    $2A
+        ora    $2B
+        ora    $2C
+        php                     ; Drop integer from stack
+        clc
+        lda    #$04
+        adc    $04
+        sta    $04
+        bcc    $9AE5
+        inc    $05
+L9AE5:
+        plp
+        rts
+
+; Compare string with next expression
+; -----------------------------------
+L9AE7:
+        jsr    $BDB2
+        jsr    $9C42
+        tay
+        bne    $9A9A
+        stx    $37
+        ldx    $36
+        ldy    #$00
+        lda    ($04),y
+        sta    $39
+        cmp    $36
+        bcs    $9AFF
+        tax
+L9AFF:
+        stx    $3A
+        ldy    #$00
+L9B03:
+        cpy    $3A
+        beq    $9B11
+        iny
+        lda    ($04),y
+        cmp    $05FF,y
+        beq    $9B03
+        bne    $9B15
+L9B11:
+        lda    $39
+        cmp    $36
+L9B15:
+        php
+        jsr    $BDDC
+        ldx    $37
+        plp
+        rts
+
+; EXPRESSION EVALUATOR
+; ====================
+
+; Evaluate expression at PtrA
+; ---------------------------
+L9B1D:
+        lda    $0B              ; Copy PtrA to PtrB
+        sta    $19
+        lda    $0C
+        sta    $1A
+        lda    $0A
+        sta    $1B
+
+; Evaluate expression at PtrB
+; ---------------------------
+; TOP LEVEL EVALUATOR
+;
+; Evaluator Level 7 - OR, EOR
+; ---------------------------
+L9B29:
+        jsr    $9B72            ; Call Evaluator Level 6 - AND
+                                ; Returns A=type, value in IntA/FPA/StrA, X=next char
+L9B2C:
+        cpx    #tknOR           ; Jump if next char is OR
+        beq    $9B3A
+        cpx    #tknEOR          ; Jump if next char is EOR
+        beq    $9B55
+        dec    $1B              ; Step PtrB back to last char
+        tay
+        sta    $27
+        rts
+
+; OR numeric
+; ----------
+L9B3A:
+        jsr    $9B6B            ; Stack as integer, call Evaluator Level 6
+        tay
+        jsr    $92F0            ; If float, convert to integer
+        ldy    #$03
+L9B43:
+        lda    ($04),y          ; OR IntA with top of stack
+        ora    $002A,y
+        sta    $002A,y          ; Store result in IntA
+        dey
+        bpl    $9B43
+L9B4E:
+        jsr    $BDFF            ; Drop integer from stack
+        lda    #$40
+        bne    $9B2C            ; Return type=Int, jump to check for more OR/EOR
+
+; EOR numeric
+; -----------
+L9B55:
+        jsr    $9B6B
+        tay
  jsr    $92F0
  ldy    #$03
  lda    ($04),y

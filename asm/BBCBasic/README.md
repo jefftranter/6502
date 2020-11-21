@@ -1,3 +1,11 @@
+TODO:
+- Enter all of source and comments
+- Convert absolute references to symbols
+- Try relocating
+- Research and create stubs for OS calls
+- Implement OS calls
+- Test and debug (initially use my simulator)
+
 This is a port of BBC Basic 2 to the Ohio Scientific C1P/Superboard 2
 (and hopefully later, more machines).
 
