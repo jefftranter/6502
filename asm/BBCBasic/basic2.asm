@@ -4359,599 +4359,810 @@ L9BA8:
         bne    $9BB5
 L9BB4:
         dey                     ; Decrement to &FF for equal
-        sty    $2A
+L9BB5:
+        sty    $2A              ; Store 0/-1 in IntA
         sty    $2B
         sty    $2C
-        sty    $2D
+        sty    $2D              ; Return type=Int
         lda    #$40
         rts
 
- tax
- ldy    $1B
- lda    ($19),y
- cmp    #$3D
- beq    $9BD4
- cmp    #$3E
- beq    $9BDF
- jsr    $9A9D
- bcc    $9BB4
- bcs    $9BB5
- inc    $1B
- jsr    $9A9D
- beq    $9BB4
- bcc    $9BB4
- bcs    $9BB5
- inc    $1B
- jsr    $9A9D
- bne    $9BB4
- beq    $9BB5
- tax
- ldy    $1B
- lda    ($19),y
- cmp    #$3D
- beq    $9BFA
- jsr    $9A9D
- beq    $9BB5
- bcs    $9BB4
- bcc    $9BB5
- inc    $1B
- jsr    $9A9D
- bcs    $9BB4
- bcc    $9BB5
- brk
- .byte  $13
- .byte  'S'
- .byte  't'
- .byte  'r'
- adc    #$6E
- .byte  'g'
- jsr    $6F74
- .byte  'o'
- jsr    $6F6C
- ror    a:$0067
- jsr    $BDB2
- jsr    $9E20
- tay
- bne    $9C88
- clc
- stx    $37
- ldy    #$00
- lda    ($04),y
- adc    $36
- bcs    $9C03
- tax
- pha
- ldy    $36
- lda    $05FF,y
- sta    $05FF,x
- dex
- dey
- bne    $9C2D
- jsr    $BDCB
- pla
- sta    $36
- ldx    $37
- tya
- beq    $9C45
- jsr    $9DD1
- cpx    #$2B
- beq    $9C4E
- cpx    #$2D
- beq    $9CB5
- rts
- tay
- beq    $9C15
- bmi    $9C8B
- jsr    $9DCE
- tay
- beq    $9C88
- bmi    $9CA7
- ldy    #$00
- clc
- lda    ($04),y
- adc    $2A
- sta    $2A
- iny
- lda    ($04),y
- adc    $2B
- sta    $2B
- iny
- lda    ($04),y
- adc    $2C
- sta    $2C
- iny
- lda    ($04),y
- adc    $2D
- sta    $2D
- clc
- lda    $04
- adc    #$04
- sta    $04
- lda    #$40
- bcc    $9C45
- inc    $05
- bcs    $9C45
- jmp    L8C0E
- jsr    $BD51
- jsr    $9DD1
- tay
- beq    $9C88
- stx    $27
- bmi    $9C9B
- jsr    $A2BE
- jsr    $BD7E
- jsr    $A500
- ldx    $27
- lda    #$FF
- bne    $9C45
- stx    $27
- jsr    $BDEA
- jsr    $BD51
- jsr    $A2BE
- jmp    $9C9B
- tay
- beq    $9C88
- bmi    $9CE1
- jsr    $9DCE
- tay
- beq    $9C88
- bmi    $9CFA
- sec
- ldy    #$00
- lda    ($04),y
- sbc    $2A
- sta    $2A
- iny
- lda    ($04),y
- sbc    $2B
- sta    $2B
- iny
- lda    ($04),y
- sbc    $2C
- sta    $2C
- iny
- lda    ($04),y
- sbc    $2D
- jmp    $9C77
- jsr    $BD51
- jsr    $9DD1
- tay
- beq    $9C88
- stx    $27
- bmi    $9CF1
- jsr    $A2BE
- jsr    $BD7E
- jsr    $A4FD
- jmp    $9CA1
- stx    $27
- jsr    $BDEA
- jsr    $BD51
- jsr    $A2BE
- jsr    $BD7E
- jsr    $A4D0
- jmp    $9CA1
- jsr    $A2BE
- jsr    $BDEA
- jsr    $BD51
- jsr    $A2BE
- jmp    $9D2C
- jsr    $A2BE
- jsr    $BD51
- jsr    $9E20
- stx    $27
- tay
- jsr    $92FD
- jsr    $BD7E
- jsr    $A656
- lda    #$FF
- ldx    $27
- jmp    $9DD4
- jmp    L8C0E
- tay
- beq    $9D39
- bmi    $9D20
- lda    $2D
- cmp    $2C
- bne    $9D1D
- tay
- beq    $9D4E
- cmp    #$FF
- bne    $9D1D
- eor    $2B
- bmi    $9D1D
- jsr    $9E1D
- stx    $27
- tay
- beq    $9D39
- bmi    $9D11
- lda    $2D
- cmp    $2C
- bne    $9D0E
- tay
- beq    $9D69
- cmp    #$FF
- bne    $9D0E
- eor    $2B
- bmi    $9D0E
- lda    $2D
- pha
- jsr    $AD71
- ldx    #$39
- jsr    $BE44
- jsr    $BDEA
- pla
- eor    $2D
- sta    $37
- jsr    $AD71
- ldy    #$00
- ldx    #$00
- sty    $3F
- sty    $40
- lsr    $3A
- ror    $39
- bcc    $9DA6
- clc
- tya
- adc    $2A
- tay
- txa
- adc    $2B
- tax
- lda    $3F
- adc    $2C
- sta    $3F
- lda    $40
- adc    $2D
- sta    $40
- asl    $2A
- rol    $2B
- rol    $2C
- rol    $2D
- lda    $39
- ora    $3A
- bne    $9D8B
- sty    $3D
- stx    $3E
- lda    $37
- php
- ldx    #$3D
- jsr    $AF56
- plp
- bpl    $9DC6
- jsr    $AD93
- ldx    $27
- jmp    $9DD4
- jmp    $9D3C
- jsr    $BD94
- jsr    $9E20
- cpx    #$2A
- beq    $9DCB
- cpx    #$2F
- beq    $9DE5
- cpx    #$83
- beq    $9E01
- cpx    #$81
- beq    $9E0A
- rts
- tay
- jsr    $92FD
- jsr    $BD51
- jsr    $9E20
- stx    $27
- tay
- jsr    $92FD
- jsr    $BD7E
- jsr    $A6AD
- ldx    $27
- lda    #$FF
- bne    $9DD4
- jsr    $99BE
- lda    $38
- php
- jmp    $9DBB
- jsr    $99BE
- rol    $39
- rol    $3A
- rol    $3B
- rol    $3C
- bit    $37
- php
- ldx    #$39
- jmp    $9DBD
- jsr    $BD94
- jsr    $ADEC
- pha
- ldy    $1B
- inc    $1B
- lda    ($19),y
- cmp    #$20
- beq    $9E24
- tax
- pla
- cpx    #$5E
- beq    $9E35
- rts
- tay
- jsr    $92FD
- jsr    $BD51
- jsr    $92FA
- lda    $30
- cmp    #$87
- bcs    $9E88
- jsr    $A486
- bne    $9E59
- jsr    $BD7E
- jsr    $A3B5
- lda    $4A
- jsr    $AB12
- lda    #$FF
- bne    $9E23
- jsr    $A381
- lda    $04
- sta    $4B
- lda    $05
- sta    $4C
- jsr    $A3B5
- lda    $4A
- jsr    $AB12
- jsr    $A37D
- jsr    $BD7E
- jsr    $A3B5
- jsr    $A801
- jsr    $AAD1
- jsr    $AA94
- jsr    $A7ED
- jsr    $A656
- lda    #$FF
- bne    $9E23
- jsr    $A381
- jsr    $A699
- bne    $9E6C
- tya
- bpl    $9E96
- jsr    $A3E4
- ldx    #$00
- ldy    #$00
- lda    $002A,y
- pha
- and    #$0F
- sta    $3F,x
- pla
- lsr    a
- lsr    a
- lsr    a
- lsr    a
- inx
- sta    $3F,x
- inx
- iny
- cpy    #$04
- bne    $9E9A
- dex
- beq    $9EB7
- lda    $3F,x
- beq    $9EB0
- lda    $3F,x
- cmp    #$0A
- bcc    $9EBF
- adc    #$06
- adc    #$30
- jsr    $A066
- dex
- bpl    $9EB7
- rts
- bpl    $9ED1
- lda    #$2D
- sta    $2E
- jsr    $A066
- lda    $30
- cmp    #$81
- bcs    $9F25
- jsr    $A1F4
- dec    $49
- jmp    $9ED1
- ldx    $0402
- cpx    #$03
- bcc    $9EE8
- ldx    #$00
- stx    $37
- lda    $0401
- beq    $9EF5
- cmp    #$0A
- bcs    $9EF9
- bcc    $9EFB
- cpx    #$02
- beq    $9EFB
- lda    #$0A
- sta    $38
- sta    $4E
- lda    #$00
- sta    $36
- sta    $49
- bit    $15
- bmi    $9E90
- tya
- bmi    $9F0F
- jsr    $A2BE
- jsr    $A1DA
- bne    $9EC8
- lda    $37
- bne    $9F1D
- lda    #$30
- jmp    $A066
- jmp    $9F9C
- jsr    $A699
- bne    $9F34
- cmp    #$84
- bcc    $9F39
- bne    $9F31
- lda    $31
- cmp    #$A0
- bcc    $9F39
- jsr    $A24D
- inc    $49
- jmp    $9ED1
- lda    $35
- sta    $27
- jsr    $A385
- lda    $4E
- sta    $38
- ldx    $37
- cpx    #$02
- bne    $9F5C
- adc    $49
- bmi    $9FA0
- sta    $38
- cmp    #$0B
- bcc    $9F5C
- lda    #$0A
- sta    $38
- lda    #$00
- sta    $37
- jsr    $A686
- lda    #$A0
- sta    $31
- lda    #$83
- sta    $30
- ldx    $38
- beq    $9F71
- jsr    $A24D
- dex
- bne    $9F6B
- jsr    $A7F5
- jsr    $A34E
- lda    $27
- sta    $42
- jsr    $A50B
- lda    $30
- cmp    #$84
- bcs    $9F92
- ror    $31
- ror    $32
- ror    $33
- ror    $34
- ror    $35
- inc    $30
- bne    $9F7E
- lda    $31
- cmp    #$A0
- bcs    $9F20
- lda    $38
- bne    $9FAD
- cmp    #$01
- beq    $9FE6
- jsr    $A686
- lda    #$00
- sta    $49
- lda    $4E
- sta    $38
- inc    $38
- lda    #$01
- cmp    $37
- beq    $9FE6
- ldy    $49
- bmi    $9FC3
- cpy    $38
- bcs    $9FE6
- lda    #$00
- sta    $49
- iny
- tya
- bne    $9FE6
- lda    $37
- cmp    #$02
- beq    $9FCF
- lda    #$01
- cpy    #$FF
- bne    $9FE6
- lda    #$30
- jsr    $A066
- lda    #$2E
- jsr    $A066
- lda    #$30
- inc    $49
- beq    $9FE4
- jsr    $A066
- bne    $9FDB
- lda    #$80
- sta    $4E
- jsr    $A040
- dec    $4E
- bne    $9FF4
- lda    #$2E
- jsr    $A066
- dec    $38
- bne    $9FE8
- ldy    $37
- dey
- beq    $A015
- dey
- beq    $A011
- ldy    $36
- dey
- lda    $0600,y
- cmp    #$30
- beq    $A002
- cmp    #$2E
- beq    $A00F
- iny
- sty    $36
- lda    $49
- beq    $A03F
- lda    #$45
- jsr    $A066
- lda    $49
- bpl    $A028
- lda    #$2D
- jsr    $A066
- sec
- lda    #$00
- sbc    $49
- jsr    $A052
- lda    $37
- beq    $A03F
- lda    #$20
- ldy    $49
- bmi    $A038
- jsr    $A066
- cpx    #$00
- bne    $A03F
- jmp    $A066
- rts
- lda    $31
- lsr    a
- lsr    a
- lsr    a
- lsr    a
- jsr    $A064
- lda    $31
- and    #$0F
- sta    $31
- jmp    $A197
- ldx    #$FF
- sec
- inx
- sbc    #$0A
- bcs    $A055
- adc    #$0A
- pha
- txa
- beq    $A063
- jsr    $A064
- pla
- ora    #$30
- stx    $3B
- ldx    $36
- sta    $0600,x
- ldx    $3B
- inc    $36
- rts
- clc
- stx    $35
- jsr    $A1DA
- lda    #$FF
- rts
- ldx    #$00
+; < <= <>
+; -------
+L9BC0:
+        tax                     ; Get next char from PtrB
+        ldy    $1B
+        lda    ($19),y
+        cmp    #'='             ; Jump for <=
+        beq    $9BD4
+        cmp    #'>'             ; Jump for <>
+        beq    $9BDF
+
+; Must be < numeric
+; -----------------
+        jsr    $9A9D            ; Evaluate next and compare
+        bcc    $9BB4            ; Jump to return TRUE if <, FALSE if not <
+        bcs    $9BB5
+
+; <= numeric
+; ----------
+L9BD4:
+        inc    $1B              ; Step past '=', evaluate next and compare
+        jsr    $9A9D    
+        beq    $9BB4            ; Jump to return TRUE if =, TRUE if <
+        bcc    $9BB4
+        bcs    $9BB5            ; Jump to return FALSE otherwise
+
+; <> numeric
+; ----------
+L9BDF:
+        inc    $1B              ; Step past '>', evaluate next and compare
+        jsr    $9A9D
+        bne    $9BB4            ; Jump to return TRUE if <>, FALSE if =
+        beq    $9BB5
+
+; > >=
+; ----
+L9BE8:
+        tax                     ; Get next char from PtrB
+        ldy    $1B
+        lda    ($19),y
+        cmp    #'='             ; Jump for >=
+        beq    $9BFA
+
+; > numeric
+; ---------
+  jsr    $9A9D                  ; Evaluate next and compare
+  beq    $9BB5                  ; Jump to return FALSE if =, TRUE if >
+  bcs    $9BB4
+  bcc    $9BB5                  ; Jump to return FALSE if <
+
+; >= numeric
+; ----------
+L9BFA:
+        inc    $1B              ; Step past '=', evaluate next and compare
+        jsr    $9A9D
+        bcs    $9BB4            ; Jump to return TRUE if >=, FALSE if <
+        bcc    $9BB5
+
+L9C03:
+        brk
+        .byte  $13, "String too long"
+        brk
+
+; String addition
+; ---------------
+L9C15:
+        jsr    $BDB2            ; Stack string, call Evaluator Level 2
+        jsr    $9E20
+        tay                     ; string + number, jump to 'Type mismatch' error
+        bne    $9C88
+        clc
+        stx    $37
+        ldy    #$00             ; Get stacked string length
+        lda    ($04),y
+        adc    $36              ; If added string length >255, jump to error
+        bcs    $9C03
+        tax                     ; Save new string length
+        pha
+        ldy    $36
+L9C2D:
+        lda    $05FF,y          ; Move current string up in string buffer
+        sta    $05FF,x
+        dex
+        dey
+        bne    L9C2D
+        jsr    $BDCB            ; Unstack string to start of string buffer
+        pla                     ; Set new string length
+        sta    $36
+        ldx    $37
+        tya                     ; Set type=string, jump to check for more + or -
+        beq    $9C45
+
+; Evaluator Level 4, + -
+; ----------------------
+L9C42:
+        jsr    $9DD1            ; Call Evaluator Level 3, * / DIV MOD
+L9C45:
+        cpx    #'+'             ; Jump with addition
+        beq    $9C4E
+        cpx    #'-'             ; Jump with subtraction
+        beq    $9CB5
+        rts
+
+; + <value>
+; ---------
+L9C4E:
+        tay                     ; Jump if current value is a string
+        beq    $9C15
+        bmi    $9C8B            ; Jump if current value is a float
+
+; Integer addition
+; ----------------
+        jsr    $9DCE            ; Stack current and call Evaluator Level 3
+        tay                     ; If int + string, jump to 'Type mismatch' error
+        beq    $9C88
+        bmi    $9CA7            ; If int + float, jump ...
+        ldy    #$00
+        clc                     ; Add top of stack to IntA
+        lda    ($04),y
+        adc    $2A
+        sta    $2A
+        iny                     ; Store result in IntA
+        lda    ($04),y
+        adc    $2B
+        sta    $2B
+        iny
+        lda    ($04),y
+        adc    $2C
+        sta    $2C
+        iny
+        lda    ($04),y
+        adc    $2D
+L9C77:
+        sta    $2D
+        clc
+        lda    $04              ; Drop integer from stack
+        adc    #$04
+        sta    $04
+        lda    #$40             ; Set result=integer, jump to check for more + or -
+        bcc    $9C45
+        inc    $05
+        bcs    $9C45
+L9C88:
+        jmp    L8C0E            ; Jump to 'Type mismatch' error
+
+;Real addition
+;-------------
+LC8B:
+        jsr    $BD51            ; Stack float, call Evaluator Level 3
+        jsr    $9DD1
+        tay                     ; float + string, jump to 'Type mismatch' error
+        beq    $9C88
+        stx    $27              ; float + float, skip conversion
+        bmi    $9C9B
+        jsr    $A2BE            ; float + int, convert int to float
+L9C2B:
+        jsr    $BD7E            ; Pop float from stack, point FPTR to it
+        jsr    $A500            ; Unstack float to FPA2 and add to FP1A
+L9CA1:
+        ldx    $27              ; Get nextchar back
+        lda    #$FF             ; Set result=float, loop to check for more + or -
+        bne    $9C45
+
+; int + float
+; -----------
+L9CA7:
+        stx    $27              ; Unstack integer to IntA
+        jsr    $BDEA
+        jsr    $BD51            ; Stack float, convert integer in IntA to float in FPA1
+        jsr    $A2BE
+        jmp    $9C9B            ; Jump to do float + <stacked float>
+
+; - numeric
+; ---------
+L9CB5:
+        tay                     ; If current value is a string, jump to error
+        beq    $9C88
+        bmi    $9CE1            ; Jump if current value is a float
+
+; Integer subtraction
+; -------------------
+        jsr    $9DCE            ; Stack current and call Evaluator Level 3
+        tay                     ; int + string, jump to error
+        beq    $9C88
+        bmi    $9CFA            ; int + float, jump to convert and do real subtraction
+        sec
+        ldy    #$00
+        lda    ($04),y
+        sbc    $2A
+        sta    $2A
+        iny                     ; Subtract IntA from top of stack
+        lda    ($04),y
+        sbc    $2B
+        sta    $2B
+        iny                     ; Store in IntA
+        lda    ($04),y
+        sbc    $2C
+        sta    $2C
+        iny
+        lda    ($04),y
+        sbc    $2D
+        jmp    $9C77            ; Jump to pop stack and loop for more + or -
+
+; Real subtraction
+; ----------------
+L9CE1:
+        jsr    $BD51            ; Stack float, call Evaluator Level 3
+        jsr    $9DD1
+        tay                     ; float - string, jump to 'Type mismatch' error
+        beq    $9C88
+        stx    $27              ; float - float, skip conversion
+        bmi    $9CF1
+        jsr    $A2BE            ; float - int, convert int to float
+L9CF1:
+        jsr    $BD7E            ; Pop float from stack and point FPTR to it
+        jsr    $A4FD            ; Unstack float to FPA2 and subtract it from FPA1
+        jmp    $9CA1            ; Jump to set result and loop for more + or -
+
+; int - float
+; -----------
+L9CFA:
+        stx    $27              ; Unstack integer to IntA
+        jsr    $BDEA
+        jsr    $BD51            ; Stack float, convert integer in IntA to float in FPA1
+        jsr    $A2BE
+        jsr    $BD7E            ; Pop float from stack, point FPTR to it
+        jsr    $A4D0            ; Subtract FPTR float from FPA1 float
+        jmp    $9CA1            ; Jump to set result and loop for more + or -
+L9D0E:
+        jsr    $A2BE
+L9D11:
+        jsr    $BDEA
+        jsr    $BD51
+        jsr    $A2BE
+        jmp    $9D2C
+L9D1D:
+        jsr    $A2BE
+L9D20:
+        jsr    $BD51
+        jsr    $9E20
+        stx    $27
+        tay
+        jsr    $92FD
+L92DC:
+               jsr    $BD7E
+               jsr    $A656
+               lda    #$FF
+               ldx    $27
+               jmp    $9DD4
+L9D39:
+        jmp    L8C0E
+
+; * <value>
+; ---------
+L9D3C:
+        tay                     ; If current value is string, jump to error
+        beq    $9D39
+        bmi    $9D20            ; Jump if current value is a float
+        lda    $2D
+        cmp    $2C
+        bne    $9D1D
+        tay
+        beq    $9D4E
+        cmp    #$FF
+        bne    $9D1D
+L9D4E:
+        eor    $2B
+        bmi    $9D1D
+        jsr    $9E1D
+        stx    $27
+        tay
+        beq    $9D39
+        bmi    $9D11
+        lda    $2D
+        cmp    $2C
+        bne    $9D0E
+        tay
+        beq    $9D69
+        cmp    #$FF
+        bne    $9D0E
+L9D69:
+        eor    $2B
+        bmi    $9D0E
+        lda    $2D
+        pha
+        jsr    $AD71
+        ldx    #$39
+        jsr    $BE44
+        jsr    $BDEA
+        pla
+        eor    $2D
+        sta    $37
+        jsr    $AD71
+        ldy    #$00
+        ldx    #$00
+        sty    $3F
+        sty    $40
+L9D8B:
+        lsr    $3A
+        ror    $39
+        bcc    $9DA6
+        clc
+        tya
+        adc    $2A
+        tay
+        txa
+        adc    $2B
+        tax
+        lda    $3F
+        adc    $2C
+        sta    $3F
+        lda    $40
+        adc    $2D
+        sta    $40
+L9DA6:
+        asl    $2A
+        rol    $2B
+        rol    $2C
+        rol    $2D
+        lda    $39
+        ora    $3A
+        bne    $9D8B
+        sty    $3D
+        stx    $3E
+        lda    $37
+        php
+L9DBB:
+        ldx    #$3D
+L9DBD:
+        jsr    $AF56
+        plp
+        bpl    $9DC6
+        jsr    $AD93
+L9DC6:
+        ldx    $27
+        jmp    $9DD4
+ 
+; * <value>
+; ---------
+L9DCB:
+        jmp    $9D3C            ; Bounce back to multiply code
+
+; Stack current value and continue in Evaluator Level 3
+; ------------------------------------------------------- 
+L9DCE:
+        jsr    $BD94
+
+; Evaluator Level 3, * / DIV MOD
+; ------------------------------
+L9DD1:
+        jsr    $9E20            ; Call Evaluator Level 2, ^
+L9DD4:
+        cpx    #'*'             ; Jump with multiply
+        beq    $9DCB
+        cpx    # '/'            ; Jump with divide
+        beq    $9DE5
+        cpx    #tknMOD          ; Jump with MOD
+        beq    $9E01
+        cpx    #tknDIV          ; Jump with DIV
+        beq    $9E0A
+        rts
+
+;/ <value>
+;---------
+L9DE5:
+        tay                     ; Ensure current value is real
+        jsr    $92FD
+        jsr    $BD51            ; Stack float, call Evaluator Level 2
+        jsr    $9E20
+        stx    $27              ; Ensure current value is real
+        tay
+        jsr    $92FD
+        jsr    $BD7E            ; Unstack to FPTR, call divide routine
+        jsr    $A6AD
+        ldx    $27              ; Set result, loop for more * / MOD DIV
+        lda    #$FF
+        bne    $9DD4
+
+;MOD <value>
+; -----------
+L9E01:
+        jsr    $99BE            ; Ensure current value is integer
+        lda    $38
+        php
+        jmp    $9DBB            ; Jump to MOD routine
+
+; DIV <value>
+; -----------
+L9E0A:
+        jsr    $99BE            ; Ensure current value is integer
+        rol    $39              ; Multiply IntA by 2
+        rol    $3A
+        rol    $3B
+        rol    $3C
+        bit    $37
+        php
+        ldx    #$39             ; Jump to DIV routine
+        jmp    $9DBD
+
+; Stack current integer and evaluate another Level 2
+; --------------------------------------------------
+L9E1D:
+        jsr    $BD94            ; Stack integer
+
+; Evaluator Level 2, ^
+; --------------------
+L9E20:
+        jsr    $ADEC            ; Call Evaluator Level 1, - + NOT function ( ) ? ! $ | "
+L9E23:
+        pha
+L9E24:
+        ldy    $1B              ; Get character
+        inc    $1B
+        lda    ($19),y
+        cmp    #' '             ; Skip spaces
+        beq    $9E24
+        tax
+        pla
+        cpx    #'^'             ; Return if not ^
+        beq    $9E35
+        rts
+
+; ^ <value>
+; ---------
+L9E35:
+        tay                     ; Ensure current value is a float
+        jsr    $92FD
+        jsr    $BD51            ; Stack float, evaluate a real
+        jsr    $92FA
+        lda    $30
+        cmp    #$87
+        bcs    $9E88
+        jsr    $A486
+        bne    $9E59
+        jsr    $BD7E
+        jsr    $A3B5
+        lda    $4A
+        jsr    $AB12
+        lda    #$FF             ; Set result=real, loop to check for more ^
+        bne    $9E23
+L9E59:
+        jsr    $A381
+        lda    $04
+        sta    $4B
+        lda    $05
+        sta    $4C
+        jsr    $A3B5
+        lda    $4A
+        jsr    $AB12
+L9E6C:
+        jsr    $A37D
+        jsr    $BD7E
+        jsr    $A3B5
+        jsr    $A801
+        jsr    $AAD1
+        jsr    $AA94
+        jsr    $A7ED
+        jsr    $A656
+        lda    #$FF             ; Set result=real, loop to check for more ^
+        bne    $9E23
+L9E88:
+        jsr    $A381
+        jsr    $A699
+        bne    $9E6C
+
+;Convert number to hex string
+;----------------------------
+L9E90:
+        tya                     ; Convert real to integer
+        bpl    $9E96
+        jsr    $A3E4
+L9E96:
+        ldx    #$00
+        ldy    #$00
+L9E9A:
+        lda    $002A,y          ; Expand four bytes into eight digits
+        pha
+        and    #$0F
+        sta    $3F,x
+        pla
+        lsr    a
+        lsr    a
+        lsr    a
+        lsr    a
+        inx
+        sta    $3F,x
+        inx
+        iny
+        cpy    #$04             ; Loop for four bytes
+        bne    $9E9A
+L9EB0:
+        dex                     ; No digits left, output a single zero
+        beq    $9EB7
+        lda    $3F,x            ; Skip leading zeros
+        beq    $9EB0
+L9EB7:
+        lda    $3F,x            ; Get byte from workspace
+        cmp    #$0A
+        bcc    $9EBF
+        adc    #$06
+L9EBF:
+        adc    #'0'             ; Convert to digit and store in buffer
+        jsr    $A066
+        dex
+        bpl    $9EB7
+        rts
+
+; Output nonzero real number
+; --------------------------
+L9EC8:
+        bpl    $9ED1            ; Jump forward if positive
+        lda    #'-'             ; A='-', clear sign flag
+        sta    $2E
+        jsr    $A066            ; Add '-' to string buffer
+L9ED1:
+        lda    $30              ; Get exponent
+        cmp    #$81             ; If m*2^1 or larger, number>=1, jump to output it
+        bcs    $9F25
+        jsr    $A1F4            ; FloatA=FloatA*10
+        dec    $49
+        jmp    $9ED1
+
+; Convert numeric value to string
+; ===============================
+; On entry, FloatA (&2E-&35)  = number
+;           or IntA (&2A-&2D) = number
+;                           Y = type
+;                          @% = print format
+;                     &15.b7 set if hex
+; Uses,     &37=format type 0/1/2=G/E/F
+;           &38=max digits
+;           &49
+; On exit,  StrA contains string version of number
+;           &36=string length
+;
+L9EDF:
+        ldx    $0402            ; Get format byte
+        cpx    #$03             ; If <3, ok - use it
+        bcc    $9EE8
+        ldx    #$00             ; If invalid, &00 for General format
+L9EE8:
+        stx    $37              ; Store format type
+        lda    $0401            ; If digits=0, jump to check format
+        beq    $9EF5
+        cmp    #$0A             ; If 10+ digits, jump to use 10 digits
+        bcs    $9EF9
+        bcc    $9EFB            ; If <10 digits, use specified number
+L9EF5:
+        cpx    #$02             ; If fixed format, use zero digits
+        beq    $9EFB
+
+; STR$ enters here to use general format
+; --------------------------------------
+L9EF9:
+        lda    #$0A             ; Otherwise, default to ten digits
+L9EFB:
+        sta    $38              ; Store digit length
+        sta    $4E
+        lda    #$00             ; Set initial output length to 0, initial exponent to 0
+        sta    $36
+        sta    $49
+        bit    $15              ; Jump for hex conversion if &15.b7 set
+        bmi    $9E90
+        tya                     ; Convert integer to real
+        bmi    $9F0F
+        jsr    $A2BE
+L9F0F:
+        jsr    $A1DA            ; Get -1/0/+1 sign, jump if not zero to output nonzero number
+        bne    $9EC8
+        lda    $37              ; If not General format, output fixed or exponential zero
+        bne    $9F1D
+        lda    #'0'             ; Store single '0' into string buffer and return
+        jmp    $A066
+L9F1D:
+        jmp    $9F9C            ; Jump to output zero in fixed or exponential format
+L9F0:
+        jsr    $A699            ; FloatA=1.0
+        bne    $9F34
+
+; FloatA now is >=1, check that it is <10
+; ---------------------------------------
+L9F25:
+        cmp    #$84             ; Exponent<4, FloatA<10, jump to convert it
+        bcc    $9F39
+        bne    $9F31            ; Exponent<>4, need to divide it
+        lda    $31              ; Get mantissa top byte
+        cmp    #$A0             ; Less than &A0, less than ten, jump to convert it
+        bcc    $9F39
+L9F31:
+        jsr    $A24D            ; FloatA=FloatA / 10
+L9F34:
+        inc    $49              ; Jump back to get the number >=1 again
+        jmp    $9ED1
+
+; FloatA is now between 1 and 9.999999999
+; ---------------------------------------
+L9F39:
+        lda    $35              ; Copy FloatA to FloatTemp at &27/&046C
+        sta    $27
+        jsr    $A385
+        lda    $4E              ; Get number of digits
+        sta    $38
+        ldx    $37              ; Get print format
+        cpx    #$02             ; Not fixed format, jump to do exponent/general
+        bne    $9F5C
+        adc    $49
+        bmi    $9FA0
+        sta    $38
+        cmp    #$0B
+        bcc    $9F5C
+        lda    #$0A
+        sta    $38
+        lda    #$00
+        sta    $37
+L9F5C:
+        jsr    $A686            ; Clear FloatA
+        lda    #$A0
+        sta    $31
+        lda    #$83
+        sta    $30
+        ldx    $38
+        beq    $9F71
+L9F6B:
+        jsr    $A24D            ; FloatA=FloatA/10
+        dex
+        bne    $9F6B
+L9F71:
+        jsr    $A7F5            ; Point to &46C
+        jsr    $A34E            ; Unpack to FloatB
+        lda    $27
+        sta    $42
+        jsr    $A50B            ; Add
+L9F7E:
+        lda    $30
+        cmp    #$84
+        bcs    $9F92
+        ror    $31
+        ror    $32
+        ror    $33
+        ror    $34
+        ror    $35
+        inc    $30
+        bne    $9F7E
+L9F792:
+        lda    $31
+        cmp    #$A0
+        bcs    $9F20
+        lda    $38
+        bne    $9FAD
+
+; Output zero in Exponent or Fixed format
+; ---------------------------------------
+L9F9C:
+        cmp    #$01
+        beq    $9FE6
+L9FA0:
+        jsr    $A686            ; Clear FloatA
+        lda    #$00
+        sta    $49
+        lda    $4E
+        sta    $38
+        inc    $38
+L9FAD:
+        lda    #$01
+        cmp    $37
+        beq    $9FE6
+        ldy    $49
+        bmi    $9FC3
+        cpy    $38
+        bcs    $9FE6
+        lda    #$00
+        sta    $49
+        iny
+        tya
+        bne    $9FE6
+L9FC3:
+        lda    $37
+        cmp    #$02
+        beq    $9FCF
+        lda    #$01
+        cpy    #$FF
+        bne    $9FE6
+L9FCF:
+        lda    #'0'             ; Output '0'
+        jsr    $A066
+        lda    #'.'             ; Output '.'
+        jsr    $A066
+        lda    #'0'             ; Prepare '0'
+L9FDB:
+        inc    $49
+        beq    $9FE4
+        jsr    $A066            ; Output
+         bne    $9FDB
+L9FE4:
+        lda    #$80
+L9FE6:
+        sta    $4E
+L9FE8:
+        jsr    $A040
+        dec    $4E
+        bne    $9FF4
+        lda    #$2E
+        jsr    $A066
+L9FF4:
+        dec    $38
+        bne    $9FE8
+        ldy    $37
+        dey
+        beq    $A015
+        dey
+        beq    $A011
+        ldy    $36
+LA002:
+        dey
+        lda    $0600,y
+        cmp    #'0'
+        beq    $A002
+        cmp    #'.'
+        beq    $A00F
+        iny
+LA00F:
+        sty    $36
+LA011:
+        lda    $49
+        beq    $A03F
+LA015:
+        lda    #'E'             ; Output 'E'
+        jsr    $A066
+        lda    $49
+        bpl    $A028
+        lda    #'-'             ; Output '-'
+        jsr    $A066
+        sec
+        lda    #$00
+        sbc    $49              ; Negate
+LA028:
+        jsr    $A052
+        lda    $37
+        beq    $A03F
+        lda    #$20
+        ldy    $49
+        bmi    $A038
+        jsr    $A066
+LA038:
+        cpx    #$00
+        bne    $A03F
+        jmp    $A066
+LA03F:
+        rts
+LA040:
+        lda    $31
+        lsr    a
+        lsr    a
+        lsr    a
+        lsr    a
+        jsr    $A064
+        lda    $31
+        and    #$0F
+        sta    $31
+        jmp    $A197
+LA052:
+        ldx    #$FF
+        sec
+        inx
+        sbc    #$0A
+        bcs    $A055
+        adc    #$0A
+        pha
+        txa
+        beq    $A063
+        jsr    $A064
+LA063:
+        pla
+LA064:
+        ora    #'0'
+
+; Store character in string buffer
+; --------------------------------
+LA066:
+        stx    $3B              ; Store character
+        ldx    $36
+        sta    $0600,x
+        ldx    $3B              ; Increment string length
+        inc    $36
+        rts
+LA072:
+        clc
+        stx    $35
+        jsr    $A1DA
+        lda    #$FF
+        rts
+
+; Scan decimal number
+; -------------------
+LA07B:
+        ldx    #$00
  stx    $31
  stx    $32
  stx    $33
