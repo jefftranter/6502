@@ -4286,55 +4286,86 @@ L9B4E:
 L9B55:
         jsr    $9B6B
         tay
- jsr    $92F0
- ldy    #$03
- lda    ($04),y
- eor    $002A,y
- sta    $002A,y
- dey
- bpl    $9B5E
- bmi    $9B4E
- tay
- jsr    $92F0
- jsr    $BD94
- jsr    $9B9C
- cpx    #$80
- beq    $9B7A
- rts
- tay
- jsr    $92F0
- jsr    $BD94
- jsr    $9B9C
- tay
- jsr    $92F0
- ldy    #$03
- lda    ($04),y
- and    $002A,y
- sta    $002A,y
- dey
- bpl    $9B8A
- jsr    $BDFF
- lda    #$40
- bne    $9B75
- jsr    $9C42
- cpx    #$3F
- bcs    $9BA7
- cpx    #$3C
- bcs    $9BA8
- rts
- beq    $9BC0
- cpx    #$3E
- beq    $9BE8
- tax
- jsr    $9A9E
- bne    $9BB5
- dey
- sty    $2A
- sty    $2B
- sty    $2C
- sty    $2D
- lda    #$40
- rts
+        jsr    $92F0            ; If float, convert to integer
+        ldy    #$03
+L9B5E:
+        lda    ($04),y          ; EOR IntA with top of stack
+        eor    $002A,y
+        sta    $002A,y          ; Store result in IntA
+        dey
+        bpl    $9B5E
+        bmi    $9B4E            ; Jump to drop from stack and continue
+
+; Stack current as integer, evaluate another Level 6
+; --------------------------------------------------
+L9B6B:
+        tay                     ; If float, convert to integer, push into stack
+        jsr    $92F0
+        jsr    $BD94
+
+; Evaluator Level 6 - AND
+; -----------------------
+L9B72:
+        jsr    $9B9C            ; Call Evaluator Level 5, < <= = >= > <>
+L9B75:
+        cpx    #tknAND          ; Return if next char not AND
+        beq    $9B7A
+        rts
+
+; AND numeric
+; -----------
+L9B7A:
+        tay                     ; If float, convert to integer, push onto stack
+        jsr    $92F0
+        jsr    $BD94
+        jsr    $9B9C            ; Call Evaluator Level 5, < <= = >= > <>
+
+        tay                     ; If float, convert to integer
+        jsr    $92F0
+        ldy    #$03
+L9B8A:
+        lda    ($04),y          ; AND IntA with top of stack
+        and    $002A,y
+        sta    $002A,y          ; Store result in IntA
+        dey
+        bpl    $9B8A
+        jsr    $BDFF            ; Drop integer from stack
+        lda    #$40             ; Return type=Int, jump to check for another AND
+        bne    $9B75
+
+
+; Evaluator Level 5 - >... =... or <...
+; -------------------------------------
+L9B9C:
+        jsr    $9C42            ; Call Evaluator Level 4, + -
+        cpx    #'>'+1           ; Larger than '>', return
+        bcs    $9BA7
+        cpx    #'<'             ; Smaller than '<', return
+        bcs    $9BA8
+L9BA7:
+        rts
+
+; >... =... or <...
+; -----------------
+L9BA8:
+        beq    $9BC0            ; Jump with '<'
+        cpx    #'>'             ; Jump with '>'
+        beq    $9BE8            ; Must be '='
+
+; = numeric
+; ---------
+        tax                     ; Jump with result=0 for not equal
+        jsr    $9A9E
+        bne    $9BB5
+L9BB4:
+        dey                     ; Decrement to &FF for equal
+        sty    $2A
+        sty    $2B
+        sty    $2C
+        sty    $2D
+        lda    #$40
+        rts
+
  tax
  ldy    $1B
  lda    ($19),y
