@@ -5715,669 +5715,753 @@ LA3F8:
 ;
 LA3FE:
         lda    $30              ; Exponent<&80, number<1, jump to return 0
- bpl    $A3F8
- jsr    $A453
- jsr    $A1DA
- bne    $A43C
- beq    $A468
- lda    $30
- cmp    #$A0
- bcs    $A466
- cmp    #$99
- bcs    $A43C
- adc    #$08
- sta    $30
- lda    $40
- sta    $41
- lda    $3F
- sta    $40
- lda    $3E
- sta    $3F
- lda    $34
- sta    $3E
- lda    $33
- sta    $34
- lda    $32
- sta    $33
- lda    $31
- sta    $32
- lda    #$00
- sta    $31
- beq    $A40C
- lsr    $31
- ror    $32
- ror    $33
- ror    $34
- ror    $3E
- ror    $3F
- ror    $40
- ror    $41
- inc    $30
- bne    $A40C
- jmp    $A66C
- lda    #$00
- sta    $3B
- sta    $3C
- sta    $3D
- sta    $3E
- sta    $3F
- sta    $40
- sta    $41
- sta    $42
- rts
- bne    $A450
- lda    $2E
- bpl    $A485
- sec
- lda    #$00
- sbc    $34
- sta    $34
- lda    #$00
- sbc    $33
- sta    $33
- lda    #$00
- sbc    $32
- sta    $32
- lda    #$00
- sbc    $31
- sta    $31
- rts
- lda    $30
- bmi    $A491
- lda    #$00
- sta    $4A
- jmp    $A1DA
- jsr    $A3FE
- lda    $34
- sta    $4A
- jsr    $A4E8
- lda    #$80
- sta    $30
- ldx    $31
- bpl    $A4B3
- eor    $2E
- sta    $2E
- bpl    $A4AE
- inc    $4A
- jmp    $A4B0
- dec    $4A
- jsr    $A46C
- jmp    $A303
- inc    $34
- bne    $A4C6
- inc    $33
- bne    $A4C6
- inc    $32
- bne    $A4C6
- inc    $31
- beq    $A450
- rts
- jsr    $A46C
- jsr    $A4B6
- jmp    $A46C
- jsr    $A4FD
- jmp    $AD7E
- jsr    $A34E
- jsr    $A38D
- lda    $3B
- sta    $2E
- lda    $3C
- sta    $2F
- lda    $3D
- sta    $30
- lda    $3E
- sta    $31
- lda    $3F
- sta    $32
- lda    $40
- sta    $33
- lda    $41
- sta    $34
- lda    $42
- sta    $35
- rts
- jsr    $AD7E
- jsr    $A34E
- beq    $A4FC
- jsr    $A50B
- jmp    $A65C
- jsr    $A1DA
- beq    $A4DC
- ldy    #$00
- sec
- lda    $30
- sbc    $3D
- beq    $A590
- bcc    $A552
- cmp    #$25
- bcs    $A4FC
- pha
- and    #$38
- beq    $A53D
- lsr    a
- lsr    a
- lsr    a
- tax
- lda    $41
- sta    $42
- lda    $40
- sta    $41
- lda    $3F
- sta    $40
- lda    $3E
- sta    $3F
- sty    $3E
- dex
- bne    $A528
- pla
- and    #$07
- beq    $A590
- tax
- lsr    $3E
- ror    $3F
- ror    $40
- ror    $41
- ror    $42
- dex
- bne    $A543
- beq    $A590
- sec
- lda    $3D
- sbc    $30
- cmp    #$25
- bcs    $A4DC
- pha
- and    #$38
- beq    $A579
- lsr    a
- lsr    a
- lsr    a
- tax
- lda    $34
- sta    $35
- lda    $33
- sta    $34
- lda    $32
- sta    $33
- lda    $31
- sta    $32
- sty    $31
- dex
- bne    $A564
- pla
- and    #$07
- beq    $A58C
- tax
- lsr    $31
- ror    $32
- ror    $33
- ror    $34
- ror    $35
- dex
- bne    $A57F
- lda    $3D
- sta    $30
- lda    $2E
- eor    $3B
- bpl    $A5DF
- lda    $31
- cmp    $3E
- bne    $A5B7
- lda    $32
- cmp    $3F
- bne    $A5B7
- lda    $33
- cmp    $40
- bne    $A5B7
- lda    $34
- cmp    $41
- bne    $A5B7
- lda    $35
- cmp    $42
- bne    $A5B7
- jmp    $A686
- bcs    $A5E3
- sec
- lda    $42
- sbc    $35
- sta    $35
- lda    $41
- sbc    $34
- sta    $34
- lda    $40
- sbc    $33
- sta    $33
- lda    $3F
- sbc    $32
- sta    $32
- lda    $3E
- sbc    $31
- sta    $31
- lda    $3B
- sta    $2E
- jmp    $A303
- clc
- jmp    $A208
- sec
- lda    $35
- sbc    $42
- sta    $35
- lda    $34
- sbc    $41
- sta    $34
- lda    $33
- sbc    $40
- sta    $33
- lda    $32
- sbc    $3F
- sta    $32
- lda    $31
- sbc    $3E
- sta    $31
- jmp    $A303
- rts
- jsr    $A1DA
- beq    $A605
- jsr    $A34E
- bne    $A613
- jmp    $A686
- clc
- lda    $30
- adc    $3D
- bcc    $A61D
- inc    $2F
- clc
- sbc    #$7F
- sta    $30
- bcs    $A625
- dec    $2F
- ldx    #$05
- ldy    #$00
- lda    $30,x
- sta    $42,x
- sty    $30,x
- dex
- bne    $A629
- lda    $2E
- eor    $3B
- sta    $2E
- ldy    #$20
- lsr    $3E
- ror    $3F
- ror    $40
- ror    $41
- ror    $42
- asl    $46
- rol    $45
- rol    $44
- rol    $43
- bcc    $A652
- clc
- jsr    $A178
- dey
- bne    $A63A
- rts
- jsr    $A606
- jsr    $A303
- lda    $35
- cmp    #$80
- bcc    $A67C
- beq    $A676
- lda    #$FF
- jsr    $A2A4
- jmp    $A67C
- brk
- .byte  $14
- .byte  'T'
- .byte  'o'
- .byte  'o'
- jsr    $6962
- .byte  'g'
- brk
- lda    $34
- ora    #$01
- sta    $34
- lda    #$00
- sta    $35
- lda    $2F
- beq    $A698
- bpl    $A66C
- lda    #$00
- sta    $2E
- sta    $2F
- sta    $30
- sta    $31
- sta    $32
- sta    $33
- sta    $34
- sta    $35
- rts
- jsr    $A686
- ldy    #$80
- sty    $31
- iny
- sty    $30
- tya
- rts
- jsr    $A385
- jsr    $A699
- bne    $A6E7
- jsr    $A1DA
- beq    $A6BB
- jsr    $A21E
- jsr    $A3B5
- bne    $A6F1
- rts
- jmp    L99A7
- jsr    L92FA
- jsr    $A9D3
- lda    $4A
- pha
- jsr    $A7E9
- jsr    $A38D
- inc    $4A
- jsr    $A99E
- jsr    $A7E9
- jsr    $A4D6
- pla
- sta    $4A
- jsr    $A99E
- jsr    $A7E9
- jsr    $A6E7
- lda    #$FF
- rts
- jsr    $A1DA
- beq    $A698
- jsr    $A34E
- beq    $A6BB
- lda    $2E
- eor    $3B
- sta    $2E
- sec
- lda    $30
- sbc    $3D
- bcs    $A701
- dec    $2F
- sec
- adc    #$80
- sta    $30
- bcc    $A70A
- inc    $2F
- clc
- ldx    #$20
- bcs    $A726
- lda    $31
- cmp    $3E
- bne    $A724
- lda    $32
- cmp    $3F
- bne    $A724
- lda    $33
- cmp    $40
- bne    $A724
- lda    $34
- cmp    $41
- bcc    $A73F
- lda    $34
- sbc    $41
- sta    $34
- lda    $33
- sbc    $40
- sta    $33
- lda    $32
- sbc    $3F
- sta    $32
- lda    $31
- sbc    $3E
- sta    $31
- sec
- rol    $46
- rol    $45
- rol    $44
- rol    $43
- asl    $34
- rol    $33
- rol    $32
- rol    $31
- dex
- bne    $A70C
- ldx    #$07
- bcs    $A76E
- lda    $31
- cmp    $3E
- bne    $A76C
- lda    $32
- cmp    $3F
- bne    $A76C
- lda    $33
- cmp    $40
- bne    $A76C
- lda    $34
- cmp    $41
- bcc    $A787
- lda    $34
- sbc    $41
- sta    $34
- lda    $33
- sbc    $40
- sta    $33
- lda    $32
- sbc    $3F
- sta    $32
- lda    $31
- sbc    $3E
- sta    $31
- sec
- rol    $35
- asl    $34
- rol    $33
- rol    $32
- rol    $31
- dex
- bne    $A754
- asl    $35
- lda    $46
- sta    $34
- lda    $45
- sta    $33
- lda    $44
- sta    $32
- lda    $43
- sta    $31
- jmp    $A659
- brk
- ora    $2D,x
- ror    $65,x
- jsr    $6F72
- .byte  'o'
- .byte  't'
- brk
- jsr    L92FA
- jsr    $A1DA
- beq    $A7E6
- bmi    $A7A9
- jsr    $A385
- lda    $30
- lsr    a
- adc    #$40
- sta    $30
- lda    #$05
- sta    $4A
- jsr    $A7ED
- jsr    $A38D
- lda    #$6C
- sta    $4B
- jsr    $A6AD
- lda    #$71
- sta    $4B
- jsr    $A500
- dec    $30
- dec    $4A
- bne    $A7CF
- lda    #$FF
- rts
- lda    #$7B
- bne    $A7F7
- lda    #$71
- bne    $A7F7
- lda    #$76
- bne    $A7F7
- lda    #$6C
- sta    $4B
- lda    #$04
- sta    $4C
- rts
- jsr    L92FA
- jsr    $A1DA
- beq    $A808
- bpl    $A814
- brk
- asl    $4C,x
- .byte  'o'
- .byte  'g'
- jsr    $6172
- ror    $6567
- brk
- jsr    $A453
- ldy    #$80
- sty    $3B
- sty    $3E
- iny
- sty    $3D
- ldx    $30
- beq    $A82A
- lda    $31
- cmp    #$B5
- bcc    $A82C
- inx
- dey
- txa
- pha
- sty    $30
- jsr    $A505
- lda    #$7B
- jsr    $A387
- lda    #$73
- ldy    #$A8
- jsr    $A897
- jsr    $A7E9
- jsr    $A656
- jsr    $A656
- jsr    $A500
- jsr    $A385
- pla
- sec
- sbc    #$81
- jsr    $A2ED
- lda    #$6E
- sta    $4B
- lda    #$A8
- sta    $4C
- jsr    $A656
- jsr    $A7F5
- jsr    $A500
- lda    #$FF
- rts
- .byte  $7F
- lsr    $D85B,x
- tax
- .byte  $80
- and    ($72),y
- .byte  $17
- sed
- asl    $7A
- .byte  $12
- sec
- lda    $0B
- dey
- adc    $9F0E,y
- .byte  $F3
- .byte  '|'
- rol    a
- ldy    $B53F
- stx    $34
- ora    ($A2,x)
- .byte  'z'
- .byte  $7F
- .byte  'c'
- stx    $EC37
- .byte  $82
- .byte  $3F
- .byte  $FF
- .byte  $FF
- cmp    ($7F,x)
- .byte  $FF
- .byte  $FF
- .byte  $FF
- .byte  $FF
- sta    $4D
- sty    $4E
- jsr    $A385
- ldy    #$00
- lda    ($4D),y
- sta    $48
- inc    $4D
- bne    $A8AA
- inc    $4E
- lda    $4D
- sta    $4B
- lda    $4E
- sta    $4C
- jsr    $A3B5
- jsr    $A7F5
- jsr    $A6AD
- clc
- lda    $4D
- adc    #$05
- sta    $4D
- sta    $4B
- lda    $4E
- adc    #$00
- sta    $4E
- sta    $4C
- jsr    $A500
- dec    $48
- bne    $A8B5
- rts
- jsr    $A8DA
- jmp    $A927
- jsr    L92FA
- jsr    $A1DA
- bpl    $A8EA
- lsr    $2E
- jsr    $A8EA
- jmp    $A916
- jsr    $A381
- jsr    $A9B1
- jsr    $A1DA
- beq    $A8FE
- jsr    $A7F1
- jsr    $A6AD
- jmp    $A90A
- jsr    $AA55
- jsr    $A3B5
- lda    #$FF
- rts
- jsr    L92FA
- jsr    $A1DA
- beq    $A904
- bpl    $A91B
- lsr    $2E
- jsr    $A91B
- lda    #$80
- sta    $2E
- rts
- lda    $30
- cmp    #$81
- bcc    $A936
- jsr    $A6A5
- jsr    $A936
- jsr    $AA48
- jsr    $A500
- jsr    $AA4C
- jsr    $A500
- jmp    $AD7E
- lda    $30
+        bpl    $A3F8
+        jsr    $A453            ; Set &3B-&42 to zero
+        jsr    $A1DA
+        bne    $A43C
+        beq    $A468
+LA40C:
+        lda    $30              ; Get exponent
+        cmp    #$A0             ; Exponent is +32, float has been denormalised to an integer
+        bcs    $A466
+        cmp    #$99
+        bcs    $A43C
+        adc    #$08
+        sta    $30
+        lda    $40
+        sta    $41
+        lda    $3F
+        sta    $40
+        lda    $3E
+        sta    $3F
+        lda    $34
+        sta    $3E
+        lda    $33              ; Divide mantissa by 2^8
+        sta    $34
+        lda    $32
+        sta    $33
+        lda    $31
+        sta    $32
+        lda    #$00
+        sta    $31
+        beq    $A40C            ; Loop to keep dividing
+LA43C:
+        lsr    $31
+        ror    $32
+        ror    $33
+        ror    $34
+        ror    $3E
+        ror    $3F
+        ror    $40
+        ror    $41
+        inc    $30
+        bne    $A40C
+LA450:
+        jmp    $A66C
+LA453:
+        lda    #$00
+        sta    $3B
+        sta    $3C
+        sta    $3D
+        sta    $3E
+        sta    $3F
+        sta    $40
+        sta    $41
+        sta    $42
+        rts
+LA466:
+        bne    $A450            ; Exponent>32, jump to 'Too big' error
+LA468:
+        lda    $2E              ; If positive, jump to return
+        bpl    $A485
+LA46C:
+        sec                     ; Negate the mantissa to get integer
+        lda    #$00
+        sbc    $34
+        sta    $34
+        lda    #$00
+        sbc    $33
+        sta    $33
+        lda    #$00
+        sbc    $32
+        sta    $32
+        lda    #$00
+        sbc    $31
+        sta    $31
+        rts
+LA486:
+        lda    $30
+        bmi    $A491
+        lda    #$00
+        sta    $4A
+        jmp    $A1DA
+LA491:
+        jsr    $A3FE
+        lda    $34
+        sta    $4A
+        jsr    $A4E8
+        lda    #$80
+        sta    $30
+        ldx    $31
+        bpl    $A4B3
+        eor    $2E
+        sta    $2E
+        bpl    $A4AE
+        inc    $4A
+        jmp    $A4B0
+LA4AE:
+        dec    $4A
+LA4B0:
+        jsr    $A46C
+LA4B3:
+        jmp    $A303
+LA4B6:
+        inc    $34
+        bne    $A4C6
+        inc    $33
+        bne    $A4C6
+        inc    $32
+        bne    $A4C6
+        inc    $31
+        beq    $A450
+LA4C6:
+        rts
+LA4C7:
+        jsr    $A46C
+        jsr    $A4B6
+        jmp    $A46C
+LA4D0 :
+      jsr    $A4FD
+      jmp    $AD7E
+LA4D6:
+        jsr    $A34E
+        jsr    $A38D
+LA4DC:
+        lda    $3B
+        sta    $2E
+        lda    $3C
+        sta    $2F
+        lda    $3D
+        sta    $30
+LA4E8:
+        lda    $3E
+        sta    $31
+        lda    $3F
+        sta    $32
+        lda    $40
+        sta    $33
+        lda    $41
+        sta    $34
+        lda    $42
+        sta    $35
+LA4FC:
+        rts
+LA4FD:
+        jsr    $AD7E
+LA500:
+        jsr    $A34E
+        beq    $A4FC
+LA505:
+        jsr    $A50B
+        jmp    $A65C
+LA50B:
+        jsr    $A1DA
+        beq    $A4DC
+        ldy    #$00
+        sec
+        lda    $30
+        sbc    $3D
+        beq    $A590
+        bcc    $A552
+        cmp    #$25
+        bcs    $A4FC
+        pha
+        and    #$38
+        beq    $A53D
+        lsr    a
+        lsr    a
+        lsr    a
+        tax
+LA528:
+        lda    $41
+        sta    $42
+        lda    $40
+        sta    $41
+        lda    $3F
+        sta    $40
+        lda    $3E
+        sta    $3F
+        sty    $3E
+        dex
+        bne    $A528
+LA53D:
+        pla
+        and    #$07
+        beq    $A590
+        tax
+LA543:
+        lsr    $3E
+        ror    $3F
+        ror    $40
+        ror    $41
+        ror    $42
+        dex
+        bne    $A543
+        beq    $A590
+LA552:
+        sec
+        lda    $3D
+        sbc    $30
+        cmp    #$25
+        bcs    $A4DC
+        pha
+        and    #$38
+        beq    $A579
+        lsr    a
+        lsr    a
+        lsr    a
+        tax
+LA564:
+        lda    $34
+        sta    $35
+        lda    $33
+        sta    $34
+        lda    $32
+        sta    $33
+        lda    $31
+        sta    $32
+        sty    $31
+        dex
+        bne    $A564
+LA579:
+        pla
+        and    #$07
+        beq    $A58C
+        tax
+LA57F:
+        lsr    $31
+        ror    $32
+        ror    $33
+        ror    $34
+        ror    $35
+        dex
+        bne    $A57F
+LA58C:
+        lda    $3D
+        sta    $30
+LA590:
+        lda    $2E
+        eor    $3B
+        bpl    $A5DF
+        lda    $31
+        cmp    $3E
+        bne    $A5B7
+        lda    $32
+        cmp    $3F
+        bne    $A5B7
+        lda    $33
+        cmp    $40
+        bne    $A5B7
+        lda    $34
+        cmp    $41
+        bne    $A5B7
+        lda    $35
+        cmp    $42
+        bne    $A5B7
+        jmp    $A686
+LA5B7:
+        bcs    $A5E3
+        sec
+        lda    $42
+        sbc    $35
+        sta    $35
+        lda    $41
+        sbc    $34
+        sta    $34
+        lda    $40
+        sbc    $33
+        sta    $33
+        lda    $3F
+        sbc    $32
+        sta    $32
+        lda    $3E
+        sbc    $31
+        sta    $31
+        lda    $3B
+        sta    $2E
+        jmp    $A303
+LA5DF:
+        clc
+        jmp    $A208
+LA5E3:
+        sec
+        lda    $35
+        sbc    $42
+        sta    $35
+        lda    $34
+        sbc    $41
+        sta    $34
+        lda    $33
+        sbc    $40
+        sta    $33
+        lda    $32
+        sbc    $3F
+        sta    $32
+        lda    $31
+        sbc    $3E
+        sta    $31
+        jmp    $A303
+ LA605:
+        rts
+LA606:
+        jsr    $A1DA
+        beq    $A605
+        jsr    $A34E
+        bne    $A613
+        jmp    $A686
+LA613:
+        clc
+        lda    $30
+        adc    $3D
+        bcc    $A61D
+        inc    $2F
+        clc
+LA61D:
+        sbc    #$7F
+        sta    $30
+        bcs    $A625
+        dec    $2F
+LA625:
+        ldx    #$05
+        ldy    #$00
+LA629:
+        lda    $30,x
+        sta    $42,x
+        sty    $30,x
+        dex
+        bne    $A629
+        lda    $2E
+        eor    $3B
+        sta    $2E
+        ldy    #$20
+LA63A:
+        lsr    $3E
+        ror    $3F
+        ror    $40
+        ror    $41
+        ror    $42
+        asl    $46
+        rol    $45
+        rol    $44
+        rol    $43
+        bcc    $A652
+        clc
+        jsr    $A178
+LA652:
+        dey
+        bne    $A63A
+        rts
+LA656:
+        jsr    $A606
+LA659:
+        jsr    $A303
+LA65C:
+        lda    $35
+        cmp    #$80
+        bcc    $A67C
+        beq    $A676
+        lda    #$FF
+        jsr    $A2A4
+        jmp    $A67C
+LA66C:
+        brk
+        .byte  $14, "Too big"
+        brk
+LA676:
+        lda    $34
+        ora    #$01
+        sta    $34
+LA67C:
+        lda    #$00
+        sta    $35
+        lda    $2F
+        beq    $A698
+        bpl    $A66C
+LA686:
+        lda    #$00
+        sta    $2E
+        sta    $2F
+        sta    $30
+        sta    $31
+        sta    $32
+        sta    $33
+        sta    $34
+        sta    $35
+LA698:
+        rts
+LA699:
+        jsr    $A686
+        ldy    #$80
+        sty    $31
+        iny
+        sty    $30
+        tya
+        rts
+LA6A5:
+        jsr    $A385
+        jsr    $A699
+        bne    $A6E7
+LA6AD:
+        jsr    $A1DA
+        beq    $A6BB
+        jsr    $A21E
+        jsr    $A3B5
+        bne    $A6F1
+        rts
+LA6BB:
+        jmp    L99A7
+
+; =TAN numeric
+; ============
+LA6BE:
+        jsr    L92FA
+        jsr    $A9D3
+        lda    $4A
+        pha
+        jsr    $A7E9
+        jsr    $A38D
+        inc    $4A
+        jsr    $A99E
+        jsr    $A7E9
+        jsr    $A4D6
+        pla
+        sta    $4A
+        jsr    $A99E
+        jsr    $A7E9
+        jsr    $A6E7
+        lda    #$FF
+        rts
+LA6E7:
+        jsr    $A1DA
+        beq    $A698
+        jsr    $A34E
+        beq    $A6BB
+LA6F1:
+        lda    $2E
+        eor    $3B
+        sta    $2E
+        sec
+        lda    $30
+        sbc    $3D
+        bcs    $A701
+        dec    $2F
+        sec
+LA701:
+        adc    #$80
+        sta    $30
+        bcc    $A70A
+        inc    $2F
+        clc
+LA70A:
+        ldx    #$20
+LA70C:
+        bcs    $A726
+        lda    $31
+        cmp    $3E
+        bne    $A724
+        lda    $32
+        cmp    $3F
+        bne    $A724
+        lda    $33
+        cmp    $40
+        bne    $A724
+        lda    $34
+        cmp    $41
+LA724:
+        bcc    $A73F
+LA726:
+        lda    $34
+        sbc    $41
+        sta    $34
+        lda    $33
+        sbc    $40
+        sta    $33
+        lda    $32
+        sbc    $3F
+        sta    $32
+        lda    $31
+        sbc    $3E
+        sta    $31
+        sec
+LA73F:
+        rol    $46
+        rol    $45
+        rol    $44
+        rol    $43
+        asl    $34
+        rol    $33
+        rol    $32
+        rol    $31
+        dex
+        bne    $A70C
+        ldx    #$07
+LA754:
+        bcs    $A76E
+        lda    $31
+        cmp    $3E
+        bne    $A76C
+        lda    $32
+        cmp    $3F
+        bne    $A76C
+        lda    $33
+        cmp    $40
+        bne    $A76C
+        lda    $34
+        cmp    $41
+LA76C:
+        bcc    $A787
+LA76E:
+        lda    $34
+        sbc    $41
+        sta    $34
+        lda    $33
+        sbc    $40
+        sta    $33
+        lda    $32
+        sbc    $3F
+        sta    $32
+        lda    $31
+        sbc    $3E
+        sta    $31
+        sec
+LA787:
+        rol    $35
+        asl    $34
+        rol    $33
+        rol    $32
+        rol    $31
+        dex
+        bne    $A754
+        asl    $35
+        lda    $46
+        sta    $34
+        lda    $45
+        sta    $33
+        lda    $44
+        sta    $32
+        lda    $43
+        sta    $31
+        jmp    LA659
+LA7A9:
+        brk
+        .byte   $15, "-ve root"
+        brk
+; =SQR numeric
+; ============
+LA7B4:
+        jsr    L92FA
+LA7B7:
+        jsr    $A1DA
+        beq    $A7E6
+        bmi    $A7A9
+        jsr    $A385
+        lda    $30
+        lsr    a
+        adc    #$40
+        sta    $30
+        lda    #$05
+        sta    $4A
+        jsr    $A7ED
+LA7CF:
+        jsr    $A38D
+        lda    #$6C
+        sta    $4B
+        jsr    $A6AD
+        lda    #$71
+        sta    $4B
+        jsr    $A500
+        dec    $30
+        dec    $4A
+        bne    $A7CF
+        lda    #$FF
+        rts
+
+; Point &4B/C to a floating point temp
+; ------------------------------------
+LA7E9:
+        lda    #$7B
+        bne    $A7F7
+        lda    #$71
+        bne    $A7F7
+        lda    #$76
+        bne    $A7F7
+        lda    #$6C
+LA7F7:
+        sta    $4B
+        lda    #$04
+        sta    $4C
+        rts
+
+; =LN numeric
+; ===========
+LA7FE:
+        jsr    L92FA
+LA801:
+        jsr    $A1DA
+        beq    $A808
+        bpl    $A814
+LA808:
+        brk
+        .byte  $16, "Log range"
+        brk
+LA814:
+        jsr    $A453
+        ldy    #$80
+        sty    $3B
+        sty    $3E
+        iny
+        sty    $3D
+        ldx    $30
+        beq    $A82A
+        lda    $31
+        cmp    #$B5
+        bcc    $A82C
+LA82A:
+        inx
+        dey
+LA82C:
+        txa
+        pha
+        sty    $30
+        jsr    $A505
+        lda    #$7B
+        jsr    $A387
+        lda    #$73
+        ldy    #$A8
+        jsr    $A897
+        jsr    $A7E9
+        jsr    $A656
+        jsr    $A656
+        jsr    $A500
+        jsr    $A385
+        pla
+        sec
+        sbc    #$81
+        jsr    $A2ED
+        lda    #$6E
+        sta    $4B
+        lda    #$A8
+        sta    $4C
+        jsr    $A656
+        jsr    $A7F5
+        jsr    $A500
+        lda    #$FF
+        rts
+LA869:
+        .byte  $7F, $5E, $5B, $D8, $AA
+LA86E:
+        .byte  $80, $31, $72, $17, $F8
+LA873:
+        .byte  $06, $7A, $12
+LA876:
+        sec
+        lda    $0B
+        dey
+        adc    $9F0E,y
+        .byte  $F3, $7C, $2A, $AC, $3F, $B5, $86, $34
+        .byte  $01, $A2, $7A, $7F, $63, $8E, $37, $EC
+        .byte  $82, $3F, $FF, $FF, $C1, $7F, $FF, $FF
+        .byte  $FF, $FF
+LA897:
+        sta    $4D
+        sty    $4E
+        jsr    $A385
+        ldy    #$00
+        lda    ($4D),y
+        sta    $48
+        inc    $4D
+        bne    $A8AA
+        inc    $4E
+LA8AA:
+        lda    $4D
+        sta    $4B
+        lda    $4E
+        sta    $4C
+        jsr    $A3B5
+LA8B5:
+        jsr    $A7F5
+        jsr    $A6AD
+        clc
+        lda    $4D
+        adc    #$05
+        sta    $4D
+        sta    $4B
+        lda    $4E
+        adc    #$00
+        sta    $4E
+        sta    $4C
+        jsr    $A500
+        dec    $48
+        bne    $A8B5
+        rts
+
+;=ACS numeric
+; ============
+LA8D4:
+        jsr    $A8DA
+        jmp    $A927
+
+; =ASN numeric
+; ============
+LA8DA:
+        jsr    L92FA
+        jsr    $A1DA
+        bpl    $A8EA
+        lsr    $2E
+        jsr    $A8EA
+        jmp    $A916
+LA8EA:
+        jsr    $A381
+        jsr    $A9B1
+        jsr    $A1DA
+        beq    $A8FE
+        jsr    $A7F1
+        jsr    $A6AD
+        jmp    $A90A
+LA8FE:
+        jsr    $AA55
+        jsr    $A3B5
+        lda    #$FF
+        rts
+
+; =ATN numeric
+; ============
+LA907:
+        jsr    L92FA
+LA90A:
+        jsr    $A1DA
+        beq    $A904
+        bpl    $A91B
+        lsr    $2E
+        jsr    $A91B
+LA916:
+        lda    #$80
+        sta    $2E
+        rts
+LA91B:
+        lda    $30
+        cmp    #$81
+        bcc    $A936
+        jsr    $A6A5
+        jsr    $A936
+LA927:
+        jsr    $AA48
+        jsr    $A500
+        jsr    $AA4C
+        jsr    $A500
+        jmp    $AD7E
+LA936:
+        lda    $30
  cmp    #$73
  bcc    $A904
  jsr    $A381
