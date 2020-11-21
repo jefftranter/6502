@@ -14,6 +14,7 @@
 
 ; Symbols
         FAULT   = $FD
+        ESCFLG  = $FF
 
 ; MOS Entry Points:
         OS_CLI  = $FFF7
@@ -3306,700 +3307,807 @@ L9558:
 ; ===============================
 L9559:
         ldy    #$01
- lda    ($37),y
- cmp    #$30
- bcc    $9579
- cmp    #$40
- bcs    $9571
- cmp    #$3A
- bcs    $9579
- cpy    #$01
- beq    $9579
- inx
- iny
- bne    $955B
- cmp    #$5F
- bcs    $957A
- cmp    #$5B
- bcc    $956D
- rts
- cmp    #$7B
- bcc    $956D
- rts
- jsr    $9531
- jsr    $95C9
- bne    $95A4
- bcs    $95A4
- jsr    $94FC
- ldx    #$05
- cpx    $2C
- bne    $957F
- inx
- bne    $957F
- cmp    #$21
- beq    $95A5
- cmp    #$24
- beq    $95B0
- eor    #$3F
- beq    $95A7
- lda    #$00
- sec
- rts
- lda    #$04
- pha
- inc    $1B
- jsr    $92E3
- jmp    $969F
- inc    $1B
- jsr    $92E3
- lda    $2B
- beq    $95BF
- lda    #$80
- sta    $2C
- sec
- rts
- brk
- php
- bit    $20
- .byte  'r'
- adc    ($6E,x)
- .byte  'g'
- adc    $00
- lda    $0B
- sta    $19
- lda    $0C
- sta    $1A
- ldy    $0A
- dey
- iny
- sty    $1B
- lda    ($19),y
- cmp    #$20
- beq    $95D4
- cmp    #$40
- bcc    $9595
- cmp    #$5B
- bcs    $95FF
- asl    a
- asl    a
- sta    $2A
- lda    #$04
- sta    $2B
- iny
- lda    ($19),y
- iny
- cmp    #$25
- bne    $95FF
- ldx    #$04
- stx    $2C
- lda    ($19),y
- cmp    #$28
- bne    $9665
- ldx    #$05
- stx    $2C
- lda    $1B
- clc
- adc    $19
- ldx    $1A
- bcc    $960E
- inx
- clc
- sbc    #$00
- sta    $37
- bcs    $9615
- dex
- stx    $38
- ldx    $1B
- ldy    #$01
- lda    ($37),y
- cmp    #$41
- bcs    $962D
- cmp    #$30
- bcc    $9641
- cmp    #$3A
- bcs    $9641
- inx
- iny
- bne    $961B
- cmp    #$5B
- bcs    $9635
- inx
- iny
- bne    $961B
- cmp    #$5F
- bcc    $9641
- cmp    #$7B
- bcs    $9641
- inx
- iny
- bne    $961B
- dey
- beq    $9673
- cmp    #$24
- beq    $96AF
- cmp    #$25
- bne    $9654
- dec    $2C
- iny
- inx
- iny
- lda    ($37),y
- dey
- sty    $39
- cmp    #$28
- beq    $96A6
- jsr    $9469
- beq    $9677
- stx    $1B
- ldy    $1B
- lda    ($19),y
- cmp    #$21
- beq    $967F
- cmp    #$3F
- beq    $967B
- clc
- sty    $1B
- lda    #$FF
- rts
- lda    #$00
- sec
- rts
- lda    #$00
- clc
- rts
- lda    #$00
- beq    $9681
- lda    #$04
- pha
- iny
- sty    $1B
- jsr    $B32C
- jsr    $92F0
- lda    $2B
- pha
- lda    $2A
- pha
- jsr    $92E3
- clc
- pla
- adc    $2A
- sta    $2A
- pla
- adc    $2B
- sta    $2B
- pla
- sta    $2C
- clc
- lda    #$FF
- rts
- inx
- inc    $39
- jsr    $96DF
- jmp    $9661
- inx
- iny
- sty    $39
- iny
- dec    $2C
- lda    ($37),y
- cmp    #$28
- beq    $96C9
- jsr    $9469
- beq    $9677
- stx    $1B
- lda    #$81
- sta    $2C
- sec
- rts
- inx
- sty    $39
- dec    $2C
- jsr    $96DF
- lda    #$81
- sta    $2C
- sec
- rts
- brk
- asl    $7241
- .byte  'r'
- adc    ($79,x)
- brk
- jsr    $9469
- beq    $96D7
- stx    $1B
- lda    $2C
- pha
- lda    $2A
- pha
- lda    $2B
- pha
- ldy    #$00
- lda    ($2A),y
- cmp    #$04
- bcc    $976C
- tya
- jsr    $AED8
- lda    #$01
- sta    $2D
- jsr    $BD94
- jsr    $92DD
- inc    $1B
- cpx    #$2C
- bne    $96D7
- ldx    #$39
- jsr    $BE0D
- ldy    $3C
- pla
- sta    $38
- pla
- sta    $37
- pha
- lda    $38
- pha
- jsr    $97BA
- sty    $2D
- lda    ($37),y
- sta    $3F
- iny
- lda    ($37),y
- sta    $40
- lda    $2A
- adc    $39
- sta    $2A
- lda    $2B
- adc    $3A
- sta    $2B
- jsr    $9236
- ldy    #$00
- sec
- lda    ($37),y
- sbc    $2D
- cmp    #$03
- bcs    $96FF
- jsr    $BD94
- jsr    $AE56
- jsr    $92F0
- pla
- sta    $38
- pla
- sta    $37
- ldx    #$39
- jsr    $BE0D
- ldy    $3C
- jsr    $97BA
- clc
- lda    $39
- adc    $2A
- sta    $2A
- lda    $3A
- adc    $2B
- sta    $2B
- bcc    $977D
- jsr    $AE56
- jsr    $92F0
- pla
- sta    $38
- pla
- sta    $37
- ldy    #$01
- jsr    $97BA
- pla
- sta    $2C
- cmp    #$05
- bne    $979B
- ldx    $2B
- lda    $2A
- asl    $2A
- rol    $2B
- asl    $2A
- rol    $2B
- adc    $2A
- sta    $2A
- txa
- adc    $2B
- sta    $2B
- bcc    $97A3
- asl    $2A
- rol    $2B
- asl    $2A
- rol    $2B
- tya
- adc    $2A
- sta    $2A
- bcc    $97AD
- inc    $2B
- clc
- lda    $37
- adc    $2A
- sta    $2A
- lda    $38
- adc    $2B
- sta    $2B
- rts
- lda    $2B
- and    #$C0
- ora    $2C
- ora    $2D
- bne    $97D1
- lda    $2A
- cmp    ($37),y
- iny
- lda    $2B
- sbc    ($37),y
- bcs    $97D1
- iny
- rts
- brk
- .byte  $0F
- .byte  'S'
- adc    $62,x
- .byte  's'
- .byte  'c'
- .byte  'r'
- adc    #$70
- .byte  't'
- brk
- inc    $0A
- ldy    $0A
- lda    ($0B),y
- cmp    #$20
- beq    $97DD
- cmp    #$8D
- bne    $9805
- iny
- lda    ($0B),y
- asl    a
- asl    a
- tax
- and    #$C0
- iny
- eor    ($0B),y
- sta    $2A
- txa
- asl    a
- asl    a
- iny
- eor    ($0B),y
- sta    $2B
- iny
- sty    $0A
- sec
- rts
- clc
- rts
- lda    $0B
- sta    $19
- lda    $0C
- sta    $1A
- lda    $0A
- sta    $1B
- ldy    $1B
- inc    $1B
- lda    ($19),y
- cmp    #$20
- beq    $9813
- cmp    #$3D
- beq    $9849
- brk
- .byte  $04
- eor    $7369
- .byte  't'
- adc    ($6B,x)
- adc    $00
- bpl    $9880
- adc    $746E,y
- adc    ($78,x)
- jsr    $7265
- .byte  'r'
- .byte  'o'
- .byte  'r'
- brk
- ora    ($45),y
- .byte  's'
- .byte  'c'
- adc    ($70,x)
- adc    $00
- jsr    L8A8C
- cmp    #$3D
- bne    $9821
- rts
- jsr    $9B29
- txa
- ldy    $1B
- jmp    $9861
- ldy    $1B
- jmp    $9859
- ldy    $0A
- dey
- iny
- lda    ($0B),y
- cmp    #$20
- beq    $985A
- cmp    #$3A
- beq    $986D
- cmp    #$0D
- beq    $986D
- cmp    #$8B
- bne    $982A
- clc
- tya
- adc    $0B
- sta    $0B
- bcc    $9877
- inc    $0C
- ldy    #$01
- sty    $0A
- bit    $FF
- bmi    $9838
- rts
- jsr    $9857
- dey
- lda    ($0B),y
- cmp    #$3A
- beq    $987F
- lda    $0C
- cmp    #$07
- beq    $98BC
- iny
- lda    ($0B),y
- bmi    $98BC
- lda    $20
- beq    $98AC
- tya
- pha
- iny
- lda    ($0B),y
- pha
- dey
- lda    ($0B),y
- tay
- pla
- jsr    $AEEA
- jsr    $9905
- pla
- tay
- iny
- sec
- tya
- adc    $0B
- sta    $0B
- bcc    $98B7
- inc    $0C
- ldy    #$01
- sty    $0A
- rts
- jmp    L8AF6
- jmp    L8C0E
- jsr    $9B1D
- beq    $98BF
- bpl    $98CC
- jsr    $A3E4
- ldy    $1B
- sty    $0A
- lda    $2A
- ora    $2B
- ora    $2C
- ora    $2D
- beq    $98F1
- cpx    #$8C
- beq    $98E1
- jmp    L8BA3
- inc    $0A
- jsr    $97DF
- bcc    $98DE
- jsr    $B9AF
- jsr    $9877
- jmp    $B8D2
- ldy    $0A
- lda    ($0B),y
- cmp    #$0D
- beq    $9902
- iny
- cmp    #$8B
- bne    $98F3
- sty    $0A
- beq    $98E3
- jmp    L8B87
- lda    $2A
- cmp    $21
- lda    $2B
- sbc    $22
- bcs    $98BB
- lda    #$5B
- jsr    $B558
- jsr    $991F
- lda    #$5D
- jsr    $B558
- jmp    $B565
- lda    #$00
- beq    $9925
- lda    #$05
- sta    $14
- ldx    #$04
- lda    #$00
- sta    $3F,x
- sec
- lda    $2A
- sbc    $996B,x
- tay
- lda    $2B
- sbc    $99B9,x
- bcc    $9943
- sta    $2B
- sty    $2A
- inc    $3F,x
- bne    $992E
- dex
- bpl    $9929
- ldx    #$05
- dex
- beq    $994F
- lda    $3F,x
- beq    $9948
- stx    $37
- lda    $14
- beq    $9960
- sbc    $37
- beq    $9960
- tay
- jsr    $B565
- dey
- bne    $995A
- lda    $3F,x
- ora    #$30
- jsr    $B558
- dex
- bpl    $9960
- rts
- ora    ($0A,x)
- .byte  'd'
- inx
- bpl    $9911
- brk
- sty    $3D
- lda    $18
- sta    $3E
- ldy    #$01
- lda    ($3D),y
- cmp    $2B
- bcs    $998E
- ldy    #$03
- lda    ($3D),y
- adc    $3D
- sta    $3D
- bcc    $9978
- inc    $3E
- bcs    $9978
- bne    $99A4
- ldy    #$02
- lda    ($3D),y
- cmp    $2A
- bcc    $9980
- bne    $99A4
- tya
- adc    $3D
- sta    $3D
- bcc    $99A4
- inc    $3E
- clc
- ldy    #$02
- rts
- brk
- .byte  $12
- .byte  'D'
- adc    #$76
- adc    #$73
- adc    #$6F
- ror    $6220
- adc    $7A20,y
- adc    $72
- .byte  'o'
- brk
- brk
- brk
- .byte  $03
- .byte  $27
- tay
- jsr    $92F0
- lda    $2D
- pha
- jsr    $AD71
- jsr    $9E1D
- stx    $27
- tay
- jsr    $92F0
- pla
- sta    $38
- eor    $2D
- sta    $37
- jsr    $AD71
- ldx    #$39
- jsr    $BE0D
- sty    $3D
- sty    $3E
- sty    $3F
- sty    $40
- lda    $2D
- ora    $2A
- ora    $2B
- ora    $2C
- beq    $99A7
- ldy    #$20
- dey
- beq    $9A38
- asl    $39
- rol    $3A
- rol    $3B
- rol    $3C
- bpl    $99F4
- rol    $39
- rol    $3A
- rol    $3B
- rol    $3C
- rol    $3D
- rol    $3E
- rol    $3F
- rol    $40
- sec
- lda    $3D
- sbc    $2A
- pha
- lda    $3E
- sbc    $2B
- pha
- lda    $3F
- sbc    $2C
- tax
- lda    $40
- sbc    $2D
- bcc    $9A33
- sta    $40
- stx    $3F
- pla
- sta    $3E
- pla
- sta    $3D
- bcs    $9A35
- pla
- pla
- dey
- bne    $9A01
- rts
- stx    $27
- jsr    $BDEA
- jsr    $BD51
- jsr    $A2BE
- jsr    $A21E
- jsr    $BD7E
- jsr    $A3B5
- jmp    $9A62
- jsr    $BD51
- jsr    $9C42
- stx    $27
- tay
- jsr    $92FD
- jsr    $BD7E
- jsr    $A34E
+L955B:
+        lda    ($37),y
+        cmp    #$30
+        bcc    $9579
+        cmp    #$40
+        bcs    $9571
+        cmp    #$3A
+        bcs    $9579
+        cpy    #$01
+        beq    $9579
+L956D:
+        inx
+        iny
+        bne    $955B
+L9571:
+        cmp    #$5F
+        bcs    $957A
+        cmp    #$5B
+        bcc    $956D
+L9579:
+        rts
+L957A:
+        cmp    #$7B
+        bcc    $956D
+        rts
+L957F:
+        jsr    $9531
+L9582:
+        jsr    $95C9
+        bne    $95A4
+        bcs    $95A4
+        jsr    $94FC
+        ldx    #$05
+        cpx    $2C
+        bne    $957F
+        inx
+        bne    $957F
+L9595:
+        cmp    #$21
+        beq    $95A5
+        cmp    #$24
+        beq    $95B0
+        eor    #$3F
+        beq    $95A7
+        lda    #$00
+        sec
+L95A4:
+        rts
+L95A5:
+        lda    #$04
+L95A7:
+        pha
+        inc    $1B
+        jsr    $92E3
+        jmp    $969F
+L95B0:
+        inc    $1B
+        jsr    $92E3
+        lda    $2B
+        beq    $95BF
+        lda    #$80
+        sta    $2C
+        sec
+        rts
+L95BF:
+        brk
+        .byte  8, "$ range"
+        brk
+L95C9:
+        lda    $0B
+        sta    $19
+        lda    $0C
+        sta    $1A
+        ldy    $0A
+        dey
+L95D4:
+        iny
+L95D5:
+        sty    $1B
+        lda    ($19),y
+        cmp    #$20
+        beq    $95D4
+L95DD:
+        cmp    #$40
+        bcc    $9595
+        cmp    #$5B
+        bcs    $95FF
+        asl    a
+        asl    a
+        sta    $2A
+        lda    #$04
+        sta    $2B
+        iny
+        lda    ($19),y
+        iny
+        cmp    #$25
+        bne    $95FF
+        ldx    #$04
+        stx    $2C
+        lda    ($19),y
+        cmp    #'('
+        bne    $9665
+L95FF:
+        ldx    #$05
+        stx    $2C
+        lda    $1B
+        clc
+        adc    $19
+        ldx    $1A
+        bcc    $960E
+        inx
+        clc
+L960E:
+        sbc    #$00
+        sta    $37
+        bcs    $9615
+        dex
+L9615:
+        stx    $38
+        ldx    $1B
+        ldy    #$01
+L961B:
+        lda    ($37),y
+        cmp    #$41
+        bcs    $962D
+        cmp    #$30
+        bcc    $9641
+        cmp    #$3A
+        bcs    $9641
+        inx
+        iny
+        bne    $961B
+L962D:
+        cmp    #$5B
+        bcs    $9635
+        inx
+        iny
+        bne    $961B
+L9635:
+        cmp    #$5F
+        bcc    $9641
+        cmp    #$7B
+        bcs    $9641
+        inx
+        iny
+        bne    $961B
+L9641:
+        dey
+        beq    $9673
+        cmp    #$24
+        beq    $96AF
+        cmp    #$25
+        bne    $9654
+        dec    $2C
+        iny
+        inx
+        iny
+        lda    ($37),y
+        dey
+L9654:
+        sty    $39
+        cmp    #'('
+        beq    $96A6
+        jsr    $9469
+        beq    $9677
+        stx    $1B
+L9661:
+        ldy    $1B
+        lda    ($19),y
+L9665:
+        cmp    #$21
+        beq    $967F
+        cmp    #$3F
+        beq    $967B
+        clc
+        sty    $1B
+        lda    #$FF
+        rts
+L9673:
+        lda    #$00
+        sec
+        rts
+ L9677:
+        lda    #$00
+        clc
+        rts
+L967B:
+        lda    #$00
+        beq    $9681
+L967F:
+        lda    #$04
+L9681:
+        pha
+        iny
+        sty    $1B
+        jsr    $B32C
+        jsr    $92F0
+        lda    $2B
+        pha
+        lda    $2A
+        pha
+        jsr    $92E3
+        clc
+        pla
+        adc    $2A
+        sta    $2A
+        pla
+        adc    $2B
+        sta    $2B
+L969F:
+        pla
+        sta    $2C
+        clc
+        lda    #$FF
+        rts
+L96A6:
+        inx
+        inc    $39
+        jsr    $96DF
+        jmp    $9661
+L96AF:
+        inx
+        iny
+        sty    $39
+        iny
+        dec    $2C
+        lda    ($37),y
+        cmp    #'('
+        beq    $96C9
+        jsr    $9469
+        beq    $9677
+        stx    $1B
+        lda    #$81
+        sta    $2C
+        sec
+        rts
+L96C9:
+        inx
+        sty    $39
+        dec    $2C
+        jsr    $96DF
+        lda    #$81
+        sta    $2C
+        sec
+        rts
+L96D7:
+        brk
+        .byte   14, "Array"
+        brk
+L96DF:
+        jsr    $9469
+        beq    $96D7
+        stx    $1B
+        lda    $2C
+        pha
+        lda    $2A
+        pha
+        lda    $2B
+        pha
+        ldy    #$00
+        lda    ($2A),y
+        cmp    #$04
+        bcc    $976C
+        tya
+        jsr    $AED8
+        lda    #$01
+        sta    $2D
+L96FF:
+        jsr    $BD94
+        jsr    $92DD
+        inc    $1B
+        cpx    #$2C
+        bne    $96D7
+        ldx    #$39
+        jsr    $BE0D
+        ldy    $3C
+        pla
+        sta    $38
+        pla
+        sta    $37
+        pha
+        lda    $38
+        pha
+        jsr    $97BA
+        sty    $2D
+        lda    ($37),y
+        sta    $3F
+        iny
+        lda    ($37),y
+        sta    $40
+        lda    $2A
+        adc    $39
+        sta    $2A
+        lda    $2B
+        adc    $3A
+        sta    $2B
+        jsr    $9236
+        ldy    #$00
+        sec
+        lda    ($37),y
+        sbc    $2D
+        cmp    #$03
+        bcs    $96FF
+        jsr    $BD94
+        jsr    $AE56
+        jsr    $92F0
+        pla
+        sta    $38
+        pla
+        sta    $37
+        ldx    #$39
+        jsr    $BE0D
+        ldy    $3C
+        jsr    $97BA
+        clc
+        lda    $39
+        adc    $2A
+        sta    $2A
+        lda    $3A
+        adc    $2B
+        sta    $2B
+        bcc    $977D
+L976C:
+        jsr    $AE56
+        jsr    $92F0
+        pla
+        sta    $38
+        pla
+        sta    $37
+        ldy    #$01
+        jsr    $97BA
+L977D:
+        pla
+        sta    $2C
+        cmp    #$05
+        bne    $979B
+        ldx    $2B
+        lda    $2A
+        asl    $2A
+        rol    $2B
+        asl    $2A
+        rol    $2B
+        adc    $2A
+        sta    $2A
+        txa
+        adc    $2B
+        sta    $2B
+        bcc    $97A3
+L979B:
+        asl    $2A
+        rol    $2B
+        asl    $2A
+        rol    $2B
+L97A3:
+        tya
+        adc    $2A
+        sta    $2A
+        bcc    $97AD
+        inc    $2B
+        clc
+L97AD:
+        lda    $37
+        adc    $2A
+        sta    $2A
+        lda    $38
+        adc    $2B
+        sta    $2B
+        rts
+L97BA:
+        lda    $2B
+        and    #$C0
+        ora    $2C
+        ora    $2D
+        bne    $97D1
+        lda    $2A
+        cmp    ($37),y
+        iny
+        lda    $2B
+        sbc    ($37),y
+        bcs    $97D1
+        iny
+        rts
+L97D1:
+        brk
+        .byte   15, "Subscript"
+        brk
+L97DD:
+        inc    $0A
+L97DF:
+        ldy    $0A
+        lda    ($0B),y
+        cmp    #$20
+        beq    $97DD
+        cmp    #$8D
+        bne    $9805
+L97EB:
+        iny
+        lda    ($0B),y
+        asl    a
+        asl    a
+        tax
+        and    #$C0
+        iny
+        eor    ($0B),y
+        sta    $2A
+        txa
+        asl    a
+        asl    a
+        iny
+        eor    ($0B),y
+        sta    $2B
+        iny
+        sty    $0A
+        sec
+        rts
+        L9805:
+        clc
+        rts
+L9807:
+        lda    $0B
+        sta    $19
+        lda    $0C
+        sta    $1A
+        lda    $0A
+        sta    $1B
+L9813:
+        ldy    $1B
+        inc    $1B
+        lda    ($19),y
+        cmp    #$20
+        beq    $9813
+        cmp    #$3D
+        beq    $9849
+L9821:
+        brk
+        .byte   4, "Mistake"
+L982A:
+        brk
+        .byte   16, "Syntax error"
+
+; Escape error
+; ------------
+L9838:
+        brk
+        .byte   17, "Escape"
+        brk
+L9841:
+        jsr    L8A8C
+        cmp    #'='
+        bne    $9821
+        rts
+L9849:
+        jsr    $9B29
+L984C:
+        txa
+        ldy    $1B
+        jmp    $9861
+L9852:
+        ldy    $1B
+        jmp    $9859
+
+; Check for end of statement, check for Escape
+; ============================================
+L9857:
+        ldy    $0A              ; Get program pointer offset
+L9859:
+        dey                     ; Step back to previous character
+L985A:
+        iny                     ; Get next character
+        lda    ($0B),y
+        cmp    #' '             ; Skip spaces
+        beq    $985A
+L9861:
+        cmp    #':'             ; Colon, jump to update program pointer
+        beq    $986D
+        cmp    #$0D             ; <cr>, jump to update program pointer
+        beq    $986D
+        cmp    #tknELSE         ; Not 'ELSE', jump to 'Syntax error'
+        bne    $982A
+
+; Update program pointer
+; ----------------------
+L986D:
+        clc                     ; Update program pointer in PtrA
+        tya
+        adc    $0B
+        sta    $0B
+        bcc    $9877
+        inc    $0C
+L9877:
+        ldy    #$01
+        sty    $0A
+
+; Check background Escape state
+; -----------------------------
+L987B:
+
+; BBC - check background Escape state
+; -----------------------------------
+        bit    ESCFLG           ; If Escape set, jump to give error
+        bmi    $9838
+L987F:
+        rts
+L9880:
+        jsr    $9857
+        dey
+        lda    ($0B),y
+        cmp    #$3A
+        beq    $987F
+        lda    $0C
+        cmp    #$07
+        beq    $98BC
+L9890:
+        iny
+        lda    ($0B),y
+        bmi    $98BC
+        lda    $20
+        beq    $98AC
+        tya
+        pha
+        iny
+        lda    ($0B),y
+        pha
+        dey
+        lda    ($0B),y
+        tay
+        pla
+        jsr    $AEEA
+        jsr    $9905
+        pla
+        tay
+L98AC:
+        iny
+        sec
+        tya
+        adc    $0B
+        sta    $0B
+        bcc    $98B7
+        inc    $0C
+L98B7:
+        ldy    #$01
+        sty    $0A
+L98BB:
+        rts
+L98BC:
+        jmp    L8AF6
+L98BF:
+        jmp    L8C0E
+
+; IF numeric
+; ==========
+L98C2:
+        jsr    $9B1D
+        beq    $98BF
+        bpl    $98CC
+        jsr    $A3E4
+L98CC:
+        ldy    $1B
+        sty    $0A
+        lda    $2A
+        ora    $2B
+        ora    $2C
+        ora    $2D
+        beq    $98F1
+        cpx    #$8C
+        beq    $98E1
+L98DE:
+        jmp    L8BA3
+L98E1:
+        inc    $0A
+L98E3:
+        jsr    $97DF
+        bcc    $98DE
+        jsr    $B9AF
+        jsr    $9877
+        jmp    $B8D2
+L98F1:
+        ldy    $0A
+L98F3:
+        lda    ($0B),y
+        cmp    #$0D
+        beq    $9902
+        iny
+        cmp    #$8B
+        bne    $98F3
+        sty    $0A
+        beq    $98E3
+L9902:
+        jmp    L8B87
+L9905:
+        lda    $2A
+        cmp    $21
+        lda    $2B
+        sbc    $22
+        bcs    $98BB
+        lda    #$5B
+L9911:
+        jsr    $B558
+        jsr    $991F
+        lda    #$5D
+        jsr    $B558
+        jmp    $B565
+
+;Print 16-bit decimal number
+;===========================
+L991F:
+        lda    #$00             ; No padding
+        beq    $9925
+L9923:
+        lda    #$05             ; Pad to five characters
+L9925:
+        sta    $14
+        ldx    #$04
+L9929:
+        lda    #$00
+        sta    $3F,x
+        sec
+        lda    $2A
+        sbc    $996B,x          ; Subtract 10s low byte
+        tay
+        lda    $2B
+        sbc    $99B9,x          ; Subtract 10s high byte
+        bcc    $9943            ; Result<0, no more for this digit
+        sta    $2B              ; Update number
+        sty    $2A
+        inc    $3F,x
+        bne    $992E
+L9943:
+        dex
+        bpl    $9929
+        ldx    #$05
+L9948:
+        dex
+        beq    $994F
+        lda    $3F,x
+        beq    $9948
+L994F:
+        stx    $37
+        lda    $14
+        beq    $9960
+        sbc    $37
+        beq    $9960
+        tay
+L995A:
+        jsr    $B565
+        dey
+        bne    $995A
+L9960:
+        lda    $3F,x
+        ora    #$30
+        jsr    $B558
+        dex
+        bpl    $9960
+         rts
+
+; Low bytes of powers of ten
+L996B:
+        .byte   1, 10, 100, $E8, $10
+
+; Line Search
+L9970:
+        ldy    #$00
+        sty    $3D
+        lda    $18
+        sta    $3E
+L9978:
+        ldy    #$01
+        lda    ($3D),y
+        cmp    $2B
+        bcs    $998E
+L9980:
+        ldy    #$03
+        lda    ($3D),y
+        adc    $3D
+        sta    $3D
+        bcc    $9978
+        inc    $3E
+        bcs    $9978
+L998E:
+        bne    $99A4
+        ldy    #$02
+        lda    ($3D),y
+        cmp    $2A
+        bcc    $9980
+        bne    $99A4
+        tya
+        adc    $3D
+        sta    $3D
+        bcc    $99A4
+        inc    $3E
+        clc
+L99A4:
+        ldy    #$02
+        rts
+
+L99A7:
+        brk
+        .byte  $12, "Division by zero"
+
+; High byte of powers of ten
+L99B9:
+        brk
+        brk
+        brk
+        .byte  $03
+        .byte  $27
+
+L99BE:
+        tay
+        jsr    $92F0
+        lda    $2D
+        pha
+        jsr    $AD71
+        jsr    $9E1D
+        stx    $27
+        tay
+        jsr    $92F0
+        pla
+        sta    $38
+        eor    $2D
+        sta    $37
+        jsr    $AD71
+        ldx    #$39
+        jsr    $BE0D
+        sty    $3D
+        sty    $3E
+        sty    $3F
+        sty    $40
+        lda    $2D
+        ora    $2A
+        ora    $2B
+        ora    $2C
+        beq    $99A7
+        ldy    #$20
+L99F4:
+        dey
+        beq    $9A38
+        asl    $39
+        rol    $3A
+        rol    $3B
+        rol    $3C
+        bpl    $99F4
+L9A01:
+        rol    $39
+        rol    $3A
+        rol    $3B
+        rol    $3C
+        rol    $3D
+        rol    $3E
+        rol    $3F
+        rol    $40
+        sec
+        lda    $3D
+        sbc    $2A
+        pha
+        lda    $3E
+        sbc    $2B
+        pha
+        lda    $3F
+        sbc    $2C
+        tax
+        lda    $40
+        sbc    $2D
+        bcc    $9A33
+        sta    $40
+        stx    $3F
+        pla
+        sta    $3E
+        pla
+        sta    $3D
+        bcs    $9A35
+L9A33:
+        pla
+        pla
+L9A35:
+        dey
+        bne    $9A01
+L9A38:
+        rts
+
+L9A39:
+        stx    $27
+        jsr    $BDEA
+        jsr    $BD51
+        jsr    $A2BE
+        jsr    $A21E
+        jsr    $BD7E
+        jsr    $A3B5
+        jmp    $9A62
+L9A50:
+        jsr    $BD51
+        jsr    $9C42
+        stx    $27
+        tay
+        jsr    $92FD
+        jsr    $BD7E
+        jsr    $A34E
+
+; Compare FPA = FPB
+; -----------------
+L9A62:
  ldx    $27
  ldy    #$00
  lda    $3B
