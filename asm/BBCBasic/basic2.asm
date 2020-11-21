@@ -1559,7 +1559,7 @@ L8A8C:
         beq    L8A8C            ; Loop until not space
 L8A96:
         rts
-        
+
 ; Skip spaces at PtrA
 ; -------------------
 L8A97:
@@ -1703,7 +1703,7 @@ L8B59:
         brk
         .byte  $07,"No ",tknFN
         brk
-        
+
 ; Check for =, *, [ commands
 ; ==========================
 L8B60:
@@ -2836,7 +2836,7 @@ L92B7:
         jsr    L9857
         lda    #$FF             ; Jump to set TRACE &FFxx
         bne    L92AE
-        
+
 ; TRACE OFF
 ; ---------
 L92C0:
@@ -3115,7 +3115,7 @@ L9432:
         beq    L942A            ; Loop to output high byte and read another
 L9453:
         jmp    L8B96            ; Jump to execution loop
-        
+
 ; Send IntA to OSWRCH via WRCHV
 ; =============================
 L9456:
@@ -4706,7 +4706,7 @@ L9DBD:
 L9DC6:
         ldx    $27
         jmp    L9DD4
- 
+
 ; * <value>
 ; ---------
 L9DCB:
@@ -5165,61 +5165,73 @@ LA072:
 ; Scan decimal number
 ; -------------------
 LA07B:
-        ldx    #$00
- stx    $31
- stx    $32
- stx    $33
- stx    $34
- stx    $35
- stx    $48
- stx    $49
- cmp    #$2E
- beq    $A0A0
- cmp    #$3A
- bcs    $A072
- sbc    #$2F
- bmi    $A072
- sta    $35
- iny
- lda    ($19),y
- cmp    #$2E
- bne    $A0A8
- lda    $48
- bne    $A0E8
- inc    $48
- bne    $A099
- cmp    #$45
- beq    $A0E1
- cmp    #$3A
- bcs    $A0E8
- sbc    #$2F
- bcc    $A0E8
- ldx    $31
- cpx    #$18
- bcc    $A0C2
- ldx    $48
- bne    $A099
- inc    $49
- bcs    $A099
- ldx    $48
- beq    $A0C8
- dec    $49
- jsr    $A197
- adc    $35
- sta    $35
- bcc    $A099
- inc    $34
- bne    $A099
- inc    $33
- bne    $A099
- inc    $32
- bne    $A099
- inc    $31
- bne    $A099
- jsr    $A140
- adc    $49
- sta    $49
- sty    $1B
+        ldx    #$00             ; Clear FloatA
+        stx    $31
+        stx    $32
+        stx    $33
+        stx    $34
+        stx    $35
+        stx    $48              ; Clear 'Decimal point' flag
+        stx    $49
+        cmp    #'.'             ; Leading decimal point
+        beq    $A0A0
+        cmp    #'9'+1           ; Not a decimal digit, finish
+        bcs    $A072
+        sbc    #'0'-1           ; Convert to binary, if not digit finish
+        bmi    $A072
+        sta    $35              ; Store digit
+LA099:
+        iny                     ; Get next character
+        lda    ($19),y
+        cmp    #'.'             ; Not decimal point
+        bne    $A0A8
+LA0A0:
+        lda    $48              ; Already got decimal point,
+        bne    $A0E8
+        inc    $48              ; Set Decimal Point flag, loop for next
+        bne    $A099
+LA0A8:
+        cmp    #'E'             ; Jump to scan exponent
+        beq    $A0E1
+        cmp    #'9'+1           ; Not a digit, jump to finish
+        bcs    $A0E8
+        sbc    #'0'-1           ; Not a digit, jump to finish
+        bcc    $A0E8
+        ldx    $31              ; Get mantissa top byte
+        cpx    #$18             ; If <25, still small enough to add to
+        bcc    $A0C2
+        ldx    $48              ; Decimal point found, skip digits to end of number
+        bne    $A099
+        inc    $49              ; No decimal point, increment exponent and skip digits
+        bcs    $A099
+LA0C2:
+        ldx    $48
+        beq    $A0C8
+        dec    $49              ; Decimal point found, decrement exponent
+LA0C8:
+        jsr    $A197            ; Multiply FloatA by 10
+        adc    $35              ; Add digit to mantissa low byte
+        sta    $35
+        bcc    $A099            ; No overflow
+        inc    $34              ; Add carry through mantissa
+        bne    $A099
+        inc    $33
+        bne    $A099
+        inc    $32
+        bne    $A099
+        inc    $31              ; Loop to check next digit
+        bne    $A099
+
+; Deal with Exponent in scanned number
+; ------------------------------------
+LA0E1:
+        jsr    $A140            ; Scan following number
+        adc    $49              ; Add to current exponent
+        sta    $49
+; End of number found
+; -------------------
+;LA0E8:
+        sty    $1B
  lda    $49
  ora    $48
  beq    $A11F
