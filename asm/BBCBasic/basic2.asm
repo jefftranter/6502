@@ -4391,7 +4391,7 @@ L9BC0:
 ; ----------
 L9BD4:
         inc    $1B              ; Step past '=', evaluate next and compare
-        jsr    L9A9D    
+        jsr    L9A9D
         beq    L9BB4            ; Jump to return TRUE if =, TRUE if <
         bcc    L9BB4
         bcs    L9BB5            ; Jump to return FALSE otherwise
@@ -4713,7 +4713,7 @@ L9DCB:
         jmp    L9D3C            ; Bounce back to multiply code
 
 ; Stack current value and continue in Evaluator Level 3
-; ------------------------------------------------------- 
+; -------------------------------------------------------
 L9DCE:
         jsr    $BD94
 
@@ -7814,973 +7814,1120 @@ LB1C8:
 ; FN/PROC destination found
 ; -------------------------
 LB1E9:
+        ldy    #$00             ; Set PtrA to address from FN/PROC infoblock
+        lda    ($2A),y
+        sta    $0B
+        iny
+        lda    ($2A),y
+        sta    $0C
+LB1F4:
+        lda    #$00             ; Push 'no parameters' (?)
+        pha
+        sta    $0A
+        jsr    L8A97
+        cmp    #'('
+        beq    $B24D
+        dec    $0A
+LB202:
+        lda    $1B
+        pha
+        lda    $19
+        pha
+        lda    $1A
+        pha
+        jsr    L8BA3
+        pla
+        sta    $1A
+        pla
+        sta    $19
+        pla
+        sta    $1B
+        pla
+        beq    $B226
+        sta    $3F
+LB21C:
+        jsr    $BE0B
+        jsr    L8CC1
+        dec    $3F
+        bne    $B21C
+LB226:
+        pla
+        sta    $0C
+        pla
+        sta    $0B
+        pla
+        sta    $0A
+        pla
         ldy    #$00
- lda    ($2A),y
- sta    $0B
- iny
- lda    ($2A),y
- sta    $0C
- lda    #$00
- pha
- sta    $0A
- jsr    L8A97
- cmp    #$28
- beq    $B24D
- dec    $0A
- lda    $1B
- pha
- lda    $19
- pha
- lda    $1A
- pha
- jsr    L8BA3
- pla
- sta    $1A
- pla
- sta    $19
- pla
- sta    $1B
- pla
- beq    $B226
- sta    $3F
- jsr    $BE0B
- jsr    L8CC1
- dec    $3F
- bne    $B21C
- pla
- sta    $0C
- pla
- sta    $0B
- pla
- sta    $0A
- pla
- ldy    #$00
- lda    ($04),y
- tax
- txs
- iny
- inx
- lda    ($04),y
- sta    $0100,x
- cpx    #$FF
- bne    $B236
- tya
- adc    $04
- sta    $04
- bcc    $B24A
- inc    $05
- lda    $27
- rts
- lda    $1B
- pha
- lda    $19
- pha
- lda    $1A
- pha
- jsr    L9582
- beq    $B2B5
- lda    $1B
- sta    $0A
- pla
- sta    $1A
- pla
- sta    $19
- pla
- sta    $1B
- pla
- tax
- lda    $2C
- pha
- lda    $2B
- pha
- lda    $2A
- pha
- inx
- txa
- pha
- jsr    $B30D
- jsr    L8A97
- cmp    #$2C
- beq    $B24D
- cmp    #$29
- bne    $B2B5
- lda    #$00
- pha
- jsr    L8A8C
- cmp    #$28
- bne    $B2B5
- jsr    L9B29
- jsr    $BD90
- lda    $27
- sta    $2D
- jsr    $BD94
- pla
- tax
- inx
- txa
- pha
- jsr    L8A8C
- cmp    #$2C
- beq    $B28E
- cmp    #$29
- bne    $B2B5
- pla
- pla
- sta    $4D
- sta    $4E
- cpx    $4D
- beq    $B2CA
- ldx    #$FB
- txs
- pla
- sta    $0C
- pla
- sta    $0B
- brk
- .byte  $1F
- eor    ($72,x)
- .byte  'g'
- adc    $6D,x
- adc    $6E
- .byte  't'
- .byte  's'
- brk
- jsr    $BDEA
- pla
- sta    $2A
- pla
- sta    $2B
- pla
- sta    $2C
- bmi    $B2F9
- lda    $2D
- beq    $B2B5
- sta    $27
- ldx    #$37
- jsr    $BE44
- lda    $27
- bpl    $B2F0
- jsr    $BD7E
- jsr    $A3B5
- jmp    $B2F3
- jsr    $BDEA
- jsr    $B4B7
- jmp    $B303
- lda    $2D
- bne    $B2B5
- jsr    $BDCB
- jsr    L8C21
- dec    $4D
- bne    $B2CA
- lda    $4E
- pha
- jmp    $B202
- ldy    $2C
- cpy    #$04
- bne    $B318
- ldx    #$37
- jsr    $BE44
- jsr    $B32C
- php
- jsr    $BD90
- plp
- beq    $B329
- bmi    $B329
- ldx    #$37
- jsr    $AF56
- jmp    $BD94
- ldy    $2C
- bmi    $B384
- beq    $B34F
- cpy    #$05
- beq    $B354
- ldy    #$03
- lda    ($2A),y
- sta    $2D
- dey
- lda    ($2A),y
- sta    $2C
- dey
- lda    ($2A),y
- tax
- dey
- lda    ($2A),y
- sta    $2A
- stx    $2B
- lda    #$40
- rts
- lda    ($2A),y
- jmp    $AEEA
- dey
- lda    ($2A),y
- sta    $34
- dey
- lda    ($2A),y
- sta    $33
- dey
- lda    ($2A),y
- sta    $32
- dey
- lda    ($2A),y
- sta    $2E
- dey
- lda    ($2A),y
- sta    $30
- sty    $35
- sty    $2F
- ora    $2E
- ora    $32
- ora    $33
- ora    $34
- beq    $B37F
- lda    $2E
- ora    #$80
- sta    $31
- lda    #$FF
- rts
- cpy    #$80
- beq    $B3A7
- ldy    #$03
- lda    ($2A),y
- sta    $36
- beq    $B3A6
- ldy    #$01
- lda    ($2A),y
- sta    $38
- dey
- lda    ($2A),y
- sta    $37
- ldy    $36
- dey
- lda    ($37),y
- sta    $0600,y
- tya
- bne    $B39D
- rts
- lda    $2B
- beq    $B3C0
- ldy    #$00
- lda    ($2A),y
- sta    $0600,y
- eor    #$0D
- beq    $B3BA
- iny
- bne    $B3AD
- tya
- sty    $36
- rts
- jsr    L92E3
- lda    $2A
- jmp    $AFC2
- ldy    #$00
- sty    $08
- sty    $09
- ldx    $18
- stx    $38
- sty    $37
- ldx    $0C
- cpx    #$07
- beq    $B401
- ldx    $0B
- jsr    L8942
- cmp    #$0D
- bne    $B3F9
- cpx    $37
- lda    $0C
- sbc    $38
- bcc    $B401
- jsr    L8942
- ora    #$00
- bmi    $B401
- sta    $09
- jsr    L8942
- sta    $08
- jsr    L8942
- cpx    $37
- lda    $0C
- sbc    $38
- bcs    $B3D9
- rts
- jsr    $B3C5
- sty    $20
- lda    ($FD),y
- bne    $B413
- lda    #$33
- sta    $16
- lda    #$B4
- sta    $17
- lda    $16
- sta    $0B
- lda    $17
- sta    $0C
- jsr    $BD3A
- tax
- stx    $0A
- lda    #$DA
- jsr    OSBYTE
- lda    #$7E
- jsr    OSBYTE
- ldx    #$FF
- stx    $28
- txs
- jmp    L8BA3
- inc    $3A,x
- .byte  $E7
- .byte  $9E
- sbc    ($22),y
- jsr    $7461
- jsr    $696C
- ror    $2065
- .byte  $22
- .byte  $3B
- .byte  $9E
- .byte  $3A
- cpx    #$8B
- sbc    ($3A),y
- cpx    #$0D
- jsr    L8821
- ldx    #$03
- lda    $2A
- pha
- lda    $2B
- pha
- txa
- pha
- jsr    L92DA
- pla
- tax
- dex
- bne    $B451
- jsr    L9852
- lda    $2A
- sta    $3D
- lda    $2B
- sta    $3E
- ldy    #$07
- ldx    #$05
- bne    $B48F
- jsr    L8821
- ldx    #$0D
- lda    $2A
- pha
- txa
- pha
- jsr    L92DA
- pla
- tax
- dex
- bne    $B477
- jsr    L9852
- lda    $2A
- sta    $44
- ldx    #$0C
- ldy    #$08
- pla
- sta    $37,x
- dex
- bpl    $B48F
- tya
- ldx    #$37
- ldy    #$00
- jsr    OSWORD
- jmp    L8B9B
- jsr    L8821
- jsr    L9852
- ldy    $2A
- dey
- sty    $23
- jmp    L8B9B
- jmp    L8C0E
- jsr    L9B29
- jsr    $BE0B
- lda    $39
- cmp    #$05
- beq    $B4E0
- lda    $27
- beq    $B4AE
- bpl    $B4C6
- jsr    $A3E4
- ldy    #$00
- lda    $2A
- sta    ($37),y
- lda    $39
- beq    $B4DF
- lda    $2B
- iny
- sta    ($37),y
- lda    $2C
- iny
- sta    ($37),y
- lda    $2D
- iny
- sta    ($37),y
- rts
- lda    $27
- beq    $B4AE
- bmi    $B4E9
- jsr    $A2BE
- ldy    #$00
- lda    $30
- sta    ($37),y
- iny
- lda    $2E
- and    #$80
- sta    $2E
- lda    $31
- and    #$7F
- ora    $2E
- sta    ($37),y
- iny
- lda    $32
- sta    ($37),y
- iny
- lda    $33
- sta    ($37),y
- iny
- lda    $34
- sta    ($37),y
- rts
- sta    $37
- cmp    #$80
- bcc    $B558
- lda    #$71
- sta    $38
- lda    #$80
- sta    $39
- sty    $3A
- ldy    #$00
- iny
- lda    ($38),y
- bpl    $B520
- cmp    $37
- beq    $B536
- iny
- tya
- sec
- adc    $38
- sta    $38
- bcc    $B51E
- inc    $39
- bcs    $B51E
- ldy    #$00
- lda    ($38),y
- bmi    $B542
- jsr    $B558
- iny
- bne    $B538
- ldy    $3A
- rts
- pha
- lsr    a
- lsr    a
- lsr    a
- lsr    a
- jsr    $B550
- pla
- and    #$0F
- cmp    #$0A
- bcc    $B556
- adc    #$06
- adc    #$30
- cmp    #$0D
- bne    $B567
- jsr    OSWRCH
- jmp    $BC28
- jsr    $B545
- lda    #$20
- pha
- lda    $23
- cmp    $1E
- bcs    $B571
- jsr    $BC25
- pla
- inc    $1E
- jmp    (WRCHV)
- and    $1F
- beq    $B589
- txa
- beq    $B589
- bmi    $B565
- jsr    $B565
- jsr    $B558
- dex
- bne    $B580
- rts
- inc    $0A
- jsr    L9B1D
- jsr    L984C
- jsr    L92EE
- lda    $2A
- sta    $1F
- jmp    L8AF6
- iny
- lda    ($0B),y
- cmp    #$4F
- beq    $B58A
- lda    #$00
- sta    $3B
- sta    $3C
- jsr    $AED8
- jsr    L97DF
- php
- jsr    $BD94
- lda    #$FF
- sta    $2A
- lda    #$7F
- sta    $2B
- plp
- bcc    $B5CF
- jsr    L8A97
- cmp    #$2C
- beq    $B5D8
- jsr    $BDEA
- jsr    $BD94
- dec    $0A
- bpl    $B5DB
- jsr    L8A97
- cmp    #$2C
- beq    $B5D8
- dec    $0A
- jsr    L97DF
- lda    $2A
- sta    $31
- lda    $2B
- sta    $32
- jsr    L9857
- jsr    $BE6F
- jsr    $BDEA
- jsr    L9970
- lda    $3D
- sta    $0B
- lda    $3E
- sta    $0C
- bcc    $B60F
- dey
- bcs    $B602
- jsr    $BC25
- jsr    L986D
- lda    ($0B),y
- sta    $2B
- iny
- lda    ($0B),y
- sta    $2A
- iny
- iny
- sty    $0A
- lda    $2A
- clc
- sbc    $31
- lda    $2B
- sbc    $32
- bcc    $B61D
- jmp    L8AF6
- jsr    L9923
- ldx    #$FF
- stx    $4D
- lda    #$01
- jsr    $B577
- ldx    $3B
- lda    #$02
- jsr    $B577
- ldx    $3C
- lda    #$04
- jsr    $B577
- ldy    $0A
- lda    ($0B),y
- cmp    #$0D
- beq    $B5FC
- cmp    #$22
- bne    $B651
- lda    #$FF
- eor    $4D
- sta    $4D
- lda    #$22
- jsr    $B558
- iny
- bne    $B639
- bit    $4D
- bpl    $B64B
- cmp    #$8D
- bne    $B668
- jsr    L97EB
- sty    $0A
- lda    #$00
- sta    $14
- jsr    L991F
- jmp    $B637
- cmp    #$E3
- bne    $B66E
- inc    $3B
- cmp    #$ED
- bne    $B678
- ldx    $3B
- beq    $B678
- dec    $3B
- cmp    #$F5
- bne    $B67E
- inc    $3C
- cmp    #$FD
- bne    $B688
- ldx    $3C
- beq    $B688
- dec    $3C
- jsr    $B50E
- iny
- bne    $B639
- brk
- jsr    $6F4E
- jsr    $00E3
- jsr    L95C9
- bne    $B6A3
- ldx    $26
- beq    $B68E
- bcs    $B6D7
- jmp    L982A
- bcs    $B6A0
- ldx    $26
- beq    $B68E
- lda    $2A
- cmp    $04F1,x
- bne    $B6BE
- lda    $2B
- cmp    $04F2,x
- bne    $B6BE
- lda    $2C
- cmp    $04F3,x
- beq    $B6D7
- txa
- sec
- sbc    #$0F
- tax
- stx    $26
- bne    $B6A9
- brk
- and    ($43,x)
- adc    ($6E,x)
- .byte  $27
- .byte  't'
- jsr    $614D
- .byte  't'
- .byte  'c'
- pla
- jsr    $00E3
- lda    $04F1,x
- sta    $2A
- lda    $04F2,x
- sta    $2B
- ldy    $04F3,x
- cpy    #$05
- beq    $B766
- ldy    #$00
- lda    ($2A),y
- adc    $04F4,x
- sta    ($2A),y
- sta    $37
- iny
- lda    ($2A),y
- adc    $04F5,x
- sta    ($2A),y
- sta    $38
- iny
- lda    ($2A),y
- adc    $04F6,x
- sta    ($2A),y
- sta    $39
- iny
- lda    ($2A),y
- adc    $04F7,x
- sta    ($2A),y
- tay
- lda    $37
- sec
- sbc    $04F9,x
- sta    $37
- lda    $38
- sbc    $04FA,x
- sta    $38
- lda    $39
- sbc    $04FB,x
- sta    $39
- tya
- sbc    $04FC,x
- ora    $37
- ora    $38
- ora    $39
- beq    $B741
- tya
- eor    $04F7,x
- eor    $04FC,x
- bpl    $B73F
- bcs    $B741
- bcc    $B751
- bcs    $B751
- ldy    $04FE,x
- lda    $04FF,x
- sty    $0B
- sta    $0C
- jsr    L9877
- jmp    L8BA3
- lda    $26
- sec
- sbc    #$0F
- sta    $26
- ldy    $1B
- sty    $0A
- jsr    L8A97
- cmp    #$2C
- bne    $B7A1
- jmp    $B695
- jsr    $B354
- lda    $26
- clc
- adc    #$F4
- sta    $4B
- lda    #$05
- sta    $4C
- jsr    $A500
- lda    $2A
- sta    $37
- lda    $2B
- sta    $38
- jsr    $B4E9
- lda    $26
- sta    $27
- clc
- adc    #$F9
- sta    $4B
- lda    #$05
- sta    $4C
- jsr    L9A5F
- beq    $B741
- lda    $04F5,x
- bmi    $B79D
- bcs    $B741
- bcc    $B751
- bcc    $B741
- bcs    $B751
- jmp    L8B96
- brk
- .byte  $22
- .byte  $E3
- jsr    $6176
- .byte  'r'
- adc    #$61
- .byte  'b'
- jmp    ($0065)
- .byte  $23
- .byte  'T'
- .byte  'o'
- .byte  'o'
- jsr    $616D
- ror    $2079
- .byte  $E3
- .byte  's'
- brk
- bit    $4E
- .byte  'o'
- jsr    $00B8
- jsr    L9582
- beq    $B7A4
- bcs    $B7A4
- jsr    $BD94
- jsr    L9841
- jsr    $B4B1
- ldy    $26
- cpy    #$96
- bcs    $B7B0
- lda    $37
- sta    $0500,y
- lda    $38
- sta    $0501,y
- lda    $39
- sta    $0502,y
- tax
- jsr    L8A8C
- cmp    #$B8
- bne    $B7BD
- cpx    #$05
- beq    $B84F
- jsr    L92DD
- ldy    $26
- lda    $2A
- sta    $0508,y
- lda    $2B
- sta    $0509,y
- lda    $2C
- sta    $050A,y
- lda    $2D
- sta    $050B,y
- lda    #$01
- jsr    $AED8
- jsr    L8A8C
- cmp    #$88
- bne    $B81F
- jsr    L92DD
- ldy    $1B
- sty    $0A
- ldy    $26
- lda    $2A
- sta    $0503,y
- lda    $2B
- sta    $0504,y
- lda    $2C
- sta    $0505,y
- lda    $2D
- sta    $0506,y
- jsr    L9880
- ldy    $26
- lda    $0B
- sta    $050D,y
- lda    $0C
- sta    $050E,y
- clc
- tya
- adc    #$0F
- sta    $26
- jmp    L8BA3
- jsr    L9B29
- jsr    L92FD
- lda    $26
- clc
- adc    #$08
- sta    $4B
- lda    #$05
- sta    $4C
- jsr    $A38D
- jsr    $A699
- jsr    L8A8C
- cmp    #$88
- bne    $B875
- jsr    L9B29
- jsr    L92FD
- ldy    $1B
- sty    $0A
- lda    $26
- clc
- adc    #$03
- sta    $4B
- lda    #$05
- sta    $4C
- jsr    $A38D
- jmp    $B837
- jsr    $B99A
- jsr    L9857
- ldy    $25
- cpy    #$1A
- bcs    $B8A2
- lda    $0B
- sta    $05CC,y
- lda    $0C
- sta    $05E6,y
- inc    $25
- bcc    $B8D2
- brk
- and    $54
- .byte  'o'
- .byte  'o'
- jsr    $616D
- ror    $2079
- cpx    $73
- brk
- rol    $4E
- .byte  'o'
- jsr    $00E4
- jsr    L9857
- ldx    $25
- beq    $B8AF
- dec    $25
- ldy    $05CB,x
- lda    $05E5,x
- sty    $0B
- sta    $0C
- jmp    L8B9B
- jsr    $B99A
- jsr    L9857
- lda    $20
- beq    $B8D9
- jsr    L9905
- ldy    $3D
- lda    $3E
- sty    $0B
- sta    $0C
- jmp    L8BA3
- jsr    L9857
- lda    #$33
- sta    $16
- lda    #$B4
- sta    $17
- jmp    L8B9B
- jsr    L8A97
- cmp    #$87
- beq    $B8E4
- ldy    $0A
- dey
- jsr    L986D
- lda    $0B
- sta    $16
- lda    $0C
- sta    $17
- jmp    L8B7D
- brk
- .byte  $27
- inc    $7320
- adc    $746E,y
- adc    ($78,x)
- brk
- jsr    L8A97
- cmp    #$85
- beq    $B8F2
- dec    $0A
- jsr    L9B1D
- jsr    L92F0
- ldy    $1B
- iny
- sty    $0A
- cpx    #$E5
- beq    $B931
- cpx    #$E4
- bne    $B90A
- txa
- pha
- lda    $2B
- ora    $2C
- ora    $2D
- bne    $B97D
- ldx    $2A
- beq    $B97D
- dex
- beq    $B95C
- ldy    $0A
- lda    ($0B),y
- iny
- cmp    #$0D
- beq    $B97D
- cmp    #$3A
- beq    $B97D
- cmp    #$8B
- beq    $B97D
- cmp    #$2C
- bne    $B944
- dex
- bne    $B944
- sty    $0A
- jsr    $B99A
- pla
- cmp    #$E4
- beq    $B96A
- jsr    L9877
- jmp    $B8D2
- ldy    $0A
- lda    ($0B),y
- iny
- cmp    #$0D
- beq    $B977
- cmp    #$3A
- bne    $B96C
- dey
- sty    $0A
- jmp    $B88B
- ldy    $0A
+        lda    ($04),y
+        tax
+        txs
+LB236:
+        iny
+        inx
+        lda    ($04),y          ; Copy stacked 6502 stack back onto 6502 stack
+        sta    $0100,x
+        cpx    #$FF
+        bne    $B236
+        tya                     ; Adjust BASIC stack pointer
+        adc    $04
+        sta    $04
+        bcc    $B24A
+        inc    $05
+LB24A:
+        lda    $27
+        rts
+LB24D:
+        lda    $1B
+        pha
+        lda    $19
+        pha
+        lda    $1A
+        pha
+        jsr    L9582
+        beq    $B2B5
+        lda    $1B
+        sta    $0A
+        pla
+        sta    $1A
+        pla
+        sta    $19
+        pla
+        sta    $1B
+        pla
+        tax
+        lda    $2C
+        pha
+        lda    $2B
+        pha
+        lda    $2A
+        pha
+        inx
+        txa
+        pha
+        jsr    $B30D
+        jsr    L8A97
+        cmp    #','
+        beq    $B24D
+        cmp    #')'
+        bne    $B2B5
+        lda    #$00
+        pha
+        jsr    L8A8C
+        cmp    #'('
+        bne    $B2B5
+LB28E:
+        jsr    L9B29
+        jsr    $BD90
+        lda    $27
+        sta    $2D
+        jsr    $BD94
+        pla
+        tax
+        inx
+        txa
+        pha
+        jsr    L8A8C
+        cmp    #$2C
+        beq    $B28E
+        cmp    #$29
+        bne    $B2B5
+        pla
+        pla
+        sta    $4D
+        sta    $4E
+        cpx    $4D
+        beq    $B2CA
+LB2B5:
+        ldx    #$FB
+        txs
+        pla
+        sta    $0C
+        pla
+        sta    $0B
+        brk
+        .byte  $1F, "Arguments"
+        brk
+LB2CA:
+        jsr    $BDEA
+        pla
+        sta    $2A
+        pla
+        sta    $2B
+        pla
+        sta    $2C
+        bmi    $B2F9
+        lda    $2D
+        beq    $B2B5
+        sta    $27
+        ldx    #$37
+        jsr    $BE44
+        lda    $27
+        bpl    $B2F0
+        jsr    $BD7E
+        jsr    $A3B5
+        jmp    $B2F3
+LB2F0:
+        jsr    $BDEA
+LB2F3:
+        jsr    $B4B7
+        jmp    $B303
+LB2F9:
+        lda    $2D
+        bne    $B2B5
+        jsr    $BDCB
+        jsr    L8C21
+LB303:
+        dec    $4D
+        bne    $B2CA
+        lda    $4E
+        pha
+        jmp    $B202
+; Push a value onto the stack
+; ---------------------------
+LB30D:
+        ldy    $2C
+        cpy    #$04
+        bne    $B318
+        ldx    #$37
+        jsr    $BE44
+LB318:
+        jsr    $B32C
+        php
+        jsr    $BD90
+        plp
+        beq    $B329
+        bmi    $B329
+        ldx    #$37
+        jsr    $AF56
+LB329:
+        jmp    $BD94
+LB32C:
+        ldy    $2C
+        bmi    $B384
+        beq    $B34F
+        cpy    #$05
+        beq    $B354
+        ldy    #$03
+        lda    ($2A),y
+        sta    $2D
+        dey
+        lda    ($2A),y
+        sta    $2C
+        dey
+        lda    ($2A),y
+        tax
+        dey
+        lda    ($2A),y
+        sta    $2A
+        stx    $2B
+        lda    #$40
+        rts
+LB24F:
+        lda    ($2A),y
+        jmp    $AEEA
+LB354:
+        dey
+        lda    ($2A),y
+        sta    $34
+        dey
+        lda    ($2A),y
+        sta    $33
+        dey
+        lda    ($2A),y
+        sta    $32
+        dey
+        lda    ($2A),y
+        sta    $2E
+        dey
+        lda    ($2A),y
+        sta    $30
+        sty    $35
+        sty    $2F
+        ora    $2E
+        ora    $32
+        ora    $33
+        ora    $34
+        beq    $B37F
+        lda    $2E
+        ora    #$80
+LB37F:
+        sta    $31
+        lda    #$FF
+        rts
+LB384:
+        cpy    #$80
+        beq    $B3A7
+        ldy    #$03
+        lda    ($2A),y
+        sta    $36
+        beq    $B3A6
+        ldy    #$01
+        lda    ($2A),y
+        sta    $38
+        dey
+        lda    ($2A),y
+        sta    $37
+        ldy    $36
+LB39D:
+        dey
+        lda    ($37),y
+        sta    $0600,y
+        tya
+        bne    $B39D
+LB3A6:
+        rts
+LB3A7:
+        lda    $2B
+        beq    $B3C0
+LB3AB:
+        ldy    #$00
+LB3AD:
+        lda    ($2A),y
+        sta    $0600,y
+        eor    #$0D
+        beq    $B3BA
+        iny
+        bne    $B3AD
+        tya
+LB3BA:
+        sty    $36
+        rts
+
+; =CHR$ numeric
+; =============
+LB3BD:
+        jsr    L92E3
+LB3C0:
+        lda    $2A
+        jmp    $AFC2
+LB3C5:
+        ldy    #$00
+        sty    $08
+        sty    $09
+        ldx    $18
+        stx    $38
+        sty    $37
+        ldx    $0C
+        cpx    #$07
+        beq    $B401
+        ldx    $0B
+LB3D9:
+        jsr    L8942
+        cmp    #$0D
+        bne    $B3F9
+        cpx    $37
+        lda    $0C
+        sbc    $38
+        bcc    $B401
+        jsr    L8942
+        ora    #$00
+        bmi    $B401
+        sta    $09
+        jsr    L8942
+        sta    $08
+        jsr    L8942
+LB3F9:
+        cpx    $37
+        lda    $0C
+        sbc    $38
+        bcs    $B3D9
+LB401:
+        rts
+
+; ERROR HANDLER
+; =============
+LB402:
+
+; FAULT set up, now process BRK error
+; -----------------------------------
+        jsr    $B3C5
+        sty    $20
+        lda    (FAULT),Y        ; If ERR<>0, skip past ON ERROR OFF
+        bne    $B413
+        lda    #LB433 & 255     ; ON ERROR OFF
+        sta    $16
+        lda    #LB433 / 256
+        sta    $17
+LB413:
+        lda    $16              ; Point program point to ERROR program
+        sta    $0B
+        lda    $17
+        sta    $0C
+        jsr    $BD3A            ; Clear DATA and stack
+        tax
+        stx    $0A
+        lda    #$DA             ; Clear VDU queue
+        jsr    OSBYTE
+        lda    #$7E             ; Acknowlege any Escape state
+        jsr    OSBYTE
+        ldx    #$FF             ; Clear system stack
+        stx    $28
+        txs
+        jmp    L8BA3            ; Jump to execution loop
+LD428:
+
+; Default ERROR program
+; ---------------------
+LB433:
+        .byte  tknREPORT, ":", tknIF, tknERL
+        .byte  tknPRINT, '"', " at line ", '"', ';', tknERL, ':', tknEND
+        .byte  tknELSE, tknPRINT, ":"
+        .byte  tknEND, 13
+
+; SOUND numeric, numeric, numeric, numeric
+; ========================================
+LB44C:
+        jsr    L8821            ; Evaluate integer
+        ldx    #$03             ; Three more to evaluate
+LB451:
+        lda    $2A              ; Stack current 16-bit integer
+        pha
+        lda    $2B
+        pha
+        txa
+        pha
+        jsr    L92DA
+        pla
+        tax
+        dex
+        bne    $B451
+        jsr    L9852
+        lda    $2A
+        sta    $3D
+        lda    $2B
+        sta    $3E
+        ldy    #$07
+        ldx    #$05
+        bne    $B48F
+
+; ENVELOPE a,b,c,d,e,f,g,h,i,j,k,l,m,n
+; ====================================
+LB472:
+        jsr    L8821            ; Evaluate integer
+        ldx    #$0D             ; 13 more to evaluate
+LB477:
+        lda    $2A              ; Stack current 8-bit integer
+        pha
+        txa                     ; Step past comma, evaluate next integer
+        pha
+        jsr    L92DA
+        pla                     ; Loop to stack this one
+        tax
+        dex
+        bne    $B477
+LB484:
+        jsr    L9852            ; Check end of statement
+        lda    $2A              ; Copy current 8-bit integer to end of control block
+        sta    $44
+        ldx    #$0C             ; Prepare for 12 more bytes and OSWORD 8
+        ldy    #$08
+LB48F:
+        pla                     ; Pop bytes into control block
+        sta    $37,x
+        dex
+        bpl    $B48F
+        tya                     ; Y=OSWORD number
+        ldx    #$37             ; XY=>control block
+        ldy    #$00
+        jsr    OSWORD
+        jmp    L8B9B            ; Return to execution loop
+
+; WIDTH numeric
+; =============
+LB4A0:
+        jsr    L8821
+        jsr    L9852
+        ldy    $2A
+        dey
+        sty    $23
+        jmp    L8B9B
+LB4AE:
+        jmp    L8C0E
+
+; Store byte or word integer
+; ==========================
+LB4B1:
+        jsr    L9B29            ; Evaluate expression
+LB4B4:
+        jsr    $BE0B            ; Unstack integer (address of data)
+LB4B7:
+        lda    $39
+        cmp    #$05             ; Size=5, jump to store float
+        beq    $B4E0
+        lda    $27              ; Type<>num, jump to error
+        beq    $B4AE
+        bpl    $B4C6            ; Type=int, jump to store it
+        jsr    $A3E4            ; Convert float to integer
+LB4C6:
+        ldy    #$00
+        lda    $2A              ; Store byte 1
+        sta    ($37),y
+        lda    $39              ; Exit if size=0, byte
+        beq    $B4DF
+        lda    $2B              ; Store byte 2
+        iny
+        sta    ($37),y
+        lda    $2C              ; Store byte 3
+        iny
+        sta    ($37),y
+        lda    $2D              ; Store byte 4
+        iny
+        sta    ($37),y
+LB4DF:
+        rts
+
+; Store float
+; ===========
+LB4E0:
+        lda    $27              ; Type<>num, jump to error
+        beq    $B4AE
+        bmi    $B4E9            ; Type=float, jump to store it
+        jsr    $A2BE            ; Convert integer to float
+LB4E9:
+        ldy    #$00             ; Store 5-byte float
+        lda    $30              ; exponent
+        sta    ($37),y
+        iny
+        lda    $2E              ; Unpack sign
+        and    #$80
+        sta    $2E
+        lda    $31              ; Unpack mantissa 1
+        and    #$7F
+        ora    $2E              ; sign + mantissa 1
+        sta    ($37),y
+        iny                     ; mantissa 2
+        lda    $32
+        sta    ($37),y
+        iny                     ; mantissa 3
+        lda    $33
+        sta    ($37),y
+        iny                     ; mantissa 3
+        lda    $34
+        sta    ($37),y
+        rts
+LB500:
+LB50E:
+        sta    $37
+        cmp    #$80
+        bcc    $B558
+        lda    #$8071 & 255     ; Point to token table
+        sta    $38
+        lda    #$8071 / 256
+        sta    $39
+        sty    $3A
+LB51E:
+        ldy    #$00
+LB520:
+        iny
+        lda    ($38),y
+        bpl    $B520
+        cmp    $37
+        beq    $B536
+        iny
+        tya
+        sec
+        adc    $38
+        sta    $38
+        bcc    $B51E
+        inc    $39
+        bcs    $B51E
+LB536:
+        ldy    #$00
+LB538:
+        lda    ($38),y
+        bmi    $B542
+        jsr    $B558
+        iny
+        bne    $B538
+LB542:
+        ldy    $3A
+        rts
+LB545:
+        pha
+        lsr    a
+        lsr    a
+        lsr    a
+        lsr    a
+        jsr    $B550
+        pla
+        and    #$0F
+LB550:
+        cmp    #$0A
+        bcc    $B556
+        adc    #$06
+LB556:
+        adc    #$30
+LB558:
+        cmp    #$0D
+        bne    $B567
+        jsr    OSWRCH
+        jmp    $BC28
+LB562:
+        jsr    $B545
+LB565:
+        lda    #$20
+LB567:
+        pha
+        lda    $23
+        cmp    $1E
+        bcs    $B571
+        jsr    $BC25
+LB571:
+        pla
+        inc    $1E
+        jmp    (WRCHV)
+LB5775:
+        and    $1F
+        beq    $B589
+        txa
+        beq    $B589
+        bmi    $B565
+LB580:
+        jsr    $B565
+        jsr    $B558
+        dex
+        bne    $B580
+LB589:
+        rts
+LB58A:
+        inc    $0A
+        jsr    L9B1D
+        jsr    L984C
+        jsr    L92EE
+        lda    $2A
+        sta    $1F
+        jmp    L8AF6
+
+; LIST [linenum [,linenum]]
+; =========================
+LB59C:
+        iny
+        lda    ($0B),y
+        cmp    #'O'
+        beq    $B58A
+        lda    #$00
+        sta    $3B
+        sta    $3C
+        jsr    $AED8
+        jsr    L97DF
+        php
+        jsr    $BD94
+        lda    #$FF
+        sta    $2A
+        lda    #$7F
+        sta    $2B
+        plp
+        bcc    $B5CF
+        jsr    L8A97
+        cmp    #','
+        beq    $B5D8
+        jsr    $BDEA
+        jsr    $BD94
+        dec    $0A
+        bpl    $B5DB
+LB5CF:
+        jsr    L8A97
+        cmp    #','
+        beq    $B5D8
+        dec    $0A
+LB5D8:
+        jsr    L97DF
+LB5DB:
+        lda    $2A
+        sta    $31
+        lda    $2B
+        sta    $32
+        jsr    L9857
+        jsr    $BE6F
+        jsr    $BDEA
+        jsr    L9970
+        lda    $3D
+        sta    $0B
+        lda    $3E
+        sta    $0C
+        bcc    $B60F
+        dey
+        bcs    $B602
+LB5FC:
+        jsr    $BC25
+        jsr    L986D
+LB602:
+        lda    ($0B),y
+        sta    $2B
+        iny
+        lda    ($0B),y
+        sta    $2A
+        iny
+        iny
+        sty    $0A
+LB60F:
+        lda    $2A
+        clc
+        sbc    $31
+        lda    $2B
+        sbc    $32
+        bcc    $B61D
+        jmp    L8AF6
+LB61D:
+        jsr    L9923
+        ldx    #$FF
+        stx    $4D
+        lda    #$01
+        jsr    $B577
+        ldx    $3B
+        lda    #$02
+        jsr    $B577
+        ldx    $3C
+        lda    #$04
+        jsr    $B577
+LB637:
+        ldy    $0A
+LB639:
+        lda    ($0B),y
+        cmp    #$0D
+        beq    $B5FC
+        cmp    #$22
+        bne    $B651
+        lda    #$FF
+        eor    $4D
+        sta    $4D
+        lda    #$22
+LB64B:
+        jsr    $B558
+        iny
+        bne    $B639
+LB651:
+        bit    $4D
+        bpl    $B64B
+        cmp    #$8D
+        bne    $B668
+        jsr    L97EB
+        sty    $0A
+        lda    #$00
+        sta    $14
+        jsr    L991F
+        jmp    $B637
+LB668:
+        cmp    #$E3
+        bne    $B66E
+        inc    $3B
+LB66E:
+        cmp    #$ED
+        bne    $B678
+        ldx    $3B
+        beq    $B678
+        dec    $3B
+LB678:
+        cmp    #$F5
+        bne    $B67E
+        inc    $3C
+LB67E:
+        cmp    #$FD
+        bne    $B688
+        ldx    $3C
+        beq    $B688
+        dec    $3C
+LB688:
+        jsr    $B50E
+        iny
+        bne    $B639
+LB68E:
+        brk
+        .byte   $20, "No ", tknFOR
+        brk
+
+; NEXT [variable [,...]]
+; ======================
+LB695:
+        jsr    L95C9
+        bne    $B6A3
+        ldx    $26
+        beq    $B68E
+        bcs    $B6D7
+LB6A0:
+        jmp    L982A
+LB6A3:
+        bcs    $B6A0
+        ldx    $26
+        beq    $B68E
+LB6A9:
+        lda    $2A
+        cmp    $04F1,x
+        bne    $B6BE
+        lda    $2B
+        cmp    $04F2,x
+        bne    $B6BE
+        lda    $2C
+        cmp    $04F3,x
+        beq    $B6D7
+LB6BE:
+        txa
+        sec
+        sbc    #$0F
+        tax
+        stx    $26
+        bne    $B6A9
+        brk
+        .byte  $21, "Can't Match ", tknFOR
+        brk
+LB6D7:
+        lda    $04F1,x
+        sta    $2A
+        lda    $04F2,x
+        sta    $2B
+        ldy    $04F3,x
+        cpy    #$05
+        beq    $B766
+        ldy    #$00
+        lda    ($2A),y
+        adc    $04F4,x
+        sta    ($2A),y
+        sta    $37
+        iny
+        lda    ($2A),y
+        adc    $04F5,x
+        sta    ($2A),y
+        sta    $38
+        iny
+        lda    ($2A),y
+        adc    $04F6,x
+        sta    ($2A),y
+        sta    $39
+        iny
+        lda    ($2A),y
+        adc    $04F7,x
+        sta    ($2A),y
+        tay
+        lda    $37
+        sec
+        sbc    $04F9,x
+        sta    $37
+        lda    $38
+        sbc    $04FA,x
+        sta    $38
+        lda    $39
+        sbc    $04FB,x
+        sta    $39
+        tya
+        sbc    $04FC,x
+        ora    $37
+        ora    $38
+        ora    $39
+        beq    $B741
+        tya
+        eor    $04F7,x
+        eor    $04FC,x
+        bpl    $B73F
+        bcs    $B741
+        bcc    $B751
+LB73F:
+        bcs    $B751
+LB741:
+        ldy    $04FE,x
+        lda    $04FF,x
+        sty    $0B
+        sta    $0C
+        jsr    L9877
+        jmp    L8BA3
+LB751:
+        lda    $26
+        sec
+        sbc    #$0F
+        sta    $26
+        ldy    $1B
+        sty    $0A
+        jsr    L8A97
+        cmp    #','
+        bne    $B7A1
+        jmp    $B695
+LB766:
+        jsr    $B354
+        lda    $26
+        clc
+        adc    #$F4
+        sta    $4B
+        lda    #$05
+        sta    $4C
+        jsr    $A500
+        lda    $2A
+        sta    $37
+        lda    $2B
+        sta    $38
+        jsr    $B4E9
+        lda    $26
+        sta    $27
+        clc
+        adc    #$F9
+        sta    $4B
+        lda    #$05
+        sta    $4C
+        jsr    L9A5F
+        beq    $B741
+        lda    $04F5,x
+        bmi    $B79D
+        bcs    $B741
+        bcc    $B751
+LB79D:
+        bcc    $B741
+        bcs    $B751
+LB7A1:
+        jmp    L8B96
+LB7A4:
+        brk
+        .byte  $22, tknFOR, " variable"
+LB7B0:
+        brk
+        .byte  $23, "Too many ", tknFOR, "s"
+LB7BD:
+        brk
+        .byte  $24, "No ", tknTO
+        brk
+
+; FOR numvar = numeric TO numeric [STEP numeric]
+; ==============================================
+LB7C4:
+        jsr    L9582
+        beq    $B7A4
+        bcs    $B7A4
+        jsr    $BD94
+        jsr    L9841
+        jsr    $B4B1
+        ldy    $26
+        cpy    #$96
+        bcs    $B7B0
+        lda    $37
+        sta    $0500,y
+        lda    $38
+        sta    $0501,y
+        lda    $39
+        sta    $0502,y
+        tax
+        jsr    L8A8C
+        cmp    #$B8
+        bne    $B7BD
+        cpx    #$05
+        beq    $B84F
+        jsr    L92DD
+        ldy    $26
+        lda    $2A
+        sta    $0508,y
+        lda    $2B
+        sta    $0509,y
+        lda    $2C
+        sta    $050A,y
+        lda    $2D
+        sta    $050B,y
+        lda    #$01
+        jsr    $AED8
+        jsr    L8A8C
+        cmp    #$88
+        bne    $B81F
+        jsr    L92DD
+        ldy    $1B
+LB81F:
+        sty    $0A
+        ldy    $26
+        lda    $2A
+        sta    $0503,y
+        lda    $2B
+        sta    $0504,y
+        lda    $2C
+        sta    $0505,y
+        lda    $2D
+        sta    $0506,y
+LB837:
+        jsr    L9880
+        ldy    $26
+        lda    $0B
+        sta    $050D,y
+        lda    $0C
+        sta    $050E,y
+        clc
+        tya
+        adc    #$0F
+        sta    $26
+        jmp    L8BA3
+LB84F:
+        jsr    L9B29
+        jsr    L92FD
+        lda    $26
+        clc
+        adc    #$08
+        sta    $4B
+        lda    #$05
+        sta    $4C
+        jsr    $A38D
+        jsr    $A699
+        jsr    L8A8C
+        cmp    #$88
+        bne    $B875
+        jsr    L9B29
+        jsr    L92FD
+        ldy    $1B
+LB875:
+        sty    $0A
+        lda    $26
+        clc
+        adc    #$03
+        sta    $4B
+        lda    #$05
+        sta    $4C
+        jsr    $A38D
+        jmp    $B837
+
+; GOSUB numeric
+;=============
+LB888:
+        jsr    $B99A
+LB88B:
+        jsr    L9857
+        ldy    $25
+        cpy    #$1A
+        bcs    $B8A2
+        lda    $0B
+        sta    $05CC,y
+        lda    $0C
+        sta    $05E6,y
+        inc    $25
+        bcc    $B8D2
+LB8A2:
+        brk
+        .byte  $25, "Too many ", tknGOSUB, "s"
+LB8AF:
+        brk
+        .byte  $26, "No ", tknGOSUB
+        brk
+
+; RETURN
+; ======
+LB8B6:
+        jsr    L9857            ; Check for end of statement
+        ldx    $25              ; If GOSUB stack empty, error
+        beq    $B8AF
+        dec    $25              ; Decrement GOSUB stack
+        ldy    $05CB,x          ; Get stacked line pointer
+        lda    $05E5,x
+        sty    $0B              ; Set line pointer
+        sta    $0C
+        jmp    L8B9B            ; Jump back to execution loop
+
+; GOTO numeric
+; ============
+LB8CC:
+        jsr    $B99A            ; Find destination line, check for end of statement
+        jsr    L9857
+LB8D2:
+        lda    $20              ; If TRACE ON, print current line number
+        beq    $B8D9
+        jsr    L9905
+LB8D9:
+        ldy    $3D              ; Get destination line address
+        lda    $3E
+LB8DD:
+        sty    $0B              ; Set line pointer
+        sta    $0C
+        jmp    L8BA3            ; Jump back to execution loop
+
+; ON ERROR OFF
+; ------------
+LB8E4:
+        jsr    L9857            ; Check end of statement
+        lda    #$B433 & 255     ; ON ERROR OFFF
+        sta    $16
+        lda    #$B433 / 256
+        sta    $17
+        jmp    L8B9B            ; Jump to execution loop
+
+; ON ERROR [OFF | program ]
+; -------------------------
+LB8F2:
+        jsr    L8A97
+        cmp    #tknOFF          ; ON ERROR OFF
+        beq    $B8E4
+        ldy    $0A
+        dey
+        jsr    L986D
+        lda    $0B              ; Point ON ERROR pointer to here
+        sta    $16
+        lda    $0C
+        sta    $17
+        jmp    L8B7D            ; Skip past end of line
+LB90A:
+        brk
+        .byte  $27, tknON, " syntax"
+        brk
+
+; ON [ERROR] [numeric]
+; ====================
+LB915:
+        jsr    L8A97            ; Skip spaces and get next character
+        cmp    #tknERROR        ; Jump with ON ERROR
+        beq    $B8F2
+        dec    $0A
+        jsr    L9B1D
+        jsr    L92F0
+        ldy    $1B
+        iny
+        sty    $0A
+        cpx    #tknGOTO
+        beq    $B931
+        cpx    #tknGOSUB
+        bne    $B90A
+LB931:
+        txa                     ; Save GOTO/GOSUB token
+        pha
+        lda    $2B              ; Get IntA
+        ora    $2C
+        ora    $2D              ; ON >255 - out of range, look for an ELSE
+        bne    $B97D
+        ldx    $2A              ; ON zero - out of range, look for an ELSE
+        beq    $B97D
+        dex                     ; Dec. counter, if zero use first destination
+        beq    $B95C
+        ldy    $0A              ; Get line index
+LB944:
+        lda    ($0B),y
+        iny
+        cmp    #$0D             ; End of line - error
+        beq    $B97D
+        cmp    #':'             ; End of statement - error
+        beq    $B97D
+        cmp    #tknELSE         ; ELSE - drop everything else to here
+        beq    $B97D
+        cmp    #','             ; No comma, keep looking
+        bne    $B944
+        dex                     ; Comma found, loop until count decremented to zero
+        bne    $B944
+        sty    $0A              ; Store line index
+LB95C:
+        jsr    $B99A            ; Read line number
+        pla                     ; Get stacked token back
+        cmp    #tknGOSUB        ; Jump to do GOSBU
+        beq    $B96A
+        jsr    L9877            ; Update line index and check Escape
+        jmp    $B8D2
+
+; Update line pointer so RETURN comes back to next statement
+; ----------------------------------------------------------
+LB96A:
+        ldy    $0A              ; Get line pointer
+LB96C:
+        lda    ($0B),y          ; Get character from line
+        iny
+        cmp    #$0D             ; End of line, RETURN to here
+        beq    $B977
+        cmp    #':'             ; <colon>, return to here
+        bne    $B96C
+LB977:
+        dey                     ; Update line index to RETURN point
+        sty    $0A
+        jmp    $B88B            ; Jump to do the GOSUB
+
+; ON num out of range - check for an ELSE clause
+; ----------------------------------------------
+LB97D:
+        ldy    $0A
  pla
  lda    ($0B),y
  iny
