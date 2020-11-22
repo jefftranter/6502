@@ -148,7 +148,7 @@ L8063:
         lda     #$02            ; Set up error handler
         sta     BRKV
         lda     #$B4
-        sta     $0203
+        sta     BRKV+1
         cli                     ; Enable IRQs, jump to immediate loop
         jmp     L8ADD
 
@@ -8333,9 +8333,9 @@ LB50E:
         sta    $37
         cmp    #$80
         bcc    LB558
-        lda    #$8071 & 255     ; Point to token table
+        lda    #L8071 & 255     ; Point to token table
         sta    $38
-        lda    #$8071 / 256
+        lda    #L8071 / 256
         sta    $39
         sty    $3A
 LB51E:
@@ -9822,7 +9822,7 @@ LBEF3:
         sta    F_END+1
         lda    #L8023 & 255     ; Set FILE.EXEC to STARTUP
         sta    F_EXEC+0
-        lda    #$8023 / 256
+        lda    #L8023 / 256
         sta    F_EXEC+1
         lda    $18              ; Set FILE.START to PAGE
         sta    F_START+1
