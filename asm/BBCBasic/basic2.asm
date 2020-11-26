@@ -145,9 +145,9 @@ L8023:
         lda     #$57            ; "ARW" - Acorn Roger Wilson?
         sta     $0F
 L8063:
-        lda     #$02            ; Set up error handler
+        lda     #LB402 & 255    ; Set up error handler
         sta     BRKV
-        lda     #$B4
+        lda     #LB402 / 256
         sta     BRKV+1
         cli                     ; Enable IRQs, jump to immediate loop
         jmp     L8ADD
