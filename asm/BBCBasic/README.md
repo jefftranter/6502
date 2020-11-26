@@ -9,8 +9,8 @@ TODO:
 This is a port of BBC Basic 2 to the Ohio Scientific C1P/Superboard 2
 (and hopefully later, more machines).
 
-I started with a binary, disassembled it, and got it to assembled to
-the same bainry code with the CC65 cross-assembler. Then, comments
+I started with a binary, disassembled it, and got it to assemble to
+the same binary code with the CC65 cross-assembler. Then, comments
 were added from the original source that was written as in-line
 assembler in BBC Basic.
 

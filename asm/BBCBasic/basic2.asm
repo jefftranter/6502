@@ -7461,7 +7461,7 @@ LAF9F:
 ; ==================================
 LAFA6:
         ldy    #$00             ; Get error number, jump to return 16-bit integer
-        lda    ($FD),y
+        lda    (FAULT),y
         jmp    LAEEA
 
 ; INKEY
