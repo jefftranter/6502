@@ -17,6 +17,13 @@ modified version and designed a PCB layout. Changes include:
   purposes.
 - IRQ from ACIA and VIA are connected to the CPU.
 
+Memory Map:
+
+$0000 - $7FFF  RAM (32K)
+$8000 - $9FFF  6522 VIA
+$A000 - $BFFF  6850 ACIA
+$C000 - $FFFF  ROM (16K)
+
 It can run a version of Microsoft BASIC ported by Grant Searle,
 included here.
 
