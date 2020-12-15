@@ -1,6 +1,6 @@
 ; Information Routines
 ;
-; Copyright (C) 2012-2016 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2020 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ Info:
         JSR PrintCR
 
         JSR Imprint             ; Display computer type
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "         Computer: "
 .elseif .defined(OSI)
         .asciiz "      Computer: "
@@ -116,14 +116,17 @@ Unknown:
 .elseif .defined(OSI)
         LDX #<TypeOSIString
         LDY #>TypeOSIString
-.endif
+.elseif .defined(SBC)
+        LDX #<TypeSBCString
+        LDY #>TypeSBCString
+ .endif
 
 PrintType:
         JSR PrintString
         JSR PrintCR
 
         JSR Imprint             ; Display CPU type
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "         CPU type: "
 .elseif .defined(OSI)
         .asciiz "      CPU type: "
@@ -189,7 +192,7 @@ PrintType:
 
 @SkipSpeed:
         JSR Imprint           ; Print range of RAM
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "RAM detected from: $0000 to "
 .elseif .defined(OSI)
         .byte "RAM found from: $0000", CR, "            to: ", 0
@@ -200,7 +203,7 @@ PrintType:
         JSR PrintCR
 
         JSR Imprint           ; Print NMI vector address
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "       NMI vector: $"
 .elseif .defined(OSI)
         .asciiz "    NMI vector: $"
@@ -211,7 +214,7 @@ PrintType:
         JSR PrintCR
 
         JSR Imprint ; Print reset vector address
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "     RESET vector: $"
 .elseif .defined(OSI)
         .asciiz "  RESET vector: $"
@@ -222,7 +225,7 @@ PrintType:
         JSR PrintCR
 
         JSR Imprint   ; Print IRQ/BRK vector address
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "   IRQ/BRK vector: $"
 .elseif .defined(OSI)
         .asciiz "IRQ/BRK vector: $"
@@ -254,7 +257,7 @@ PrintType:
 
 .if .defined(APPLE) .or .defined(OSI)
         JSR Imprint
-.if .defined(APPLE1) .or .defined(APPLE2)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(SBC)
         .asciiz "        BASIC ROM: "
 .elseif .defined(OSI)
         .asciiz "     BASIC ROM: "

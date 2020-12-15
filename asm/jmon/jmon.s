@@ -87,15 +87,18 @@
 ; 1.3.3  30-Nov-2016   Make miniassembler optional to reduce program size.
 ; 1.3.4  26-Feb-2020   Fix bug in disassembler address incrementing.
 ;                      Tested on real OSI Superboard II.
+; 1.3.5  13-Dec-2020   Added port to my Single Board Computer
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
 ; OSI for Ohio Scientific SuperBoard II or ///, or KIM1 for KIM-1 platform.
+; SBC for my Single Board Computer.
 ; Normally this is set in the Makefile.
 ; APPLE1  = 1
 ; APPLE2  = 1
 ; OSI     = 1
 ; KIM1    = 1
+; SBC     = 1
 
 ; Define if you want the mini-assembler, comment out if not.
 ; Should fit in 8K if this is disabled.
@@ -109,6 +112,8 @@
     .out "Building for Ohio Scientific Superboard"
 .elseif .defined(KIM1)
     .out "Building for KIM-1"
+.elseif .defined(SBC)
+    .out "Building for SBC"
 .else
     .error "Platform not defined"
 .endif
@@ -167,7 +172,7 @@
 .endif
 
 ; Non page zero locations
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
   IN      = $0200               ; Buffer from $0200 through $027F
 .elseif .defined(OSI)
   IN      = $0300               ; Buffer from $0300 through $037F
@@ -197,6 +202,10 @@
   KIMMON  = $1C00               ; KIM monitor entry point
   BRKVECTOR = $17FE             ; Break/interrupt vector (2 bytes)
 ; Note: ECHO not defined because KIM-1 always echoes characters back.
+.elseif .defined(SBC)
+  BASIC   = $DD05               ; BASIC Cold Start
+  ECHO    = 1                   ; Need to echo commands
+  BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .endif
 
 ; Start address.
@@ -215,6 +224,9 @@
   .org $0380
 .elseif .defined(KIM1)
   .org $2000
+.elseif .defined(SBC)
+  .org $2000                    ; For running out of RAM
+; .org $E000                    ; For running from ROM
 .endif
 
 ; JMON Entry point
@@ -250,7 +262,7 @@ JMON:
 MainLoop:
 ; Display prompt
         JSR Imprint
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "? "
 .elseif .defined(OSI)
         .asciiz "?"     ; Smaller on OSI due to smaller screen
@@ -269,7 +281,7 @@ Invalid:
         JSR BEEP
 .endif
         JSR Imprint
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .byte "Invalid command. Type '?' for help", CR, 0
 .elseif .defined(OSI)
         .byte "Invalid command.", CR, "Type '?' for help", CR, 0
@@ -361,7 +373,7 @@ Assemble:
 .endif
 
 ; Go to BASIC
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI) .or .defined(SBC)
 Basic:
         JSR BASICPresent        ; Is BASIC ROM present?
         BEQ NoBasic
@@ -791,6 +803,8 @@ Verify:
         BYTESPERLINE = 4
 .elseif .defined(KIM1)
         BYTESPERLINE = 16
+.elseif .defined(SBC)
+        BYTESPERLINE = 16
 .endif
 
 Dump:
@@ -856,7 +870,7 @@ Test:
         STY END+1
         JSR PrintCR
         JSR Imprint
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "Testing memory from $"
 .elseif .defined(OSI)
         .byte "Testing memory from", CR, "$", 0
@@ -927,7 +941,7 @@ Fill:
 
 ; Do setup so we can support breakpoints
 BPSETUP:
-.if .defined(APPLE1) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(OSI) .or .defined(SBC)
 
 ; On the Apple 1 and OSI platforms the BRK vector is in RAM and we
 ; write a JMP instruction to our handler there.
@@ -948,7 +962,7 @@ BPSETUP:
         INY
         STA (VECTOR),Y          ; write it after JMP
 
-.elseif .defined(KIM1) .or .defined(APPLE2)
+.elseif .defined(KIM1) .or .defined(APPLE2) .or .defined(SBC)
 
 ; On the KIM-1 and Apple II, the BRK vector is in ROM but the handler
 ; goes through a vector in RAM.
@@ -1403,7 +1417,7 @@ PrintRegisters:
 Options:
         JSR Imprint
         .byte "Options", CR, 0
-.if .defined(APPLE1) .or .defined(APPLE2)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(SBC)
         JSR Imprint
        .byte "All uppercase output (Y/N)?", 0
 @Retry:
@@ -1477,7 +1491,7 @@ Options:
         JSR PrintCR             ; new line
 .endif
         JSR Imprint
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .byte "CPU type (1-6502 2-65C02 3-65816)?", 0
 .elseif .defined(OSI)
         .byte "CPU type 1-6502 2-65C02", CR, "3-65816?", 0
@@ -1695,6 +1709,11 @@ GetKey:
         PLA                     ; Restore Y from stack
         TAY
         LDA T3                  ; Restore A
+        RTS
+.elseif .defined(SBC)
+WaitForKeypress:
+        JSR $FF39               ; MONRDKEY
+        BCC WaitForKeypress
         RTS
 .endif
 
@@ -2095,6 +2114,21 @@ PrintChar:
         LDA     T3      ; Restore A
         PLP             ; Restore status
         RTS             ; Return.
+
+.elseif .defined(SBC)
+
+        PHP             ; Save status
+        PHA             ; Save A as it may be changed
+        JSR $FF2A       ; Call MONCOUT
+        CMP #CR         ; Is it Return?
+        BNE @ret1       ; If not, return
+        LDA #LF
+        JSR $FF2A       ; Else print Linefeed too
+@ret1:
+        PLA             ; Restore A
+        PLP             ; Restore status
+        RTS             ; Return.
+
 .endif
 
 ; Print a dollar sign
@@ -2211,7 +2245,7 @@ PromptToContinue:
         TYA
         PHA
         JSR Imprint
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .asciiz "  <Space> to continue, <ESC> to stop"
 .elseif .defined(OSI)
         .asciiz " <SP> cont <ESC> stop"
@@ -2261,7 +2295,7 @@ RequireStartNotAfterEnd:
         JSR BEEP
 .endif
         JSR Imprint
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
         .byte "Error: start must be <= end", CR, 0
 .elseif .defined(OSI)
         .byte "Start must be <= end!", CR, 0
@@ -2327,6 +2361,12 @@ MATCHFL:
         .byte "A"
 .endif
         .byte "BCDFGHKLNORSTUV:=."
+.elseif .defined(SBC)
+        .byte "$?"
+.ifdef MINIASM
+        .byte "A"
+.endif
+        .byte "BCDFGHIKLNORSTUV:=."
 .endif
 
 JMPFL:
@@ -2345,7 +2385,7 @@ JMPFL:
         .word Fill-1
         .word Go-1
         .word Hex-1
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI) .or .defined(SBC)
         .word Basic-1
 .endif
         .word Checksum-1
@@ -2542,7 +2582,7 @@ CLR1:   STA $D000,X
         TAX
         PLA             ; restore A
         RTS
-.elseif .defined(KIM1)
+.elseif .defined(KIM1) .or .defined(SBC)
 ; Clear screen by printing 40 carriage returns.
         PHA             ; save A
         TXA             ; save X
@@ -2733,13 +2773,13 @@ SerialPresent:
   BASIC0 = $4C
   BASIC1 = $28
   BASIC2 = $F1
-.elseif .defined(OSI)
+.elseif .defined(OSI) .or .defined(SBC)
   BASIC0 = $A2
   BASIC1 = $FF
   BASIC2 = $86
 .endif
 
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI)
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI) .or .defined(SBC)
 
 BASICPresent:
         LDA BASIC               ; First firmware byte
@@ -2811,10 +2851,10 @@ ToUpper:
 ; Strings
 
 WelcomeMessage:
-.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1)
-        .byte CR,"JMON Monitor 1.3.4 by Jeff Tranter", CR, 0
+.if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
+        .byte CR,"JMON Monitor 1.3.5 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.4 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.5 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
@@ -2926,6 +2966,32 @@ HelpString:
         .byte "Trace       .", CR
         .byte "Help        ?", CR
         .byte 0
+
+.elseif .defined(SBC)
+.ifdef MINIASM
+        .byte "Assemble    A <address>", CR
+.endif
+        .byte "Breakpoint  B <n or ?> <address>", CR
+        .byte "Copy        C <start> <end> <dest>", CR
+        .byte "Dump        D <start>", CR
+        .byte "Fill        F <start> <end> <data>...", CR
+        .byte "Go          G <address>", CR
+        .byte "Hex to dec  H <address>", CR
+        .byte "BASIC       I", CR
+        .byte "Checksum    K <start> <end>",CR
+        .byte "Clr screen  L", CR
+        .byte "Info        N", CR
+        .byte "Options     O", CR
+        .byte "Registers   R", CR
+        .byte "Search      S <start> <end> <data>...", CR
+        .byte "Test        T <start> <end>", CR
+        .byte "Unassemble  U <start>", CR
+        .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Write       : <address> <data>...", CR
+        .byte "Math        = <address> +/- <address>", CR
+        .byte "Trace       .", CR
+        .byte "Help        ?", CR
+        .byte 0
 .endif
 
 KnownBPString1:
@@ -2962,6 +3028,9 @@ TypeKim1String:
 .elseif .defined(OSI)
 TypeOSIString:
         .asciiz "OSI"
+.elseif .defined(SBC)
+TypeSBCString:
+        .asciiz "SBC"
 .endif
 
   .include "disasm.s"

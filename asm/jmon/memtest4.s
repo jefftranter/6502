@@ -195,6 +195,10 @@ KeyPressed:
         JSR        PromptToContinue
         BCS        FINISHED           ; done
         JMP        REPEAT             ; continue
+.elseif .defined(SBC)
+        JSR        $FF39              ; MONRDKEY
+        BCS        FINISHED           ; done
+        JMP        REPEAT             ; continue
 .endif
 
 ; OUTPUT THE ERROR INFO and STOP
