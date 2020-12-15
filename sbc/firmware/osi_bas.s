@@ -5779,7 +5779,7 @@ Reset:
 	LDX     #STACK_TOP
 	TXS
 
-	LDA 	#$95		; Set ACIA baud rate, word size and Rx interrupt (to control RTS)
+	LDA 	#$05		; Set ACIA to 8N1 and divide by 16 clock
 	STA	ACIAControl
 
 ; Display startup message
@@ -5801,12 +5801,18 @@ WaitForKeypress:
 	BEQ	WarmStart
 
 	CMP	#'C'			; compare with [C]old start
+	BEQ	ColdStart
+
+	CMP	#'M'			; compare with [M]onitor
 	BNE	Reset
 
-	JMP	COLD_START	; BASIC cold start
+	JMP	$E000		; JMON monitor
 
 WarmStart:
 	JMP	RESTART		; BASIC warm start
+
+ColdStart:
+	JMP	COLD_START	; BASIC cold start
 
 MONCOUT:
 	PHA
@@ -5843,7 +5849,7 @@ NotCTRLC:
 	RTS
 
 StartupMessage:
-	.byte	$0C,"Cold [C] or warm [W] start?",$0D,$0A,$00
+	.byte	$0C,"[C]old start, [W]arm start, or [M]onitor?",$0D,$0A,$00
 
 LOAD:
 	RTS
@@ -5855,5 +5861,4 @@ SAVE:
 .org $FFFA
 	.word	Reset		; NMI 
 	.word	Reset		; RESET 
-	.word	Reset		; IRQ 
-
+	.word	$0100		; For compatibility with OSI computer
