@@ -5773,6 +5773,11 @@ ACIAControl := ACIA+0
 ACIAStatus := ACIA+0
 ACIAData := ACIA+1
 
+.scope jmon
+.segment "JMON"
+.include "../../asm/jmon/jmon.s"
+.endscope
+
 .segment "IOHANDLER"
 .org $FF00
 Reset:
