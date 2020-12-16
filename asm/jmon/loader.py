@@ -6,8 +6,12 @@
 import os
 import sys
 
+if len(sys.argv) != 2:
+    print("usage: loader.py <filename>")
+    sys.exit(1)
+
 # Binary filename - adjust as needed
-f = open("jmon.bin", "rb")
+f = open(sys.argv[1], "rb")
 
 # Start/load address - adjust as needed
 s = 0x2000
