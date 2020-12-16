@@ -225,8 +225,8 @@
 .elseif .defined(KIM1)
   .org $2000
 .elseif .defined(SBC)
-  .org $2000                    ; For running out of RAM
-; .org $E000                    ; For running from ROM
+; .org $2000                    ; For running out of RAM
+  .org $E000                    ; For running from ROM
 .endif
 
 ; JMON Entry point
@@ -3044,7 +3044,7 @@ TypeSBCString:
 
 ; Non-Page Zero Variables. Note: These must be in RAM. Use a .org
 ; below corresponding to RAM if the program is linked into ROM.
-; .org $1000
+.org $1000
 
 T2:       .res 1                ; Temp variable 2
 RETOK:    .res 1                ; Sets whether <Return> key is accepted in some input routines
@@ -3058,7 +3058,7 @@ OP:       .res 1                ; Instruction type OP_*
 AM:       .res 1                ; Addressing mode AM_*
 LEN:      .res 1                ; Instruction length
 REL:      .res 2                ; Relative addressing branch offset (2 bytes)
-DEST:     .res 2                ; Relative address destination address (2 bytes)
+DEZT:     .res 2                ; Relative address destination address (2 bytes)
 START:    .res 2                ; Memory test - user entered start of memory range. Min is 8 (2 bytes)
 END:      .res 2                ; Memory test - user entered end of memory range (2 bytes)
 BPD:      .res 4                ; Instruction at breakpoint (1 byte * 4 breakpoints)

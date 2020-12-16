@@ -476,19 +476,19 @@ DOBB:                   ; handle special BBRn and BBSn instructions
   LDA ADDR              ; take adresss
   CLC
   ADC REL               ; add offset
-  STA DEST              ; and store
+  STA DEZT              ; and store
   LDA ADDR+1            ; also high byte (including carry)
   ADC REL+1
-  STA DEST+1
-  LDA DEST              ; now need to add 3 more to the address
+  STA DEZT+1
+  LDA DEZT              ; now need to add 3 more to the address
   CLC
   ADC #3
-  STA DEST
-  LDA DEST+1
+  STA DEZT
+  LDA DEZT+1
   ADC #0                ; add any carry
-  STA DEST+1
+  STA DEZT+1
   JSR PrintByte         ; display high byte
-  LDA DEST
+  LDA DEZT
   JSR PrintByte         ; display low byte
   JMP DONEOPS
 TRYIMP:
@@ -581,19 +581,19 @@ ADD:
   LDA ADDR              ; take adresss
   CLC
   ADC REL               ; add offset
-  STA DEST              ; and store
+  STA DEZT              ; and store
   LDA ADDR+1            ; also high byte (including carry)
   ADC REL+1
-  STA DEST+1
-  LDA DEST              ; now need to add 2 more to the address
+  STA DEZT+1
+  LDA DEZT              ; now need to add 2 more to the address
   CLC
   ADC #2
-  STA DEST
-  LDA DEST+1
+  STA DEZT
+  LDA DEZT+1
   ADC #0                ; add any carry
-  STA DEST+1
+  STA DEZT+1
   JSR PrintByte         ; display high byte
-  LDA DEST
+  LDA DEZT
   JSR PrintByte         ; display low byte
   JMP DONEOPS
 TRYABS:
@@ -791,19 +791,19 @@ PCRL:
   LDA ADDR              ; take adresss
   CLC
   ADC REL               ; add offset
-  STA DEST              ; and store
+  STA DEZT              ; and store
   LDA ADDR+1            ; also high byte (including carry)
   ADC REL+1
-  STA DEST+1
-  LDA DEST              ; now need to add 3 more to the address
+  STA DEZT+1
+  LDA DEZT              ; now need to add 3 more to the address
   CLC
   ADC #3
-  STA DEST
-  LDA DEST+1
+  STA DEZT
+  LDA DEZT+1
   ADC #0                ; add any carry
-  STA DEST+1
+  STA DEZT+1
   JSR PrintByte         ; display high byte
-  LDA DEST
+  LDA DEZT
   JSR PrintByte         ; display low byte
   JMP DONEOPS
 

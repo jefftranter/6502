@@ -1,8 +1,9 @@
 # Uncomment one of the following lines to set your platform
 #PLATFORM=APPLE1
 #PLATFORM=APPLE2
-PLATFORM=OSI
+#PLATFORM=OSI
 #PLATFORM=KIM1
+PLATFORM=SBC
 
 all: jmon.mon jmon.lod jmon.ptp
 
