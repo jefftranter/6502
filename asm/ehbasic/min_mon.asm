@@ -185,7 +185,7 @@ Restore1:
         LDA     #CR                        ; Echo newline
         JSR     ACIAout
 
-        JSR     LAB_1477                   ;  Need to call this BASIC routine to clear variables and reset the execution pointer
+        JSR     LAB_1477                   ; Need to call this BASIC routine to clear variables and reset the execution pointer
         JMP     LAB_1319                   ; Jump to appropriate location in BASIC
 Return1:
         RTS

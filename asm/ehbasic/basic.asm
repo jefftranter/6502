@@ -441,7 +441,7 @@ Ram_top		= $5000	; end of user RAM+1 (set as needed, should be page aligned)
 
 ; This start can be changed to suit your system
 
-	.org	$5000
+	.org	$C000
 
 ; For convenience, put jump here to reset location so it can be
 ; run from the load address.

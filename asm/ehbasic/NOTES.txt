@@ -28,6 +28,9 @@ Also included is a port to the Ohio Scientific Superboard
 II/Challenger 1P and compatibles like the Briel Computers Superboard
 ///. To build this version use the make file Makefile.osi.
 
+Another port is to my 6502 Single Board Computer design. To build this
+version use the make file Makefile.sbc.
+
 SAVE enables output to the serial/cassette port (just like for the OSI
 BASIC in ROM). To turn off SAVE, do "POKE 517,0".
 

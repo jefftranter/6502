@@ -11,6 +11,6 @@ basic.o: basic.asm min_mon.asm
 	ca65 -g -l min_mon.lst --feature labels_without_colons -o basic.o min_mon.asm
 
 clean:
-	$(RM) *.o *.lst *.map *.bin
+	$(RM) *.o *.lst *.map *.bin *.run *.mon *.c1p
 
 distclean: clean
