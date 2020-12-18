@@ -3,21 +3,34 @@
 # Reads a binary file and outputs a series of Basic POKE statements to
 # write the file to memory.
 
-import os
 import sys
+import argparse
 
-if len(sys.argv) != 2:
-    print("usage: loader.py <filename>")
+# Parse command line options
+parser = argparse.ArgumentParser()
+parser.add_argument("filename", help="Binary file to use for data")
+parser.add_argument("-l", "--loadAddress", help="Specify decimal starting load address (defaults to 4096)", default=4096, type=int)
+parser.add_argument("-s", "--startAddress", help="Specify decimal run address (defaults to load address)", default=-1, type=int)
+
+args = parser.parse_args()
+
+# Get filename from command line arguments.
+filename = args.filename
+
+# Get initial instruction address from command line arguments.
+a = args.loadAddress
+
+# Get start instruction address from command line arguments.
+# Use load address if not specified.
+s = args.startAddress
+if s == -1:
+    s = a
+
+try:
+    f = open(args.filename, "rb")
+except FileNotFoundError:
+    print(("error: input file '{}' not found.".format(args.filename)), file=sys.stderr)
     sys.exit(1)
-
-# Binary filename - adjust as needed
-f = open(sys.argv[1], "rb")
-
-# Start/load address - adjust as needed
-s = 0x2000
-
-# Current address
-a = s
 
 while True:
     b = f.read(1)
