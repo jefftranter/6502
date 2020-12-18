@@ -1712,7 +1712,7 @@ GetKey:
         RTS
 .elseif .defined(SBC)
 WaitForKeypress:
-        JSR $FF39               ; MONRDKEY
+        JSR MONRDKEY
         BCC WaitForKeypress
         RTS
 .endif
@@ -2119,11 +2119,11 @@ PrintChar:
 
         PHP             ; Save status
         PHA             ; Save A as it may be changed
-        JSR $FF2A       ; Call MONCOUT
+        JSR MONCOUT
         CMP #CR         ; Is it Return?
         BNE @ret1       ; If not, return
         LDA #LF
-        JSR $FF2A       ; Else print Linefeed too
+        JSR MONCOUT     ; Else print linefeed too
 @ret1:
         PLA             ; Restore A
         PLP             ; Restore status

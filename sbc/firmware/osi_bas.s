@@ -5787,6 +5787,12 @@ Reset:
 	LDA 	#$15		; Set ACIA to 8N1 and divide by 16 clock
 	STA	ACIAControl
 
+; Initialize IRQ vector (in RAM) to go to Reset routine
+        LDA    <Reset
+        STA    $0100
+        LDA    >Reset
+        STA    $0101
+
 ; Display startup message
 	LDY #0
 ShowStartMsg:

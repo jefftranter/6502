@@ -196,7 +196,7 @@ KeyPressed:
         BCS        FINISHED           ; done
         JMP        REPEAT             ; continue
 .elseif .defined(SBC)
-        JSR        $FF39              ; MONRDKEY
+        JSR        MONRDKEY
         BCS        FINISHED           ; done
         JMP        REPEAT             ; continue
 .endif
