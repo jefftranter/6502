@@ -28,5 +28,6 @@ while True:
     a += 1
 
 # 11,12 contains USR() function address
+print("REM START ADDRESS {0:d}".format(s))
 print("POKE 11,{0:d} : POKE 12,{1:d}".format(int(s % 256), int(s / 256)))
 print("X = USR(0)")

@@ -5784,7 +5784,7 @@ Reset:
 	LDX     #STACK_TOP
 	TXS
 
-	LDA 	#$05		; Set ACIA to 8N1 and divide by 16 clock
+	LDA 	#$15		; Set ACIA to 8N1 and divide by 16 clock
 	STA	ACIAControl
 
 ; Display startup message

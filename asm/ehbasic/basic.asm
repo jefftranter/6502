@@ -437,7 +437,7 @@ Ibuffs		= IRQ_vec+$14
 Ibuffe		= Ibuffs+$47; end of input buffer
 
 Ram_base		= $0400	; start of user RAM (set as needed, should be page aligned)
-Ram_top		= $5000	; end of user RAM+1 (set as needed, should be page aligned)
+Ram_top		= $8000	; end of user RAM+1 (set as needed, should be page aligned)
 
 ; This start can be changed to suit your system
 

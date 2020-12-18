@@ -25,7 +25,7 @@ RES_vec
 	LDX	#$FF			; empty stack
 	TXS				; set the stack
 
-        LDA     #$05                    ; Set ACIA to 8N1 and divide by 16 clock
+        LDA     #$15                    ; Set ACIA to 8N1 and divide by 16 clock
         STA     ACIAControl
 
 ; Set up vectors and interrupt code, copy them to page 2.
