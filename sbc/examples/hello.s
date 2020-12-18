@@ -14,7 +14,7 @@ loop:
         iny                     ; Update index
         bne     loop            ; Go back and repeat
 done:
-        jmp     done            ; Loop forever
+        rts                     ; Return
 
 Hello:
         .byte   CR, LF, "Hello, world!", CR, LF, $00
