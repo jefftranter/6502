@@ -32,6 +32,8 @@ except FileNotFoundError:
     print(("error: input file '{}' not found.".format(args.filename)), file=sys.stderr)
     sys.exit(1)
 
+print("REM {0:s}".format(args.filename))
+
 while True:
     b = f.read(1)
     if not b:
