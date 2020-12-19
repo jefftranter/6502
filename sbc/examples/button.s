@@ -14,7 +14,7 @@ loop:
         and      #$01            ; Mask out bit 0 (pushbutton)
         beq      on              ; Branch if on
         lda      #$80            ; To turn LED off
-        beq      led
+        bne      led
 on:
         lda      #$00            ; To turn LED on
 led:
