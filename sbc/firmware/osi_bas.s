@@ -5766,17 +5766,18 @@ QT_BYTES_FREE:
         .byte   "COPYRIGHT 1977 BY MICROSOFT CO."
         .byte   CR,LF,0
 
+; JMON monitor
+.scope jmon
+.segment "JMON"
+.include "../../asm/jmon/jmon.s"
+.endscope
+
 ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
 ; BY G. SEARLE 2013 =========================================================================
 ACIA := $A000
 ACIAControl := ACIA+0
 ACIAStatus := ACIA+0
 ACIAData := ACIA+1
-
-.scope jmon
-.segment "JMON"
-.include "../../asm/jmon/jmon.s"
-.endscope
 
 .segment "IOHANDLER"
 .org $FF00
