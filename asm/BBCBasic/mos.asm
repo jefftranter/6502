@@ -1,5 +1,5 @@
-; Port of Acorn System/Atom MOS System Calls to Ohio Scientific
-; C1P/Superboard.
+; Port of Acorn System/Atom MOS System Calls to my 6502
+; Single Board Computer.
 ;
 ; Jeff Tranter <tranter@pobpox.com>
 ;
@@ -11,9 +11,9 @@
 ; http://danceswithferrets.org/geekblog/?p=961
 
 ; Memory map:
-; RAM from $0000 to $7FFF
-; BBC Basic ROM from $8000 to $BFFF
-; OS ROM from $FF00 to $FFFF (BBC computer used $C000 to $FFFF)
+; RAM from $0000 to $3FFF
+; BBC Basic in RAM from $4000 to $7FFF
+; OS ROM from $C000 to $FFFF
 
         FAULT   = $FD           ; Pointer to error block
         BRKV    = $0202         ; NMI/BRK handler address

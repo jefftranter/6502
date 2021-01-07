@@ -88,7 +88,7 @@
         tknHIMEM = $93
         tknREPORT = $F6
 
-        .org    $8000
+        .org    $4000
 
 ; BBC Code Header
 
