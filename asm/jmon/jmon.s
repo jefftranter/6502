@@ -102,7 +102,7 @@
 
 ; Define if you want the mini-assembler, comment out if not.
 ; Should fit in 8K if this is disabled.
-;MINIASM = 1
+; MINIASM = 1
 
 .if .defined(APPLE1)
     .out "Building for Apple 1/Replica 1"
@@ -206,6 +206,8 @@
   BASIC   = $DD05               ; BASIC Cold Start
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
+  MONCOUT = $FF3B               ; Console out routine
+  MONRDKEY = $FF4A              ; Console in routine
 .endif
 
 ; Start address.
