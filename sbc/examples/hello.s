@@ -4,7 +4,7 @@
         CR      = $0D           ; Carriage return
         LF      = $0A           ; Line feed
 
-        .org     $1000          ; Start address
+        .org     $2000          ; Start address
 
         ldy     #0              ; Index into string
 loop:
