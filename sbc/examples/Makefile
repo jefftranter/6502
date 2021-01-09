@@ -1,4 +1,4 @@
-all: hello.bas led.bas button.bas
+all: hello.bas led.bas button.bas rtc.bas
 
 hello.jm: hello.bin
 	../../asm/jmon/loader2.py -l 8192 hello.bin >hello.jm
@@ -29,6 +29,18 @@ button.bin: button.o
 
 button.o: button.s
 	ca65 -g -l button.lst button.s
+
+rtc.jm: rtc.bin
+	../../asm/jmon/loader2.py -l 28672 rtc.bin >rtc.jm
+
+rtc.bas: rtc.bin
+	../../asm/jmon/loader.py -l 28672 rtc.bin >rtc.bas
+
+rtc.bin: rtc.o
+	ld65 -t none -vm -m rtc.map -o rtc.bin rtc.o
+
+rtc.o: rtc.s
+	ca65 -g -l rtc.lst rtc.s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.bas *.jm
