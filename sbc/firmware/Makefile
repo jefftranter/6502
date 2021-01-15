@@ -6,4 +6,7 @@ osi_bas.bin: osi_bas.s
 	ld65 -C osi_bas.cfg osi_bas.o -o osi_bas.bin
 
 clean:
-	$(RM) osi_bas.bin osi_bas.lst osi_bas.o osi_bas.run
+	$(RM) osi_bas.lst osi_bas.o
+
+distclean: clean
+	$(RM) osi_bas.bin osi_bas.run
