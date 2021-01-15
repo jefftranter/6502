@@ -1,4 +1,4 @@
-all: hello.bas led.bas button.bas rtc.bas lcd1.bas lcd2.bas hello.jm led.jm button.jm rtc.jm lcd1.jm lcd2.jm
+all: hello.bas led.bas button.bas rtc.bas lcd.bas hello.jm led.jm button.jm rtc.jm lcd.jm
 
 hello.jm: hello.bin
 	../../asm/jmon/loader2.py -l 8192 hello.bin >hello.jm
@@ -48,29 +48,17 @@ rtc.bin: rtc.o
 rtc.o: rtc.s
 	ca65 -g -l rtc.lst rtc.s
 
-lcd1.jm: lcd1.bin
-	../../asm/jmon/loader2.py -l 28672 lcd1.bin >lcd1.jm
+lcd.jm: lcd.bin
+	../../asm/jmon/loader2.py -l 28672 lcd.bin >lcd.jm
 
-lcd1.bas: lcd1.bin
-	../../asm/jmon/loader.py -l 28672 lcd1.bin >lcd1.bas
+lcd.bas: lcd.bin
+	../../asm/jmon/loader.py -l 28672 lcd.bin >lcd.bas
 
-lcd1.bin: lcd1.o
-	ld65 -t none -vm -m lcd1.map -o lcd1.bin lcd1.o
+lcd.bin: lcd.o
+	ld65 -t none -vm -m lcd.map -o lcd.bin lcd.o
 
-lcd1.o: lcd1.s
-	ca65 -g -l lcd1.lst lcd1.s
-
-lcd2.jm: lcd2.bin
-	../../asm/jmon/loader2.py -l 28672 lcd2.bin >lcd2.jm
-
-lcd2.bas: lcd2.bin
-	../../asm/jmon/loader.py -l 28672 lcd2.bin >lcd2.bas
-
-lcd2.bin: lcd2.o
-	ld65 -t none -vm -m lcd2.map -o lcd2.bin lcd2.o
-
-lcd2.o: lcd2.s
-	ca65 -g -l lcd2.lst lcd2.s
+lcd.o: lcd.s
+	ca65 -g -l lcd.lst lcd.s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.bas *.jm
