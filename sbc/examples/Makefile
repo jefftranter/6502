@@ -1,4 +1,4 @@
-all: hello.bas led.bas button.bas rtc.bas
+all: hello.bas led.bas button.bas rtc.bas lcd1.bas lcd2.bas hello.jm led.jm button.jm rtc.jm lcd1.jm lcd2.jm
 
 hello.jm: hello.bin
 	../../asm/jmon/loader2.py -l 8192 hello.bin >hello.jm
@@ -12,6 +12,9 @@ hello.bin: hello.o
 hello.o: hello.s
 	ca65 -g -l hello.lst hello.s
 
+led.jm: led.bin
+	../../asm/jmon/loader2.py -l 8192 led.bin >led.jm
+
 led.bas: led.bin
 	../../asm/jmon/loader.py -l 4096 led.bin >led.bas
 
@@ -20,6 +23,9 @@ led.bin: led.o
 
 led.o: led.s
 	ca65 -g -l led.lst led.s
+
+button.jm: button.bin
+	../../asm/jmon/loader2.py -l 8192 button.bin >button.jm
 
 button.bas: button.bin
 	../../asm/jmon/loader.py -l 4096 button.bin >button.bas

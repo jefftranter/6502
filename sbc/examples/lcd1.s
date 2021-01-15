@@ -4,11 +4,11 @@
 ; LCD Pin  Signal  SBC Signal  Comments
 ;  1       GND     GND
 ;  2       VCC     VCC
-;  3       VO      GND         Some displays need contrast pot |
+;  3       VO      GND         Some displays need contrast pot
 ;  4       RS      PA5
 ;  5       R/W     PA6
 ;  6       EN      PA7
-;  7       D0      PB1
+;  7       D0      PB0
 ;  8       D1      PB1
 ;  9       D2      PB2
 ;  10      D3      PB3
