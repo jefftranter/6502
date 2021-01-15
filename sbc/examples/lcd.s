@@ -1,6 +1,23 @@
 ; Simple example of driving a 2x16 LCD from the 6522 VIA.
 ; Based on code by Ben Eater from https://eater.net/6502
-; See lcd1.s for hardware setup.
+; Hook up the LCD as follows:
+; LCD Pin  Signal  SBC Signal  Comments
+;  1       GND     GND
+;  2       VCC     VCC
+;  3       VO      GND         Some displays need contrast pot
+;  4       RS      PA5
+;  5       R/W     PA6
+;  6       EN      PA7
+;  7       D0      PB0
+;  8       D1      PB1
+;  9       D2      PB2
+;  10      D3      PB3
+;  11      D4      PB4
+;  12      D5      PB5
+;  13      D6      PB6
+;  14      D7      PB7
+;  15      A       VCC         Backlight +
+;  16      K       GND         Backlight -
 
 PORTB   = $8000
 PORTA   = $8001
@@ -14,7 +31,7 @@ RS      = %00100000
         .org $7000
 
 start:
-        ldx     #$ff
+        ldx     #$FF            ; Set up stack
         txs
 
         lda     #%11111111      ; Set all pins on port B to output
@@ -31,19 +48,52 @@ start:
         lda     #$00000001      ; Clear display
         jsr     lcd_instruction
 
-        ldx     #0
-print:
-        lda     message,x
-        beq     loop
-        jsr     print_char
-        inx
-        jmp     print
+        ldx     #0              ; Offset into string to print
+print1:
+        lda     message1,x      ; Get byte of message string
+        beq     next            ; Branch when done
+        jsr     print_char      ; Print character to display
+        inx                     ; Advanced offset
+        jmp     print1          ; Go back and print next character
 
-loop:
-        jmp     loop
+next:
+        ldx     #$00
+outer:
+        lda     #$00
+inner:
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        sec
+        sbc     #$01
+        bne     inner
+        dex
+        bne     outer
 
-message:
-        .asciiz "Hello, world!"
+        lda     #$00000001      ; Clear display
+        jsr     lcd_instruction
+
+        ldx     #0              ; Offset into string to print
+print2:
+        lda     message2,x      ; Get byte of message string
+        beq     done            ; Branch when done
+        jsr     print_char      ; Print character to display
+        inx                     ; Advanced offset
+        jmp     print2          ; Go back and print next character
+
+done:
+        brk                     ; Return to monitor
+
+message1:
+        .asciiz "Hello, world!" ; String to print (null terminated)
+
+message2:
+        .asciiz "Goodbye, world!"
 
 lcd_wait:
         pha
