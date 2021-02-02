@@ -56,7 +56,7 @@ keep it up off the bench.
 
 All parts should be readily available from sources like Ebay. Some.
 are no longer manufactured but can be obtained as NOS (New Old Stock)
-from vendors such as Unicorn Electornics. All parts are through-hole.
+from vendors such as Unicorn Electronics. All parts are through-hole.
 
 You will need a suitable UV eraser and programmer to program the
 EPROM.
@@ -91,6 +91,24 @@ as Minicom on Linux. Set it to 115200 BPS 8N1, no handshaking. With
 the JMON and MS Basic firmware you should see a prompt "[C]old start,
 [W]arm start, or [M]onitor?".
 
+KNOWN ISSUES AND POTENTIAL GOTCHAS
+
+The polarity of the two LEDs is important. Unfortunately, the "+" sign
+on the silkscreen is incorrect. The positive or anode lead of the LEDs
+(usually the longer of the two leads) should go in the other hole (the
+one without the "+" marking). As LEDs vary, I also suggest you
+experiment with the value of the current limiting resistors associated
+with each LED in order to get the desired brightness.
+
+There is no hardware handshaking on the serial port, so you can get
+data overruns if you send data (such as a Basic program) too fast for
+the software to keep up. This can be handling by using a data transfer
+program that supports adding delays between characters and lines. On
+Linux you can use the program ascii-xfer, for example. I find that a
+line delay of 100ms and a character delay of 20ms is sufficient for
+Basic programs.
+
+LICENSING
 
 The PCB layout is Open Source Hardware, licensed under the The TAPR
 Open Hardware License. You are welcome to build the circuit and use my
