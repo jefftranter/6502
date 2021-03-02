@@ -1,4 +1,25 @@
 ; Motorola S record (run) file loader
+;
+; File record format:
+; S <rec type> <byte count> <address> <data>... <checksum> <CR>/<LF>/<NUL>
+;
+; e.g.
+; S00F000068656C6C6F202020202000003C
+; S11F00007C0802A6900100049421FFF07C6C1B787C8C23783C6000003863000026
+; S11F001C4BFFFFE5398000007D83637880010014382100107C0803A64E800020E9
+; S111003848656C6C6F20776F726C642E0A0042
+; S5030003F9
+; S9030000FC
+;
+; Record types:
+; S0 header - accepted but ignored
+; S1 - 16-bit address record
+; S2,S3,S4 - not supported
+; S5,S6 - accepted but ignored
+; S7,S8 - not supported
+; S9 - start address. Executes if address is not zero.
+;
+; At any point, quit if <ESC> character received.
 
 ; Constants
 
@@ -17,7 +38,7 @@
         PrintString = $EAF9     ; ROM print string routine
         PrintCR     = $EAE9     ; Print CR
 
-        .org    $2000
+        .org    $3000
 
 start:
         lda     #0

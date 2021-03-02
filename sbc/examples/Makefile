@@ -1,4 +1,4 @@
-all: hello.bas led.bas button.bas rtc.bas lcd.bas hello.jm led.jm button.jm rtc.jm lcd.jm hello.run lcd.run led.run button.run rtc.run srecloader.run
+all: hello.bas led.bas button.bas rtc.bas lcd.bas hello.jm led.jm button.jm rtc.jm lcd.jm hello.run lcd.run led.run button.run rtc.run srecloader.run srecloader.jm
 
 hello.run: hello.bin
 	srec_cat hello.bin -binary -offset 0x2000 -o hello.run -Execution_Start_Address 0x2000
@@ -76,13 +76,13 @@ lcd.o: lcd.s
 	ca65 -g -l lcd.lst lcd.s
 
 srecloader.run: srecloader.bin
-	srec_cat srecloader.bin -binary -offset 0x7000 -o srecloader.run -Execution_Start_Address 0x2000
+	srec_cat srecloader.bin -binary -offset 0x3000 -o srecloader.run -Execution_Start_Address 0x3000
 
 srecloader.jm: srecloader.bin
-	../../asm/jmon/loader2.py -l 28672 srecloader.bin >srecloader.jm
+	../../asm/jmon/loader2.py -l 12288 srecloader.bin >srecloader.jm
 
 srecloader.bas: srecloader.bin
-	../../asm/jmon/loader.py -l 28672 srecloader.bin >srecloader.bas
+	../../asm/jmon/loader.py -l 12288 srecloader.bin >srecloader.bas
 
 srecloader.bin: srecloader.o
 	ld65 -t none -vm -m srecloader.map -o srecloader.bin srecloader.o
