@@ -1,3 +1,6 @@
+; TODO: Do we need to echo the input?
+; TODO: Write S record writer
+
 ; Motorola S record (run) file loader
 ;
 ; File record format:
@@ -35,6 +38,7 @@
 ; External routines
 
         GetKey  = $E9C4         ; ROM get character routine
+        PrintChar = $EB5F       ; ROM character out routine
         PrintString = $EAF9     ; ROM print string routine
         PrintCR     = $EAE9     ; Print CR
 
@@ -54,6 +58,7 @@ loop:
         bne     notesc
         rts                     ; Return if <ESC>
 notesc:
+        jsr     PrintChar       ; Echo the character
         cmp     #CR             ; Ignore if <CR>
         beq     loop
         cmp     #LF             ; Ignore if <LF>
@@ -65,6 +70,8 @@ notesc:
         bne     invalidRecord   ; If not, error
 
         jsr     GetKey          ; Get record type character
+        jsr     PrintChar       ; Echo the character
+
         cmp     #'0'            ; Should be '0', '1', '5', '6' or '9'
         beq     validType
         cmp     #'1'
@@ -94,26 +101,43 @@ validType:
 
         clc
         adc     checksum        ; Add byte count to checksum
+        sta     checksum
 
-; TODO: If record type is 9, byte count should be 3. Should we check
-; this?
+        lda     recordType      ; If record type is 5 or 9, byte count should be 3
+        cmp     #5
+        beq     checkcnt
+        cmp     #9
+        bne     getadd
+checkcnt:
+        lda     byteCount
+        cmp     #3
+        beq     getadd
+        bne     invalidRecord
 
+getadd:
         jsr     getHexAddress   ; Get 16-bit start address
         bcs     invalidRecord
 
         stx     address         ; Save as address
         sty     address+1
 
-        clc
         txa
-        adc     checksum        ; Add address bytes to checksum
         clc
+        adc     checksum        ; Add address bytes to checksum
+        sta     checksum
         tya
+        clc
         adc     checksum
+        sta     checksum
+
+        inc     bytesRead       ; Increment bytesRead by 2 for address field
+        inc     bytesRead
 
 readRecord:
 
-        lda     bytesRead       ; If bytesRead = byteCount
+        lda     bytesRead       ; If bytesRead+1 = byteCount (have to allow for checksum byte)
+        clc
+        adc     #1
         cmp     byteCount
         beq     dataend         ; ...break out of loop
 
@@ -122,6 +146,7 @@ readRecord:
 
         clc
         adc     checksum        ; Add data read to checksum
+        sta     checksum
 
         sta     temp1           ; Save data
         lda     recordType
@@ -134,6 +159,9 @@ readRecord:
 ; TODO: Could verify data written, but not necessarily an error.
 
 nowrite:
+        lda     recordType      ; Only increment address if this is an S1 record
+        cmp     #'1'
+        bne     nocarry
         inc     address         ; Increment address (low byte)
         bne     nocarry
         inc     address+1       ; Increment address (high byte)
@@ -143,10 +171,10 @@ nocarry:
 
 dataend:
         jsr     getHexByte      ; Get two hex digits (checksum)
-        bcs     invalidRecord
-
+        bcc     okay1
+        jmp     invalidRecord
+okay1:
         eor     #$FF            ; Calculate 1's complement
-
         cmp     checksum        ; Compare to calculated checksum
         beq     sumokay         ; branch if matches
         ldx     #<SChecksumError
@@ -175,11 +203,12 @@ notz:
 ; If not valid, return with carry bit set.
 getHexChar:
         jsr     GetKey          ; Read character
+        jsr     PrintChar       ; Echo the character
         cmp     #'0'            ; Error if < '0'
         bmi     error1
         cmp     #'9'+1          ; Valid if <= '9'
         bmi     number1
-        cmp     #'F'            ; Error if >'F'
+        cmp     #'F'+1          ; Error if > 'F'
         bpl     error1
         cmp     #'A'            ; Error if < 'A'
         bmi     error1
