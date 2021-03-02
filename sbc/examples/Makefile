@@ -1,4 +1,4 @@
-all: hello.bas led.bas button.bas rtc.bas lcd.bas hello.jm led.jm button.jm rtc.jm lcd.jm
+all: hello.bas led.bas button.bas rtc.bas lcd.bas hello.jm led.jm button.jm rtc.jm lcd.jm hello.run lcd.run led.run button.run rtc.run
 
 hello.jm: hello.bin
 	../../asm/jmon/loader2.py -l 8192 hello.bin >hello.jm
@@ -60,5 +60,20 @@ lcd.bin: lcd.o
 lcd.o: lcd.s
 	ca65 -g -l lcd.lst lcd.s
 
+hello.run: hello.bin
+	srec_cat hello.bin -binary -offset 0x2000 -o hello.run -Execution_Start_Address 0x2000
+
+button.run: button.bin
+	srec_cat button.bin -binary -offset 0x1000 -o button.run -Execution_Start_Address 0x1000
+
+lcd.run: lcd.bin
+	srec_cat lcd.bin -binary -offset 0x7000 -o lcd.run -Execution_Start_Address 0x7000
+
+led.run: led.bin
+	srec_cat led.bin -binary -offset 0x1000 -o led.run -Execution_Start_Address 0x1000
+
+rtc.run: rtc.bin
+	srec_cat rtc.bin -binary -offset 0x7000 -o rtc.run -Execution_Start_Address 0x7000
+
 clean:
-	$(RM) *.o *.lst *.map *.bin *.bas *.jm
+	$(RM) *.o *.lst *.map *.bin *.bas *.jm *.run
