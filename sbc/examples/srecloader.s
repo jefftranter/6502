@@ -1,4 +1,3 @@
-; TODO: Do we need to echo the input?
 ; TODO: Write S record writer
 
 ; Motorola S record (run) file loader
@@ -58,7 +57,7 @@ loop:
         bne     notesc
         rts                     ; Return if <ESC>
 notesc:
-        jsr     PrintChar       ; Echo the character
+;       jsr     PrintChar       ; Echo the character
         cmp     #CR             ; Ignore if <CR>
         beq     loop
         cmp     #LF             ; Ignore if <LF>
@@ -70,7 +69,7 @@ notesc:
         bne     invalidRecord   ; If not, error
 
         jsr     GetKey          ; Get record type character
-        jsr     PrintChar       ; Echo the character
+;       jsr     PrintChar       ; Echo the character
 
         cmp     #'0'            ; Should be '0', '1', '5', '6' or '9'
         beq     validType
@@ -190,21 +189,26 @@ sumokay:
         beq     s9
         jmp     start           ; If not go back and read more records
 s9:
-        lda     address         ; If start address != 0
-        bne     notz
+        ldx     #<SLoaded
+        ldy     #>SLoaded
+        jsr     PrintCR
+        jsr     PrintString     ; Display "Loaded"
+        jsr     PrintCR
+        lda     address         ; Start execution if start address = 0
+        beq     lowz
+highz:
+        rts                     ; Otherwise just return
+lowz:
         lda     address+1
-        bne     notz
-        jmp     (address)       ; ...start execution at start address
-
-notz:
-        rts                     ; Return
+        beq     highz
+        jmp     (address)       ; Start execution at start address
 
 ; Read character corresponding to hex number ('0'-'9','A'-'F').
 ; If valid, return binary value in A and carry bit clear.
 ; If not valid, return with carry bit set.
 getHexChar:
         jsr     GetKey          ; Read character
-        jsr     PrintChar       ; Echo the character
+;       jsr     PrintChar       ; Echo the character
         cmp     #'0'            ; Error if < '0'
         bmi     error1
         cmp     #'9'+1          ; Valid if <= '9'
@@ -263,10 +267,12 @@ SInvalidRecord:
         .asciiz "Invalid record"
 SChecksumError:
         .asciiz "Checksum error"
+SLoaded:
+        .asciiz "Loaded"
 
 ; Variables
 
-temp1:      .res  1             ; Temporary
+temp1:      .res 1             ; Temporary
 checksum:   .res 1              ; Calculated checksum
 bytesRead:  .res 1              ; Number of record bytes read 
 recordType: .res 1              ; S record type field, e.g '9'
