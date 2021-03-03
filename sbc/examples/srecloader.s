@@ -1,6 +1,4 @@
-; TODO: Write S record writer
-
-; Motorola S record (run) file loader
+; Motorola S record (run) file loader and writer
 ;
 ; File record format:
 ; S <rec type> <byte count> <address> <data>... <checksum> <CR>/<LF>/<NUL>
@@ -29,6 +27,7 @@
         CR      = $0D
         LF      = $0A
         NUL     = $00
+        bytesPerLine = $23      ; S record file bytes per line
 
 ; Zero page addresses
 
@@ -39,11 +38,133 @@
         GetKey  = $E9C4         ; ROM get character routine
         PrintChar = $EB5F       ; ROM character out routine
         PrintString = $EAF9     ; ROM print string routine
-        PrintCR     = $EAE9     ; Print CR
+        PrintCR = $EAE9         ; Print CR
+        PrintByte = $EB4C       ; Print hex byte
+        PrintAddress = $EA85    ; Print hex address
 
         .org    $3000
 
-start:
+writer:
+        lda     #$00            ; startAddress = $E000
+        sta     startAddress
+        lda     #$E0
+        sta     startAddress+1
+        lda     #$FF            ; endAddress = $E7FF
+        sta     endAddress
+        lda     #$E7
+        sta     endAddress+1
+        lda     #$01            ; goAddress = $E001
+        sta     goAddress
+        lda     #$E0
+        sta     goAddress+1
+        sta     checksum        ; checksum = $00
+        sta     bytesWritten    ; bytesWritten = $00
+
+        lda     startAddress    ; address = startAddress
+        sta     address
+        lda     startAddress+1
+        sta     address+1
+
+; Write S0 record, fixed as: S0030000FC<LF>
+
+        ldx     #<S0String
+        ldy     #>S0String
+        jsr     PrintString
+
+
+writes1:                        ; Write S1 records
+        lda     #0
+        sta     bytesWritten    ; bytesWritten = 0
+        sta     checksum        ; checksum = 0
+
+        lda     #'S'            ; Write "S1"
+        jsr     PrintChar
+        lda     #'1'
+        jsr     PrintChar
+
+        lda     #bytesPerLine   ; write bytesPerLine
+        jsr     PrintByte
+
+        lda     #bytesPerLine   ; checksum = bytesPerLine
+        sta     checksum
+
+        ldx      address        ; write address
+        ldy      address+1
+        jsr      PrintAddress
+
+        lda      checksum       ; checksum = checksum + addressHigh
+        clc
+        adc      address+1
+        clc
+        adc      address        ; checksum = checksum + addressLow
+        sta      checksum
+
+writeLoop:
+        ldy     #0
+        lda     (address),y
+        jsr     PrintByte       ; print byte at address
+
+        clc
+        adc     checksum        ; checksum = checksum + byte at address
+        sta     checksum
+
+        inc     address         ; Increment address (low byte)
+        bne     nocarry1
+        inc     address+1       ; Increment address (high byte)
+nocarry1:
+        inc     bytesWritten    ; bytesWritten = bytesWritten + 1
+
+        lda     bytesWritten    ; if bytesWritten != bytesPerLine
+        cmp     #bytesPerLine
+        bne     writeLoop       ; ...go back and loop
+
+        lda     checksum        ; Calculate checksum 1's complement
+        eor     #$ff
+        jsr     PrintByte       ; Output checksum
+        lda     #LF             ; write <LF>
+        jsr     PrintByte       ; Output checksum
+
+
+        lda     address+1       ; if address < endAddress
+        cmp     endAddress+1
+        bmi     writes1
+        lda     address
+        cmp     endAddress
+        bmi     writes1
+
+; Write S9 record
+
+        lda      #'S'           ; Write S9
+        jsr      PrintChar
+        lda      #'9'
+        jsr      PrintChar
+        lda      #$03           ; Write 03
+        jsr      PrintByte
+        lda      #$03           ; checksum = 03
+        sta      checksum
+
+        ldx      address        ; write address
+        ldy      address+1
+        jsr      PrintAddress
+
+        lda      checksum       ; checksum = checksum + addressHigh
+        clc
+        adc      address+1
+        clc
+        adc      address        ; checksum = checksum + addressLow
+        sta      checksum
+
+        lda     checksum        ; Calculate checksum 1's complement
+        eor     #$ff
+        jsr     PrintByte       ; Output checksum
+        lda     #LF             ; write <LF>
+        jsr     PrintByte       ; Output checksum
+
+        rts
+
+; ------------------------------------------------------------------------
+
+reader:
         lda     #0
         sta     checksum        ; Checksum = 0
         sta     bytesRead       ; BytesRead = 0
@@ -165,7 +286,7 @@ nowrite:
         inc     address         ; Increment address (low byte)
         bne     nocarry
         inc     address+1       ; Increment address (high byte)
-nocarry:        
+nocarry:
         inc     bytesRead       ; Increment bytesRead
         jmp     readRecord      ; Go back and read more data
 
@@ -187,7 +308,7 @@ sumokay:
         lda     recordType      ; Get record type
         cmp     #'9'            ; S9 (end of file)?
         beq     s9
-        jmp     start           ; If not go back and read more records
+        jmp     writer          ; If not go back and read more records
 s9:
         ldx     #<SLoaded
         ldy     #>SLoaded
@@ -269,11 +390,27 @@ SChecksumError:
         .asciiz "Checksum error"
 SLoaded:
         .asciiz "Loaded"
+S0String:
+        .byte   "S0030000FC", LF, 0
 
 ; Variables
 
-temp1:      .res 1             ; Temporary
-checksum:   .res 1              ; Calculated checksum
-bytesRead:  .res 1              ; Number of record bytes read 
-recordType: .res 1              ; S record type field, e.g '9'
-byteCount:  .res 1              ; S record byte count field
+temp1:
+        .res 1                  ; Temporary
+checksum:
+        .res 1                  ; Calculated checksum
+bytesRead:
+        .res 1                  ; Number of record bytes read 
+recordType:
+        .res 1                  ; S record type field, e.g '9'
+byteCount:
+        .res 1                  ; S record byte count field
+
+startAddress:
+        .res 2                  ; Start address
+endAddress:
+        .res 2                  ; End address
+goAddress:
+        .res 2                  ; Go address
+bytesWritten:
+        .res 1                  ; Number of record bytes written 
