@@ -1,4 +1,5 @@
-; Motorola S record (run) file loader and writer
+; Motorola S record (run) file loader and writer.
+; Will be integrated into the JMON monitor.
 ;
 ; File record format:
 ; S <rec type> <byte count> <address> <data>... <checksum> <CR>/<LF>/<NUL>
@@ -27,7 +28,7 @@
         CR      = $0D
         LF      = $0A
         NUL     = $00
-        bytesPerLine = $23      ; S record file bytes per line
+        bytesPerLine = $20      ; S record file bytes per line
 
 ; Zero page addresses
 
@@ -44,14 +45,16 @@
 
         .org    $3000
 
+;        jmp     reader
+
 writer:
-        lda     #$00            ; startAddress = $E000
+        lda     #$00            ; startAddress = $E000 (arbitrary, for test purposes)
         sta     startAddress
         lda     #$E0
         sta     startAddress+1
-        lda     #$FF            ; endAddress = $E7FF
+        lda     #$FF            ; endAddress = $E3FF
         sta     endAddress
-        lda     #$E7
+        lda     #$E3
         sta     endAddress+1
         lda     #$01            ; goAddress = $E001
         sta     goAddress
@@ -65,7 +68,7 @@ writer:
         lda     startAddress+1
         sta     address+1
 
-; Write S0 record, fixed as: S0030000FC<LF>
+; Write S0 record, fixed as: <CR>S0030000FC<CR>
 
         ldx     #<S0String
         ldy     #>S0String
@@ -121,44 +124,44 @@ nocarry1:
         lda     checksum        ; Calculate checksum 1's complement
         eor     #$ff
         jsr     PrintByte       ; Output checksum
-        lda     #LF             ; write <LF>
-        jsr     PrintByte       ; Output checksum
+        jsr     PrintCR         ; Output line terminator
 
 
-        lda     address+1       ; if address < endAddress
+        lda     address+1       ; if address <= endAddress, go back and continue
         cmp     endAddress+1
         bmi     writes1
+        beq     writes1
         lda     address
         cmp     endAddress
         bmi     writes1
+        beq     writes1
 
 ; Write S9 record
 
-        lda      #'S'           ; Write S9
-        jsr      PrintChar
-        lda      #'9'
-        jsr      PrintChar
-        lda      #$03           ; Write 03
-        jsr      PrintByte
-        lda      #$03           ; checksum = 03
-        sta      checksum
+        lda     #'S'            ; Write S9
+        jsr     PrintChar
+        lda     #'9'
+        jsr     PrintChar
+        lda     #$03            ; Write 03
+        jsr     PrintByte
+        lda     #$03            ; checksum = 03
+        sta     checksum
 
-        ldx      address        ; write address
-        ldy      address+1
-        jsr      PrintAddress
+        ldx     goAddress       ; Send go address
+        ldy     goAddress+1
+        jsr     PrintAddress
 
-        lda      checksum       ; checksum = checksum + addressHigh
+        lda     checksum        ; checksum = checksum + goAaddress high
         clc
-        adc      address+1
+        adc     goAddress+1
         clc
-        adc      address        ; checksum = checksum + addressLow
-        sta      checksum
+        adc     goAddress       ; checksum = checksum + goAddress low
+        sta     checksum
 
         lda     checksum        ; Calculate checksum 1's complement
         eor     #$ff
         jsr     PrintByte       ; Output checksum
-        lda     #LF             ; write <LF>
-        jsr     PrintByte       ; Output checksum
+        jsr     PrintCR         ; Output line terminator
 
         rts
 
@@ -391,7 +394,7 @@ SChecksumError:
 SLoaded:
         .asciiz "Loaded"
 S0String:
-        .byte   "S0030000FC", LF, 0
+        .byte   CR, "S0030000FC", CR, 0
 
 ; Variables
 
