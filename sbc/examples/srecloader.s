@@ -104,9 +104,9 @@ validType:
         sta     checksum
 
         lda     recordType      ; If record type is 5 or 9, byte count should be 3
-        cmp     #5
+        cmp     #'5'
         beq     checkcnt
-        cmp     #9
+        cmp     #'9'
         bne     getadd
 checkcnt:
         lda     byteCount
@@ -144,13 +144,14 @@ readRecord:
         jsr     getHexByte      ; Get two hex digits
         bcs     invalidRecord   ; Exit if invalid
 
+        sta     temp1           ; Save data
+
         clc
         adc     checksum        ; Add data read to checksum
         sta     checksum
 
-        sta     temp1           ; Save data
         lda     recordType
-        cmp     #1              ; Is record type 1?
+        cmp     #'1'            ; Is record type 1?
         bne     nowrite
         lda     temp1           ; Get data back
         ldy     #0
@@ -248,10 +249,10 @@ getHexByte:
 getHexAddress:
         jsr     getHexByte      ; Get high order byte
         bcs     bad1            ; Branch if invalid
-        tax                     ; Save value in Y
+        tay                     ; Save value in Y
         jsr     getHexByte      ; Get low order byte
         bcs     bad1            ; Branch if invalid
-        tay                     ; Save value in X
+        tax                     ; Save value in X
         rts                     ; Return with carry clear
 bad1:
         rts                     ; Return with carry set
