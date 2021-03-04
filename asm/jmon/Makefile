@@ -5,7 +5,7 @@
 #PLATFORM=KIM1
 PLATFORM=SBC
 
-all: jmon.mon jmon.lod jmon.ptp
+all: jmon.mon jmon.lod jmon.ptp jmon.jm
 
 # JMON load file
 jmon.jm: jmon.bin

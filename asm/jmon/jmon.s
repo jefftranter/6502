@@ -3129,6 +3129,7 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
+        .byte "Load        J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "CFFA1 menu  M", CR
@@ -3156,6 +3157,7 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
+        .byte "Load        J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
@@ -3183,6 +3185,7 @@ HelpString:
         .byte "Go         G <a>", CR
         .byte "Hex to dec H <a>", CR
         .byte "BASIC      I", CR
+        .byte "Load       J", CR
         .byte "Checksum   K <s><e>",CR
         .byte "Clr screen L", CR
         .byte "Info       N", CR
@@ -3209,6 +3212,7 @@ HelpString:
         .byte "Fill        F <start> <end> <data>...", CR
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
+        .byte "Load        J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
