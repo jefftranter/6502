@@ -1,6 +1,6 @@
 ; JMON - 6502 Monitor Program
 ;
-; Copyright (C) 2012-2020 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2021 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@
 ; 1.3.4  26-Feb-2020   Fix bug in disassembler address incrementing.
 ;                      Tested on real OSI Superboard II.
 ; 1.3.5  13-Dec-2020   Added port to my Single Board Computer
+; 1.3.6  03-Mar-2021   Add J (S record loading) command.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -123,6 +124,7 @@
   LF      = $0A                 ; Line Feed
   SP      = $20                 ; Space
   ESC     = $1B                 ; Escape
+  NUL     = $00                 ; Null
 
 ; Hardware addresses
 .ifdef APPLE1
@@ -1641,6 +1643,259 @@ Checksum:
 @NoCarry2:
         JMP @CalcSum
 
+
+; S Record Loader
+; Format: J
+; Load a Motorola hex (RUN or S record) format file into memory. Exits
+; if <ESC> is received at any time or after an S9 record is received.
+; Executes the loaded code if the start address is non-zero.
+;
+; File record format:
+; S <rec type> <byte count> <address> <data>... <checksum> <CR>/<LF>/<NUL>
+;
+; e.g.
+; S00F000068656C6C6F202020202000003C
+; S11F00007C0802A6900100049421FFF07C6C1B787C8C23783C6000003863000026
+; S11F001C4BFFFFE5398000007D83637880010014382100107C0803A64E800020E9
+; S111003848656C6C6F20776F726C642E0A0042
+; S5030003F9
+; S9030000FC
+;
+; Record types:
+; S0 header - accepted but ignored
+; S1 - 16-bit address record
+; S2,S3,S4 - not supported
+; S5,S6 - accepted but ignored
+; S7,S8 - not supported
+; S9 - start address. Executes if address is not zero.
+;
+; At any point, quit if <ESC> character received.
+
+Load:
+        ldx     #<SLoading
+        ldy     #>SLoading
+        jsr     PrintCR
+        jsr     PrintString     ; Display "Loading"
+        jsr     PrintCR
+
+SRecord:
+        lda     #0
+        sta     checksum        ; Checksum = 0
+        sta     bytesRead       ; BytesRead = 0
+        sta     byteCount       ; ByteCount = 0
+        sta     ADDR            ; Address = 0
+        sta     ADDR+1
+
+sloop:
+        jsr     GetKey          ; Get character
+        cmp     #ESC
+        bne     notesc
+        rts                     ; Return if <ESC>
+notesc:
+;       jsr     PrintChar       ; Echo the character
+        cmp     #CR             ; Ignore if <CR>
+        beq     sloop
+        cmp     #LF             ; Ignore if <LF>
+        beq     sloop
+        cmp     #NUL            ; Ignore if <NUL>
+        beq     sloop
+
+        cmp     #'S'            ; Should be 'S'
+        bne     invalidRecord   ; If not, error
+
+        jsr     GetKey          ; Get record type character
+;       jsr     PrintChar       ; Echo the character
+
+        cmp     #'0'            ; Should be '0', '1', '5', '6' or '9'
+        beq     validType
+        cmp     #'1'
+        beq     validType
+        cmp     #'5'
+        beq     validType
+        cmp     #'6'
+        beq     validType
+        cmp     #'9'
+        beq     validType
+
+invalidRecord:
+        ldx     #<SInvalidRecord
+        ldy     #>SInvalidRecord
+        jsr     PrintString     ; Display "Invalid record"
+        jsr     PrintCR
+        rts                     ; Return
+
+validType:
+        sta     recordType      ; Save char as record type '0'..'9'
+
+        jsr     getHexByte      ; Get byte count
+        bcs     invalidRecord
+        cmp     #3              ; Invalid if byteCount  < 3
+        bmi     invalidRecord
+        sta     byteCount       ; Save as byte count
+
+        clc
+        adc     checksum        ; Add byte count to checksum
+        sta     checksum
+
+        lda     recordType      ; If record type is 5 or 9, byte count should be 3
+        cmp     #'5'
+        beq     checkcnt
+        cmp     #'9'
+        bne     getadd
+checkcnt:
+        lda     byteCount
+        cmp     #3
+        beq     getadd
+        bne     invalidRecord
+
+getadd:
+        jsr     getHexAddress   ; Get 16-bit start address
+        bcs     invalidRecord
+
+        stx     ADDR            ; Save as address
+        sty     ADDR+1
+
+        txa
+        clc
+        adc     checksum        ; Add address bytes to checksum
+        sta     checksum
+        tya
+        clc
+        adc     checksum
+        sta     checksum
+
+        inc     bytesRead       ; Increment bytesRead by 2 for address field
+        inc     bytesRead
+
+readRecord:
+
+        lda     bytesRead       ; If bytesRead+1 = byteCount (have to allow for checksum byte)
+        clc
+        adc     #1
+        cmp     byteCount
+        beq     dataend         ; ...break out of loop
+
+        jsr     getHexByte      ; Get two hex digits
+        bcs     invalidRecord   ; Exit if invalid
+
+        sta     temp1           ; Save data
+
+        clc
+        adc     checksum        ; Add data read to checksum
+        sta     checksum
+
+        lda     recordType
+        cmp     #'1'            ; Is record type 1?
+        bne     nowrite
+        lda     temp1           ; Get data back
+        ldy     #0
+        sta     (ADDR),y        ; Write data to address
+
+; TODO: Could verify data written, but not necessarily an error.
+
+nowrite:
+        lda     recordType      ; Only increment address if this is an S1 record
+        cmp     #'1'
+        bne     nocarry1
+        inc     ADDR            ; Increment address (low byte)
+        bne     nocarry1
+        inc     ADDR+1          ; Increment address (high byte)
+nocarry1:
+        inc     bytesRead       ; Increment bytesRead
+        jmp     readRecord      ; Go back and read more data
+
+dataend:
+        jsr     getHexByte      ; Get two hex digits (checksum)
+        bcc     okay1
+        jmp     invalidRecord
+okay1:
+        eor     #$FF            ; Calculate 1's complement
+        cmp     checksum        ; Compare to calculated checksum
+        beq     sumokay         ; branch if matches
+        ldx     #<SChecksumError
+        ldy     #>SChecksumError
+        jsr     PrintString     ; Display "Checksum error"
+        jsr     PrintCR
+        rts                     ; Return
+
+sumokay:
+        lda     recordType      ; Get record type
+        cmp     #'9'            ; S9 (end of file)?
+        beq     s9
+        jmp     SRecord         ; If not go back and read more records
+s9:
+        ldx     #<SLoaded
+        ldy     #>SLoaded
+        jsr     PrintCR
+        jsr     PrintString     ; Display "Loaded"
+        jsr     PrintCR
+        lda     ADDR            ; Start execution if start address = 0
+        beq     lowz
+highz:
+        rts                     ; Otherwise just return
+lowz:
+        lda     ADDR+1
+        beq     highz
+        jmp     (ADDR)          ; Start execution at start address
+
+; Read character corresponding to hex number ('0'-'9','A'-'F').
+; If valid, return binary value in A and carry bit clear.
+; If not valid, return with carry bit set.
+getHexChar:
+        jsr     GetKey          ; Read character
+;       jsr     PrintChar       ; Echo the character
+        cmp     #'0'            ; Error if < '0'
+        bmi     error1
+        cmp     #'9'+1          ; Valid if <= '9'
+        bmi     number1
+        cmp     #'F'+1          ; Error if > 'F'
+        bpl     error1
+        cmp     #'A'            ; Error if < 'A'
+        bmi     error1
+        sec
+        sbc     #'A'-10         ; Value is character-('A'-10)
+        jmp     good1
+number1:
+        sec
+        sbc     #'0'            ; Value is character-'0'
+        jmp     good1
+error1:
+        sec                     ; Set carry to indicate error
+        rts                     ; Return
+good1:
+        clc                     ; Clear carry to indicate valid
+        rts                     ; Return
+
+; Read two characters corresponding to 8-bit hex number.
+; If valid, return binary value in A and carry bit clear.
+; If not valid, return with carry bit set.
+getHexByte:
+        jsr     getHexChar      ; Get high nybble
+        bcs     bad1            ; Branch if invalid
+        asl                     ; Shift return value left to upper nybble
+        asl
+        asl
+        asl
+        sta     temp1           ; Save value
+        jsr     getHexChar      ; Get low nybble
+        bcs     bad1            ; Branch if invalid
+        ora     temp1           ; Add (OR) return value to previous value
+        rts                     ; Return with carry clear
+
+; Read four characters corresponding to 16-bit hex address.
+; If valid, return binary value in X (low) and Y (high) and carry bit clear.
+; If not valid, return with carry bit set.
+getHexAddress:
+        jsr     getHexByte      ; Get high order byte
+        bcs     bad1            ; Branch if invalid
+        tay                     ; Save value in Y
+        jsr     getHexByte      ; Get low order byte
+        bcs     bad1            ; Branch if invalid
+        tax                     ; Save value in X
+        rts                     ; Return with carry clear
+bad1:
+        rts                     ; Return with carry set
+
 ; -------------------- Utility Functions --------------------
 
 ; Generate one line of output for the dump command.
@@ -2368,7 +2623,7 @@ MATCHFL:
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHIKLNORSTUV:=."
+        .byte "BCDFGHIJKLNORSTUV:=."
 .endif
 
 JMPFL:
@@ -2390,6 +2645,7 @@ JMPFL:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(OSI) .or .defined(SBC)
         .word Basic-1
 .endif
+        .word Load-1
         .word Checksum-1
         .word ClearScreen-1
 .ifdef APPLE1
@@ -2854,9 +3110,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.5 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.6 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.5 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.6 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
@@ -2980,6 +3236,7 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
+        .byte "Load        J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
@@ -3034,6 +3291,17 @@ TypeOSIString:
 TypeSBCString:
         .asciiz "SBC"
 .endif
+
+SInvalidRecord:
+        .asciiz "Invalid record"
+SChecksumError:
+        .asciiz "Checksum error"
+SLoading:
+        .asciiz "Loading"
+SLoaded:
+        .asciiz "Loaded"
+S0String:
+        .byte   CR, "S0030000FC", CR, 0
 
   .include "disasm.s"
 .ifdef MINIASM
@@ -3092,3 +3360,9 @@ SLOT:      .res 1               ; Holds current peripheral card slot number
 XSAV2:     .res 1               ; Saved registers
 YSAV2:     .res 1
 ASAV2:     .res 1
+
+temp1:     .res 1               ; Temporary value
+checksum:  .res 1               ; Calculated checksum
+bytesRead: .res 1               ; Number of record bytes read
+recordType: .res 1              ; S record type field, e.g '9'
+byteCount: .res 1               ; S record byte count field
