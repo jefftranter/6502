@@ -88,7 +88,7 @@
 ; 1.3.4  26-Feb-2020   Fix bug in disassembler address incrementing.
 ;                      Tested on real OSI Superboard II.
 ; 1.3.5  13-Dec-2020   Added port to my Single Board Computer
-; 1.3.6  03-Mar-2021   Add J (S record loading) command.
+; 1.3.6  03-Mar-2021   Add J (S record loading) and W (S record writing) command.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -125,6 +125,7 @@
   SP      = $20                 ; Space
   ESC     = $1B                 ; Escape
   NUL     = $00                 ; Null
+  bytesPerLine = $20            ; S record file bytes per line
 
 ; Hardware addresses
 .ifdef APPLE1
@@ -229,8 +230,8 @@
 .elseif .defined(KIM1)
   .org $2000
 .elseif .defined(SBC)
-; .org $2000                    ; For running out of RAM
-  .org $E000                    ; For running from ROM
+ .org $2000                    ; For running out of RAM
+;  .org $E000                    ; For running from ROM
 .endif
 
 ; JMON Entry point
@@ -1838,6 +1839,131 @@ lowz:
         beq     highz
         jmp     (ADDR)          ; Start execution at start address
 
+; Write S record file to output frome startAddress to endAddress with
+; execution start address goAddress.
+
+Writer:
+.ifdef ECHO
+        JSR     PrintChar       ; echo command
+.endif
+        JSR     PrintSpace      ; print space
+        JSR     GetAddress      ; prompt for start address
+        STX     startAddress    ; store address
+        STY     startAddress+1
+        JSR     PrintSpace      ; print space
+        JSR     GetAddress      ; prompt for end address
+        STX     endAddress      ; store address
+        STY     endAddress+1
+        JSR     PrintSpace      ; print space
+        JSR     GetAddress      ; prompt for go address
+        STX     goAddress       ; store address
+        STY     goAddress+1
+        JSR     PrintCR
+
+        sta     checksum        ; checksum = $00
+        sta     bytesWritten    ; bytesWritten = $00
+
+        lda     startAddress    ; address = startAddress
+        sta     ADDR
+        lda     startAddress+1
+        sta     ADDR+1
+
+; Write S0 record, fixed as: <CR>S0030000FC<CR>
+
+        ldx     #<S0String
+        ldy     #>S0String
+        jsr     PrintString
+
+writes1:                        ; Write S1 records
+        lda     #0
+        sta     bytesWritten    ; bytesWritten = 0
+        sta     checksum        ; checksum = 0
+
+        lda     #'S'            ; Write "S1"
+        jsr     PrintChar
+        lda     #'1'
+        jsr     PrintChar
+
+        lda     #bytesPerLine   ; write bytesPerLine
+        jsr     PrintByte
+
+        lda     #bytesPerLine   ; checksum = bytesPerLine
+        sta     checksum
+
+        ldx      ADDR           ; write address
+        ldy      ADDR+1
+        jsr      PrintAddress
+
+        lda      checksum       ; checksum = checksum + addressHigh
+        clc
+        adc      ADDR+1
+        clc
+        adc      ADDR           ; checksum = checksum + addressLow
+        sta      checksum
+
+writeLoop1:
+        ldy     #0
+        lda     (ADDR),y
+        jsr     PrintByte       ; print byte at address
+
+        clc
+        adc     checksum        ; checksum = checksum + byte at address
+        sta     checksum
+
+        inc     ADDR            ; Increment address (low byte)
+        bne     nocarry2
+        inc     ADDR+1          ; Increment address (high byte)
+nocarry2:
+        inc     bytesWritten    ; bytesWritten = bytesWritten + 1
+
+        lda     bytesWritten    ; if bytesWritten != bytesPerLine
+        cmp     #bytesPerLine
+        bne     writeLoop1      ; ...go back and loop
+
+        lda     checksum        ; Calculate checksum 1's complement
+        eor     #$ff
+        jsr     PrintByte       ; Output checksum
+        jsr     PrintCR         ; Output line terminator
+
+
+        lda     ADDR+1          ; if address <= endAddress, go back and continue
+        cmp     endAddress+1
+        bmi     writes1
+        beq     writes1
+        lda     ADDR
+        cmp     endAddress
+        bmi     writes1
+        beq     writes1
+
+; Write S9 record
+
+        lda     #'S'            ; Write S9
+        jsr     PrintChar
+        lda     #'9'
+        jsr     PrintChar
+        lda     #$03            ; Write 03
+        jsr     PrintByte
+        lda     #$03            ; checksum = 03
+        sta     checksum
+
+        ldx     goAddress       ; Send go address
+        ldy     goAddress+1
+        jsr     PrintAddress
+
+        lda     checksum        ; checksum = checksum + goAaddress high
+        clc
+        adc     goAddress+1
+        clc
+        adc     goAddress       ; checksum = checksum + goAddress low
+        sta     checksum
+
+        lda     checksum        ; Calculate checksum 1's complement
+        eor     #$ff
+        jsr     PrintByte       ; Output checksum
+        jsr     PrintCR         ; Output line terminator
+
+        rts
+
 ; Read character corresponding to hex number ('0'-'9','A'-'F').
 ; If valid, return binary value in A and carry bit clear.
 ; If not valid, return with carry bit set.
@@ -2599,31 +2725,31 @@ MATCHFL:
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDEFGHIKLMNORSTUV:=."
+        .byte "BCDEFGHIJKLMNORSTUVW:=."
 .elseif .defined(APPLE2)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHIKLNORSTUV:=."
+        .byte "BCDFGHIJKLNORSTUVW:=."
 .elseif .defined(OSI)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHIKLNORSTUV:=."
+        .byte "BCDFGHIJKLNORSTUVW:=."
 .elseif .defined(KIM1)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHKLNORSTUV:=."
+        .byte "BCDFGHJKLNORSTUVW:=."
 .elseif .defined(SBC)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHIJKLNORSTUV:=."
+        .byte "BCDFGHIJKLNORSTUVW:=."
 .endif
 
 JMPFL:
@@ -2658,6 +2784,7 @@ JMPFL:
         .word Test-1
         .word Unassemble-1
         .word Verify-1
+        .word Writer-1
         .word Memory-1
         .word Math-1
         .word Trace-1
@@ -3129,7 +3256,7 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
-        .byte "Load        J", CR
+        .byte "Load S rec  J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "CFFA1 menu  M", CR
@@ -3140,6 +3267,7 @@ HelpString:
         .byte "Test        T <start> <end>", CR
         .byte "Unassemble  U <start>", CR
         .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Write S rec W <start> <end> <go>",CR
         .byte "Woz mon     $", CR
         .byte "Write       : <address> <data>...", CR
         .byte "Math        = <address> +/- <address>", CR
@@ -3157,7 +3285,7 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
-        .byte "Load        J", CR
+        .byte "Load S rec  J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
@@ -3167,6 +3295,7 @@ HelpString:
         .byte "Test        T <start> <end>", CR
         .byte "Unassemble  U <start>", CR
         .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Write S rec W <start> <end> <go>",CR
         .byte "Monitor     $", CR
         .byte "Write       : <address> <data>...", CR
         .byte "Math        = <address> +/- <address>", CR
@@ -3185,7 +3314,7 @@ HelpString:
         .byte "Go         G <a>", CR
         .byte "Hex to dec H <a>", CR
         .byte "BASIC      I", CR
-        .byte "Load       J", CR
+        .byte "Load Srec  J", CR
         .byte "Checksum   K <s><e>",CR
         .byte "Clr screen L", CR
         .byte "Info       N", CR
@@ -3195,6 +3324,7 @@ HelpString:
         .byte "Test       T <s><e>", CR
         .byte "Unassemble U <s>", CR
         .byte "Verify     V <s><e><d>", CR
+        .byte "Write Srec W <st> <e> <g>",CR
         .byte "Monitor    $", CR
         .byte "Write      : <a><d>...", CR
         .byte "Math       = <a>+/-<a>", CR
@@ -3212,7 +3342,7 @@ HelpString:
         .byte "Fill        F <start> <end> <data>...", CR
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
-        .byte "Load        J", CR
+        .byte "Load S rec  J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
@@ -3222,6 +3352,7 @@ HelpString:
         .byte "Test        T <start> <end>", CR
         .byte "Unassemble  U <start>", CR
         .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Write S rec W <start> <end> <go>",CR
         .byte "Monitor     $", CR
         .byte "Write       : <address> <data>...", CR
         .byte "Math        = <address> +/- <address>", CR
@@ -3240,7 +3371,7 @@ HelpString:
         .byte "Go          G <address>", CR
         .byte "Hex to dec  H <address>", CR
         .byte "BASIC       I", CR
-        .byte "Load        J", CR
+        .byte "Load S rec  J", CR
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
@@ -3250,6 +3381,7 @@ HelpString:
         .byte "Test        T <start> <end>", CR
         .byte "Unassemble  U <start>", CR
         .byte "Verify      V <start> <end> <dest>", CR
+        .byte "Write S rec W <start> <end> <go>",CR
         .byte "Write       : <address> <data>...", CR
         .byte "Math        = <address> +/- <address>", CR
         .byte "Trace       .", CR
@@ -3370,3 +3502,7 @@ checksum:  .res 1               ; Calculated checksum
 bytesRead: .res 1               ; Number of record bytes read
 recordType: .res 1              ; S record type field, e.g '9'
 byteCount: .res 1               ; S record byte count field
+startAddress: .res 2            ; S record start address
+endAddress: .res 2              ; S record end address
+goAddress: .res 2               ; S record go address
+bytesWritten: .res 1            ; Number of record bytes written

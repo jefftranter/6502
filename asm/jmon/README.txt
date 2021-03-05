@@ -191,6 +191,12 @@ Verify that memory from start to end matches memory at destination.
 Displays any mismatch. Prompts after each mismatch whether to
 continue.
 
+S RECORD WRITE: W <START> <END> <GO>
+
+Outputs a Motorola hex (RUN or S record) format file from memory.
+Range of memory is from <START> to <END> with the go or execution
+start address <GO>.
+
 WOZ MON: $
 
 Jump to the Woz monitor (Address $FF00) or OSI monitor (Address
