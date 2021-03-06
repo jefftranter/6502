@@ -1644,7 +1644,6 @@ Checksum:
 @NoCarry2:
         JMP @CalcSum
 
-
 ; S Record Loader
 ; Format: J
 ; Load a Motorola hex (RUN or S record) format file into memory. Exits
@@ -1848,24 +1847,28 @@ Writer:
 .endif
         JSR     PrintSpace      ; print space
         JSR     GetAddress      ; prompt for start address
-        STX     startAddress    ; store address
-        STY     startAddress+1
+        STX     SL              ; store address
+        STY     SH
         JSR     PrintSpace      ; print space
         JSR     GetAddress      ; prompt for end address
-        STX     endAddress      ; store address
-        STY     endAddress+1
+        STX     EL              ; store address
+        STY     EH
         JSR     PrintSpace      ; print space
         JSR     GetAddress      ; prompt for go address
-        STX     goAddress       ; store address
-        STY     goAddress+1
+        STX     DL              ; store address
+        STY     DH
         JSR     PrintCR
 
+        JSR     RequireStartNotAfterEnd
+        BCC     @okay
+        RTS
+@okay:
         sta     checksum        ; checksum = $00
         sta     bytesWritten    ; bytesWritten = $00
 
-        lda     startAddress    ; address = startAddress
+        lda     SL              ; address = startAddress
         sta     ADDR
-        lda     startAddress+1
+        lda     SH
         sta     ADDR+1
 
 ; Write S0 record, fixed as: <CR>S0030000FC<CR>
@@ -1910,33 +1913,47 @@ writeLoop1:
         adc     checksum        ; checksum = checksum + byte at address
         sta     checksum
 
+        inc     bytesWritten    ; bytesWritten = bytesWritten + 1
+
+        lda     ADDR+1          ; if address = endAddress, we are done writing
+        cmp     EH
+        bne     dmore
+        lda     ADDR
+        cmp     EL
+        beq     ldone
+
+dmore:
+        lda     bytesWritten    ; if bytesWritten = bytesPerLine
+        cmp     #bytesPerLine
+        beq     ldone           ; end of line
+
         inc     ADDR            ; Increment address (low byte)
         bne     nocarry2
         inc     ADDR+1          ; Increment address (high byte)
 nocarry2:
-        inc     bytesWritten    ; bytesWritten = bytesWritten + 1
+        jmp     writeLoop1      ; go back and loop
 
-        lda     bytesWritten    ; if bytesWritten != bytesPerLine
-        cmp     #bytesPerLine
-        bne     writeLoop1      ; ...go back and loop
-
+ldone:
         lda     checksum        ; Calculate checksum 1's complement
         eor     #$ff
         jsr     PrintByte       ; Output checksum
         jsr     PrintCR         ; Output line terminator
 
-
-        lda     ADDR+1          ; if address <= endAddress, go back and continue
-        cmp     endAddress+1
-        bmi     writes1
-        beq     writes1
+        lda     ADDR+1          ; if address != endAddress, go back and continue
+        cmp     EH
+        bne     bk1
         lda     ADDR
-        cmp     endAddress
-        bmi     writes1
-        beq     writes1
+        cmp     EL
+        beq     writes9
+bk1:
+        inc     ADDR            ; Increment address (low byte)
+        bne     nocarry3
+        inc     ADDR+1          ; Increment address (high byte)
+nocarry3:
+        jmp      writes1
 
 ; Write S9 record
-
+writes9:
         lda     #'S'            ; Write S9
         jsr     PrintChar
         lda     #'9'
@@ -1946,15 +1963,15 @@ nocarry2:
         lda     #$03            ; checksum = 03
         sta     checksum
 
-        ldx     goAddress       ; Send go address
-        ldy     goAddress+1
+        ldx     DL              ; Send go address
+        ldy     DH
         jsr     PrintAddress
 
         lda     checksum        ; checksum = checksum + goAaddress high
         clc
-        adc     goAddress+1
+        adc     DH
         clc
-        adc     goAddress       ; checksum = checksum + goAddress low
+        adc     DL              ; checksum = checksum + goAddress low
         sta     checksum
 
         lda     checksum        ; Calculate checksum 1's complement
@@ -2660,7 +2677,7 @@ DELAY:
 NODELAY:
         RTS
 
-; Check if start address in SH/EH is less than or equal to end address
+; Check if start address in SH/SL is less than or equal to end address
 ; in EH/EL. If so, return with carry clear. If not, print error
 ; message and return with carry set.
 RequireStartNotAfterEnd:
@@ -3502,7 +3519,4 @@ checksum:  .res 1               ; Calculated checksum
 bytesRead: .res 1               ; Number of record bytes read
 recordType: .res 1              ; S record type field, e.g '9'
 byteCount: .res 1               ; S record byte count field
-startAddress: .res 2            ; S record start address
-endAddress: .res 2              ; S record end address
-goAddress: .res 2               ; S record go address
 bytesWritten: .res 1            ; Number of record bytes written
