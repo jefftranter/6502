@@ -230,8 +230,8 @@
 .elseif .defined(KIM1)
   .org $2000
 .elseif .defined(SBC)
- .org $2000                    ; For running out of RAM
-;  .org $E000                    ; For running from ROM
+; .org $2000                    ; For running out of RAM
+  .org $E000                    ; For running from ROM
 .endif
 
 ; JMON Entry point
@@ -1796,11 +1796,11 @@ readRecord:
 nowrite:
         lda     recordType      ; Only increment address if this is an S1 record
         cmp     #'1'
-        bne     nocarry1
+        bne     @nocarry1
         inc     ADDR            ; Increment address (low byte)
-        bne     nocarry1
+        bne     @nocarry1
         inc     ADDR+1          ; Increment address (high byte)
-nocarry1:
+@nocarry1:
         inc     bytesRead       ; Increment bytesRead
         jmp     readRecord      ; Go back and read more data
 
@@ -1863,9 +1863,6 @@ Writer:
         BCC     @okay
         RTS
 @okay:
-        sta     checksum        ; checksum = $00
-        sta     bytesWritten    ; bytesWritten = $00
-
         lda     SL              ; address = startAddress
         sta     ADDR
         lda     SH
@@ -1880,18 +1877,15 @@ Writer:
 writes1:                        ; Write S1 records
         lda     #0
         sta     bytesWritten    ; bytesWritten = 0
-        sta     checksum        ; checksum = 0
 
         lda     #'S'            ; Write "S1"
         jsr     PrintChar
         lda     #'1'
         jsr     PrintChar
 
-        lda     #bytesPerLine   ; write bytesPerLine
+        lda     #bytesPerLine+3 ; write bytesPerLine (+3 for size and address)
+        sta     checksum        ; update checksum
         jsr     PrintByte
-
-        lda     #bytesPerLine   ; checksum = bytesPerLine
-        sta     checksum
 
         ldx      ADDR           ; write address
         ldy      ADDR+1
@@ -1909,48 +1903,32 @@ writeLoop1:
         lda     (ADDR),y
         jsr     PrintByte       ; print byte at address
 
+        lda     (ADDR),y        ; Get back A (modified by PrintByte)
         clc
         adc     checksum        ; checksum = checksum + byte at address
         sta     checksum
 
+        inc     ADDR            ; Increment address (low byte)
+        bne     nocarry1
+        inc     ADDR+1          ; Increment address (high byte)
+nocarry1:
         inc     bytesWritten    ; bytesWritten = bytesWritten + 1
 
-        lda     ADDR+1          ; if address = endAddress, we are done writing
-        cmp     EH
-        bne     dmore
-        lda     ADDR
-        cmp     EL
-        beq     ldone
-
-dmore:
         lda     bytesWritten    ; if bytesWritten = bytesPerLine
         cmp     #bytesPerLine
-        beq     ldone           ; end of line
+        bne     writeLoop1      ; ...go back and loop
 
-        inc     ADDR            ; Increment address (low byte)
-        bne     nocarry2
-        inc     ADDR+1          ; Increment address (high byte)
-nocarry2:
-        jmp     writeLoop1      ; go back and loop
-
-ldone:
         lda     checksum        ; Calculate checksum 1's complement
         eor     #$ff
         jsr     PrintByte       ; Output checksum
         jsr     PrintCR         ; Output line terminator
 
-        lda     ADDR+1          ; if address != endAddress, go back and continue
+        lda     ADDR+1          ; if address < endAddress, go back and continue
         cmp     EH
-        bne     bk1
+        bmi     writes1
         lda     ADDR
         cmp     EL
-        beq     writes9
-bk1:
-        inc     ADDR            ; Increment address (low byte)
-        bne     nocarry3
-        inc     ADDR+1          ; Increment address (high byte)
-nocarry3:
-        jmp      writes1
+        bmi     writes1
 
 ; Write S9 record
 writes9:
