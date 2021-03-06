@@ -88,7 +88,7 @@
 ; 1.3.4  26-Feb-2020   Fix bug in disassembler address incrementing.
 ;                      Tested on real OSI Superboard II.
 ; 1.3.5  13-Dec-2020   Added port to my Single Board Computer
-; 1.3.6  03-Mar-2021   Add J (S record loading) and W (S record writing) command.
+; 1.3.6  03-Mar-2021   Add J (S record loading) and W (S record writing) commands.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -231,7 +231,7 @@
   .org $2000
 .elseif .defined(SBC)
 ; .org $2000                    ; For running out of RAM
-  .org $E000                    ; For running from ROM
+  .org $DF00                    ; For running from ROM
 .endif
 
 ; JMON Entry point
@@ -1768,7 +1768,6 @@ getadd:
         inc     bytesRead
 
 readRecord:
-
         lda     bytesRead       ; If bytesRead+1 = byteCount (have to allow for checksum byte)
         clc
         adc     #1
@@ -1891,11 +1890,11 @@ writes1:                        ; Write S1 records
         ldy      ADDR+1
         jsr      PrintAddress
 
-        lda      checksum       ; checksum = checksum + addressHigh
+        lda      checksum       ; checksum = checksum + address high
         clc
         adc      ADDR+1
         clc
-        adc      ADDR           ; checksum = checksum + addressLow
+        adc      ADDR           ; checksum = checksum + address low
         sta      checksum
 
 writeLoop1:
