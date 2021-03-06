@@ -5808,17 +5808,17 @@ WaitForKeypress:
 	JSR	MONRDKEY
 	BCC	WaitForKeypress
 	
-	AND	#$DF			; Make upper case
-	CMP	#'W'			; compare with [W]arm start
+	AND	#$DF		; Make upper case
+	CMP	#'W'		; compare with [W]arm start
 	BEQ	WarmStart
 
-	CMP	#'C'			; compare with [C]old start
+	CMP	#'C'		; compare with [C]old start
 	BEQ	ColdStart
 
-	CMP	#'M'			; compare with [M]onitor
+	CMP	#'M'		; compare with [M]onitor
 	BNE	Reset
 
-	JMP	$E000		; JMON monitor
+	JMP	$DF00           ; JMON monitor
 
 WarmStart:
 	JMP	RESTART		; BASIC warm start
