@@ -5,7 +5,11 @@
 #PLATFORM=KIM1
 PLATFORM=SBC
 
-all: jmon.mon jmon.lod jmon.ptp jmon.jm
+all: jmon.mon jmon.lod jmon.ptp jmon.jm jmon.run
+
+# RUN file
+jmon.run: jmon.bin
+	srec_cat jmon.bin -binary -offset 0x2000 -o jmon.run -Execution_Start_Address 0x0000
 
 # JMON load file
 jmon.jm: jmon.bin
@@ -37,4 +41,4 @@ archive: jmon.mon
 	zip jmon-0.4.zip jmon.s disasm.s miniasm.s trace.s info.s memtest4.s README.txt jmon.mon Makefile
 
 clean:
-	$(RM) jmon.o jmon.lst jmon.map jmon.bin jmon.lod jmon.mon jmon.ptp jmon.jm
+	$(RM) jmon.o jmon.lst jmon.map jmon.bin jmon.lod jmon.mon jmon.ptp jmon.jm jmon.run
