@@ -74,7 +74,6 @@ writer:
         ldy     #>S0String
         jsr     PrintString
 
-
 writes1:                        ; Write S1 records
         lda     #0
         sta     bytesWritten    ; bytesWritten = 0
@@ -85,7 +84,7 @@ writes1:                        ; Write S1 records
         lda     #'1'
         jsr     PrintChar
 
-        lda     #bytesPerLine   ; write bytesPerLine
+        lda     #bytesPerLine+3 ; write bytesPerLine (+3 for size and address)
         jsr     PrintByte
 
         lda     #bytesPerLine   ; checksum = bytesPerLine
@@ -125,7 +124,6 @@ nocarry1:
         eor     #$ff
         jsr     PrintByte       ; Output checksum
         jsr     PrintCR         ; Output line terminator
-
 
         lda     address+1       ; if address <= endAddress, go back and continue
         cmp     endAddress+1
