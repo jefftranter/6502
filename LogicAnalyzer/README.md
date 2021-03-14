@@ -15,15 +15,18 @@ Included here are the Arduino sketch and circuit schematic diagram.
 
 Parts List:
 
+```
 1  Teensy 4.1 Microcontroller
 4  74LVC245AN Octal Level Shifter
 1  40-in DIP clip
 -  Ribbon cables to DIP clip
 -  Breadboard or proto board
 4  0.1uF bypass caps (optional)
+```
 
 Sample Session:
 
+```
 6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>
 Type help or ? for help.
 % ?
@@ -60,3 +63,4 @@ FF0B  R  00
 FF0C  R  01                
 0100  W  00                
 FF0D  I  A5  LDA 0
+```
