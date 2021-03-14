@@ -108,6 +108,15 @@ Linux you can use the program ascii-xfer, for example. I find that a
 line delay of 100ms and a character delay of 20ms is sufficient for
 Basic programs.
 
+FUTURE WORK
+
+The SYNC signal from the 6502 would be useful in some applications and
+should be brought out to one of the connectors (probably the VIA as
+there are no spare pins on the expansion connector.
+
+It would be interesting to modify the design to use 14 MHz WDC 65C02,
+65C51, and 65C22 parts and see how high a clock rate I can run it at.
+
 LICENSING
 
 The PCB layout is Open Source Hardware, licensed under the The TAPR
