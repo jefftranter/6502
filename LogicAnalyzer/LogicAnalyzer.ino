@@ -1,12 +1,16 @@
 /*
 
-   Logic Analyzer for 6502 microprocessor.
+   Logic Analyzer for 6502 microprocessor based on a Teensy 4.1
+   microcontroller.
+
+   See https://github.com/jefftranter/6502/tree/master/LogicAnalyzer
 
    Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
 
 */
 
-// Maximum buffer size (increase if needed).
+// Maximum buffer size (in samples). Increase if needed; should be
+// able to go up to about 39,000 before running out of memory.
 #define BUFFSIZE 1000
 
 // Some pin numbers
@@ -23,7 +27,7 @@ uint32_t triggerAddress;    // Address to trigger on
 uint32_t triggerBits;       // GPIO bit pattern to trigger on
 uint32_t triggerMask;       // bitmask of GPIO bits
 uint32_t addressBits;       // Current address read
-int samples = 20;          // Number of samples to record (up to BUFFSIZE).
+int samples = 20;           // Number of samples to record (up to BUFFSIZE).
 
 
 // Instructions for disassembler.
@@ -123,11 +127,13 @@ void list()
       String s = opcode;
       // Fill in operands
       if (s.indexOf("nnnn") != -1) {
-        String op = String(data[i + 1] + 256 * data[i + 2], HEX);
+        char op[5];
+        sprintf(op, "%04lX", data[i + 1] + 256 * data[i + 2]);
         s.replace("nnnn", op);
       }
       if (s.indexOf("nn") != -1) {
-        String op = String(data[i + 1], HEX);
+        char op[3];
+        sprintf(op, "%02lX", data[i + 1]);
         s.replace("nn", op);
       }
       opcode = s.c_str();
