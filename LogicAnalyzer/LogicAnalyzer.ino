@@ -7,10 +7,19 @@
 
    Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
 
+
+  Possible enhancements:
+  - Option to record immmediately without trigger.
+  - Reset using interrupt on input line (to cancel waiting for trigger).
+  - Option to export to CSV format
+  - Command to save logs to local microSD card
+  - Qualify trigger to be on address read or write.
+  - Trigger on data or control line state.
+
 */
 
 // Maximum buffer size (in samples). Increase if needed; should be
-// able to go up to about 39,000 before running out of memory.
+// able to go up to at least 30,000 before running out of memory.
 #define BUFFSIZE 1000
 
 // Some pin numbers
@@ -18,6 +27,8 @@
 #define RESET 5
 #define IRQ 29
 #define NMI 33
+
+const char *versionString = "6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>";
 
 // Global variables
 uint32_t control[BUFFSIZE]; // Recorded control line data
@@ -27,10 +38,10 @@ uint32_t triggerAddress;    // Address to trigger on
 uint32_t triggerBits;       // GPIO bit pattern to trigger on
 uint32_t triggerMask;       // bitmask of GPIO bits
 uint32_t addressBits;       // Current address read
-int samples = 20;           // Number of samples to record (up to BUFFSIZE).
+int samples = 20;           // Number of samples to record (up to BUFFSIZE)
 
 
-// Instructions for disassembler.
+// Instructions for 6502 disassembler.
 const char *opcodes[] = {
   "BRK", "ORA (nn,X)", "?", "?", "?", "ORA nn", "ASL nn", "?",
   "PHP", "ORA #nn", "ASLA", "?", "?", "ORA nnnn", "ASL nnnn", "?",
@@ -86,7 +97,7 @@ void setup() {
   }
 
   Serial.setTimeout(60000);
-  Serial.println("6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>");
+  Serial.println(versionString);
   Serial.println("Type help or ? for help.");
 }
 
@@ -94,17 +105,17 @@ void setup() {
 // Display settings and help info.
 void help()
 {
-  Serial.println("6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>");
+  Serial.println(versionString);
   Serial.print("Trigger address: ");
   Serial.println(triggerAddress, HEX);
   Serial.print("Sample buffer size: ");
   Serial.println(samples);
   Serial.println("Commands:");
-  Serial.println("  samples <number>");
-  Serial.println("  trigger <address>");
-  Serial.println("  go");
-  Serial.println("  list");
-  Serial.println("  help or ?");
+  Serial.println("  s[amples] <number>");
+  Serial.println("  t[rigger] <address>");
+  Serial.println("  g[o]");
+  Serial.println("  l]ist]");
+  Serial.println("  h[elp] or ?");
 }
 
 
@@ -258,7 +269,9 @@ void go()
     data[i] = GPIO7_PSR;
   }
 
-  Serial.println("Data recorded.");
+  Serial.print("Data recorded (");
+  Serial.print(samples);
+  Serial.println(" samples).");
   unscramble();
 }
 
@@ -322,6 +335,14 @@ void loop() {
         // End of command line.
         break;
       }
+
+      if ((c == '\b') || (c == 0x7f)) { // Handle backspace or delete
+        if (cmd.length() > 0) {
+           cmd = cmd.remove(cmd.length() - 1); // Remove last character
+           Serial.print("\b \b"); // Backspace over last character entered.
+           continue;
+        }
+      }
       if (c != -1) {
         Serial.write((char)c); // Echo character
         cmd += (char)c; // Append to command string
@@ -332,8 +353,15 @@ void loop() {
 
     if ((cmd == "help") || (cmd == "?") || (cmd == "h")) {
       help();
-    } else if (cmd.startsWith("samples ")) {
-      int n = cmd.substring(8).toInt();
+
+    } else if (cmd.startsWith("samples ") || cmd.startsWith("s ")) {
+      int n = 0;
+      if (cmd.startsWith("samples ")) {
+        n = cmd.substring(8).toInt();
+      }  else if (cmd.startsWith("s ")) {
+        n = cmd.substring(2).toInt();
+      }
+
       if ((n >= 0) && (n <= BUFFSIZE)) {
         samples = n;
       } else {
@@ -341,17 +369,27 @@ void loop() {
         Serial.print(BUFFSIZE);
         Serial.println(".");
       }
-    } else if (cmd.startsWith("trigger ")) {
-      int n = strtol(cmd.substring(8).c_str(), NULL, 16);
+
+    } else if (cmd.startsWith("trigger ") || cmd.startsWith("t ")) {
+      int n = 0;
+      if (cmd.startsWith("trigger ")) {
+        n = strtol(cmd.substring(8).c_str(), NULL, 16);
+      } else if (cmd.startsWith("t ")) {
+        n = strtol(cmd.substring(2).c_str(), NULL, 16);
+      }
+
       if ((n >= 0) && (n <= 0xffff)) {
         triggerAddress = n;
       } else {
         Serial.println("Invalid address, must be between 0 and FFFF.");
       }
+
     } else if ((cmd == "go") || (cmd == "g")) {
       go();
+
     } else if ((cmd == "list") || (cmd == "l")) {
       list();
+
     } else {
       Serial.print("Invalid command: '");
       Serial.print(cmd);

@@ -8,8 +8,8 @@ There is a simple command line interface over the microcontroller's
 USB serial interface that allows you to set parameters, such as the
 address to trigger on, and to capture and list the recorded data.
 
-So far it has been built on a breadboard and tested with my 6502
-single board computer with a 65C02 running at 2 MHz.
+It has been built on a protoboard and tested with my 6502 single board
+computer with a 65C02 running at 2 MHz.
 
 Included here are the Arduino sketch and circuit schematic diagram.
 
@@ -64,3 +64,22 @@ FF0C  R  01
 0100  W  00                
 FF0D  I  A5  LDA 0
 ```
+
+Construction Notes
+
+I initially built the circuit on a solderless breadboard and then made
+a more permanent unit on a proto board. See the photos.
+
+I used a 40-pin DIP clip that had pins that fit standard 0.1" headers.
+I used two old floppy disk ribbon cables that had suitable female
+connectors on each end, but you could wire up two 20-pin ribbon cables
+as needed.
+
+The only hardware on the board, other than connectors, are the
+74LVC245 chips which are needed to convert the 5V levels of the 6502
+to the 3.3V levels used by the Teensy 4.1. Bypass capacitors across
+each of the ICs are good practice.
+
+The code is specific to the Teensy 4.1 and will not work with other
+microcontrollers without changes as it uses direct access to the GPIO
+registers. It uses the Teensyduino add-on to the Arduino IDE.
