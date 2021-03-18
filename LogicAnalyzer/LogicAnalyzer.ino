@@ -9,9 +9,8 @@
 
 
   Possible enhancements:
-  - Reset using interrupt on input line (to cancel waiting for trigger).
-  - Option to export to CSV format.
   - Command to save logs to local microSD card.
+  - Trigger on state of SPARE1 or SPARE2 pin
   - Qualify trigger to be on address read or write.
   - Trigger on data or control line state.
   - Disassemble 65C02 instructions.
@@ -27,6 +26,7 @@
 #define RESET 5
 #define IRQ 29
 #define NMI 33
+#define BUTTON 31
 
 const char *versionString = "6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>";
 
@@ -40,6 +40,7 @@ uint32_t triggerMask;       // bitmask of GPIO bits
 uint32_t addressBits;       // Current address read
 int samples = 20;           // Number of samples to record (up to BUFFSIZE)
 bool freerun = false;       // Indicates trigger or free-run mode (no trigger)
+volatile bool triggerPressed = false; // Set by hardware trigger button
 
 // Instructions for 6502 disassembler.
 const char *opcodes[] = {
@@ -92,6 +93,9 @@ void setup() {
   // Default trigger address to reset vector
   triggerAddress = 0xfffc;
 
+  // Low on this pin forces a trigger.
+  attachInterrupt(digitalPinToInterrupt(BUTTON), triggerButton, FALLING);
+
   Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB.
@@ -102,6 +106,10 @@ void setup() {
   Serial.println("Type help or ? for help.");
 }
 
+void triggerButton()
+{
+  triggerPressed = true;
+}
 
 // Display settings and help info.
 void help()
@@ -119,7 +127,8 @@ void help()
   Serial.println("  s[amples] <number>");
   Serial.println("  t[rigger] <address>|none");
   Serial.println("  g[o]");
-  Serial.println("  l]ist]");
+  Serial.println("  l[ist]");
+  Serial.println("  e[xport]");
   Serial.println("  h[elp] or ?");
 }
 
@@ -190,9 +199,42 @@ void list()
 }
 
 
+// Show the recorded data in CSV format (e.g. to export to spreadsheet or other program).
+void exportCSV()
+{
+  // Output header
+  Serial.println("Index,SYNC,R/W,/RESET,/IRQ,/NMI,Address,Data");
+
+  // Display data
+  for (int i = 0; i < samples; i++) {
+    char output[50]; // Holds output string
+    bool sync = control[i] & 0x10;
+    bool rw = control[i] & 0x08;
+    bool reset = control[i] & 0x04;
+    bool irq = control[i] & 0x02;
+    bool nmi = control[i] & 0x01;
+
+    sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
+            i,
+            sync ? '1' : '0',
+            rw ? '1' : '0',
+            reset ? '1' : '0',
+            irq ? '1' : '0',
+            nmi ? '1' : '0',
+            address[i],
+            data[i]
+           );
+
+    Serial.println(output);
+  }
+}
+
+
 // Start recording.
 void go()
 {
+  triggerPressed = false;
+
   // Scramble the trigger address to match what we will read on the
   // GPIO pins:
   // GPIO:  31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
@@ -238,8 +280,8 @@ void go()
       // Read address lines
       addressBits = GPIO6_PSR;
 
-      // Break out of loop if trigger address seen
-      if ((addressBits & triggerMask) == (triggerBits & triggerMask)) {
+      // Break out of loop if trigger address seen or trigger button pressed
+      if (((addressBits & triggerMask) == (triggerBits & triggerMask)) || triggerPressed) {
         // Read control and data lines to get our first sample
         address[0] = addressBits;
         control[0] = GPIO9_PSR;
@@ -419,6 +461,9 @@ void loop() {
 
     } else if ((cmd == "list") || (cmd == "l")) {
       list();
+
+    } else if ((cmd == "export") || (cmd == "e")) {
+      exportCSV();
 
     } else {
       Serial.print("Invalid command: '");

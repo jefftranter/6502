@@ -34,11 +34,12 @@ Type help or ? for help.
 Trigger address: FFFC
 Sample buffer size: 20
 Commands:
-  samples <number>
-  trigger <address>
-  go
-  list
-  help or ?
+  s[amples] <number>
+  t[rigger] <address>|none
+  g[o]
+  l[ist]
+  e[xport]
+  h[elp] or ?
 % go
 Waiting for trigger address FFFC...
 Data recorded.
@@ -78,7 +79,8 @@ as needed.
 The only hardware on the board, other than connectors, are the
 74LVC245 chips which are needed to convert the 5V levels of the 6502
 to the 3.3V levels used by the Teensy 4.1. Bypass capacitors across
-each of the ICs are good practice.
+each of the ICs are good practice. A pushbutton allows you to manually
+force a trigger while the unit is waiting for a trigger.
 
 The code is specific to the Teensy 4.1 and will not work with other
 microcontrollers without changes as it uses direct access to the GPIO
