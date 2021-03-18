@@ -9,12 +9,12 @@
 
 
   Possible enhancements:
-  - Option to record immmediately without trigger.
   - Reset using interrupt on input line (to cancel waiting for trigger).
-  - Option to export to CSV format
-  - Command to save logs to local microSD card
+  - Option to export to CSV format.
+  - Command to save logs to local microSD card.
   - Qualify trigger to be on address read or write.
   - Trigger on data or control line state.
+  - Disassemble 65C02 instructions.
 
 */
 
@@ -39,7 +39,7 @@ uint32_t triggerBits;       // GPIO bit pattern to trigger on
 uint32_t triggerMask;       // bitmask of GPIO bits
 uint32_t addressBits;       // Current address read
 int samples = 20;           // Number of samples to record (up to BUFFSIZE)
-
+bool freerun = false;       // Indicates trigger or free-run mode (no trigger)
 
 // Instructions for 6502 disassembler.
 const char *opcodes[] = {
@@ -89,7 +89,8 @@ void setup() {
   // Will use on-board LED to indicate triggering.
   pinMode(CORE_LED0_PIN, OUTPUT);
 
-  triggerAddress = 0xfffc; // Reset vector
+  // Default trigger address to reset vector
+  triggerAddress = 0xfffc;
 
   Serial.begin(115200);
   while (!Serial) {
@@ -107,12 +108,16 @@ void help()
 {
   Serial.println(versionString);
   Serial.print("Trigger address: ");
-  Serial.println(triggerAddress, HEX);
+  if (freerun) {
+    Serial.println("none (freerun)");
+  } else {
+    Serial.println(triggerAddress, HEX);
+  }
   Serial.print("Sample buffer size: ");
   Serial.println(samples);
   Serial.println("Commands:");
   Serial.println("  s[amples] <number>");
-  Serial.println("  t[rigger] <address>");
+  Serial.println("  t[rigger] <address>|none");
   Serial.println("  g[o]");
   Serial.println("  l]ist]");
   Serial.println("  h[elp] or ?");
@@ -157,7 +162,7 @@ void list()
       opcode = "";
     }
 
-    // Check for /RESET, /IRQ, or /NMI active
+    // Check for /RESET, /IRQ, or /NMI active, vector address, or stack access
     if (!(control[i] & 0x04)) {
       comment = "RESET ACTIVE";
     } else if (!(control[i] & 0x02)) {
@@ -212,15 +217,45 @@ void go()
 
   triggerMask = 0b11001111110011110011000000001100;
 
-  // Wait for trigger condition (trigger address).
-  Serial.print("Waiting for trigger address ");
-  Serial.print(triggerAddress, HEX);
-  Serial.println("...");
-  Serial.flush();
+  if (!freerun) { // Wait for trigger mode
 
-  digitalWriteFast(CORE_LED0_PIN, HIGH); // Indicates waiting for trigger
+    // Wait for trigger condition (trigger address).
+    Serial.print("Waiting for trigger address ");
+    Serial.print(triggerAddress, HEX);
+    Serial.println("...");
+    Serial.flush();
 
-  while (true) {
+    digitalWriteFast(CORE_LED0_PIN, HIGH); // Indicates waiting for trigger
+
+    while (true) {
+
+      // Wait for PHI2 to go from low to high
+      while (digitalReadFast(PHI2) == HIGH)
+        ;
+      while (digitalReadFast(PHI2) == LOW)
+        ;
+
+      // Read address lines
+      addressBits = GPIO6_PSR;
+
+      // Break out of loop if trigger address seen
+      if ((addressBits & triggerMask) == (triggerBits & triggerMask)) {
+        // Read control and data lines to get our first sample
+        address[0] = addressBits;
+        control[0] = GPIO9_PSR;
+        // Wait for PHI2 to go from high to low
+        while (digitalReadFast(PHI2) == HIGH)
+          ;
+        // Read data lines
+        data[0] = GPIO7_PSR;
+        // Exit loop
+        break;
+      }
+    }
+
+    digitalWriteFast(CORE_LED0_PIN, LOW); // Indicates received trigger
+
+  } else { // Freerun mode, immediately read first sample
 
     // Wait for PHI2 to go from low to high
     while (digitalReadFast(PHI2) == HIGH)
@@ -228,25 +263,17 @@ void go()
     while (digitalReadFast(PHI2) == LOW)
       ;
 
-    // Read address lines
-    addressBits = GPIO6_PSR;
+    // Read address and control lines
+    control[0] = GPIO9_PSR;
+    address[0] = GPIO6_PSR;
 
-    // Break out of loop if trigger address seen
-    if ((addressBits & triggerMask) == (triggerBits & triggerMask)) {
-      // Read control and data lines to get our first sample
-      address[0] = addressBits;
-      control[0] = GPIO9_PSR;
-      // Wait for PHI2 to go from high to low
-      while (digitalReadFast(PHI2) == HIGH)
-        ;
-      // Read data lines
-      data[0] = GPIO7_PSR;
-      // Exit loop
-      break;
-    }
+    // Wait for PHI2 to go from high to low
+    while (digitalReadFast(PHI2) == HIGH)
+      ;
+
+    // Read data lines
+    data[0] = GPIO7_PSR;
   }
-
-  digitalWriteFast(CORE_LED0_PIN, LOW); // Indicates received trigger
 
   // Trigger received, now fill buffer with samples.
   for (int i = 1; i < samples; i++) {
@@ -338,9 +365,9 @@ void loop() {
 
       if ((c == '\b') || (c == 0x7f)) { // Handle backspace or delete
         if (cmd.length() > 0) {
-           cmd = cmd.remove(cmd.length() - 1); // Remove last character
-           Serial.print("\b \b"); // Backspace over last character entered.
-           continue;
+          cmd = cmd.remove(cmd.length() - 1); // Remove last character
+          Serial.print("\b \b"); // Backspace over last character entered.
+          continue;
         }
       }
       if (c != -1) {
@@ -370,6 +397,8 @@ void loop() {
         Serial.println(".");
       }
 
+    } else if ((cmd == "t none") || (cmd == "trigger none")) {
+      freerun = true;
     } else if (cmd.startsWith("trigger ") || cmd.startsWith("t ")) {
       int n = 0;
       if (cmd.startsWith("trigger ")) {
@@ -380,6 +409,7 @@ void loop() {
 
       if ((n >= 0) && (n <= 0xffff)) {
         triggerAddress = n;
+        freerun = false;
       } else {
         Serial.println("Invalid address, must be between 0 and FFFF.");
       }
