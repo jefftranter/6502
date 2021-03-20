@@ -155,7 +155,7 @@ void help()
 // List recorded data.
 void list(Stream &stream)
 {
-  char output[32]; // Holds output string
+  char output[50]; // Holds output string
 
   // Display data
   for (int i = 0; i < samples; i++) {
