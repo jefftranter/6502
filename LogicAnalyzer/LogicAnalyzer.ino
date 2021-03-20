@@ -9,17 +9,31 @@
 
 
   Possible enhancements:
-  - Command to save logs to local microSD card.
-  - Trigger on state of SPARE1 or SPARE2 pin
   - Qualify trigger to be on address read or write.
   - Trigger on data or control line state.
+  - Trigger on state of SPARE1 or SPARE2 pin
   - Disassemble 65C02 instructions.
+
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 
 */
 
+#include <SD.h>
+
 // Maximum buffer size (in samples). Increase if needed; should be
 // able to go up to at least 30,000 before running out of memory.
-#define BUFFSIZE 1000
+#define BUFFSIZE 5000
 
 // Some pin numbers
 #define PHI2 2
@@ -28,19 +42,20 @@
 #define NMI 33
 #define BUTTON 31
 
-const char *versionString = "6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "6502 Logic Analyzer version 0.2 by Jeff Tranter <tranter@pobox.com>";
 
 // Global variables
-uint32_t control[BUFFSIZE]; // Recorded control line data
-uint32_t address[BUFFSIZE]; // Recorded address data
-uint32_t data[BUFFSIZE];    // Recorded data lines
-uint32_t triggerAddress;    // Address to trigger on
-uint32_t triggerBits;       // GPIO bit pattern to trigger on
-uint32_t triggerMask;       // bitmask of GPIO bits
-uint32_t addressBits;       // Current address read
-int samples = 20;           // Number of samples to record (up to BUFFSIZE)
-bool freerun = false;       // Indicates trigger or free-run mode (no trigger)
+uint32_t control[BUFFSIZE];           // Recorded control line data
+uint32_t address[BUFFSIZE];           // Recorded address data
+uint32_t data[BUFFSIZE];              // Recorded data lines
+uint32_t triggerAddress;              // Address to trigger on
+uint32_t triggerBits;                 // GPIO bit pattern to trigger on
+uint32_t triggerMask;                 // bitmask of GPIO bits
+uint32_t addressBits;                 // Current address read
+int samples = 20;                     // Number of samples to record (up to BUFFSIZE)
+bool freerun = false;                 // Indicates trigger or free-run mode (no trigger)
 volatile bool triggerPressed = false; // Set by hardware trigger button
+
 
 // Instructions for 6502 disassembler.
 const char *opcodes[] = {
@@ -93,7 +108,7 @@ void setup() {
   // Default trigger address to reset vector
   triggerAddress = 0xfffc;
 
-  // Low on this pin forces a trigger.
+  // Manual trigger button - low on this pin forces a trigger.
   attachInterrupt(digitalPinToInterrupt(BUTTON), triggerButton, FALLING);
 
   Serial.begin(115200);
@@ -106,10 +121,13 @@ void setup() {
   Serial.println("Type help or ? for help.");
 }
 
+
+// Interrupt handler for trigger button.
 void triggerButton()
 {
   triggerPressed = true;
 }
+
 
 // Display settings and help info.
 void help()
@@ -124,17 +142,18 @@ void help()
   Serial.print("Sample buffer size: ");
   Serial.println(samples);
   Serial.println("Commands:");
-  Serial.println("  s[amples] <number>");
-  Serial.println("  t[rigger] <address>|none");
-  Serial.println("  g[o]");
-  Serial.println("  l[ist]");
-  Serial.println("  e[xport]");
-  Serial.println("  h[elp] or ?");
+  Serial.println("  s[amples] <number>        - Set number of samples");
+  Serial.println("  t[rigger] <address>|none  - Set trigger address");
+  Serial.println("  g[o]                      - Start analyzer");
+  Serial.println("  l[ist]                    - List samples");
+  Serial.println("  e[xport]                  - Export samples as CSV");
+  Serial.println("  w[write]                  - Write data to SD card");
+  Serial.println("  h[elp] or ?               - Show command usage");
 }
 
 
 // List recorded data.
-void list()
+void list(Stream &stream)
 {
   char output[32]; // Holds output string
 
@@ -194,16 +213,16 @@ void list()
             address[i], cycle, data[i], opcode, comment
            );
 
-    Serial.println(output);
+    stream.println(output);
   }
 }
 
 
 // Show the recorded data in CSV format (e.g. to export to spreadsheet or other program).
-void exportCSV()
+void exportCSV(Stream &stream)
 {
   // Output header
-  Serial.println("Index,SYNC,R/W,/RESET,/IRQ,/NMI,Address,Data");
+  stream.println("Index,SYNC,R/W,/RESET,/IRQ,/NMI,Address,Data");
 
   // Display data
   for (int i = 0; i < samples; i++) {
@@ -225,7 +244,52 @@ void exportCSV()
             data[i]
            );
 
-    Serial.println(output);
+    stream.println(output);
+  }
+}
+
+
+// Write the recorded data to files on the internal SD card slot.
+void writeSD()
+{
+  const char *CSV_FILE = "analyzer.csv";
+  const char *TXT_FILE = "analyzer.txt";
+
+  if (!SD.begin(BUILTIN_SDCARD)) {
+    Serial.println("Unable to initialize internal SD card.");
+    return;
+  }
+
+  // Remove any existing file
+  if (SD.exists(CSV_FILE)) {
+    SD.remove(CSV_FILE);
+  }
+
+  File file = SD.open(CSV_FILE, FILE_WRITE);
+  if (file) {
+    Serial.print("Writing ");
+    Serial.println(CSV_FILE);
+    exportCSV(file);
+    file.close();
+  } else {
+    Serial.print("Unable to write ");
+    Serial.println(CSV_FILE);
+  }
+
+  // Remove any existing file
+  if (SD.exists(TXT_FILE)) {
+    SD.remove(TXT_FILE);
+  }
+
+  file = SD.open(TXT_FILE, FILE_WRITE);
+  if (file) {
+    Serial.print("Writing ");
+    Serial.println(TXT_FILE);
+    list(file);
+    file.close();
+  } else {
+    Serial.print("Unable to write ");
+    Serial.println(TXT_FILE);
   }
 }
 
@@ -390,6 +454,7 @@ void unscramble()
   }
 }
 
+
 void loop() {
   String cmd;
 
@@ -460,15 +525,20 @@ void loop() {
       go();
 
     } else if ((cmd == "list") || (cmd == "l")) {
-      list();
+      list(Serial);
 
     } else if ((cmd == "export") || (cmd == "e")) {
-      exportCSV();
+      exportCSV(Serial);
+
+    } else if ((cmd == "write") || (cmd == "w")) {
+      writeSD();
 
     } else {
-      Serial.print("Invalid command: '");
-      Serial.print(cmd);
-      Serial.println("'!");
+      if (cmd != "") {
+        Serial.print("Invalid command: '");
+        Serial.print(cmd);
+        Serial.println("'!");
+      }
     }
   }
 }
