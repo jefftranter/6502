@@ -13,6 +13,9 @@ computer with a 65C02 running at 2 MHz.
 
 Included here are the Arduino sketch and circuit schematic diagram.
 
+A version is also avalable for the 6809 microprocessor, including an
+Arduino sketch.
+
 Parts List:
 
 ```
@@ -85,3 +88,6 @@ force a trigger while the unit is waiting for a trigger.
 The code is specific to the Teensy 4.1 and will not work with other
 microcontrollers without changes as it uses direct access to the GPIO
 registers. It uses the Teensyduino add-on to the Arduino IDE.
+
+The 6809 version is similar but does not support disassembly as this
+is harder to do for the 6502 than the 6809.
