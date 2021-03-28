@@ -572,7 +572,7 @@ Copy:
         BNE @NotDone1
         LDA SL
         CMP EL
-        BNE @NotDone
+        BNE @NotDone1
         RTS                     ; done
 @NotDone1:
         LDA SL                  ; increment start address
