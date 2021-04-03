@@ -6,7 +6,7 @@ lines in real time.
 
 There is a simple command line interface over the microcontroller's
 USB serial interface that allows you to set parameters, such as the
-address to trigger on, and to capture and list the recorded data.
+state to trigger on, and to capture and list the recorded data.
 
 It has been built on a protoboard and tested with my 6502 single board
 computer with a 65C02 running at 2 MHz.
@@ -57,28 +57,27 @@ h or ?               - Show command usage
 Waiting for trigger...
 Data recorded (20 samples).
 % l
-FFFC  R  00                **** TRIGGER ****
+01FA  W  FF                STACK ACCESS
+01F9  W  5A                RESET ACTIVE
+01F8  W  A4                RESET ACTIVE
+FFFC  R  00                <--- TRIGGER ----
 FFFD  R  FF                RESET VECTOR
 FF00  I  A2  LDX #FC       RESET ACTIVE
 FF01  R  FC                RESET ACTIVE
-FF02  I  9A  TXS           
+FF02  I  9A  TXS           RESET ACTIVE
 FF03  R  A9                RESET ACTIVE
 FF03  I  A9  LDA #15       RESET ACTIVE
-FF04  R  15                
+FF04  R  15                RESET ACTIVE
 FF05  I  8D  STA A000      RESET ACTIVE
-FF06  R  00                
+FF06  R  00                RESET ACTIVE
 FF07  R  A0                RESET ACTIVE
 A000  W  15                RESET ACTIVE
-FF08  I  A5  LDA 00        
+FF08  I  A5  LDA 00        RESET ACTIVE
 FF09  R  00                
 0000  R  00                RESET ACTIVE
-FF0A  I  8D  STA 0100      RESET ACTIVE
-FF0B  R  00                RESET ACTIVE
-FF0C  R  01                
-0100  W  00                RESET ACTIVE
-FF0D  I  A5  LDA 00        RESET ACTIVE
+FF0A  I  8D  STA FF00      RESET ACTIVE
+FF0B  R  00
 ```
-
 
 Construction Notes
 
@@ -100,5 +99,5 @@ The code is specific to the Teensy 4.1 and will not work with other
 microcontrollers without changes as it uses direct access to the GPIO
 registers. It uses the Teensyduino add-on to the Arduino IDE.
 
-The 6809 version is similar but does not support disassembly as this
+The 6809 version is similar, but does not support disassembly as this
 is harder to do for the 6502 than the 6809.

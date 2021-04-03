@@ -8,9 +8,6 @@
    Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
 
 
-  To Do:
-  - Implement pretrigger feature
-
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -43,9 +40,9 @@
 #define BUTTON 31
 
 #ifdef D65C02
-const char *versionString = "65C02 Logic Analyzer version 0.22 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "65C02 Logic Analyzer version 0.23 by Jeff Tranter <tranter@pobox.com>";
 #else
-const char *versionString = "6502 Logic Analyzer version 0.22 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "6502 Logic Analyzer version 0.23 by Jeff Tranter <tranter@pobox.com>";
 #endif // D65C02
 
 // Macros
@@ -68,7 +65,7 @@ uint32_t cTriggerMask;                // bitmask of GPIO control bits
 uint32_t dTriggerBits;                // GPIO bit pattern to trigger data on
 uint32_t dTriggerMask;                // bitmask of GPIO data bits
 int samples = 20;                     // Total number of samples to record (up to BUFFSIZE)
-int pretrigger = 0;                   // Number of samples to record before trigger (up to BUFFSIZE)
+int pretrigger = 3;                   // Number of samples to record before trigger (up to samples)
 int triggerPoint = 0;                 // Sample in buffer corresponding to trigger point
 trigger_t triggerMode = tr_address;   // Type of trigger
 cycle_t triggerCycle = tr_either;     // Trigger on read, write, or either
@@ -275,11 +272,18 @@ void list(Stream &stream, int start, int end)
 {
   char output[50]; // Holds output string
 
+  int first = (triggerPoint - pretrigger + samples) % samples;
+  int last = (triggerPoint - pretrigger + samples - 1) % samples;
+
   // Display data
-  for (int i = start; i <= end; i++) {
+  int i = first;
+  int j = 0;
+  while (true) {
     char cycle;
     const char *opcode;
     const char *comment;
+
+    if ((j >= start) && (j <= end)) {
 
     // SYNC high indicates opcode/instruction fetch, otherwise show as read or
     // write.
@@ -329,7 +333,7 @@ void list(Stream &stream, int start, int end)
 
     // Indicate when trigger happened
     if (i == triggerPoint) {
-      comment = "**** TRIGGER ****";
+      comment = "<--- TRIGGER ----";
     }
 
     sprintf(output, "%04lX  %c  %02lX  %-12s  %s",
@@ -337,6 +341,14 @@ void list(Stream &stream, int start, int end)
            );
 
     stream.println(output);
+    }
+
+    if (i == last) {
+      break;
+    }
+
+    i = (i + 1) % samples;
+    j++;
   }
 }
 
@@ -347,8 +359,13 @@ void exportCSV(Stream &stream)
   // Output header
   stream.println("Index,SYNC,R/W,/RESET,/IRQ,/NMI,Address,Data");
 
+  int first = (triggerPoint - pretrigger + samples) % samples;
+  int last = (triggerPoint - pretrigger + samples - 1) % samples;
+
   // Display data
-  for (int i = 0; i < samples; i++) {
+  int i = first;
+  int j = 0;
+  while (true) {
     char output[50]; // Holds output string
     bool sync = control[i] & 0x10;
     bool rw = control[i] & 0x08;
@@ -357,7 +374,7 @@ void exportCSV(Stream &stream)
     bool nmi = control[i] & 0x01;
 
     sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
-            i,
+            j,
             sync ? '1' : '0',
             rw ? '1' : '0',
             reset ? '1' : '0',
@@ -368,6 +385,13 @@ void exportCSV(Stream &stream)
            );
 
     stream.println(output);
+
+    if (i == last) {
+      break;
+    }
+
+    i = (i + 1) % samples;
+    j++;
   }
 }
 
@@ -539,6 +563,7 @@ void go()
   digitalWriteFast(CORE_LED0_PIN, HIGH); // Indicates waiting for trigger
 
   int i = 0; // Index into data buffers
+  int samplesTaken = 0; // Number of samples taken
   bool triggered = false; // Set when triggered
 
   while (true) {
@@ -558,24 +583,30 @@ void go()
     // Read data lines
     data[i] = GPIO7_PSR;
 
+    // Set triggered flag if trigger button pressed or trigger seen
     // If triggered, increment buffer index
-    if (triggered) {
-      i++;
-    } else if (triggerPressed ||
-      (((address[i] & aTriggerMask) == (aTriggerBits & aTriggerMask)) &&
-      ((data[i] & dTriggerMask) == (dTriggerBits & dTriggerMask)) &&
-      ((control[i] & cTriggerMask) == (cTriggerBits & cTriggerMask)))) {
-      // Set triggered flag if trigger button pressed or trigger seen
-      triggered = true;
-      triggerPoint = i;
-      i++; // So we keep this sample
-      digitalWriteFast(CORE_LED0_PIN, LOW); // Indicates received trigger
+    if (!triggered) {
+      if (triggerPressed ||
+        (((address[i] & aTriggerMask) == (aTriggerBits & aTriggerMask)) &&
+        ((data[i] & dTriggerMask) == (dTriggerBits & dTriggerMask)) &&
+        ((control[i] & cTriggerMask) == (cTriggerBits & cTriggerMask)))) {
+        triggered = true;
+        triggerPoint = i;
+        digitalWriteFast(CORE_LED0_PIN, LOW); // Indicates received trigger
+      }
     }
 
-    // Exit when buffer is full
-    if (i == samples) {
+    // Count number of samples taken after trigger
+    if (triggered) {
+      samplesTaken++;
+    }
+
+    // Exit when buffer is full of samples
+    if (samplesTaken >= (samples - pretrigger)) {
       break;
     }
+
+    i = (i + 1) % samples; // Increment index, wrapping around at end for circular buffer
   }
 
   Serial.print("Data recorded (");
@@ -672,6 +703,9 @@ void loop() {
 
       if ((n > 0) && (n <= BUFFSIZE)) {
         samples = n;
+        memset(control, 0, sizeof(control)); // Clear existing data
+        memset(address, 0, sizeof(address));
+        memset(data, 0, sizeof(data));
       } else {
         Serial.print("Invalid samples, must be between 1 and ");
         Serial.print(BUFFSIZE);
