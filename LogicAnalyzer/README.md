@@ -30,44 +30,55 @@ Parts List:
 Sample Session:
 
 ```
-6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>
-Type help or ? for help.
+6502 Logic Analyzer version 0.22 by Jeff Tranter <tranter@pobox.com>
+Type h or ? for help.
 % ?
-6502 Logic Analyzer version 0.1 by Jeff Tranter <tranter@pobox.com>
-Trigger address: FFFC
+6502 Logic Analyzer version 0.22 by Jeff Tranter <tranter@pobox.com>
+Trigger: on address FFFC read or write
 Sample buffer size: 20
+Pretrigger samples: 0
 Commands:
-  s[amples] <number>
-  t[rigger] <address>|none
-  g[o]
-  l[ist]
-  e[xport]
-  h[elp] or ?
-% go
-Waiting for trigger address FFFC...
-Data recorded.
-% list
-FFFC  R  00                RESET ACTIVE
+s <number>           - Set number of samples
+p <samples>          - Set pre-trigger samples
+t a <address> [r|w]  - Trigger on address
+t d <data> [r|w]     - Trigger on data
+t reset 0|1          - Trigger on /RESET level
+t irq 0|1            - Trigger on /IRQ level
+t nmi 0|1            - Trigger on /NMI level
+t spare1 0|1         - Trigger on SPARE1 level
+t spare2 0|1         - Trigger on SPARE2 level
+t none               - Trigger freerun
+g                    - Go/start analyzer
+l [start] [end]      - List samples
+e                    - Export samples as CSV
+w                    - Write data to SD card
+h or ?               - Show command usage
+% g
+Waiting for trigger...
+Data recorded (20 samples).
+% l
+FFFC  R  00                **** TRIGGER ****
 FFFD  R  FF                RESET VECTOR
-FF00  I  A2  LDX #FC       
-FF01  R  FC                
+FF00  I  A2  LDX #FC       RESET ACTIVE
+FF01  R  FC                RESET ACTIVE
 FF02  I  9A  TXS           
-FF03  R  A9                
-FF03  I  A9  LDA #15       
+FF03  R  A9                RESET ACTIVE
+FF03  I  A9  LDA #15       RESET ACTIVE
 FF04  R  15                
-FF05  I  8D  STA A000      
+FF05  I  8D  STA A000      RESET ACTIVE
 FF06  R  00                
-FF07  R  A0                
-A000  W  15                
-FF08  I  A5  LDA 0         
+FF07  R  A0                RESET ACTIVE
+A000  W  15                RESET ACTIVE
+FF08  I  A5  LDA 00        
 FF09  R  00                
-0000  R  00                
-FF0A  I  8D  STA 100       
-FF0B  R  00                
+0000  R  00                RESET ACTIVE
+FF0A  I  8D  STA 0100      RESET ACTIVE
+FF0B  R  00                RESET ACTIVE
 FF0C  R  01                
-0100  W  00                
-FF0D  I  A5  LDA 0
+0100  W  00                RESET ACTIVE
+FF0D  I  A5  LDA 00        RESET ACTIVE
 ```
+
 
 Construction Notes
 

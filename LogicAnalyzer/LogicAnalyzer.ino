@@ -8,6 +8,9 @@
    Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
 
 
+  To Do:
+  - Implement pretrigger feature
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -66,6 +69,7 @@ uint32_t dTriggerBits;                // GPIO bit pattern to trigger data on
 uint32_t dTriggerMask;                // bitmask of GPIO data bits
 int samples = 20;                     // Total number of samples to record (up to BUFFSIZE)
 int pretrigger = 0;                   // Number of samples to record before trigger (up to BUFFSIZE)
+int triggerPoint = 0;                 // Sample in buffer corresponding to trigger point
 trigger_t triggerMode = tr_address;   // Type of trigger
 cycle_t triggerCycle = tr_either;     // Trigger on read, write, or either
 bool triggerLevel = false;            // Trigger level (false=low, true=high);
@@ -171,7 +175,7 @@ void setup() {
 
   Serial.setTimeout(60000);
   Serial.println(versionString);
-  Serial.println("Type help or ? for help.");
+  Serial.println("Type h or ? for help.");
 }
 
 
@@ -324,7 +328,7 @@ void list(Stream &stream, int start, int end)
     }
 
     // Indicate when trigger happened
-    if (i == 0) {
+    if (i == triggerPoint) {
       comment = "**** TRIGGER ****";
     }
 
@@ -528,46 +532,16 @@ void go()
     cTriggerMask = 0;
   }
 
-  Serial.print("Waiting for trigger...");
-  Serial.flush();
+  Serial.println("Waiting for trigger...");
 
   triggerPressed = false; // Status of trigger button
 
   digitalWriteFast(CORE_LED0_PIN, HIGH); // Indicates waiting for trigger
 
+  int i = 0; // Index into data buffers
+  bool triggered = false; // Set when triggered
+
   while (true) {
-    // Wait for PHI2 to go from low to high
-    WAIT_PHI2_LOW;
-    WAIT_PHI2_HIGH;
-
-    // Read address and control lines
-    control[0] = GPIO9_PSR;
-    address[0] = GPIO6_PSR;
-
-    // Wait for PHI2 to go from high to low
-    WAIT_PHI2_HIGH;
-    WAIT_PHI2_LOW;
-
-    // Read data lines
-    data[0] = GPIO7_PSR;
-
-    // Break out of loop if trigger button pressed
-    if (triggerPressed) {
-      break;
-    }
-
-    // Break out of loop if trigger seen
-    if ((address[0] & aTriggerMask) == (aTriggerBits & aTriggerMask) &&
-        (data[0] & dTriggerMask) == (dTriggerBits & dTriggerMask) &&
-        (control[0] & cTriggerMask) == (cTriggerBits & cTriggerMask)) {
-      break;
-    }
-  }
-
-  digitalWriteFast(CORE_LED0_PIN, LOW); // Indicates received trigger
-
-  // Trigger received, now fill buffer with samples.
-  for (int i = 1; i < samples; i++) {
 
     // Wait for PHI2 to go from low to high
     WAIT_PHI2_LOW;
@@ -583,6 +557,25 @@ void go()
 
     // Read data lines
     data[i] = GPIO7_PSR;
+
+    // If triggered, increment buffer index
+    if (triggered) {
+      i++;
+    } else if (triggerPressed ||
+      (((address[i] & aTriggerMask) == (aTriggerBits & aTriggerMask)) &&
+      ((data[i] & dTriggerMask) == (dTriggerBits & dTriggerMask)) &&
+      ((control[i] & cTriggerMask) == (cTriggerBits & cTriggerMask)))) {
+      // Set triggered flag if trigger button pressed or trigger seen
+      triggered = true;
+      triggerPoint = i;
+      i++; // So we keep this sample
+      digitalWriteFast(CORE_LED0_PIN, LOW); // Indicates received trigger
+    }
+
+    // Exit when buffer is full
+    if (i == samples) {
+      break;
+    }
   }
 
   Serial.print("Data recorded (");
