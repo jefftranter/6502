@@ -8,13 +8,6 @@
    Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
 
 
-  Possible enhancements:
-  - Qualify trigger to be on address read or write.
-  - Trigger on data or control line state.
-  - Trigger on state of SPARE1 or SPARE2 pin
-  - Delayed trigger - show some samples before trigger
-
-
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -37,7 +30,7 @@
 
 // Uncomment this to enable disassembly of 65C02 op codes.
 // Comment out to support only standard 6502 instructions.
-#define D65C02
+//#define D65C02
 
 // Some pin numbers
 #define PHI2 2
@@ -47,10 +40,14 @@
 #define BUTTON 31
 
 #ifdef D65C02
-const char *versionString = "65C02 Logic Analyzer version 0.21 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "65C02 Logic Analyzer version 0.22 by Jeff Tranter <tranter@pobox.com>";
 #else
-const char *versionString = "6502 Logic Analyzer version 0.21 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "6502 Logic Analyzer version 0.22 by Jeff Tranter <tranter@pobox.com>";
 #endif // D65C02
+
+// Type definitions
+typedef enum trigger_t { tr_address, tr_data, tr_reset, tr_irq, tr_nmi, tr_spare1, tr_spare2, tr_none } trigger_t;
+typedef enum cycle_t { tr_read, tr_write, tr_either } access_t;
 
 // Global variables
 uint32_t control[BUFFSIZE];           // Recorded control line data
@@ -60,8 +57,11 @@ uint32_t triggerAddress;              // Address to trigger on
 uint32_t triggerBits;                 // GPIO bit pattern to trigger on
 uint32_t triggerMask;                 // bitmask of GPIO bits
 uint32_t addressBits;                 // Current address read
-int samples = 20;                     // Number of samples to record (up to BUFFSIZE)
-bool freerun = false;                 // Indicates trigger or free-run mode (no trigger)
+int samples = 20;                     // Total number of samples to record (up to BUFFSIZE)
+int pretrigger = 0;                   // Number of samples to record before trigger (up to BUFFSIZE)
+trigger_t trigger = tr_address;       // Type of trigger
+cycle_t cycle = tr_either;            // Trigger on read, write, or either
+bool triggerLevel = false;            // Trigger level (false=low, true=high);
 volatile bool triggerPressed = false; // Set by hardware trigger button
 
 #ifdef D65C02
@@ -179,32 +179,93 @@ void triggerButton()
 void help()
 {
   Serial.println(versionString);
-  Serial.print("Trigger address: ");
-  if (freerun) {
-    Serial.println("none (freerun)");
-  } else {
-    Serial.println(triggerAddress, HEX);
+  Serial.print("Trigger: ");
+  switch (trigger) {
+    case tr_address:
+      Serial.print("on address ");
+      Serial.print(triggerAddress, HEX);
+      switch (cycle) {
+        case tr_read:
+          Serial.println(" read");
+          break;
+        case tr_write:
+          Serial.println(" write");
+          break;
+        case tr_either:
+          Serial.println(" read or write");
+          break;
+      }
+      break;
+    case tr_data:
+      Serial.print("on data ");
+      Serial.print(triggerAddress, HEX);
+      switch (cycle) {
+        case tr_read:
+          Serial.println(" read");
+          break;
+        case tr_write:
+          Serial.println(" write");
+          break;
+        case tr_either:
+          Serial.println(" read or write");
+          break;
+      }
+      break;
+    case tr_reset:
+      Serial.print("on /RESET ");
+      Serial.println(triggerLevel ? "high" : "low");
+      break;
+    case tr_irq:
+      Serial.print("on /IRQ ");
+      Serial.println(triggerLevel ? "high" : "low");
+      break;
+    case tr_nmi:
+      Serial.print("on /NMI ");
+      Serial.println(triggerLevel ? "high" : "low");
+      break;
+    case tr_spare1:
+      Serial.print("on SPARE1 ");
+      Serial.println(triggerLevel ? "high" : "low");
+      break;
+    case tr_spare2:
+      Serial.print("on SPARE2 ");
+      Serial.println(triggerLevel ? "high" : "low");
+      break;
+    case tr_none:
+      Serial.println("none (freerun)");
+      break;
   }
+
   Serial.print("Sample buffer size: ");
   Serial.println(samples);
+  Serial.print("Pretrigger samples: ");
+  Serial.println(pretrigger);
   Serial.println("Commands:");
-  Serial.println("  s[amples] <number>        - Set number of samples");
-  Serial.println("  t[rigger] <address>|none  - Set trigger address");
-  Serial.println("  g[o]                      - Start analyzer");
-  Serial.println("  l[ist]                    - List samples");
-  Serial.println("  e[xport]                  - Export samples as CSV");
-  Serial.println("  w[write]                  - Write data to SD card");
-  Serial.println("  h[elp] or ?               - Show command usage");
+  Serial.println("s <number>           - Set number of samples");
+  Serial.println("p <samples>          - Set pre-trigger samples");
+  Serial.println("t a <address> [r|w]  - Trigger on address");
+  Serial.println("t d <data> [r|w]     - Trigger on data");
+  Serial.println("t reset 0|1          - Trigger on /RESET level");
+  Serial.println("t irq 0|1            - Trigger on /IRQ level");
+  Serial.println("t nmi 0|1            - Trigger on /NMI level");
+  Serial.println("t spare1 0|1         - Trigger on SPARE1 level");
+  Serial.println("t spare2 0|1         - Trigger on SPARE2 level");
+  Serial.println("t none               - Trigger freerun");
+  Serial.println("g                    - Go/start analyzer");
+  Serial.println("l [start] [end]      - List samples");
+  Serial.println("e                    - Export samples as CSV");
+  Serial.println("w                    - Write data to SD card");
+  Serial.println("h or ?               - Show command usage");
 }
 
 
-// List recorded data.
-void list(Stream &stream)
+// List recorded data from start to end.
+void list(Stream &stream, int start, int end)
 {
   char output[50]; // Holds output string
 
   // Display data
-  for (int i = 0; i < samples; i++) {
+  for (int i = start; i <= end; i++) {
     char cycle;
     const char *opcode;
     const char *comment;
@@ -253,6 +314,11 @@ void list(Stream &stream)
       comment = "STACK ACCESS";
     } else {
       comment = "";
+    }
+
+    // Indicate when trigger happenned
+    if (i == 0) {
+      comment = "**** TRIGGER ****";
     }
 
     sprintf(output, "%04lX  %c  %02lX  %-12s  %s",
@@ -331,7 +397,7 @@ void writeSD()
   if (file) {
     Serial.print("Writing ");
     Serial.println(TXT_FILE);
-    list(file);
+    list(file, 0, samples - 1);
     file.close();
   } else {
     Serial.print("Unable to write ");
@@ -369,7 +435,7 @@ void go()
 
   triggerMask = 0b11001111110011110011000000001100;
 
-  if (!freerun) { // Wait for trigger mode
+  if (trigger != tr_none) { // Wait for trigger mode
 
     // Wait for trigger condition (trigger address).
     Serial.print("Waiting for trigger address ");
@@ -531,18 +597,16 @@ void loop() {
 
     Serial.println("");
 
-    if ((cmd == "help") || (cmd == "?") || (cmd == "h")) {
+    // Help
+    if ((cmd == "h") || (cmd == "?")) {
       help();
 
-    } else if (cmd.startsWith("samples ") || cmd.startsWith("s ")) {
+      // Samples
+    } else if (cmd.startsWith("s ")) {
       int n = 0;
-      if (cmd.startsWith("samples ")) {
-        n = cmd.substring(8).toInt();
-      }  else if (cmd.startsWith("s ")) {
-        n = cmd.substring(2).toInt();
-      }
+      n = cmd.substring(2).toInt();
 
-      if ((n >= 0) && (n <= BUFFSIZE)) {
+      if ((n > 0) && (n <= BUFFSIZE)) {
         samples = n;
       } else {
         Serial.print("Invalid samples, must be between 1 and ");
@@ -550,35 +614,130 @@ void loop() {
         Serial.println(".");
       }
 
-    } else if ((cmd == "t none") || (cmd == "trigger none")) {
-      freerun = true;
-    } else if (cmd.startsWith("trigger ") || cmd.startsWith("t ")) {
+      // Pretrigger
+    } else if (cmd.startsWith("p ")) {
       int n = 0;
-      if (cmd.startsWith("trigger ")) {
-        n = strtol(cmd.substring(8).c_str(), NULL, 16);
-      } else if (cmd.startsWith("t ")) {
-        n = strtol(cmd.substring(2).c_str(), NULL, 16);
+      n = cmd.substring(2).toInt();
+
+      if ((n >= 0) && (n <= samples)) {
+        pretrigger = n;
+      } else {
+        Serial.print("Invalid samples, must be between 0 and ");
+        Serial.print(samples);
+        Serial.println(".");
       }
 
+      // Trigger
+    } else if (cmd == "t none") {
+      trigger = tr_none;
+    } else if (cmd == "t reset 0") {
+      trigger = tr_reset;
+      triggerLevel = false;
+    } else if (cmd == "t reset 1") {
+      trigger = tr_reset;
+      triggerLevel = true;
+    } else if (cmd == "t irq 0") {
+      trigger = tr_irq;
+      triggerLevel = false;
+    } else if (cmd == "t irq 1") {
+      trigger = tr_irq;
+      triggerLevel = true;
+    } else if (cmd == "t nmi 0") {
+      trigger = tr_nmi;
+      triggerLevel = false;
+    } else if (cmd == "t nmi 1") {
+      trigger = tr_nmi;
+      triggerLevel = true;
+    } else if (cmd == "t spare1 0") {
+      trigger = tr_spare1;
+      triggerLevel = false;
+    } else if (cmd == "t spare1 1") {
+      trigger = tr_spare1;
+      triggerLevel = true;
+    } else if (cmd == "t spare2 0") {
+      trigger = tr_spare2;
+      triggerLevel = false;
+    } else if (cmd == "t spare2 1") {
+      trigger = tr_spare2;
+      triggerLevel = true;
+    } else if (cmd.startsWith("t a ")) {
+      int n = strtol(cmd.substring(4, 8).c_str(), NULL, 16);
       if ((n >= 0) && (n <= 0xffff)) {
         triggerAddress = n;
-        freerun = false;
+        trigger = tr_address;
+        if ((cmd.length() == 10) && cmd.endsWith('r')) {
+          cycle = tr_read;
+        } else if ((cmd.length() == 10) && cmd.endsWith('w')) {
+          cycle = tr_write;
+        } else {
+          cycle = tr_either;
+        }
+      } else {
+        Serial.println("Invalid address, must be between 0 and FFFF.");
+      }
+    } else if (cmd.startsWith("t d ")) {
+      int n = strtol(cmd.substring(4, 6).c_str(), NULL, 16);
+      if ((n >= 0) && (n <= 0xff)) {
+        triggerAddress = n;
+        trigger = tr_data;
+        if ((cmd.length() == 8) && cmd.endsWith('r')) {
+          cycle = tr_read;
+        } else if ((cmd.length() == 8) && cmd.endsWith('w')) {
+          cycle = tr_write;
+        } else {
+          cycle = tr_either;
+        }
       } else {
         Serial.println("Invalid address, must be between 0 and FFFF.");
       }
 
-    } else if ((cmd == "go") || (cmd == "g")) {
+      // Go
+    } else if (cmd == "g") {
       go();
 
-    } else if ((cmd == "list") || (cmd == "l")) {
-      list(Serial);
+      // List
+    } else if (cmd == "l") {
+      list(Serial, 0, samples - 1);
+    } else if (cmd.startsWith("l ")) {
+      if (cmd.indexOf(" ") == cmd.lastIndexOf(" ")) {
+        // l <start>
+        int start = cmd.substring(2).toInt();
+        if ((start < 0) || (start >= samples)) {
+          Serial.print("Invalid start, must be between 0 and ");
+          Serial.print(samples - 1);
+          Serial.println(".");
+        } else {
+          list(Serial, start, samples - 1);
+        }
 
-    } else if ((cmd == "export") || (cmd == "e")) {
+      } else {
+        // l start end
+        int start = cmd.substring(2).toInt();
+        int end = cmd.substring(cmd.lastIndexOf(" ")).toInt();
+        if ((start < 0) || (start >= samples)) {
+          Serial.print("Invalid start, must be between 0 and ");
+          Serial.print(samples - 1);
+          Serial.println(".");
+        } else if ((end < start) || (end >= samples)) {
+          Serial.print("Invalid end, must be between ");
+          Serial.print(start);
+          Serial.print(" and ");
+          Serial.print(samples - 1);
+          Serial.println(".");
+        } else {
+          list(Serial, start, end);
+        }
+      }
+
+      // Export
+    } else if (cmd == "e") {
       exportCSV(Serial);
 
-    } else if ((cmd == "write") || (cmd == "w")) {
+      // Write
+    } else if (cmd == "w") {
       writeSD();
 
+      // Invalid command
     } else {
       if (cmd != "") {
         Serial.print("Invalid command: '");
