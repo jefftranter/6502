@@ -9,12 +9,10 @@
 
 
   Possible enhancements:
-  - Qualify trigger to be on address read or write.
-  - Trigger on data or control line state.
-  - Trigger on state of SPARE1 or SPARE2 pin
+  - Merge changes from 6502 version
   - Monitor /FIRQ pin
   - Monitor BA and BS pins
-
+  - Disassembler
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
