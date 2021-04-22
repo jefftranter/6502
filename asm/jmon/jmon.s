@@ -554,12 +554,12 @@ Copy:
 @okay1:
         LDA SH
         CMP DH
-        BCC @okayUp             ; copy up
-        BNE @okayDown           ; copy down
+        BCC @okayDown           ; copy up
+        BNE @okayUp             ; copy down
         LDA SL
         CMP DL
-        BCC @okayUp
-        BCS @okayDown
+        BCC @okayDown
+        BCS @okayUp
 
 @okayUp:
         LDY #0
