@@ -557,11 +557,10 @@ FindTopOfRAM:
         LDA TOP+1           ; High byte of page
         CMP #>FindTopOfRAM  ; Same page as this code?
         BEQ @Skip
-        CMP #>FindTopOfRAMEnd ; Same page as this code (code could cross two pages)
-        BEQ @Skip
         BNE @NotUs
 @Skip:
         INC TOP+1           ; Skip over this page when testing
+        INC TOP+1           ; And the next page in case code extends into next page too
 
 @NotUs:
 
