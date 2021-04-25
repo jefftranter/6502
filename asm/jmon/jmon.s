@@ -1922,12 +1922,14 @@ nocarry1:
         jsr     PrintByte       ; Output checksum
         jsr     PrintCR         ; Output line terminator
 
-        lda     ADDR+1          ; if address < endAddress, go back and continue
+        lda     ADDR+1          ; if address <= endAddress, go back and continue
         cmp     EH
-        bmi     writes1
+        bne     @tstaddr
         lda     ADDR
         cmp     EL
-        bmi     writes1
+@tstaddr:
+        bcc     writes1
+        beq     writes1
 
 ; Write S9 record
 writes9:
