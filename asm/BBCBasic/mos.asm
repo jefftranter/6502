@@ -93,6 +93,47 @@ _IRQ:
 ; depends on how much RAM needs to be allocated for display memory.
 
 _OSBYTE:
+        cmp     #$82
+        beq     osbyte82
+        cmp     #$83
+        beq     osbyte83
+        cmp     #$84
+        beq     osbyte84
+        cmp     #$85
+        beq     osbyte82
+        rts
+
+; OSBYTE &82 (130) - Read High Order Address
+; Returns X=lo byte of 32 bit address of this machine
+; Y=hi byte of 32 bit address of this machine
+; ie. this machine's 32 bit address is &YYXX0000 upwards
+osbyte82:
+        ldx     #$0000 & 256    ; Return value $0000
+        ldy     #$0000 / 256
+        rts
+
+; OSBYTE &83 (131) - Read OSHWM, bottom of user memory
+; On exit X and Y hold the lowest address of user memory, used to
+;  initialise BASIC's 'PAGE'.
+osbyte83:
+        ldx     #$0000 & 256
+        ldy     #$0000 / 256
+        rts
+
+; OSBYTE &84 (132) - Read top of user memory
+; On exit X and Y point to the first byte after the top of user memory,
+; used to initialise BASIC's 'HIMEM'.
+osbyte84:
+        ldx     #$4000 & 256
+        ldy     #$4000 / 256
+        rts
+
+; OSBYTE &85 (133) - Read base of display RAM for a given mode
+;  X=mode number
+; On exit X and Y point to the first byte of screen RAM if MODE X were chosen
+osbyte85:
+        ldx     #$F000 & 256    ; Return fake value $F000
+        ldy     #$F000 / 256
         rts
 
 ; OSWORD
