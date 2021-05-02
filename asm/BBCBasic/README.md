@@ -14,6 +14,7 @@ It is still a work in progress.
 TODO:
 - Implement OS calls
 - Test and debug (initially use my simulator)
+- See if could fit in ROM (need to get all code to fit in 16K).
 
 References:
 
