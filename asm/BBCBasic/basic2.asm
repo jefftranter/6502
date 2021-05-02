@@ -6374,10 +6374,7 @@ LA86E:
 LA873:
         .byte  $06, $7A, $12
 LA876:
-        sec
-        lda    $0B
-        dey
-        adc    $9F0E,y
+        .byte  $38, $A5, $0B, $88, $79, $0E, $9F
         .byte  $F3, $7C, $2A, $AC, $3F, $B5, $86, $34
         .byte  $01, $A2, $7A, $7F, $63, $8E, $37, $EC
         .byte  $82, $3F, $FF, $FF, $C1, $7F, $FF, $FF

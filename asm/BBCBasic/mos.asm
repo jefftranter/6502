@@ -19,6 +19,12 @@
         BRKV    = $0202         ; NMI/BRK handler address
         WRCHV   = $020E         ; OSWRCH handler address
 
+; SBC defines
+        ACIA    = $A000         ; Serial port registers
+        ACIAControl = ACIA+0
+        ACIAStatus  = ACIA+0
+        ACIAData  = ACIA+1
+
 .org    $FF00
 
 ; NMI and BRK handler
@@ -52,8 +58,8 @@ _RESET:
         lda     #OSWRCH / 256
         sta     WRCHV+1
 
-        lda     #$00            ; Can't be $01 or Basic will return
-        jmp     $8000           ; Basic entry point
+        lda     #$01            ; Must be $01 or Basic will return
+        jmp     $4000           ; Basic entry point
 
 ; IRQ routine
 _IRQ:
@@ -116,9 +122,7 @@ _OSWORD:
         rts
 
 ; OSWRCH
-;
 ; Write character.
-;
 ; OSWRCH #FFF4 Write character
 ; On entry:  A=character to write
 ; On exit:   all preserved
@@ -127,7 +131,36 @@ _OSWORD:
 ; On exit:   all preserved
 
 _OSWRCH:
+	pha
+SerialOutWait:
+	lda	ACIAStatus
+	and	#2
+	cmp	#2
+	bne	SerialOutWait
+	pla
+	sta	ACIAData
         rts
+
+; OSRDCH
+; Read character.
+; Character returned in A.
+; If an error occurred (usually, Escape being pressed), then the carry
+; flag is set on exit. If the error was Escape, then A will be $1B.
+
+_OSRDCH:
+SerialInWait:
+	lda	ACIAStatus
+	and	#1
+	cmp	#1
+	bne	SerialInWait
+	lda	ACIAData
+        cmp     #$1B             ; Escape?
+        bne     retn
+	sec		         ; Carry set if error (e.g. Escape pressed)
+	rts
+retn:
+	clc                     ; Carry clear if no error
+	rts
 
 ; -------- STANDARD MOS ENTRY POINTS --------
 
@@ -157,7 +190,7 @@ OSFILE:
 
         .res    $FFE0-*
 OSRDCH:
-        rts
+        jmp     _OSRDCH
 
         .res    $FFE3-*
 OSASCI:
@@ -173,7 +206,7 @@ OSWRCR:
         
         .res    $FFEE-*
 OSWRCH:
-        JMP     _OSWRCH
+        jmp     _OSWRCH
         
         .res    $FFF1-*
 OSWORD:
