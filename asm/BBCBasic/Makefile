@@ -18,6 +18,9 @@ mos.bin: mos.o
 mos.o: mos.asm
 	ca65 -g -l mos.lst -o mos.o mos.asm
 
+sim: basic2.bin
+	../../simulator/sim6502 -l basic2.bin -a 0x4000
+
 clean:
 	$(RM) *.o *.lst *.run *.map *.bin
 

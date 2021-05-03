@@ -21,7 +21,7 @@
         ESC     = $1B           ; Ecape
 
         FAULT   = $FD           ; Pointer to error block
-        BRKV    = $0202         ; NMI/BRK handler address
+        BRKV    = $0202         ; IRQ/BRK handler address
         WRCHV   = $020E         ; OSWRCH handler address
 
         TMP1    = $50           ; Temporary (two bytes)
@@ -34,11 +34,11 @@
 
 .org    $FF00
 
-; NMI and BRK handler
+; IRQ and BRK handler
 ; Based on BBC code. See "Faults, events and BRK handling" section in
 ; the BBC Microcomputer User Guide.
 
-_NMI:
+_IRQ:
         STA     $FC             ; temporary for A
         PLA
         PHA                     ; get processor status
@@ -56,7 +56,11 @@ LBRK:   TXA                     ; BRK handling
         LDA     $104,X          ; get address high
         SBC     #0
         STA     FAULT+1
-        jmp     (BRKV)
+        PLA                     ; Get back original value of X
+        TAX
+        LDA     $FC             ; Get back original value of A
+        CLI                     ; Allow interrupts
+        jmp     (BRKV)          ; And jump via BRKV
 
 ; RESET routine
 _RESET:
@@ -68,8 +72,8 @@ _RESET:
         lda     #$01            ; Must be $01 or Basic will return
         jmp     $4000           ; Basic entry point
 
-; IRQ routine
-_IRQ:
+; NMI routine
+_NMI:
         rti                     ; Simply return
 
 ; OSBYTE
@@ -197,13 +201,16 @@ loop:   jsr     OSRDCH          ; Get character
         cmp     #LF             ; LF?
         beq     done
         cmp     #ESC            ; ESC?
-        beq     done
+        beq     edone
 ; TODO: Add support for backspace and delete.
 ; TODO: Check for acceptable ASCII values
 ; TODO: Check for maximum line length.
         iny                     ; Increment character count
         jmp     loop            ; Go back and read more characters
-done:   rts
+done:   clc                     ; Normal return, clear carry
+        rts
+edone:  sec                     ; Esc pressed, set carry
+        rts
 
 ; OSWRCH
 ; Write character.
