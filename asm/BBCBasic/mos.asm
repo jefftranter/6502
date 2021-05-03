@@ -24,8 +24,6 @@
         BRKV    = $0202         ; IRQ/BRK handler address
         WRCHV   = $020E         ; OSWRCH handler address
 
-        TMP1    = $50           ; Temporary (two bytes)
-
 ; SBC defines
         ACIA    = $A000         ; Serial port registers
         ACIAControl = ACIA+0
@@ -127,8 +125,8 @@ osbyte82:
 ; On exit X and Y hold the lowest address of user memory, used to
 ; initialise BASIC's 'PAGE'.
 osbyte83:
-        ldx     #$0000 & 256
-        ldy     #$0000 / 256
+        ldx     #$1000 & 256
+        ldy     #$1000 / 256
         rts
 
 ; OSBYTE &84 (132) - Read top of user memory
@@ -167,7 +165,7 @@ osbyte85:
 ; BASIC keyword INPUT works.
 ;
 ; On entry:
-; XY+0,XY+1 => string buffer
+; XY+0,XY+1 => string buffer (assumed to be $0037)
 ; XY+2  maximum line length (buffer size minus 1)
 ; XY+3  minimum acceptable ASCII value
 ; XY+4  maximum acceptable ASCII value
@@ -191,14 +189,12 @@ osbyte85:
 _OSWORD:
         cmp     #$00            ; Get OSWORD call number
         bne     done            ; Return if not OSWORD 0
-        stx     TMP1            ; String buffer low byte
-        sty     TMP1+1          ; String buffer high byte
         ldy     #0              ; Number of characters read
 loop:   jsr     OSRDCH          ; Get character
-        sta     (TMP1),y        ; Save in buffer
-        cmp     #CR             ; CR?
-        beq     done
         cmp     #LF             ; LF?
+        beq     loop            ; If so, ignore
+        sta     ($37),y         ; Save in buffer
+        cmp     #CR             ; CR?
         beq     done
         cmp     #ESC            ; ESC?
         beq     edone
@@ -217,6 +213,7 @@ edone:  sec                     ; Esc pressed, set carry
 ; OSWRCH #FFF4 Write character
 ; On entry:  A=character to write
 ; On exit:   all preserved
+; If character is CR, also send LF.
 
 _OSWRCH:
 	pha
@@ -227,13 +224,20 @@ SerialOutWait:
 	bne	SerialOutWait
 	pla
 	sta	ACIAData
-        rts
+        cmp     #CR             ; CR?
+        bne     ret1
+        pha
+        lda     #LF             ; Also send LF
+        jsr     _OSWRCH
+        pla
+ret1:   rts
 
 ; OSRDCH
 ; Read character.
 ; Character returned in A.
 ; If an error occurred (usually, Escape being pressed), then the carry
 ; flag is set on exit. If the error was Escape, then A will be $1B.
+; Echoes the character to the output.
 
 _OSRDCH:
 SerialInWait:
@@ -247,6 +251,7 @@ SerialInWait:
 	sec		         ; Carry set if error (e.g. Escape pressed)
 	rts
 retn:
+        jsr     OSWRCH           ; Echo the character
 	clc                      ; Carry clear if no error
 	rts
 
