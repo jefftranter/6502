@@ -213,7 +213,6 @@ edone:  sec                     ; Esc pressed, set carry
 ; OSWRCH #FFF4 Write character
 ; On entry:  A=character to write
 ; On exit:   all preserved
-; If character is CR, also send LF.
 
 _OSWRCH:
 	pha
@@ -224,13 +223,7 @@ SerialOutWait:
 	bne	SerialOutWait
 	pla
 	sta	ACIAData
-        cmp     #CR             ; CR?
-        bne     ret1
-        pha
-        lda     #LF             ; Also send LF
-        jsr     _OSWRCH
-        pla
-ret1:   rts
+        rts
 
 ; OSRDCH
 ; Read character.
@@ -258,69 +251,72 @@ retn:
 ; -------- STANDARD MOS ENTRY POINTS --------
 
         .res   $FFCE-*
+; Open or close a file - not implemented.
 OSFIND:
         rts
-
         .res    $FFD1-*
+; Load or save a block of memory to file - not implemented.
 OSGBPB:
         rts
-
         .res    $FFD4-*
+; Write a byte to file - not implemented.
 OSBPUT:
         rts
-
         .res    $FFD7-*
+; Get a byte from file - not implemented.
 OSBGET:
         rts
-
         .res    $FFDA-*
+; Read or write a file's attributes - not implemented.
 OSARGS:
         rts
-
         .res    $FFDD-*
+; Default handling for OSFILE (for cassette and ROM filing system) - not implemented,
 OSFILE:
         rts
-
         .res    $FFE0-*
+; Read a character.
 OSRDCH:
         jmp     _OSRDCH
-
         .res    $FFE3-*
+; Write character in A to output. If character is CR, calls OSNEWL.
 OSASCI:
-        rts
-
+        cmp     #CR
+        bne     OSWRCH          ; May fall through
         .res    $FFE7-*
+; Write a newline.
 OSNEWL:
-        rts
-        
+        lda     #LF
+        jsr     _OSWRCH
         .res    $FFEC-*
+; Write carriage return.
 OSWRCR:
-        rts
-        
+        lda     #CR             ; And fall through
         .res    $FFEE-*
+; Write a character
 OSWRCH:
         jmp     _OSWRCH
-        
         .res    $FFF1-*
+; System call.
 OSWORD:
         jmp     _OSWORD
-
         .res    $FFF4-*
+; System call.
 OSBYTE:
         jmp     _OSBYTE
-        
         .res    $FFF7-*
+; Command Line Interpreter - not implemented.
 OS_CLI:
         rts
-
         .res    $FFFA-*
+; NMI handler.
 NMI:
         .word   _NMI
-
         .res    $FFFC-*
+; Reset handler.
 RESET:
         .word   _RESET
-
         .res    $FFFE-*
+; BRK/IRQ handler.
 IRQ:
         .word   _IRQ

@@ -1,5 +1,4 @@
-This is a port of BBC Basic 2 to the Ohio Scientific C1P/Superboard 2
-(and hopefully later, more machines).
+This is a port of BBC Basic 2 to my 6502 Single Board Computer.
 
 I started with a binary, disassembled it, and got it to assemble to
 the same binary code with the CC65 cross-assembler. Then, comments
@@ -14,6 +13,7 @@ It is still a work in progress.
 TODO:
 - Implement OS calls
 - Test and debug (initially use my simulator)
+- See if any unimplemented MOS calls are needed.
 - See if could fit in ROM (need to get all code to fit in 16K).
 
 References:
