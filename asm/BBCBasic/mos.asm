@@ -33,31 +33,41 @@
 ; the BBC Microcomputer User Guide.
 
 _IRQ:
-        STA     $FC             ; temporary for A
-        PLA
-        PHA                     ; get processor status
-        AND     #$10
-        BNE     LBRK
-        JMP     ($0204)         ; IRQ1V
-LBRK:   TXA                     ; BRK handling
-        PHA                     ; save X
-        TSX
-        LDA     $103,X          ; get address low
-        CLD
-        SEC
-        SBC     #1
-        STA     FAULT
-        LDA     $104,X          ; get address high
-        SBC     #0
-        STA     FAULT+1
-        PLA                     ; Get back original value of X
-        TAX
-        LDA     $FC             ; Get back original value of A
-        CLI                     ; Allow interrupts
+        sta     $FC             ; temporary for A
+        pla
+        pha                     ; get processor status
+        and     #$10
+        bne     LBRK
+        jmp     ($0204)         ; IRQ1V
+LBRK:   txa                     ; BRK handling
+        pha                     ; save X
+        tsx
+        lda     $103,X          ; get address low
+        cld
+        sec
+        sbc     #1
+        sta     FAULT
+        lda     $104,X          ; get address high
+        sbc     #0
+        sta     FAULT+1
+        pla                     ; Get back original value of X
+        tax
+        lda     $FC             ; Get back original value of A
+        cli                     ; Allow interrupts
         jmp     (BRKV)          ; And jump via BRKV
 
 ; RESET routine
 _RESET:
+
+; Display startup message
+	ldy #0
+ShowStartMsg:
+	lda	StartMsg,Y
+	beq	cont
+	jsr	OSWRCH
+	iny
+	bne	ShowStartMsg
+cont:
         lda     #OSWRCH & 255   ; Set up RAM vector to OSWRCH
         sta     WRCHV
         lda     #OSWRCH / 256
@@ -65,6 +75,9 @@ _RESET:
 
         lda     #$01            ; Must be $01 or Basic will return
         jmp     L8000           ; Basic entry point
+
+StartMsg:
+	.byte	"BBC BASIC v2 for 6502 SBC.",CR,LF,0
 
 ; NMI routine
 _NMI:
@@ -195,7 +208,7 @@ loop:   jsr     OSRDCH          ; Get character
         cmp     #ESC            ; ESC?
         beq     edone
 ; TODO: Add support for backspace and delete.
-; TODO: Check for acceptable ASCII values
+; TODO: Check for acceptable ASCII values.
 ; TODO: Check for maximum line length.
         iny                     ; Increment character count
         jmp     loop            ; Go back and read more characters
@@ -253,81 +266,81 @@ OSFIND:
         rts
         nop
         nop
-;       .res    $FFD1-*
+;       $FFD1
 ; Load or save a block of memory to file - not implemented.
 OSGBPB:
         rts
         nop
         nop
-;        .res    $FFD4-*
+;       $FFD4
 ; Write a byte to file - not implemented.
 OSBPUT:
         rts
         nop
         nop
-;       .res    $FFD7-*
+;       $FFD7
 ; Get a byte from file - not implemented.
 OSBGET:
         rts
         nop
         nop
-;       .res    $FFDA-*
+;       $FFDA
 ; Read or write a file's attributes - not implemented.
 OSARGS:
         rts
         nop
         nop
-;       .res    $FFDD-*
-; Default handling for OSFILE (for cassette and ROM filing system) - not implemented,
+;       $FFDD
+; Default handling for OSFILE (for cassette and ROM filing system) - not implemented.
 OSFILE:
         rts
         nop
         nop
-;       .res    $FFE0-*
+;       $FFE0
 ; Read a character.
 OSRDCH:
         jmp     _OSRDCH
-;       .res    $FFE3-*
+;       $FFE3
 ; Write character in A to output. If character is CR, calls OSNEWL.
 OSASCI:
         cmp     #CR
         bne     OSWRCH          ; May fall through
-;       .res    $FFE7-*
+;       $FFE7
 ; Write a newline.
 OSNEWL:
         lda     #LF
         jsr     _OSWRCH
-;       .res    $FFEC-*
+;       $FFEC
 ; Write carriage return.
 OSWRCR:
         lda     #CR             ; And fall through
-;       .res    $FFEE-*
+;       $FFEE
 ; Write a character
 OSWRCH:
         jmp     _OSWRCH
-;       .res    $FFF1-*
+;       $FFF1
 ; System call.
 OSWORD:
         jmp     _OSWORD
-;       .res    $FFF4-*
+;       $FFF4
 ; System call.
 OSBYTE:
         jmp     _OSBYTE
-;       .res    $FFF7-*
+;       $FFF7
 ; Command Line Interpreter - not implemented.
 OS_CLI:
         rts
         nop
         nop
-;       .res    $FFFA-*
+;       $FFFA
 ; NMI handler.
 NMI:
         .word   _NMI
-;       .res    $FFFC-*
+;       $FFFC
 ; Reset handler.
 RESET:
         .word   _RESET
-;       .res    $FFFE-*
+;       $FFFE
 ; BRK/IRQ handler.
 IRQ:
         .word   _IRQ

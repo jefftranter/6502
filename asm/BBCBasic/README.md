@@ -6,20 +6,19 @@ were added from the original source that was written as in-line
 assembler in BBC Basic.
 
 The system calls (MOS) from the Acorn/BBC platform were emulated
-or stubbed out the SBC platform.
+or stubbed out for the SBC platform.
 
-Suport for these keywords was removed to get the code to fit in a 16K
+Support for these keywords was removed to get the code to fit in a 16K
 ROM (they would not work anyway due to hardware limitations):
 
 ENVELOPE SOUND ADVAL POINT CHAIN LOAD SAVE CLG COLOUR DRAW GCOL MODE
 MOVE PLOT
 
-It is still a work in progress.
+Acorn-specific screen output (VDU) functions are not implemented. Any
+commands for file i/o will not work, as well as sound or graphics.
 
-TODO:
-- Test and debug (initially use my simulator)
-- See if any unimplemented MOS calls are needed.
-- Print message and version on startup
+For more information on the Basic interpreter, you can find many
+references on the Internet to the Acorn computer and BBC Basic.
 
 References:
 

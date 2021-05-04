@@ -1,8 +1,7 @@
 ; Source for 6502 BASIC II
 ; BBC BASIC Copyright (C) 1982/1983 Acorn Computer and Roger Wilson
 ; Source reconstruction and commentary Copyright (C) J.G.Harston
-; Port to CC65 by Jeff Tranter
-
+; Port to CC65 and 6502 SBC by Jeff Tranter
 
 ; Define this to build for my 6502 Single Board Computer.
 ; Comment out to build original code for Acorn Computer.
@@ -846,7 +845,7 @@ L85BA:
 L85D5:
         ldy    $0A              ; Get current character, inc. index
         inc    $0A
-        lda    ($0B),y          ; Token, check for tokenied AND, EOR, OR
+        lda    ($0B),y          ; Token, check for tokenised AND, EOR, OR
         bmi    L8607
         cmp    #$20             ; Space, step past
         beq    L85F1
@@ -1600,7 +1599,7 @@ L8AAE:
 ; OLD - Attempt to restore program
 ; ================================
 L8AB6:
-        jsr    L9857            ; Chek end of statement
+        jsr    L9857            ; Check end of statement
         lda    $18
         sta    $38              ; Point $37/8 to PAGE
         lda    #$00
@@ -1659,7 +1658,7 @@ L8AF6:
         sta    $16
         lda    #LB433 / 256
         sta    $17
-        lda    #'>'             ; Print '>' prompt, read input to bufer at PtrA
+        lda    #'>'             ; Print '>' prompt, read input to buffer at PtrA
         jsr    LBC02
 
 ; Execute line at program pointer in &0B/C
@@ -4573,7 +4572,7 @@ L9C9B:
         jsr    LBD7E            ; Pop float from stack, point FPTR to it
         jsr    LA500            ; Unstack float to FPA2 and add to FP1A
 L9CA1:
-        ldx    $27              ; Get nextchar back
+        ldx    $27              ; Get next char back
         lda    #$FF             ; Set result=float, loop to check for more + or -
         bne    L9C45
 
@@ -8226,7 +8225,7 @@ LB413:
         stx    $0A
         lda    #$DA             ; Clear VDU queue
         jsr    OSBYTE
-        lda    #$7E             ; Acknowlege any Escape state
+        lda    #$7E             ; Acknowledge any Escape state
         jsr    OSBYTE
         ldx    #$FF             ; Clear system stack
         stx    $28
@@ -8908,7 +8907,7 @@ LB8DD:
 ; ------------
 LB8E4:
         jsr    L9857            ; Check end of statement
-        lda    #LB433 & 255     ; ON ERROR OFFF
+        lda    #LB433 & 255     ; ON ERROR OFF
         sta    $16
         lda    #LB433 / 256
         sta    $17
@@ -8978,7 +8977,7 @@ LB944:
 LB95C:
         jsr    LB99A            ; Read line number
         pla                     ; Get stacked token back
-        cmp    #tknGOSUB        ; Jump to do GOSBU
+        cmp    #tknGOSUB        ; Jump to do GOSUB
         beq    LB96A
         jsr    L9877            ; Update line index and check Escape
         jmp    LB8D2
@@ -9772,7 +9771,7 @@ LBE62:
         ldx    #$37
         jsr    OSFILE
 
-; Scan program to check consistancy and find TOP
+; Scan program to check consistency and find TOP
 ; ----------------------------------------------
 LBE6F:
         lda    $18
