@@ -213,6 +213,7 @@ edone:  sec                     ; Esc pressed, set carry
 ; OSWRCH #FFF4 Write character
 ; On entry:  A=character to write
 ; On exit:   all preserved
+; TODO: Implement support for some VDU sequences.
 
 _OSWRCH:
 	pha

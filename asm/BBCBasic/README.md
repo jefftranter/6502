@@ -15,6 +15,7 @@ TODO:
 - Test and debug (initially use my simulator)
 - See if any unimplemented MOS calls are needed.
 - See if could fit in ROM (need to get all code to fit in 16K).
+- Print message and version on startup
 
 References:
 

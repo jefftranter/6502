@@ -1000,7 +1000,7 @@ L86DA:
         cmp    #')'
         bne    L86FB
         jsr    L8A97            ; Skip spaces
-        cmp    #','             ; No comman, jump to Index error
+        cmp    #','             ; No comma, jump to Index error
         bne    L870D
         jsr    L882C
         jsr    L8A97            ; Skip spaces
@@ -1027,7 +1027,7 @@ L8715:
         dec    $0A
         jsr    L8821
         jsr    L8A97            ; Skip spaces
-        cmp    #','             ; No command - jump to process as abs,X
+        cmp    #','             ; No comma - jump to process as abs,X
         bne    L8735
         jsr    L882C
         jsr    L8A97            ; Skip spaces
@@ -1657,7 +1657,7 @@ L8B0B:
         sta    $16
         lda    #LB433 / 256
         sta    $17
-        ldx    #$FF             ; OPT=$FF - not withing assembler
+        ldx    #$FF             ; OPT=$FF - not within assembler
         stx    $28
         stx    $3C              ; Clear machine stack
         txs
