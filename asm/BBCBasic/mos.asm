@@ -30,7 +30,7 @@
         ACIAStatus  = ACIA+0
         ACIAData  = ACIA+1
 
-.org    $FF00
+.org    $FF2E
 
 ; IRQ and BRK handler
 ; Based on BBC code. See "Faults, events and BRK handling" section in
@@ -255,69 +255,83 @@ retn:
 ; Open or close a file - not implemented.
 OSFIND:
         rts
-        .res    $FFD1-*
+        nop
+        nop
+;       .res    $FFD1-*
 ; Load or save a block of memory to file - not implemented.
 OSGBPB:
         rts
-        .res    $FFD4-*
+        nop
+        nop
+;        .res    $FFD4-*
 ; Write a byte to file - not implemented.
 OSBPUT:
         rts
-        .res    $FFD7-*
+        nop
+        nop
+;       .res    $FFD7-*
 ; Get a byte from file - not implemented.
 OSBGET:
         rts
-        .res    $FFDA-*
+        nop
+        nop
+;       .res    $FFDA-*
 ; Read or write a file's attributes - not implemented.
 OSARGS:
         rts
-        .res    $FFDD-*
+        nop
+        nop
+;       .res    $FFDD-*
 ; Default handling for OSFILE (for cassette and ROM filing system) - not implemented,
 OSFILE:
         rts
-        .res    $FFE0-*
+        nop
+        nop
+;       .res    $FFE0-*
 ; Read a character.
 OSRDCH:
         jmp     _OSRDCH
-        .res    $FFE3-*
+;       .res    $FFE3-*
 ; Write character in A to output. If character is CR, calls OSNEWL.
 OSASCI:
         cmp     #CR
         bne     OSWRCH          ; May fall through
-        .res    $FFE7-*
+;       .res    $FFE7-*
 ; Write a newline.
 OSNEWL:
         lda     #LF
         jsr     _OSWRCH
-        .res    $FFEC-*
+;       .res    $FFEC-*
 ; Write carriage return.
 OSWRCR:
         lda     #CR             ; And fall through
-        .res    $FFEE-*
+;       .res    $FFEE-*
 ; Write a character
 OSWRCH:
         jmp     _OSWRCH
-        .res    $FFF1-*
+;       .res    $FFF1-*
 ; System call.
 OSWORD:
         jmp     _OSWORD
-        .res    $FFF4-*
+;       .res    $FFF4-*
 ; System call.
 OSBYTE:
         jmp     _OSBYTE
-        .res    $FFF7-*
+;       .res    $FFF7-*
 ; Command Line Interpreter - not implemented.
 OS_CLI:
         rts
-        .res    $FFFA-*
+        nop
+        nop
+;       .res    $FFFA-*
 ; NMI handler.
 NMI:
         .word   _NMI
-        .res    $FFFC-*
+;       .res    $FFFC-*
 ; Reset handler.
 RESET:
         .word   _RESET
-        .res    $FFFE-*
+;       .res    $FFFE-*
 ; BRK/IRQ handler.
 IRQ:
         .word   _IRQ

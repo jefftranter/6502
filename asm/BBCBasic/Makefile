@@ -10,7 +10,7 @@ basic2.o: basic2.asm
 	ca65 -g -l basic2.lst -o basic2.o basic2.asm
 
 mos.run: mos.bin
-	srec_cat mos.bin -binary -offset 0xff00 -o mos.run
+	srec_cat mos.bin -binary -offset 0xff2e -o mos.run
 
 mos.bin: mos.o
 	ld65 -t none -vm -m mos.map -o mos.bin mos.o

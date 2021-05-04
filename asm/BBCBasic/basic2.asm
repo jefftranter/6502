@@ -88,7 +88,10 @@
         tknHIMEM = $93
         tknREPORT = $F6
 
-        .org    $4000
+; For running from RAM
+;       .org    $4000
+; For running from ROM
+        .org    $C000
 
 ; BBC Code Header
 
