@@ -12,7 +12,7 @@
 
 ; Memory map:
 ; RAM from $0000 to $3FFF
-; BBC Basic in RAM from $4000 to $7FFF
+; BBC Basic in RAM from $C000 to $FFEF
 ; OS ROM from $FF00 to $FFFF
 
 
@@ -20,17 +20,13 @@
         CR      = $0D           ; Carriage return
         ESC     = $1B           ; Ecape
 
-        FAULT   = $FD           ; Pointer to error block
-        BRKV    = $0202         ; IRQ/BRK handler address
-        WRCHV   = $020E         ; OSWRCH handler address
-
 ; SBC defines
         ACIA    = $A000         ; Serial port registers
         ACIAControl = ACIA+0
         ACIAStatus  = ACIA+0
         ACIAData  = ACIA+1
 
-.org    $FF2E
+        .res   $FF00-*
 
 ; IRQ and BRK handler
 ; Based on BBC code. See "Faults, events and BRK handling" section in
@@ -68,7 +64,7 @@ _RESET:
         sta     WRCHV+1
 
         lda     #$01            ; Must be $01 or Basic will return
-        jmp     $4000           ; Basic entry point
+        jmp     L8000           ; Basic entry point
 
 ; NMI routine
 _NMI:
@@ -117,7 +113,7 @@ _OSBYTE:
 ; Y=hi byte of 32 bit address of this machine
 ; ie. this machine's 32 bit address is &YYXX0000 upwards
 osbyte82:
-        ldx     #$0000 & 256    ; Return value $0000
+        ldx     #$0000 & 255    ; Return value $0000
         ldy     #$0000 / 256
         rts
 
@@ -125,23 +121,23 @@ osbyte82:
 ; On exit X and Y hold the lowest address of user memory, used to
 ; initialise BASIC's 'PAGE'.
 osbyte83:
-        ldx     #$1000 & 256
-        ldy     #$1000 / 256
+        ldx     #$0900 & 255
+        ldy     #$0900 / 256
         rts
 
 ; OSBYTE &84 (132) - Read top of user memory
 ; On exit X and Y point to the first byte after the top of user memory,
 ; used to initialise BASIC's 'HIMEM'.
 osbyte84:
-        ldx     #$4000 & 256
-        ldy     #$4000 / 256
+        ldx     #$8000 & 255
+        ldy     #$8000 / 256
         rts
 
 ; OSBYTE &85 (133) - Read base of display RAM for a given mode
 ; X=mode number
 ; On exit X and Y point to the first byte of screen RAM if MODE X were chosen
 osbyte85:
-        ldx     #$F000 & 256    ; Return fake value $F000
+        ldx     #$F000 & 255    ; Return fake value $F000
         ldy     #$F000 / 256
         rts
 

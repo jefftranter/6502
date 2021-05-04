@@ -3,6 +3,11 @@
 ; Source reconstruction and commentary Copyright (C) J.G.Harston
 ; Port to CC65 by Jeff Tranter
 
+
+; Define this to build for my 6502 Single Board Computer.
+; Comment out to build original code for Acorn Computer.
+        PSBC    = 1
+
 ; Macros to pack instruction mnemonics into two high bytes
 .macro MNEML c1,c2,c3
         .byte ((c2 & $1F) << 5 + (c3 & $1F)) & $FF
@@ -21,6 +26,7 @@
         F_END   = F_LOAD+12
 
 ; MOS Entry Points:
+.if .not .defined(PSBC)
         OS_CLI  = $FFF7
         OSBYTE  = $FFF4
         OSWORD  = $FFF1
@@ -35,6 +41,8 @@
         OSBPUT  = $FFD4
         OSGBPB  = $FFD1
         OSFIND  = $FFCE
+.endif
+
         BRKV    = $0202
         WRCHV   = $020E
 
@@ -88,10 +96,11 @@
         tknHIMEM = $93
         tknREPORT = $F6
 
-; For running from RAM
-;       .org    $4000
-; For running from ROM
+.if .defined(PSBC)
         .org    $C000
+.else
+        .org    $8000
+.endif
 
 ; BBC Code Header
 
@@ -2255,9 +2264,13 @@ L8EA7:
 ; CLG
 ; ===
 L8EBD:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
          jsr   L9857            ; Check end of statement
          lda   #$10             ; Jump to do VDU 16
          bne   L8ECC
+.endif
 
 ; CLS
 ; ===
@@ -2982,6 +2995,9 @@ L9372:
 ; GCOL numeric, numeric
 ; =====================
 L937A:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    L8821            ; Evaluate integer
         lda    $2A
         pha
@@ -2990,15 +3006,20 @@ L937A:
         lda    #$12             ; Send VDU 18 for GCOL
         jsr    OSWRCH
         jmp    L93DA            ; Jump to send two bytes to OSWRCH
+.endif
 
 ; COLOUR numeric
 ; ==============
 L938E:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         lda    #$11             ; Stack VDU 17 for COLOUR
         pha
         jsr    L8821            ; Evaluate integer, check end of statement
         jsr    L9857
         jmp    L93DA            ; Jump to send two bytes to OSWRCH
+.endif
 
 ; MODE numeric
 ; ============
@@ -3045,6 +3066,9 @@ L939A:
 
 ; Change MODE
 L93D7:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBC28            ; Set COUNT to zero
 
 ; Send two bytes to OSWRCH, stacked byte, then IntA
@@ -3054,25 +3078,37 @@ L93DA:
         jsr    OSWRCH
         jsr    L9456            ; Send IntA to OSWRCH, jump to execution loop
         jmp    L8B9B
+.endif
 
 ; MOVE numeric, numeric
 ; =====================
 L93E4:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         lda    #$04             ; Jump forward to do PLOT 4 for MOVE
         bne    L93EA
+.endif
 
 ; DRAW numeric, numeric
 ; =====================
 L93E8:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         lda    #$05             ; Do PLOT 5 for DRAW
 L93EA:
         pha                     ; Evaluate first expression
         jsr    L9B1D
         jmp    L93FD            ; Jump to evaluate second expression and send to OSWRCH
+.endif
 
 ; PLOT numeric, numeric, numeric
 ; ==============================
 L93F1:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    L8821            ; Evaluate integer
         lda    $2A
         pha
@@ -3096,6 +3132,7 @@ L93FD:
         lda    $2B              ; Send IntA high byte to OSWRCH
         jsr    OSWRCH
         jmp    L8B9B            ; Jump to execution loop
+.endif
 L942A:
         lda    $2B              ; Send IntA byte 2 to OSWRCH
         jsr    OSWRCH
@@ -6698,13 +6735,20 @@ LAB32:
 ; =ADVAL numeric - Call OSBYTE to read buffer/device
 ; ==================================================
 LAB33:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    L92E3            ; Evaluate integer
         ldx    $2A              ; X=low byte, A=&80 for ADVAL
         lda    #$80
         jsr    OSBYTE
         txa
         jmp    LAEEA
-LAB41:
+.endif
+LAB41:                          ; POINT()
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    L92DD
         jsr    LBD94
         jsr    L8AAE
@@ -6725,6 +6769,7 @@ LAB41:
         lda    $2E
         bmi    LAB9D
         jmp    LAED8
+.endif
 
 ; =POS
 ; ====
@@ -8200,6 +8245,9 @@ LB433:
 ; SOUND numeric, numeric, numeric, numeric
 ; ========================================
 LB44C:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    L8821            ; Evaluate integer
         ldx    #$03             ; Three more to evaluate
 LB451:
@@ -8222,10 +8270,14 @@ LB451:
         ldy    #$07
         ldx    #$05
         bne    LB48F
+.endif
 
 ; ENVELOPE a,b,c,d,e,f,g,h,i,j,k,l,m,n
 ; ====================================
 LB472:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    L8821            ; Evaluate integer
         ldx    #$0D             ; 13 more to evaluate
 LB477:
@@ -8254,6 +8306,7 @@ LB48F:
         ldy    #$00
         jsr    OSWORD
         jmp    L8B9B            ; Return to execution loop
+.endif
 
 ; WIDTH numeric
 ; =============
@@ -9815,6 +9868,9 @@ LBEE7:
 ;  SAVE string$
 ; =============
 LBEF3:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBE6F            ; Set FILE.END to TOP
         lda    $12
         sta    F_END+0          ; Set FILE.END to TOP
@@ -9838,18 +9894,27 @@ LBEF3:
         ldx    #$37
         jsr    OSFILE
         jmp    L8B9B
+.endif
 
 ; LOAD string$
 ; ============
 LBF24:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBE62            ; Do LOAD, jump to immediate mode
         jmp    L8AF3
+.endif
 
 ; CHAIN string$
 ; =============
 LBF2A:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBE62            ; Do LOAD, jump to execution loop
         jmp    LBD14
+.endif
 
 ; PTR#numeric=numeric
 ; ===================
@@ -10005,3 +10070,7 @@ LBFF6:
         .byte  "Roger"
         brk
 LC000:
+
+.if .defined(PSBC)
+  .include "mos.asm"
+.endif
