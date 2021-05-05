@@ -20,6 +20,33 @@ commands for file i/o will not work, as well as sound or graphics.
 For more information on the Basic interpreter, you can find many
 references on the Internet to the Acorn computer and BBC Basic.
 
+Sample session:
+
+```
+BBC BASIC v2 for 6502 SBC
+>10 FOR I = 1 TO 10
+>20 PRINT I
+>30 NEXT I
+>40 END
+>LIST
+   10 FOR I = 1 TO 10
+   20 PRINT I
+   30 NEXT I
+   40 END
+>RUN
+         1
+         2
+         3
+         4
+         5
+         6
+         7
+         8
+         9
+        10
+>
+```
+
 References:
 
 1. http://bbc.nvg.org/doc/
