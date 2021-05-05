@@ -7004,12 +7004,16 @@ LACAD:
 ; =EOF#numeric
 ; ============
 LACB8:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBFB5
         tax
         lda    #$7F
         jsr    OSBYTE
         txa
         beq    LACAA
+.endif
 
 ; =TRUE
 ; =====
@@ -9918,6 +9922,9 @@ LBF2A:
 ; PTR#numeric=numeric
 ; ===================
 LBF30:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBFA9            ; Evaluate #handle
         pha
         jsr    L9813            ; Step past '=', evaluate integer
@@ -9928,11 +9935,16 @@ LBF30:
         lda    #$01
         jsr    OSARGS
         jmp    L8B9B            ; Jump to execution loop
+.endif
 
 ; =EXT#numeric - Read file pointer via OSARGS
 ; ===========================================
 LBF46:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         sec                     ; Flag to do =EXT
+.endif
 
 ; =PTR#numeric - Read file pointer via OSARGS
 ; ===========================================
@@ -9951,6 +9963,9 @@ LBF47:
 ; BPUT#numeric, numeric
 ; =====================
 LBF58:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBFA9            ; Evaluate #handle
         pha
         jsr    L8AAE
@@ -9961,29 +9976,45 @@ LBF58:
         lda    $2A
         jsr    OSBPUT           ; Call OSBPUT, jump to execution loop
         jmp    L8B9B
+.endif
 
 ;=BGET#numeric
 ;=============
 LBF6F:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBFB5            ; Evaluate #handle
         jsr    OSBGET
         jmp    LAED8            ; Jump to return 8-bit integer
+.endif
 
 ; OPENIN f$ - Call OSFIND to open file for input
 ; ==============================================
 LBF78:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         lda    #$40             ; $40=OPENUP
         bne    LBF82
+.endif
 
 ; OPENOUT f$ - Call OSFIND to open file for output
 ; ================================================
 LBF7C:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         lda    #$80             ; $80=OPENOUT
         bne    LBF82
+.endif
 
 ; OPENUP f$ - Call OSFIND to open file for update
 ; ===============================================
 LBF80:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         lda    #$C0             ; $C0=OPENUP
 LBF82:
         pha
@@ -9997,16 +10028,21 @@ LBF82:
         jmp    LAED8
 LBF96:
         jmp    L8C0E            ; Jump to 'Type mismatch' error
+.endif
 
 ; CLOSE#numeric
 ; =============
 LBF99:
+.if .defined (PSBC)
+        jmp    L9821            ; Syntax error
+.else
         jsr    LBFA9            ; Evaluate #handle, check end of statement
         jsr    L9852
         ldy    $2A              ; Get handle from IntA
         lda    #$00
         jsr    OSFIND
         jmp    L8B9B            ; Jump back to execution loop
+.endif
 
 ; Copy PtrA to PtrB, then get handle
 ; ==================================

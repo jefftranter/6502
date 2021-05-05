@@ -11,8 +11,8 @@ or stubbed out for the SBC platform.
 Support for these keywords was removed to get the code to fit in a 16K
 ROM (they would not work anyway due to hardware limitations):
 
-ENVELOPE SOUND ADVAL POINT CHAIN LOAD SAVE CLG COLOUR DRAW GCOL MODE
-MOVE PLOT
+ADVAL BGET BPUT CHAIN CLG CLOSE COLOUR DRAW ENVELOPE EOF EXT GCOL LOAD
+MODE MOVE OPENIN OPENOUT OPENUP PLOT POINT PTR SAVE SOUND
 
 Acorn-specific screen output (VDU) functions are not implemented. Any
 commands for file i/o will not work, as well as sound or graphics.

@@ -12,9 +12,7 @@
 
 ; Memory map:
 ; RAM from $0000 to $3FFF
-; BBC Basic in RAM from $C000 to $FFEF
-; OS ROM from $FF00 to $FFFF
-
+; BBC Basic and MOS in ROM from $C000 to $FFFF
 
         LF      = $0A           ; Line feed
         CR      = $0D           ; Carriage return
@@ -25,8 +23,6 @@
         ACIAControl = ACIA+0
         ACIAStatus  = ACIA+0
         ACIAData  = ACIA+1
-
-        .res   $FF00-*
 
 ; IRQ and BRK handler
 ; Based on BBC code. See "Faults, events and BRK handling" section in
@@ -64,17 +60,17 @@ _RESET:
         txs
 
 ; Initialize ACIA
-	lda 	#$15		; Set ACIA to 8N1 and divide by 16 clock
-	sta	ACIAControl
+        lda     #$15            ; Set ACIA to 8N1 and divide by 16 clock
+        sta     ACIAControl
 
 ; Display startup message
-	ldy #0
+        ldy #0
 ShowStartMsg:
-	lda	StartMsg,Y
-	beq	cont
-	jsr	OSWRCH
-	iny
-	bne	ShowStartMsg
+        lda     StartMsg,Y
+        beq     cont
+        jsr     OSWRCH
+        iny
+        bne     ShowStartMsg
 cont:
         lda     #OSWRCH & 255   ; Set up RAM vector to OSWRCH
         sta     WRCHV
@@ -85,7 +81,7 @@ cont:
         jmp     L8000           ; Basic entry point
 
 StartMsg:
-	.byte	"BBC BASIC v2",CR,LF,0
+        .byte   "BBC BASIC v2 for 6502 SBC",CR,LF,0
 
 ; NMI routine
 _NMI:
@@ -142,7 +138,7 @@ osbyte82:
 ; On exit X and Y hold the lowest address of user memory, used to
 ; initialise BASIC's 'PAGE'.
 osbyte83:
-        ldx     #$0900 & 255
+        ldx     #$0900 & 255    ; Return LOMEM of $0900
         ldy     #$0900 / 256
         rts
 
@@ -150,7 +146,7 @@ osbyte83:
 ; On exit X and Y point to the first byte after the top of user memory,
 ; used to initialise BASIC's 'HIMEM'.
 osbyte84:
-        ldx     #$8000 & 255
+        ldx     #$8000 & 255    ; Return HIMEM of $8000
         ldy     #$8000 / 256
         rts
 
@@ -197,7 +193,7 @@ osbyte85:
 ; deletes a character, Ctrl-U (CHR$21) deletes the whole line, and (if
 ; enabled) cursor keys perform copy editing. Editing is terminated
 ; with RETURN (CHR$13) or the current Escape character if enabled (the
-; default is ESCAPE CHR$27).
+; default is ESCAPE (CHR$27).
 
 ; Extensions may implement line input extensions, for example on RISC
 ; OS and many other systems, BS (CHR$8) duplicates DELETE, and Ctrl-J
@@ -215,7 +211,6 @@ loop:   jsr     OSRDCH          ; Get character
         beq     done
         cmp     #ESC            ; ESC?
         beq     edone
-; TODO: Add support for backspace and delete.
 ; TODO: Check for acceptable ASCII values.
 ; TODO: Check for maximum line length.
         iny                     ; Increment character count
@@ -233,14 +228,14 @@ edone:  sec                     ; Esc pressed, set carry
 ; TODO: Implement support for some VDU sequences.
 
 _OSWRCH:
-	pha
+        pha
 SerialOutWait:
-	lda	ACIAStatus
-	and	#2
-	cmp	#2
-	bne	SerialOutWait
-	pla
-	sta	ACIAData
+        lda     ACIAStatus
+        and     #2
+        cmp     #2
+        bne     SerialOutWait
+        pla
+        sta     ACIAData
         rts
 
 ; OSRDCH
@@ -252,21 +247,29 @@ SerialOutWait:
 
 _OSRDCH:
 SerialInWait:
-	lda	ACIAStatus
-	and	#1
-	cmp	#1
-	bne	SerialInWait
-	lda	ACIAData
+        lda     ACIAStatus
+        and     #1
+        cmp     #1
+        bne     SerialInWait
+        lda     ACIAData
         cmp     #ESC             ; Escape?
         bne     retn
-	sec		         ; Carry set if error (e.g. Escape pressed)
-	rts
+        sec                      ; Carry set if error (e.g. Escape pressed)
+        rts
 retn:
         jsr     OSWRCH           ; Echo the character
-	clc                      ; Carry clear if no error
-	rts
+        cmp     #CR              ; If CR, also echo LF
+        bne     notcr
+        pha                      ; Save original character
+        lda     #LF
+        jsr     OSWRCH           ; Send LF
+        pla                      ; Restore character
+notcr:  clc                      ; Carry clear if no error
+        rts
 
 ; -------- STANDARD MOS ENTRY POINTS --------
+; For compatibilty, these are at the same addresses as in the original
+; code.
 
         .res   $FFCE-*
 ; Open or close a file - not implemented.
