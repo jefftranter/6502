@@ -58,6 +58,14 @@ LBRK:   txa                     ; BRK handling
 
 ; RESET routine
 _RESET:
+        cld                     ; Make sure not in decimal mode
+
+        ldx     #$FF            ; Initialize stack to known value
+        txs
+
+; Initialize ACIA
+	lda 	#$15		; Set ACIA to 8N1 and divide by 16 clock
+	sta	ACIAControl
 
 ; Display startup message
 	ldy #0
@@ -77,7 +85,7 @@ cont:
         jmp     L8000           ; Basic entry point
 
 StartMsg:
-	.byte	"BBC BASIC v2 for 6502 SBC.",CR,LF,0
+	.byte	"BBC BASIC v2",CR,LF,0
 
 ; NMI routine
 _NMI:
@@ -202,7 +210,7 @@ _OSWORD:
 loop:   jsr     OSRDCH          ; Get character
         cmp     #LF             ; LF?
         beq     loop            ; If so, ignore
-        sta     ($37),y         ; Save in buffer
+        sta     ($37),Y         ; Save in buffer
         cmp     #CR             ; CR?
         beq     done
         cmp     #ESC            ; ESC?
