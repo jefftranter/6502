@@ -13,6 +13,7 @@ using namespace std;
 Sim6502::Sim6502()
 {
     // Open files for simulating serial i/o.
+#ifdef OSI
     m_serialIn.open(m_serialInFilename, ios::binary);
     if (m_logErrors) {
         if (!m_serialIn.is_open()) {
@@ -82,13 +83,16 @@ Sim6502::Sim6502()
         = m_shifted['='] = m_shifted['>'] = m_shifted['<'] = m_shifted['?'] = m_shifted['+']
         = m_shifted['^']
         = true;
+#endif
 }
 
 
 Sim6502::~Sim6502()
 {
+#ifdef OSI
     m_serialIn.close();
     m_serialOut.close();
+#endif
 }
 
 
@@ -390,6 +394,7 @@ void Sim6502::writePeripheral(uint16_t address, uint8_t byte)
                 cout << "Serial: Wrote $" << hex << setfill('0') << setw(2) << (int)byte << " to MC6850 Data Register" << endl;
             }
         }
+        cout << (char)byte;
         if (byte != 0x00) { // Filter out NULLs
             m_serialOut << (char)byte << flush;
         }
@@ -443,8 +448,25 @@ uint8_t Sim6502::read(uint16_t address)
 
 uint8_t Sim6502::readPeripheral(uint16_t address)
 {
+#ifdef SBC
     if (address == m_peripheralStart) {
-        // Send ready if still characters to read from serial inout file.
+        return 0x03;
+    }
+
+    if (address == m_peripheralStart + 1) {
+        char byte;
+        cin.read(&byte, 1);
+        if (byte == '\n') {
+            byte = '\r';
+        }
+        return byte;
+    }
+#endif
+
+#ifdef OSI
+    if (address == m_peripheralStart) {
+
+        // Send ready if still characters to read from serial input file.
         // Send not ready if end of file reached.
         if (!m_serialIn.eof()) {
             if (m_logSerial) {
@@ -468,13 +490,17 @@ uint8_t Sim6502::readPeripheral(uint16_t address)
     if (address == m_peripheralStart + 1) {
         char byte;
         m_serialIn.read(&byte, 1);
-        if (isprint(byte)) {
-            cout << "Serial: Read '" << (char)byte << "' from MC6850 Data Register" << endl;
-        } else {
-            cout << "Serial: Read $" << hex << setfill('0') << setw(2) << (int)byte << " from MC6850 Data Register" << endl;
+        if (m_logSerial) {
+            if (isprint(byte)) {
+                cout << "Serial: Read '" << (char)byte << "' from MC6850 Data Register" << endl;
+            } else {
+                cout << "Serial: Read $" << hex << setfill('0') << setw(2) << (int)byte << " from MC6850 Data Register" << endl;
+            }
         }
         return byte;
     }
+#endif
+
     assert(false); // Should never be reached
 }
 
@@ -996,7 +1022,6 @@ void Sim6502::step(bool over)
     switch (opcode) {
 
     case 0x00: // brk
-        m_regPC +=2; // Increment PC by 2
         m_regP |= B_BIT; // Set B flag
         write(STACK + m_regSP, (m_regPC + 2) >> 8); // Push PC high byte
         m_regSP--;

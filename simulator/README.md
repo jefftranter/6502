@@ -1,5 +1,5 @@
 This is a 6502 simulator to simulate an Ohio Scientific Superboard II
-computer.
+computer or my 6502-based Single Board Computer.
 
 It is a work in progress. It is able to run the OSI Monitor and BASIC,
 but is still pretty rough around the edges.

@@ -9,15 +9,14 @@
 /*
 
 This is a 6502 simulator to simulate an Ohio Scientific Superboard II
-computer.
+computer or my 6502-based Single Board Computer.
 
 It is written in standard C++ and should be portable, but has only
 been tested on Linux with the gcc compiler.
 
-Copyright (c) 2020 Jeff Tranter <tranter@pobox.com>
+Copyright (c) 2020-2021 Jeff Tranter <tranter@pobox.com>
 
 */
-
 
 // Use to flag when Control-C pressed.
 bool control_c = false;
@@ -137,8 +136,10 @@ int main(int argc, char **argv)
     // Set up Control-C interrupt handler
     signal(SIGINT, signal_callback_handler);
 
-    // Settings for Ohio Scientific Superboard II
     Sim6502 sim;
+
+#ifdef OSI
+    // Settings for Ohio Scientific Superboard II
     sim.setRamRange(0x0000, 0x7fff); // 32K
     sim.setRomRange1(0xa000, 0xbfff); // Basic
     sim.setRomRange2(0xf800, 0xffff); // Monitor
@@ -161,6 +162,14 @@ int main(int argc, char **argv)
     if (!sim.loadMemory("basic4.rom", 0xb800)) {
         return 1;
     }
+#endif
+
+    // Settings for 6502 SBC
+#ifdef SBC
+    sim.setRamRange(0x0000, 0x7fff); // 32K
+    sim.setRomRange1(0xc000, 0xffff); // Basic
+    sim.setPeripheral(Sim6502::MC6850, 0xa000);
+#endif
 
     // Filename to load specified on command line.
     if (l_option) {

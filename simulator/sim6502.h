@@ -10,6 +10,10 @@
 #include <fstream>
 #include <fstream>
 
+// Define one of the following two lines to define which computer to simulate
+//#define OSI
+#define SBC
+
 using namespace std;
 
 class Sim6502 {
