@@ -211,6 +211,7 @@ loop:   jsr     OSRDCH          ; Get character
         beq     done
         cmp     #ESC            ; ESC?
         beq     edone
+; TODO: Add support for backspace and delete.
 ; TODO: Check for acceptable ASCII values.
 ; TODO: Check for maximum line length.
         iny                     ; Increment character count
