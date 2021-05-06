@@ -16,7 +16,9 @@
 
         LF      = $0A           ; Line feed
         CR      = $0D           ; Carriage return
-        ESC     = $1B           ; Ecape
+        ESC     = $1B           ; Escape
+        DEL     = $7F           ; Delete
+        BS      = $08           ; Backspace
 
 ; SBC defines
         ACIA    = $A000         ; Serial port registers
@@ -81,7 +83,7 @@ cont:
         jmp     L8000           ; Basic entry point
 
 StartMsg:
-        .byte   "BBC BASIC v2 for 6502 SBC",CR,LF,0
+        .byte   "BBC BASIC v2 for 6502 SBC 06-May-2021",CR,LF,0
 
 ; NMI routine
 _NMI:
@@ -174,14 +176,14 @@ osbyte85:
 ; OSWORD 0 is "input line" – it’s a standard way for a program to ask
 ; the operating system to accept a line of text from an input source.
 ; This line of text is stored in the control block. BASIC uses OSWORD
-; 0 to receive typed commands for the interpeter. It’s also how the
+; 0 to receive typed commands for the interpreter. It’s also how the
 ; BASIC keyword INPUT works.
 ;
 ; On entry:
-; XY+0,XY+1 => string buffer (assumed to be $0037)
-; XY+2  maximum line length (buffer size minus 1)
-; XY+3  minimum acceptable ASCII value
-; XY+4  maximum acceptable ASCII value
+; XY+0,XY+1 => string buffer (assumed to be $0037, typically pointing to $0700)
+; XY+2  maximum line length (buffer size minus 1, typically $EE = 238)
+; XY+3  minimum acceptable ASCII value (typically $20)
+; XY+4  maximum acceptable ASCII value (typically $FF)
 ; On exit:
 ; Carry=0 if not terminated by Escape
 ; Y is the line length excluding the CR, so buffer+Y will point to the CR
@@ -206,12 +208,15 @@ _OSWORD:
 loop:   jsr     OSRDCH          ; Get character
         cmp     #LF             ; LF?
         beq     loop            ; If so, ignore
+        cmp     #DEL            ; Delete?
+        beq     delete
+        cmp     #DEL            ; Backspace?
+        beq     delete
         sta     ($37),Y         ; Save in buffer
         cmp     #CR             ; CR?
         beq     done
         cmp     #ESC            ; ESC?
         beq     edone
-; TODO: Add support for backspace and delete.
 ; TODO: Check for acceptable ASCII values.
 ; TODO: Check for maximum line length.
         iny                     ; Increment character count
@@ -220,6 +225,15 @@ done:   clc                     ; Normal return, clear carry
         rts
 edone:  sec                     ; Esc pressed, set carry
         rts
+delete:
+        dey                     ; Back out last character
+        lda     #BS             ; Output backspace to erase on screen
+        jsr     _OSWRCH
+        lda     #' '            ; Output space to overwrite last character
+        jsr     _OSWRCH
+        lda     #BS             ; Output backspace again
+        jsr     _OSWRCH
+        jmp     loop            ; Continue
 
 ; OSWRCH
 ; Write character.
@@ -269,7 +283,7 @@ notcr:  clc                      ; Carry clear if no error
         rts
 
 ; -------- STANDARD MOS ENTRY POINTS --------
-; For compatibilty, these are at the same addresses as in the original
+; For compatibility, these are at the same addresses as in the original
 ; code.
 
         .res   $FFCE-*
