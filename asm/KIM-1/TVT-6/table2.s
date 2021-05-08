@@ -94,9 +94,9 @@ l8:     RTS                     ; Continued
 ;         Normal program horizontal frequency is 15,873,015 Hz;
 ;         Vertical frequency 60.0114 Hz.  63 us per line; 264.5 lines.
 ;
-;        * Denotes a relative branch that is program length
-;        sensitive.
+;         * Denotes a relative branch that is program length
+;         sensitive.
 ;
-;       () Denotes an absolute address that is program location sensitive.
+;         ( ) Denotes an absolute address that is program location sensitive.
 ;
-;       The TVT6 length jumper must be in the "32" position.
+;         The TVT6 length jumper must be in the "32" position.
