@@ -1,4 +1,4 @@
-all: table2.run table3.run
+all: table2.run table3.run table4.run
 
 table2.run: table2.bin
 	srec_cat table2.bin -binary -offset 0x1780 -o table2.run -Execution_Start_Address 0x17ad
@@ -17,6 +17,15 @@ table3.bin: table3.o
 
 table3.o: table3.s
 	ca65 -g -l table3.lst table3.s
+
+table4.run: table4.bin
+	srec_cat table4.bin -binary -offset 0x1780 -o table4.run -Execution_Start_Address 0x17ad
+
+table4.bin: table4.o
+	ld65 -t none -vm -m table4.map -o table4.bin table4.o
+
+table4.o: table4.s
+	ca65 -g -l table4.lst table4.s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.run

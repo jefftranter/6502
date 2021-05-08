@@ -7,7 +7,7 @@
 ;
 ; Input to Parallel Word A  |0|A7|A6|A5|A4|A3|A2|A1| |_| /IRQ
 ;                                                  ->| | <- 10 us
-; Clear - CAN (1)            Cursor Home - SOH (01)
+; Clear - CAN (18)           Cursor Home - SOH (01)
 ; Carriage Return - CR (0d)  Scroll Up - DC1 (11)
 ; Cursor Up - VT (0b)        Erase to End - DC2 (12)
 ; Cursor Down - LF 9 (0A)    Spare Hook - DC3 (13)
