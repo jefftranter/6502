@@ -1,4 +1,4 @@
-all: table2.run table3.run table4.run table5.run
+all: table2.run table3.run table4.run table5.run prom1.run
 
 table2.run: table2.bin
 	srec_cat table2.bin -binary -offset 0x1780 -o table2.run -Execution_Start_Address 0x17ad
@@ -35,6 +35,15 @@ table5.bin: table5.o
 
 table5.o: table5.s
 	ca65 -g -l table5.lst table5.s
+
+prom1.run: prom1.bin
+	srec_cat prom1.bin -binary -offset 0x1780 -o prom1.run -Execution_Start_Address 0x17ad
+
+prom1.bin: prom1.o
+	ld65 -t none -vm -m prom1.map -o prom1.bin prom1.o
+
+prom1.o: prom1.s
+	ca65 -g -l prom1.lst prom1.s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.run
