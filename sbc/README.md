@@ -26,8 +26,8 @@ $C000 - $FFFF  ROM (16K)
 
 It supports my JMON machine language monitor. It can run a version of
 Microsoft BASIC ported by Grant Searle, included here. It can also run
-a version of Enhanced Basic by Lee Davison. These can all run out of
-ROM.
+a version of Enhanced Basic by Lee Davison or a port of BBC Basic 2.
+These can all run out of ROM.
 
 The schematic and PCB layout were developed using EasyEDA and can be
 found at https://oshwlab.com/tranter/6502-single-board-computer
