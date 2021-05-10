@@ -67,7 +67,7 @@ l17c2:  CLD                     ;  continued
 ; NOTES:  TVT-6L must be connected and both the SCAN and DECODE
 ;         PROMS must be in circuit for program to run.
 ;
-;         Both 17A and 17b8 require that page 00 be enabled when
+;         Both 17AC and 17b8 require that page 00 be enabled when
 ;         page E0 is addressed. This is done automatically in
 ;         the KIM-1 decode circuitry.
 ;
