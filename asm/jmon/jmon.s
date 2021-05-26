@@ -89,6 +89,7 @@
 ;                      Tested on real OSI Superboard II.
 ; 1.3.5  13-Dec-2020   Added port to my Single Board Computer
 ; 1.3.6  03-Mar-2021   Add J (S record loading) and W (S record writing) commands.
+; 1.3.7  26-May-2021   Added P (scope loop) command.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -1254,6 +1255,28 @@ nocarry:
         LDY SH
         JSR PrintAddress        ; Display current address
         JMP writeLoop           ; Input more data
+
+; Scope loop command. For hardware debugging, loops on reading from an address.
+; Continuously loops until reset.
+; TODO: Add support for exiting when key pressed (platform dependent).
+; TODO: Add support for read or write (e.g. P <address> <R/W> <<data>]
+; SCOPE LOOP: P <ADDRESS>
+
+ScopeLoop:
+.ifdef ECHO
+        JSR PrintChar           ; Echo command
+.endif
+        JSR PrintSpace
+        JSR GetAddress          ; Get start address
+        STX SL
+        STY SH
+        JSR PrintCR
+
+        LDY #$00
+        CLV
+ReadLoop:
+        LDA (SL),Y              ; Read from address
+        BVC ReadLoop            ; Repeat forever
 
 ; Register change command.
 ; Displays and sets values of registers
@@ -2721,31 +2744,31 @@ MATCHFL:
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDEFGHIJKLMNORSTUVW:=."
+        .byte "BCDEFGHIJKLMNOPRSTUVW:=."
 .elseif .defined(APPLE2)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHIJKLNORSTUVW:=."
+        .byte "BCDFGHIJKLNOPRSTUVW:=."
 .elseif .defined(OSI)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHIJKLNORSTUVW:=."
+        .byte "BCDFGHIJKLNOPRSTUVW:=."
 .elseif .defined(KIM1)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHJKLNORSTUVW:=."
+        .byte "BCDFGHJKLNOPRSTUVW:=."
 .elseif .defined(SBC)
         .byte "$?"
 .ifdef MINIASM
         .byte "A"
 .endif
-        .byte "BCDFGHIJKLNORSTUVW:=."
+        .byte "BCDFGHIJKLNOPRSTUVW:=."
 .endif
 
 JMPFL:
@@ -2775,6 +2798,7 @@ JMPFL:
 .endif
         .word Info-1
         .word Options-1
+        .word ScopeLoop-1
         .word Registers-1
         .word Search-1
         .word Test-1
@@ -3233,9 +3257,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.6 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.7 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.6 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.7 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
@@ -3258,6 +3282,7 @@ HelpString:
         .byte "CFFA1 menu  M", CR
         .byte "Info        N", CR
         .byte "Options     O", CR
+        .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
         .byte "Search      S <start> <end> <data>...", CR
         .byte "Test        T <start> <end>", CR
@@ -3286,6 +3311,7 @@ HelpString:
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
         .byte "Options     O", CR
+        .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
         .byte "Search      S <start> <end> <data>...", CR
         .byte "Test        T <start> <end>", CR
@@ -3315,6 +3341,7 @@ HelpString:
         .byte "Clr screen L", CR
         .byte "Info       N", CR
         .byte "Options    O", CR
+        .byte "Loop       P <a>",CR
         .byte "Registers  R", CR
         .byte "Search     S <s><e><d>.", CR
         .byte "Test       T <s><e>", CR
@@ -3343,6 +3370,7 @@ HelpString:
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
         .byte "Options     O", CR
+        .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
         .byte "Search      S <start> <end> <data>...", CR
         .byte "Test        T <start> <end>", CR
@@ -3372,6 +3400,7 @@ HelpString:
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
         .byte "Options     O", CR
+        .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
         .byte "Search      S <start> <end> <data>...", CR
         .byte "Test        T <start> <end>", CR

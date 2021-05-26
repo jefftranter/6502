@@ -159,6 +159,11 @@ You can also specify the CPU type, either 6502, Rockwell 65C02, WDC
 65C02, or 65816. This value is not currently used but may be used in
 the future to control assembly and disassembly.
 
+SCOPE LOOP: P <ADDRESS>
+
+For hardware debugging, loops on reading from an address. Continuously
+loops until reset.
+
 REGISTERS: R
 
 Displays the current value of the CPU registers A, X, Y, S, and P.
