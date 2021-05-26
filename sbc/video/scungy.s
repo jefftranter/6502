@@ -3,18 +3,19 @@
 ; Adapted from Fig. 1-14 on page 32 of "Son of Cheap Video" by Don
 ; Lancaster to run on my 6502 SBC.
 ;
-; uP - 6502             Start - JMP 100E  Displayed 0380-039F
+; uP - 6502             Start - START     Displayed 0380-039F
 ; System - 6502 SBC +   Stop - RST        Program Space 1000-1040
 ;          Scungy Video                       (65 words)
 ;                                         Scan Space - 2000-201F
 ;                                             (32 words)
 
-        SCAN = $2000            ; Start address of SCAN PROM
         VIA  = $8000            ; Start address of 6522 VIA
         VIA_DDRA = VIA+3        ; DDRA register
         VIA_ORA  = VIA+1        ; ORA register
 
-        .org    $1000
+        .org    $1F00
+
+        JMP     START
 
 ; Live Scan Subroutine:
 l0200:  INC     VIA_ORA         ; Output H sync pulse
@@ -60,3 +61,13 @@ l0232:  DEY                     ;  continued
 
         JSR    l0200            ; ///DO LIVE SCAN SUBROUTINE///
         JMP    START            ; Start new field
+
+        .res   $2000-*,$00
+
+; Scan code for Scungy video 1x32 alphanumeric display.
+; JSR/RTS method.
+
+SCAN:
+        .res    30, $A0         ; LDY #$A0
+        rts
+        rts
