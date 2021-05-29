@@ -93,6 +93,9 @@ KBD     =       $D010
 KBDCR   =       $D011
 DSP     =       $D012
 
+; The program can be relocated to a different address but should be a
+; multiple of $2000.
+
         .org    $E000
         .export START
 START:  JMP     cold            ; BASIC cold start entry point
@@ -197,7 +200,7 @@ list_token:     CMP     #$01
         JMP     crout
 Le0ac:  PHA
         STY     acc
-        LDX     #$ED
+        LDX     #>syntabl2
         STX     acc+1
         CMP     #$51
         BCC     Le0bb
@@ -758,7 +761,7 @@ Le47d:  STY     syn_stk_l,X
 
 Se491:  ASL
         TAY
-        LDA     #$76
+        LDA     #(>syntabl_index)>>1
         ROL
         STA     synpag+1
 Le498:  BNE     Le49b
@@ -872,10 +875,10 @@ Le55f:  DEX
         BPL     Le523
         RTS
 ; powers of 10 table, low byte
-dectabl:        .byte   $01,$0A,$64,$E8,$10             ; "..dh."
+dectabl:        .byte   $01,$0A,$64,$E8,$10
 
 ; powers of 10 table, high byte
-dectabh:        .byte   $00,$00,$00,$03,$27             ; "....'"
+dectabh:        .byte   $00,$00,$00,$03,$27
 
 find_line:      LDA     pp
         STA     p3
@@ -1488,60 +1491,60 @@ Te97e:  JSR     get16bit
         STA     fstk_stepl-1,Y
         LDA     acc+1
         JMP     Le966
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00 ; "........"
-        .byte   $00,$00,$00                     ; "..."
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00
 
 ; verb precedence
 ; (verb_prec[token]&0xAA)>>1 for left (?)
 ; verb_prec[token]&0x55 for right (?)
 verb_prec_tbl:
-        .byte   $00,$00,$00,$AB,$03,$03,$03,$03 ; "...+...."
-        .byte   $03,$03,$03,$03,$03,$03,$03,$03 ; "........"
-        .byte   $03,$03,$3F,$3F,$C0,$C0,$3C,$3C ; "..??@@<<"
-        .byte   $3C,$3C,$3C,$3C,$3C,$30,$0F,$C0 ; "<<<<<0.@"
-        .byte   $CC,$FF,$55,$00,$AB,$AB,$03,$03 ; "L.U.++.."
-        .byte   $FF,$FF,$55,$FF,$FF,$55,$CF,$CF ; "..U..UOO"
-        .byte   $CF,$CF,$CF,$FF,$55,$C3,$C3,$C3 ; "OOO.UCCC"
-        .byte   $55,$F0,$F0,$CF,$56,$56,$56,$55 ; "UppOVVVU"
-        .byte   $FF,$FF,$55,$03,$03,$03,$03,$03 ; "..U....."
-        .byte   $03,$03,$FF,$FF,$FF,$03,$03,$03 ; "........"
-        .byte   $03,$03,$03,$03,$03,$03,$03,$03 ; "........"
-        .byte   $03,$03,$03,$03,$03,$00,$AB,$03 ; "......+."
-        .byte   $57,$03,$03,$03,$03,$07,$03,$03 ; "W......."
-        .byte   $03,$03,$03,$03,$03,$03,$03,$03 ; "........"
-        .byte   $03,$03,$AA,$FF,$FF,$FF,$FF,$FF ; "..*....."
+        .byte   $00,$00,$00,$AB,$03,$03,$03,$03
+        .byte   $03,$03,$03,$03,$03,$03,$03,$03
+        .byte   $03,$03,$3F,$3F,$C0,$C0,$3C,$3C
+        .byte   $3C,$3C,$3C,$3C,$3C,$30,$0F,$C0
+        .byte   $CC,$FF,$55,$00,$AB,$AB,$03,$03
+        .byte   $FF,$FF,$55,$FF,$FF,$55,$CF,$CF
+        .byte   $CF,$CF,$CF,$FF,$55,$C3,$C3,$C3
+        .byte   $55,$F0,$F0,$CF,$56,$56,$56,$55
+        .byte   $FF,$FF,$55,$03,$03,$03,$03,$03
+        .byte   $03,$03,$FF,$FF,$FF,$03,$03,$03
+        .byte   $03,$03,$03,$03,$03,$03,$03,$03
+        .byte   $03,$03,$03,$03,$03,$00,$AB,$03
+        .byte   $57,$03,$03,$03,$03,$07,$03,$03
+        .byte   $03,$03,$03,$03,$03,$03,$03,$03
+        .byte   $03,$03,$AA,$FF,$FF,$FF,$FF,$FF
 verb_adr_l:
-        .byte   $17,$FF,$FF,$19,$5D,$35,$4B,$F2 ; "....]5Kr"
-        .byte   $EC,$87,$6F,$AD,$B7,$E2,$F8,$54 ; "l.o-7bxT"
-        .byte   $80,$96,$85,$82,$22,$10,$33,$4A ; "....".3J"
-        .byte   $13,$06,$0B,$4A,$01,$40,$47,$7A ; "...J.@Gz"
-        .byte   $00,$FF,$23,$09,$5B,$16,$B6,$CB ; "..#.[.6K"
-        .byte   $FF,$FF,$FB,$FF,$FF,$24,$F6,$4E ; "..{..$vN"
-        .byte   $59,$50,$00,$FF,$23,$A3,$6F,$36 ; "YP..##o6"
-        .byte   $23,$D7,$1C,$22,$C2,$AE,$BA,$23 ; "#W."B.:#"
-        .byte   $FF,$FF,$21,$30,$1E,$03,$C4,$20 ; "..!0..D "
-        .byte   $00,$C1,$FF,$FF,$FF,$A0,$30,$1E ; ".A... 0."
-        .byte   $A4,$D3,$B6,$BC,$AA,$3A,$01,$50 ; "$S6<*:.P"
-        .byte   $7E,$D8,$D8,$A5,$3C,$FF,$16,$5B ; "~XX%<..["
-        .byte   $28,$03,$C4,$1D,$00,$0C,$4E,$00 ; "(.D...N."
-        .byte   $3E,$00,$A6,$B0,$00,$BC,$C6,$57 ; ">.&0.<FW"
-        .byte   $8C,$01,$27,$FF,$FF,$FF,$FF,$FF ; "..'....."
+        .byte   <begin_line,$FF,$FF,<colon,<list_cmd,<list_comman,<list_all,<Teff2
+        .byte   <Tefec,<del_cmd,<del_comma,<new_cmd,<clr,<auto_cmd,<auto_com,<(Tee5e+1)
+        .byte   <Tef80,<Tef96,<add,<subtract,<mult_op,<divide,<eq_op,<neq_op
+        .byte   <Tec13,<Tec06,<Tec0b,<neq_op,<Tec01,<Tec40,<Tec47,<mod_op
+        .byte   $00,$FF,<left_paren,<comma_substr,<goto_stmt,<Te816,<string_input,<input_num_comma
+        .byte   $FF,$FF,<paren_substr,$FF,$FF,<num_array_subs,<peek_fn,<rnd_fn
+        .byte   <sgn_fn,<abs_fn,$00,$FF,<left_paren,<unary_pos,<negate,<not_op
+        .byte   <left_paren,<string_eq,<string_neq,<len_fn,<leec2,<(l1235+2),<(l1237+4),<left_paren
+        .byte   $FF,$FF,<str_arr_dest,<dim_str,<dim_num,<print_str,<print_num,<print_semi
+        .byte   <print_str_comma,<print_com_num,$FF,$FF,$FF,<call_stmt,<dim_str,<dim_num
+        .byte   <tab_fn,<end_stmt,<string_input,<input_prompt,<input_num_stmt,<for_stmt,<var_assign,<to_clause
+        .byte   <Te97e,<next_stmt,<next_stmt,<return_stmt,<gosub_stmt,$FF,<Te816,<goto_stmt
+        .byte   <if_stmt,<print_str,<print_num,<print_cr,<poke_stmt,<Tef0c,<Tee4e,<poke_stmt
+        .byte   <plot_comma,<poke_stmt,<l1233,<(l1235+4),<poke_stmt,<(l1237+6),<(leec2+4),<(l123+1)
+        .byte   <string_lit,<var_assign,<right_paren,$FF,$FF,$FF,$FF,$FF
 verb_adr_h:
-        .byte   $E8,$FF,$FF,$E8,$E0,$E0,$E0,$EF ; "h..h```o"
-        .byte   $EF,$E3,$E3,$E5,$E5,$E7,$E7,$EE ; "occeeggn"
-        .byte   $EF,$EF,$E7,$E7,$E2,$EF,$E7,$E7 ; "ooggbogg"
-        .byte   $EC,$EC,$EC,$E7,$EC,$EC,$EC,$E2 ; "lllglllb"
-        .byte   $00,$FF,$E8,$E1,$E8,$E8,$EF,$EB ; "..hahhok"
-        .byte   $FF,$FF,$E0,$FF,$FF,$EF,$EE,$EF ; "..`..ono"
-        .byte   $E7,$E7,$00,$FF,$E8,$E7,$E7,$E7 ; "gg..hggg"
-        .byte   $E8,$E1,$E2,$EE,$EE,$EE,$EE,$E8 ; "habnnnnh"
-        .byte   $FF,$FF,$E1,$E1,$EF,$EE,$E7,$E8 ; "..aaongh"
-        .byte   $EE,$E7,$FF,$FF,$FF,$EE,$E1,$EF ; "ng...nao"
-        .byte   $E7,$E8,$EF,$EF,$EB,$E9,$E8,$E9 ; "ghookihi"
-        .byte   $E9,$E8,$E8,$E8,$E8,$FF,$E8,$E8 ; "ihhhh.hh"
-        .byte   $E8,$EE,$E7,$E8,$EF,$EF,$EE,$EF ; "hnghoono"
-        .byte   $EE,$EF,$EE,$EE,$EF,$EE,$EE,$EE ; "nonnonnn"
-        .byte   $E1,$E8,$E8,$FF,$FF,$FF,$FF,$FF ; "ahh....."
+        .byte   >begin_line,$FF,$FF,>colon,>list_cmd,>list_comman,>list_all,>Teff2
+        .byte   >Tefec,>del_cmd,>del_comma,>new_cmd,>clr,>auto_cmd,>auto_com,>(Tee5e+1)
+        .byte   >Tef80,>Tef96,>add,>subtract,>mult_op,>divide,>eq_op,>neq_op
+        .byte   >Tec13,>Tec06,>Tec0b,>neq_op,>Tec01,>Tec40,>Tec47,>mod_op
+        .byte   $00,$FF,>left_paren,>comma_substr,>goto_stmt,>Te816,>string_input,>input_num_comma
+        .byte   $FF,$FF,>paren_substr,$FF,$FF,>num_array_subs,>peek_fn,>rnd_fn
+        .byte   >sgn_fn,>abs_fn,$00,$FF,>left_paren,>unary_pos,>negate,>not_op
+        .byte   >left_paren,>string_eq,>string_neq,>len_fn,>leec2,>(l1235+2),>(l1237+4),>left_paren
+        .byte   $FF,$FF,>str_arr_dest,>dim_str,>dim_num,>print_str,>print_num,>print_semi
+        .byte   >print_str_comma,>print_com_num,$FF,$FF,$FF,>call_stmt,>dim_str,>dim_num
+        .byte   >tab_fn,>end_stmt,>string_input,>input_prompt,>input_num_stmt,>for_stmt,>var_assign,>to_clause
+        .byte   >Te97e,>next_stmt,>next_stmt,>return_stmt,>gosub_stmt,$FF,>Te816,>goto_stmt
+        .byte   >if_stmt,>print_str,>print_num,>print_cr,>poke_stmt,>Tef0c,>Tee4e,>poke_stmt
+        .byte   >plot_comma,>poke_stmt,>l1233,>(l1235+4),>poke_stmt,>(l1237+6),>(leec2+4),>(l123+1)
+        .byte   >string_lit,>var_assign,>right_paren,$FF,$FF,$FF,$FF,$FF
 
 ; Error message strings. Last character has high bit unset.
 error_msg_tbl:
@@ -1642,10 +1645,10 @@ Lec1b:  JMP     not_op
 
 ; indexes into syntabl
 syntabl_index:
-        .byte   $C1,$FF,$7F,$D1,$CC,$C7,$CF,$CE ; "A..QLGON"
-        .byte   $C5,$9A,$98,$8B,$96,$95,$93,$BF ; "E......?"
-        .byte   $B2,$32,$2D,$2B,$BC,$B0,$AC,$BE ; "22-+<0,>"
-        .byte   $35,$8E,$61,$FF,$FF,$FF,$DD,$FB ; "5.a...]{"
+        .byte   $C1,$FF,$7F,$D1,$CC,$C7,$CF,$CE
+        .byte   $C5,$9A,$98,$8B,$96,$95,$93,$BF
+        .byte   $B2,$32,$2D,$2B,$BC,$B0,$AC,$BE
+        .byte   $35,$8E,$61,$FF,$FF,$FF,$DD,$FB
 
 Tec40:  JSR     Sefc9
         ORA     rnd+1,X
@@ -1656,61 +1659,61 @@ Tec47:  JSR     Sefc9
 Lec4c:  STA     noun_stk_l,X
         BPL     Lec1b
         JMP     Sefc9
-        .byte   $40,$60,$8D,$60,$8B,$00,$7E,$8C ; "@`.`..~."
-        .byte   $33,$00,$00,$60,$03,$BF,$12,$00 ; "3..`.?.."
-        .byte   $40,$89,$C9,$47,$9D,$17,$68,$9D ; "@.IG..h."
-        .byte   $0A,$00,$40,$60,$8D,$60,$8B,$00 ; "..@`.`.."
-        .byte   $7E,$8C,$3C,$00,$00,$60,$03,$BF ; "~.<..`.?"
-        .byte   $1B,$4B,$67,$B4,$A1,$07,$8C,$07 ; ".Kg4!..."
-        .byte   $AE,$A9,$AC,$A8,$67,$8C,$07,$B4 ; ".),(g..4"
-        .byte   $AF,$AC,$B0,$67,$9D,$B2,$AF,$AC ; "/,0g.2/,"
-        .byte   $AF,$A3,$67,$8C,$07,$A5,$AB,$AF ; "/#g..%+/"
-        .byte   $B0,$F4,$AE,$A9,$B2,$B0,$7F,$0E ; "0t.)20.."
-        .byte   $27,$B4,$AE,$A9,$B2,$B0,$7F,$0E ; "'4.)20.."
-        .byte   $28,$B4,$AE,$A9,$B2,$B0,$64,$07 ; "(4.)20d."
-        .byte   $A6,$A9,$67,$AF,$B4,$AF,$A7,$78 ; "&)g/4/'x"
-        .byte   $B4,$A5,$AC,$78,$7F,$02,$AD,$A5 ; "4%,x..-%"
-        .byte   $B2,$67,$A2,$B5,$B3,$AF,$A7,$EE ; "2g"53/'n"
-        .byte   $B2,$B5,$B4,$A5,$B2,$7E,$8C,$39 ; "254%2~.9"
-        .byte   $B4,$B8,$A5,$AE,$67,$B0,$A5,$B4 ; "48%.g0%4"
-        .byte   $B3,$27,$AF,$B4,$07,$9D,$19,$B2 ; "3'/4...2"
-        .byte   $AF,$A6,$7F,$05,$37,$B4,$B5,$B0 ; "/&..7450"
-        .byte   $AE,$A9,$7F,$05,$28,$B4,$B5,$B0 ; ".)..(450"
-        .byte   $AE,$A9,$7F,$05,$2A,$B4,$B5,$B0 ; ".)..*450"
-        .byte   $AE,$A9,$E4,$AE,$A5,$00,$FF,$FF ; ".)d.%..."
+        .byte   $40,$60,$8D,$60,$8B,$00,$7E,$8C
+        .byte   $33,$00,$00,$60,$03,$BF,$12,$00
+        .byte   $40,$89,$C9,$47,$9D,$17,$68,$9D
+        .byte   $0A,$00,$40,$60,$8D,$60,$8B,$00
+        .byte   $7E,$8C,$3C,$00,$00,$60,$03,$BF
+        .byte   $1B,$4B,$67,$B4,$A1,$07,$8C,$07
+        .byte   $AE,$A9,$AC,$A8,$67,$8C,$07,$B4
+        .byte   $AF,$AC,$B0,$67,$9D,$B2,$AF,$AC
+        .byte   $AF,$A3,$67,$8C,$07,$A5,$AB,$AF
+        .byte   $B0,$F4,$AE,$A9,$B2,$B0,$7F,$0E
+        .byte   $27,$B4,$AE,$A9,$B2,$B0,$7F,$0E
+        .byte   $28,$B4,$AE,$A9,$B2,$B0,$64,$07
+        .byte   $A6,$A9,$67,$AF,$B4,$AF,$A7,$78
+        .byte   $B4,$A5,$AC,$78,$7F,$02,$AD,$A5
+        .byte   $B2,$67,$A2,$B5,$B3,$AF,$A7,$EE
+        .byte   $B2,$B5,$B4,$A5,$B2,$7E,$8C,$39
+        .byte   $B4,$B8,$A5,$AE,$67,$B0,$A5,$B4
+        .byte   $B3,$27,$AF,$B4,$07,$9D,$19,$B2
+        .byte   $AF,$A6,$7F,$05,$37,$B4,$B5,$B0
+        .byte   $AE,$A9,$7F,$05,$28,$B4,$B5,$B0
+        .byte   $AE,$A9,$7F,$05,$2A,$B4,$B5,$B0
+        .byte   $AE,$A9,$E4,$AE,$A5,$00,$FF,$FF
 syntabl2:
-        .byte   $47,$A2,$A1,$B4,$7F,$0D,$30,$AD ; "G"!4..0-"
-        .byte   $A9,$A4,$7F,$0D,$23,$AD,$A9,$A4 ; ")$..#-)$"
-        .byte   $67,$AC,$AC,$A1,$A3,$00,$40,$80 ; "g,,!#.@."
-        .byte   $C0,$C1,$80,$00,$47,$8C,$68,$8C ; "@A..G.h."
-        .byte   $DB,$67,$9B,$68,$9B,$50,$8C,$63 ; "[g.h.P.c"
-        .byte   $8C,$7F,$01,$51,$07,$88,$29,$84 ; "...Q..)."
-        .byte   $80,$C4,$80,$57,$71,$07,$88,$14 ; ".D.Wq..."
-        .byte   $ED,$A5,$AD,$AF,$AC,$ED,$A5,$AD ; "m%-/,m%-"
-        .byte   $A9,$A8,$F2,$AF,$AC,$AF,$A3,$71 ; ")(r/,/#q"
-        .byte   $08,$88,$AE,$A5,$AC,$68,$83,$08 ; "...%,h.."
-        .byte   $68,$9D,$08,$71,$07,$88,$60,$76 ; "h..q..`v"
-        .byte   $B4,$AF,$AE,$76,$8D,$76,$8B,$51 ; "4/.v.v.Q"
-        .byte   $07,$88,$19,$B8,$A4,$AE,$B2,$F2 ; "...8$.2r"
-        .byte   $B3,$B5,$F3,$A2,$A1,$EE,$A7,$B3 ; "35s"!n'3"
-        .byte   $E4,$AE,$B2,$EB,$A5,$A5,$B0,$51 ; "d.2k%%0Q"
-        .byte   $07,$88,$39,$81,$C1,$4F,$7F,$0F ; "..9.AO.."
-        .byte   $2F,$00,$51,$06,$88,$29,$C2,$0C ; "/.Q..)B."
-        .byte   $82,$57,$8C,$6A,$8C,$42,$AE,$A5 ; ".W.j.B.%"
-        .byte   $A8,$B4,$60,$AE,$A5,$A8,$B4,$4F ; "(4`.%(4O"
-        .byte   $7E,$1E,$35,$8C,$27,$51,$07,$88 ; "~.5.'Q.."
-        .byte   $09,$8B,$FE,$E4,$AF,$AD,$F2,$AF ; "..~d/-r/"
-        .byte   $E4,$AE,$A1,$DC,$DE,$9C,$DD,$9C ; "d.!\^.]."
-        .byte   $DE,$DD,$9E,$C3,$DD,$CF,$CA,$CD ; "^].C]OJM"
-        .byte   $CB,$00,$47,$9D,$AD,$A5,$AD,$AF ; "K.G.-%-/"
-        .byte   $AC,$76,$9D,$AD,$A5,$AD,$A9,$A8 ; ",v.-%-)("
-        .byte   $E6,$A6,$AF,$60,$8C,$20,$AF,$B4 ; "f&/`. /4"
-        .byte   $B5,$A1,$F2,$AC,$A3,$F2,$A3,$B3 ; "5!r,#r#3"
-        .byte   $60,$8C,$20,$AC,$A5,$A4,$EE,$B5 ; "`. ,%$n5"
-        .byte   $B2,$60,$AE,$B5,$B2,$F4,$B3,$A9 ; "2`.52t3)"
-        .byte   $AC,$60,$8C,$20,$B4,$B3,$A9,$AC ; ",`. 43),"
-        .byte   $7A,$7E,$9A,$22,$20,$00,$60,$03 ; "z~." .`."
-        .byte   $BF,$60,$03,$BF,$1F             ; "?`.?."
+        .byte   $47,$A2,$A1,$B4,$7F,$0D,$30,$AD
+        .byte   $A9,$A4,$7F,$0D,$23,$AD,$A9,$A4
+        .byte   $67,$AC,$AC,$A1,$A3,$00,$40,$80
+        .byte   $C0,$C1,$80,$00,$47,$8C,$68,$8C
+        .byte   $DB,$67,$9B,$68,$9B,$50,$8C,$63
+        .byte   $8C,$7F,$01,$51,$07,$88,$29,$84
+        .byte   $80,$C4,$80,$57,$71,$07,$88,$14
+        .byte   $ED,$A5,$AD,$AF,$AC,$ED,$A5,$AD
+        .byte   $A9,$A8,$F2,$AF,$AC,$AF,$A3,$71
+        .byte   $08,$88,$AE,$A5,$AC,$68,$83,$08
+        .byte   $68,$9D,$08,$71,$07,$88,$60,$76
+        .byte   $B4,$AF,$AE,$76,$8D,$76,$8B,$51
+        .byte   $07,$88,$19,$B8,$A4,$AE,$B2,$F2
+        .byte   $B3,$B5,$F3,$A2,$A1,$EE,$A7,$B3
+        .byte   $E4,$AE,$B2,$EB,$A5,$A5,$B0,$51
+        .byte   $07,$88,$39,$81,$C1,$4F,$7F,$0F
+        .byte   $2F,$00,$51,$06,$88,$29,$C2,$0C
+        .byte   $82,$57,$8C,$6A,$8C,$42,$AE,$A5
+        .byte   $A8,$B4,$60,$AE,$A5,$A8,$B4,$4F
+        .byte   $7E,$1E,$35,$8C,$27,$51,$07,$88
+        .byte   $09,$8B,$FE,$E4,$AF,$AD,$F2,$AF
+        .byte   $E4,$AE,$A1,$DC,$DE,$9C,$DD,$9C
+        .byte   $DE,$DD,$9E,$C3,$DD,$CF,$CA,$CD
+        .byte   $CB,$00,$47,$9D,$AD,$A5,$AD,$AF
+        .byte   $AC,$76,$9D,$AD,$A5,$AD,$A9,$A8
+        .byte   $E6,$A6,$AF,$60,$8C,$20,$AF,$B4
+        .byte   $B5,$A1,$F2,$AC,$A3,$F2,$A3,$B3
+        .byte   $60,$8C,$20,$AC,$A5,$A4,$EE,$B5
+        .byte   $B2,$60,$AE,$B5,$B2,$F4,$B3,$A9
+        .byte   $AC,$60,$8C,$20,$B4,$B3,$A9,$AC
+        .byte   $7A,$7E,$9A,$22,$20,$00,$60,$03
+        .byte   $BF,$60,$03,$BF,$1F
 
 ; token $48 - "," string output
 print_str_comma:        JSR     tabout
@@ -1826,7 +1829,7 @@ l1237:  LDY     #$00
         LDA     pp
         CMP     himem
         LDA     pp+1
-        SBC     himem+1
+leec2:  SBC     himem+1
         BCC     l1233
         JMP     Tee5e
         CMP     #$28
