@@ -8,8 +8,9 @@
 ;          Scungy Video                       (65 words)
 ;                                         Scan Space - 2000-201F
 ;                                             (32 words)
+;
 
-        VIA  = $8000            ; Start address of 6522 VIA
+        VIA      = $8000        ; Start address of 6522 VIA
         VIA_DDRA = VIA+3        ; DDRA register
         VIA_ORA  = VIA+1        ; ORA register
 
@@ -18,56 +19,76 @@
         JMP     START
 
 ; Live Scan Subroutine:
-l0200:  INC     VIA_ORA         ; Output H sync pulse
-        INC     VIA_ORA         ; Advance row count
-        JSR     SCAN            ; ///DO SCAN MICROINSTRUCTION///
+; Each horizontal scan should be exactly 63 us (clock cycles) in length.
+; 6 + 6 + 6 + 2 + 36 +4 + 3 = 63
 
-        CMP     VIA_ORA         ; Is this the last dot row?
-        BNE     l0200           ; No, do another row of dots
-        RTS                     ; Return to main scan
+l0200:  INC     VIA_ORA         ; (6) Output H sync pulse
+        INC     VIA_ORA         ; (6) Advance row count
+        JSR     SCAN            ; (6) ///DO SCAN MICROINSTRUCTION///
+        NOP                     ; (2) Equalize 2 us
+        CMP     VIA_ORA         ; (4) Is this the last dot row?
+        BNE     l0200           ; (2+) No, do another row of dots
+        RTS                     ; (6) Return to main scan
 
 ; Main Scan Program:
+; 2 + 2 + 2 + 2 + 4 + 2 + 4 + 2 + (2 + 3) * 31 + 6 = 181
+; 63 x 3 = 189
 
-START:  NOP                     ; Equalize 6 uS
-        NOP
-        NOP
-        LDA     #$FF            ; Make A port an output
-        STA     VIA_DDRA        ;  continued
-        LDA     #1              ; Start V sync pulse
+START:  NOP                     ; (2) Equalize 6 uS
+        NOP                     ; (2)
+        NOP                     ; (2)
+        LDA     #$FF            ; (2) Make A port an output
+        STA     VIA_DDRA        ; (4)  continued
+        LDA     #1              ; (2) Start V sync pulse
 
-        STA     VIA_ORA         ;  continued
-        LDA     #$0E            ; Last row compare
-        LDY     #$1F            ; Delay for rest of V Sync
-l021f:  DEY                     ;  continued
+        STA     VIA_ORA         ; (4)  continued
+        LDA     #$10            ; (2) Last row compare ($10 or $0E?)
+        LDY     #$1F            ; (2) Delay for rest of V Sync
+l021f:  DEY                     ; (2)  continued
 
-        BNE     l021f           ;  continued
-        DEC     VIA_ORA         ; End V sync pulse
-        LDX     #$AF            ; Set # of blank scans
-l0227:  PHA                     ; Equalize 9 us
+        BNE     l021f           ; (2+) continued
+        DEC     VIA_ORA         ; (6) End V sync pulse
 
-        PLA                     ;  continued
-        NOP                     ;  continued
-        INC     VIA_ORA         ; Output H sync pulse
-        DEC     VIA_ORA         ;  continued
+        LDX     #$AF            ; (2) Set # of blank scans
+l0227:  PHA                     ; (3) Equalize 9 us
+        PLA                     ; (4)  continued
+        NOP                     ; (2)  continued
 
-        LDY     #$08            ; Delay to complete blank scan
-l0232:  DEY                     ;  continued
-        BNE     l0232           ;  continued
-        DEX                     ; One less blank scan
+        INC     VIA_ORA         ; (6) Output H sync pulse
+        DEC     VIA_ORA         ; (6)  continued
 
-        BNE    l0227            ; Done with blank scans?
-        NOP                     ; Equalize 6 us
-        NOP                     ;  continued
+        LDY     #$08            ; (2) Delay to complete blank scan
+l0232:  DEY                     ; (2)  continued
+        BNE     l0232           ; (2+) continued
+        DEX                     ; (2) One less blank scan
 
-        JSR    l0200            ; ///DO LIVE SCAN SUBROUTINE///
-        JMP    START            ; Start new field
+        BNE    l0227            ; (2+) Done with blank scans?
+        NOP                     ; (2) Equalize 6 us
+        NOP                     ; (2)  continued
+
+        JSR    l0200            ; (6) ///DO LIVE SCAN SUBROUTINE///
+        JMP    START            ; (3) Start new field
 
         .res   $2000-*,$00
 
 ; Scan code for Scungy video 1x32 alphanumeric display.
 ; JSR/RTS method.
+; Total cycles: 36
 
 SCAN:
-        .res    30, $A0         ; LDY #$A0
-        rts
-        rts
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        LDY    #$A0             ; (2)
+        RTS                     ; (6)
