@@ -20,7 +20,9 @@
 
 ; Live Scan Subroutine:
 ; Each horizontal scan should be exactly 63 us (clock cycles) in length.
-; 6 + 6 + 6 + 2 + 36 +4 + 3 = 63
+; 6 + 6 + 6 + 36 + 2 + 4 + 3 = 63
+
+; TODO: This is only called once and could be in-line code.
 
 l0200:  INC     VIA_ORA         ; (6) Output H sync pulse
         INC     VIA_ORA         ; (6) Advance row count
@@ -31,25 +33,26 @@ l0200:  INC     VIA_ORA         ; (6) Output H sync pulse
         RTS                     ; (6) Return to main scan
 
 ; Main Scan Program:
-; 2 + 2 + 2 + 2 + 4 + 2 + 4 + 2 + (2 + 3) * 31 + 6 = 181
+; 2 + 2 + 2 + 2 + 4 + 2 + 4 + 2 + (2 + 3) * 31 - 1 + 6 = 180
 ; 63 x 3 = 189
 
-START:  NOP                     ; (2) Equalize 6 uS
+START:  NOP                     ; (2) Equalize 6 us
         NOP                     ; (2)
         NOP                     ; (2)
         LDA     #$FF            ; (2) Make A port an output
         STA     VIA_DDRA        ; (4)  continued
-        LDA     #1              ; (2) Start V sync pulse
+        LDA     #$01            ; (2) Start V sync pulse
 
         STA     VIA_ORA         ; (4)  continued
         LDA     #$10            ; (2) Last row compare ($10 or $0E?)
         LDY     #$1F            ; (2) Delay for rest of V Sync
 l021f:  DEY                     ; (2)  continued
-
         BNE     l021f           ; (2+) continued
         DEC     VIA_ORA         ; (6) End V sync pulse
 
-        LDX     #$AF            ; (2) Set # of blank scans
+; 2 + 3 + 4 + 2 + 6 + 6 + 2 + (2 + 3) * 8 - 1 + 2 + 3 = 69
+
+        LDX     #$AF            ; (2) Set # of blank scans (175)
 l0227:  PHA                     ; (3) Equalize 9 us
         PLA                     ; (4)  continued
         NOP                     ; (2)  continued
@@ -75,6 +78,11 @@ l0232:  DEY                     ; (2)  continued
 ; JSR/RTS method.
 ; Total cycles: 36
 
+; If using a 65C02, another option for the opcode would be a 1 cycle
+; invalid (nop) instruction, e.g $03.
+
+; TODO: This is only called once and could be in-line code.
+
 SCAN:
         LDY    #$A0             ; (2)
         LDY    #$A0             ; (2)
@@ -91,4 +99,4 @@ SCAN:
         LDY    #$A0             ; (2)
         LDY    #$A0             ; (2)
         LDY    #$A0             ; (2)
-        RTS                     ; (6)
+        RTS                     ; (6) first 2 are part of the scan
