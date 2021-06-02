@@ -1,7 +1,7 @@
 all: scungy.run
 
 scungy.run: scungy.bin
-	srec_cat scungy.bin -binary -offset 0x1f00 -o scungy.run -Execution_Start_Address 0x1f00
+	srec_cat scungy.bin -binary -offset 0x1fa0 -o scungy.run -Execution_Start_Address 0x1fa0
 
 scungy.bin: scungy.o
 	ld65 -t none -vm -m scungy.map -o scungy.bin scungy.o
