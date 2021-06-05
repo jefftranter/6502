@@ -53,12 +53,14 @@
 #define NMI 33
 #define BUTTON 31
 
+#define VERSION "0.25"
+
 #if defined(D6502)
-const char *versionString = "6502 Logic Analyzer version 0.24 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "6502 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #elif defined(D65C02)
-const char *versionString = "65C02 Logic Analyzer version 0.24 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "65C02 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #elif defined(D6809)
-const char *versionString = "6809 Logic Analyzer version 0.24 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "6809 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #else
 #error "No processor defined!"
 #endif
@@ -99,40 +101,40 @@ bool triggerLevel = false;            // Trigger level (false=low, true=high);
 volatile bool triggerPressed = false; // Set by hardware trigger button
 
 #ifdef D65C02
-// Instructions for 6502 disassembler.
+// Instructions for 65C02 disassembler.
 const char *opcodes[256] = {
   "BRK", "ORA (nn,X)", "?", "?", "TSB nn", "ORA nn", "ASL nn", "RMB0 nn",
-  "PHP", "ORA #nn", "ASLA", "?", "TSB XXXX", "ORA nn", "ASL nn", "BBR0 nn",
+  "PHP", "ORA #nn", "ASLA", "?", "TSB XXXX", "ORA nnnn", "ASL nnnn", "BBR0 nn",
   "BPL nn", "ORA (nn),Y", "ORA (nn)", "?", "TRB nn", "ORA nn,X", "ASL nn,X", "RMB1 nn",
-  "CLC", "ORA nn,Y", "INCA", "?", "TRB nn", "ORA nn,X", "ASL nn,X", "BBR1 nn",
-  "JSR nn", "AND (nn,X)", "?", "?", "BIT nn", "AND nn", "ROL nn", "RMB2 nn",
-  "PLP", "AND #nn", "ROLA", "?", "BIT nn", "AND nn", "ROL nn", "BBR2 nn",
+  "CLC", "ORA nnnn,Y", "INCA", "?", "TRB nn", "ORA nnnn,X", "ASL nnnn,X", "BBR1 nn",
+  "JSR nnnn", "AND (nn,X)", "?", "?", "BIT nn", "AND nn", "ROL nn", "RMB2 nn",
+  "PLP", "AND #nn", "ROLA", "?", "BIT nnnn", "AND nnnn", "ROL nnnn", "BBR2 nn",
   "BMI nn", "AND (nn),Y", "AND (nn)", "?", "BIT nn,X", "AND nn,X", "ROL nn,X", "RMB3 nn",
-  "SEC", "AND nn,Y", "DECA", "?", "BIT nn,X", "AND nn,X", "ROL nn,X", "BBR3 nn",
+  "SEC", "AND nnnn,Y", "DECA", "?", "BIT nn,X", "AND nnnn,X", "ROL nnnn,X", "BBR3 nn",
   "RTI", "EOR (nn,X)", "?", "?", "?", "EOR nn", "LSR nn", "RMB4 nn",
-  "PHA", "EOR #nn", "LSRA", "?", "JMP nn", "EOR nn", "LSR nn", "BBR4 nn",
+  "PHA", "EOR #nn", "LSRA", "?", "JMP nnnn", "EOR nnnn", "LSR nnnn", "BBR4 nn",
   "BVC nn", "EOR (nn),Y", "EOR (nn)", "?", "?", "EOR nn,X", "LSR nn,X", "RMB5 nn",
-  "CLI", "EOR nn,Y", "PHY", "?", "?", "EOR nn,X", "LSR nn,X", "BBR5 nn",
+  "CLI", "EOR nnnn,Y", "PHY", "?", "?", "EOR nnnn,X", "LSR nnnn,X", "BBR5 nn",
   "RTS", "ADC (nn,X)", "?", "?", "STZ nn", "ADC nn", "ROR nn", "RMB6 nn",
-  "PLA", "ADC #nn", "RORA", "?", "JMP (nn)", "ADC nn", "ROR nn", "BBR6 nn",
+  "PLA", "ADC #nn", "RORA", "?", "JMP (nnnn)", "ADC nnnn", "ROR nnnn", "BBR6 nn",
   "BVS nn", "ADC (nn),Y", "ADC (nn)", "?", "STZ nn,X", "ADC nn,X", "ROR nn,X", "RMB7 nn",
-  "SEI", "ADC nn,Y", "PLY", "?", "JMP (nn,X)", "ADC nn,X", "ROR nn,X", "BBR7 nn",
+  "SEI", "ADC nnnn,Y", "PLY", "?", "JMP (nn,X)", "ADC nnnn,X", "ROR nnnn,X", "BBR7 nn",
   "BRA nn", "STA (nn,X)", "?", "?", "STY nn", "STA nn", "STX nn", "SMB0 nn",
-  "DEY", "BIT #nn", "TXA", "?", "STY nn", "STA nn", "STX nn", "BBS0 nn",
+  "DEY", "BIT #nn", "TXA", "?", "STY nnnn", "STA nnnn", "STX nnnn", "BBS0 nn",
   "BCC nn", "STA (nn),Y", "STA (nn)", "?", "STY nn,X", "STA nn,X", "STX (nn),Y", "SMB1 nn",
-  "TYA", "STA nn,Y", "TXS", "?", "STZ nn", "STA nn,X", "STZ nn,X", "BBS1 nn",
-  "LDY #nn", "LDA (nn,X)", "LDX #nn", "?", "LDY nn", "LDA nn", "LDX nn", "SMB2 nn",
-  "TAY", "LDA #nn", "TAX", "?", "LDY nn", "LDA nn", "LDX nn", "BBS2 nn",
+  "TYA", "STA nnnn,Y", "TXS", "?", "STZ nn", "STA nnnn,X", "STZ nn,X", "BBS1 nn",
+  "LDY #nn", "LDA (nn,X)", "LDX #nn", "?", "LDY nn", "LDA nnnn", "LDX nn", "SMB2 nn",
+  "TAY", "LDA #nnnn", "TAX", "?", "LDY nnnn", "LDA nnnn", "LDX nnnn", "BBS2 nn",
   "BCS nn", "LDA (nn),Y", "LDA (nn)", "?", "LDY nn,X", "LDA nn,X", "LDX (nn),Y", "SMB3 nn",
-  "CLV", "LDA nn,Y", "TSX", "?", "LDY nn,X", "LDA nn,X", "LDX nn,Y", "BBS3 nn",
-  "CPY #nn", "CMP (nn,X)", "?", "?", "CPY nn", "CMP nn", "DEC nn", "SMB4 nn",
+  "CLV", "LDA nnnn,Y", "TSX", "?", "LDY nnnn,X", "LDA nnnn,X", "LDX nnnn,Y", "BBS3 nn",
+  "CPY #nn", "CMP (nn,X)", "?", "?", "CPY nnnn", "CMP nnnn", "DEC nnnn", "SMB4 nn",
   "INY", "CMP #nn", "DEX", "WAI", "CPY nn", "CMP nn", "DEC nn", "BBS4 nn",
   "BNE nn", "CMP (nn),Y", "CMP (nn)", "?", "?", "CMP nn,X", "DEC nn,X", "SMB5 nn",
-  "CLD", "CMP nn,Y", "PHX", "STP", "?", "CMP nn,X", "DEC nn,X", "BBS5 nn",
+  "CLD", "CMP nnnn,Y", "PHX", "STP", "?", "CMP nnnn,X", "DEC nnnn,X", "BBS5 nn",
   "CPX #nn", "SBC (nn,X)", "?", "?", "CPX nn", "SBC nn", "INC nn", "SMB6 nn",
-  "INX", "SBC #nn", "NOP", "?", "CPX nn", "SBC nn", "INC nn", "BBS6 nn",
+  "INX", "SBC #nn", "NOP", "?", "CPX nnnn", "SBC nnnn", "INC nnnn", "BBS6 nn",
   "BEQ nn", "SBC (nn),Y", "SBC (nn)", "?", "?", "SBC nn,X", "INC nn,X", "SMB7 nn",
-  "SED", "SBC nn,Y", "PLX", "?", "?", "SBC nn,X", "INC nn,X", "BBS7 nnnn"
+  "SED", "SBC nnnn,Y", "PLX", "?", "?", "SBC nnnn,X", "INC nnnn,X", "BBS7 nnnn"
 };
 #endif
 
