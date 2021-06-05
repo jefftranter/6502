@@ -124,7 +124,7 @@ const char *opcodes[256] = {
   "BCC nn", "STA (nn),Y", "STA (nn)", "?", "STY nn,X", "STA nn,X", "STX (nn),Y", "SMB1 nn",
   "TYA", "STA nnnn,Y", "TXS", "?", "STZ nn", "STA nnnn,X", "STZ nn,X", "BBS1 nn",
   "LDY #nn", "LDA (nn,X)", "LDX #nn", "?", "LDY nn", "LDA nnnn", "LDX nn", "SMB2 nn",
-  "TAY", "LDA #nnnn", "TAX", "?", "LDY nnnn", "LDA nnnn", "LDX nnnn", "BBS2 nn",
+  "TAY", "LDA #nn", "TAX", "?", "LDY nnnn", "LDA nnnn", "LDX nnnn", "BBS2 nn",
   "BCS nn", "LDA (nn),Y", "LDA (nn)", "?", "LDY nn,X", "LDA nn,X", "LDX (nn),Y", "SMB3 nn",
   "CLV", "LDA nnnn,Y", "TSX", "?", "LDY nnnn,X", "LDA nnnn,X", "LDX nnnn,Y", "BBS3 nn",
   "CPY #nn", "CMP (nn,X)", "?", "?", "CPY nnnn", "CMP nnnn", "DEC nnnn", "SMB4 nn",
@@ -325,12 +325,12 @@ void list(Stream &stream, int start, int end)
         // Fill in operands
         if (s.indexOf("nnnn") != -1) {
           char op[5];
-          sprintf(op, "%04lX", data[i + 1] + 256 * data[i + 2]);
+          sprintf(op, "$%04lX", data[i + 1] + 256 * data[i + 2]);
           s.replace("nnnn", op);
         }
         if (s.indexOf("nn") != -1) {
           char op[3];
-          sprintf(op, "%02lX", data[i + 1]);
+          sprintf(op, "$%02lX", data[i + 1]);
           s.replace("nn", op);
         }
         opcode = s.c_str();
