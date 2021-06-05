@@ -193,6 +193,10 @@ void setup() {
   // Manual trigger button - low on this pin forces a trigger.
   attachInterrupt(digitalPinToInterrupt(BUTTON), triggerButton, FALLING);
 
+  // Data bus direction - output low to default to reading data bus.
+  pinMode(30, OUTPUT);
+  digitalWriteFast(30, LOW);
+
   Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB.
