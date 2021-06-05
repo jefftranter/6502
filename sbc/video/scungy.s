@@ -23,7 +23,7 @@
 ;   - H sync pulse:        6 usec
 ;   - before chars:       12 usec
 ;   - 32 displayed chars: 32 usec
-;   - before chars:       13 usec
+;   - after chars:        13 usec
 ;   - Total:              63 usec
 ; - each field:
 ;   - blank scans at top:    68
