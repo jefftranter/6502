@@ -10,7 +10,7 @@ scungy.o: scungy.s
 	ca65 -g -l scungy.lst scungy.s
 
 scungy-orig.run: scungy-orig.bin
-	srec_cat scungy-orig.bin -binary -offset 0x1f00 -o scungy-orig.run -Execution_Start_Address 0x0
+	srec_cat scungy-orig.bin -binary -offset 0x1fb0 -o scungy-orig.run -Execution_Start_Address 0x0
 
 scungy-orig.bin: scungy-orig.o
 	ld65 -t none -vm -m scungy-orig.map -o scungy-orig.bin scungy-orig.o

@@ -14,7 +14,7 @@
         VIA_DDRA = VIA+3        ; DDRA register
         VIA_ORA  = VIA+1        ; ORA register
 
-        .org    $1F00
+        .org    $1FB0
 
         JMP     START
 
