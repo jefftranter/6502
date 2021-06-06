@@ -61,9 +61,6 @@ void setup() {
     pinMode(i, INPUT_PULLUP);
   }
 
-  // Will use on-board LED to indicate triggering.
-  pinMode(CORE_LED0_PIN, OUTPUT);
-
   // Data bus direction - output low to default to reading data bus.
   pinMode(30, OUTPUT);
   digitalWriteFast(30, LOW);
@@ -80,15 +77,15 @@ void setup() {
 
 void loop() {
 
-  // Wait for PHI2 to go from low to high (address and controls lines valid)
+  // Wait for PHI2 to go from low to high (address and controls lines valid).
   WAIT_PHI2_LOW;
   WAIT_PHI2_HIGH;
 
-  // Read address and control lines
+  // Read address and control lines.
   control = GPIO9_PSR;
   address = GPIO6_PSR;
 
-  // Unscramble address lines
+  // Unscramble address lines.
   address =
     ((address & CORE_PIN0_BITMASK)    ? 0x0001 : 0) // A0
     + ((address & CORE_PIN1_BITMASK)  ? 0x0002 : 0) // A1
@@ -107,16 +104,14 @@ void loop() {
     + ((address & CORE_PIN26_BITMASK) ? 0x4000 : 0) // A14
     + ((address & CORE_PIN27_BITMASK) ? 0x8000 : 0); // A15
 
-  // Unscramble R/W lines
+  // Unscramble R/W line
   readWrite = ((control & CORE_PIN4_BITMASK) ? 0x08 : 0); // R/W
 
   if (address >= ramStartAddress && address <= ramEndAddress) {
 
-    digitalWriteFast(CORE_LED0_PIN, HIGH); // Turn LED on
-
     if (readWrite) { // Read cycle
 
-      // Get data at address in simulated RAM
+      // Get data at address in simulated RAM.
       data = ramData[address - ramStartAddress];
 
       // Scramble data for GPIO lines.
@@ -130,16 +125,26 @@ void loop() {
         + ((data & 0x0040) >> (6 - 1)) // D6
         + ((data & 0x0080) << (12 - 7)); // D7
 
-      // Set data bus to write mode (D30 high)
-      // Wait for PHI2 to go from high to low
+      // Set data bus to write mode (D30 high).
+      digitalWriteFast(30, HIGH);
+
+      // Set GPIO data bus pins to be outputs.
+      GPIO7_GDIR = 0xffff;
+
+      // Wait for PHI2 to go from high to low (data lines valid).
+      WAIT_PHI2_LOW;
+
       // Write data to data lines.
-      //GPIO7_PSR = data;
+      GPIO7_PSR = data;
 
       // Wait for PHI2 to go from low to high.
-      // Set data bus to read mode (D30 low)
-      // Set data bus pins back to be inputs.
+      WAIT_PHI2_HIGH;
 
-      digitalWriteFast(CORE_LED0_PIN, LOW); // Turn LED off
+      // Set data bus pins back to be inputs.
+      GPIO7_GDIR = 0x0000;
+
+      // Set data bus to read mode (D30 low)
+      digitalWriteFast(30, LOW);
 
       Serial.print("Read ");
       Serial.print(address, HEX);
@@ -147,14 +152,14 @@ void loop() {
       Serial.println(ramData[address - ramStartAddress], HEX);
 
     } else { // Write cycle
-      // Wait for PHI2 to go from high to low (data lines valid)
+      // Wait for PHI2 to go from high to low (data lines valid).
       WAIT_PHI2_HIGH;
       WAIT_PHI2_LOW;
 
-      // Read data lines
+      // Read data lines.
       data = GPIO7_PSR;
 
-      // Unscramble data lines
+      // Unscramble data lines.
       data =
         ((data & CORE_PIN6_BITMASK)    ? 0x01 : 0) // D0
         + ((data & CORE_PIN7_BITMASK)  ? 0x02 : 0) // D1
@@ -169,11 +174,9 @@ void loop() {
       ramData[address - ramStartAddress] = data;
     }
 
-    digitalWriteFast(CORE_LED0_PIN, LOW); // Turn LED off
-
-    Serial.print("Write ");
-    Serial.print(address, HEX);
-    Serial.print("=");
-    Serial.println(data, HEX);
+    //Serial.print("Write ");
+    //Serial.print(address, HEX);
+    //Serial.print("=");
+    //Serial.println(data, HEX);
   }
 }
