@@ -129,19 +129,19 @@ void loop() {
       digitalWriteFast(30, HIGH);
 
       // Set GPIO data bus pins to be outputs.
-      GPIO7_GDIR = 0xffff;
+      GPIO7_GDIR = 0xffff; // THIS IS NOT CORRECT!
 
       // Wait for PHI2 to go from high to low (data lines valid).
       WAIT_PHI2_LOW;
 
       // Write data to data lines.
-      GPIO7_PSR = data;
+      GPIO7_PSR = data; // THIS IS NOT CORRECT!
 
       // Wait for PHI2 to go from low to high.
       WAIT_PHI2_HIGH;
 
       // Set data bus pins back to be inputs.
-      GPIO7_GDIR = 0x0000;
+      GPIO7_GDIR = 0x0000; // THIS IS NOT CORRECT!
 
       // Set data bus to read mode (D30 low)
       digitalWriteFast(30, LOW);
