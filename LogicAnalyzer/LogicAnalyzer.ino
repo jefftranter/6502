@@ -1,17 +1,16 @@
 /*
 
-   Logic Analyzer for 6502 or 6809 microprocessors based on a Teensy
-   4.1 microcontroller.
+  Logic Analyzer for 6502 or 6809 microprocessors based on a Teensy
+  4.1 microcontroller.
 
-   See https://github.com/jefftranter/6502/tree/master/LogicAnalyzer
+  See https://github.com/jefftranter/6502/tree/master/LogicAnalyzer
 
-   Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
+  Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
 
-   To Do:
+  To Do:
   - Monitor /FIRQ pin (6809)
   - Monitor BA and BS pins (6809)
   - Support disassembly of 6809 instructions
-
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -105,35 +104,35 @@ volatile bool triggerPressed = false; // Set by hardware trigger button
 const char *opcodes[256] = {
   "BRK", "ORA (nn,X)", "?", "?", "TSB nn", "ORA nn", "ASL nn", "RMB0 nn",
   "PHP", "ORA #nn", "ASLA", "?", "TSB XXXX", "ORA nnnn", "ASL nnnn", "BBR0 nn",
-  "BPL nn", "ORA (nn),Y", "ORA (nn)", "?", "TRB nn", "ORA nn,X", "ASL nn,X", "RMB1 nn",
+  "BPL rr", "ORA (nn),Y", "ORA (nn)", "?", "TRB nn", "ORA nn,X", "ASL nn,X", "RMB1 nn",
   "CLC", "ORA nnnn,Y", "INCA", "?", "TRB nn", "ORA nnnn,X", "ASL nnnn,X", "BBR1 nn",
   "JSR nnnn", "AND (nn,X)", "?", "?", "BIT nn", "AND nn", "ROL nn", "RMB2 nn",
   "PLP", "AND #nn", "ROLA", "?", "BIT nnnn", "AND nnnn", "ROL nnnn", "BBR2 nn",
-  "BMI nn", "AND (nn),Y", "AND (nn)", "?", "BIT nn,X", "AND nn,X", "ROL nn,X", "RMB3 nn",
+  "BMI rr", "AND (nn),Y", "AND (nn)", "?", "BIT nn,X", "AND nn,X", "ROL nn,X", "RMB3 nn",
   "SEC", "AND nnnn,Y", "DECA", "?", "BIT nn,X", "AND nnnn,X", "ROL nnnn,X", "BBR3 nn",
   "RTI", "EOR (nn,X)", "?", "?", "?", "EOR nn", "LSR nn", "RMB4 nn",
   "PHA", "EOR #nn", "LSRA", "?", "JMP nnnn", "EOR nnnn", "LSR nnnn", "BBR4 nn",
-  "BVC nn", "EOR (nn),Y", "EOR (nn)", "?", "?", "EOR nn,X", "LSR nn,X", "RMB5 nn",
+  "BVC rr", "EOR (nn),Y", "EOR (nn)", "?", "?", "EOR nn,X", "LSR nn,X", "RMB5 nn",
   "CLI", "EOR nnnn,Y", "PHY", "?", "?", "EOR nnnn,X", "LSR nnnn,X", "BBR5 nn",
   "RTS", "ADC (nn,X)", "?", "?", "STZ nn", "ADC nn", "ROR nn", "RMB6 nn",
   "PLA", "ADC #nn", "RORA", "?", "JMP (nnnn)", "ADC nnnn", "ROR nnnn", "BBR6 nn",
-  "BVS nn", "ADC (nn),Y", "ADC (nn)", "?", "STZ nn,X", "ADC nn,X", "ROR nn,X", "RMB7 nn",
+  "BVS rr", "ADC (nn),Y", "ADC (nn)", "?", "STZ nn,X", "ADC nn,X", "ROR nn,X", "RMB7 nn",
   "SEI", "ADC nnnn,Y", "PLY", "?", "JMP (nn,X)", "ADC nnnn,X", "ROR nnnn,X", "BBR7 nn",
-  "BRA nn", "STA (nn,X)", "?", "?", "STY nn", "STA nn", "STX nn", "SMB0 nn",
+  "BRA rr", "STA (nn,X)", "?", "?", "STY nn", "STA nn", "STX nn", "SMB0 nn",
   "DEY", "BIT #nn", "TXA", "?", "STY nnnn", "STA nnnn", "STX nnnn", "BBS0 nn",
-  "BCC nn", "STA (nn),Y", "STA (nn)", "?", "STY nn,X", "STA nn,X", "STX (nn),Y", "SMB1 nn",
+  "BCC rr", "STA (nn),Y", "STA (nn)", "?", "STY nn,X", "STA nn,X", "STX (nn),Y", "SMB1 nn",
   "TYA", "STA nnnn,Y", "TXS", "?", "STZ nn", "STA nnnn,X", "STZ nn,X", "BBS1 nn",
   "LDY #nn", "LDA (nn,X)", "LDX #nn", "?", "LDY nn", "LDA nnnn", "LDX nn", "SMB2 nn",
   "TAY", "LDA #nn", "TAX", "?", "LDY nnnn", "LDA nnnn", "LDX nnnn", "BBS2 nn",
-  "BCS nn", "LDA (nn),Y", "LDA (nn)", "?", "LDY nn,X", "LDA nn,X", "LDX (nn),Y", "SMB3 nn",
+  "BCS rr", "LDA (nn),Y", "LDA (nn)", "?", "LDY nn,X", "LDA nn,X", "LDX (nn),Y", "SMB3 nn",
   "CLV", "LDA nnnn,Y", "TSX", "?", "LDY nnnn,X", "LDA nnnn,X", "LDX nnnn,Y", "BBS3 nn",
   "CPY #nn", "CMP (nn,X)", "?", "?", "CPY nnnn", "CMP nnnn", "DEC nnnn", "SMB4 nn",
   "INY", "CMP #nn", "DEX", "WAI", "CPY nn", "CMP nn", "DEC nn", "BBS4 nn",
-  "BNE nn", "CMP (nn),Y", "CMP (nn)", "?", "?", "CMP nn,X", "DEC nn,X", "SMB5 nn",
+  "BNE rr", "CMP (nn),Y", "CMP (nn)", "?", "?", "CMP nn,X", "DEC nn,X", "SMB5 nn",
   "CLD", "CMP nnnn,Y", "PHX", "STP", "?", "CMP nnnn,X", "DEC nnnn,X", "BBS5 nn",
   "CPX #nn", "SBC (nn,X)", "?", "?", "CPX nn", "SBC nn", "INC nn", "SMB6 nn",
   "INX", "SBC #nn", "NOP", "?", "CPX nnnn", "SBC nnnn", "INC nnnn", "BBS6 nn",
-  "BEQ nn", "SBC (nn),Y", "SBC (nn)", "?", "?", "SBC nn,X", "INC nn,X", "SMB7 nn",
+  "BEQ rr", "SBC (nn),Y", "SBC (nn)", "?", "?", "SBC nn,X", "INC nn,X", "SMB7 nn",
   "SED", "SBC nnnn,Y", "PLX", "?", "?", "SBC nnnn,X", "INC nnnn,X", "BBS7 nnnn"
 };
 #endif
@@ -143,35 +142,35 @@ const char *opcodes[256] = {
 const char *opcodes[256] = {
   "BRK", "ORA (nn,X)", "?", "?", "?", "ORA nn", "ASL nn", "?",
   "PHP", "ORA #nn", "ASLA", "?", "?", "ORA nnnn", "ASL nnnn", "?",
-  "BPL nn", "ORA (nn),Y", "?", "?", "?", "ORA nn,X", "ASL nn,X", "?",
+  "BPL rr", "ORA (nn),Y", "?", "?", "?", "ORA nn,X", "ASL nn,X", "?",
   "CLC", "ORA nnnn,Y", "?", "?", "?", "ORA nnnn,X", "ASL nnnn,X", "?",
   "JSR nnnn", "AND (nn,X)", "?", "?", "BIT nn", "AND nn", "ROL nn", "?",
   "PLP", "AND #nn", "ROLA", "?", "BIT nnnn", "AND nnnn", "ROL nnnn", "?",
-  "BMI nn", "AND (nn),Y", "?", "?", "?", "AND nn,X", "ROL nn,X", "?",
+  "BMI rr", "AND (nn),Y", "?", "?", "?", "AND nn,X", "ROL nn,X", "?",
   "SEC", "AND nnnn,Y", "?", "?", "?", "AND nnnn,X", "ROL nnnn,X", "?",
   "RTI", "EOR (nn,X)", "?", "?", "?", "EOR nn", "LSR nn", "?",
   "PHA", "EOR #nn", "LSRA", "?", "JMP nnnn", "EOR nnnn", "LSR nnnn", "?",
-  "BVC nn", "EOR (nn),Y", "?", "?", "?", "EOR nn,X", "LSR nn,X", "?",
+  "BVC rr", "EOR (nn),Y", "?", "?", "?", "EOR nn,X", "LSR nn,X", "?",
   "CLI", "EOR nnnn,Y", "?", "?", "?", "EOR nnnn,X", "LSR nnnn,X", "?",
   "RTS", "ADC (nn,X)", "?", "?", "?", "ADC nn", "ROR nn", "?",
   "PLA", "ADC #nn", "RORA", "?", "JMP (nnnn)", "ADC nnnn", "ROR nnnn", "?",
-  "BVS nn", "ADC (nn),Y", "?", "?", "?", "ADC nn,X", "ROR nn,X", "?",
+  "BVS rr", "ADC (nn),Y", "?", "?", "?", "ADC nn,X", "ROR nn,X", "?",
   "SEI", "ADC nnnn,Y", "?", "?", "?", "ADC nnnn,X", "ROR nnnn,X", "?",
   "?", "STA (nn,X)", "?", "?", "STY nn", "STA nn", "STX nn", "?",
   "DEY", "?", "TXA", "?", "STY nnnn", "STA nnnn", "STX nnnn", "?",
-  "BCC nn", "STA (nn),Y", "?", "?", "STY nn,X", "STA nn,X", "STX nn,Y", "?",
+  "BCC rr", "STA (nn),Y", "?", "?", "STY nn,X", "STA nn,X", "STX nn,Y", "?",
   "TYA", "STA nnnn,Y", "TXS", "?", "?", "STA nnnn,X", "?", "?",
   "LDY #nn", "LDA (nn,X)", "LDX #nn", "?", "LDY nn", "LDA nn", "LDX nn", "?",
   "TAY", "LDA #nn", "TAX", "?", "LDY nnnn", "LDA nnnn", "LDX nnnn", "?",
-  "BCS nn", "LDA (nn),Y", "?", "?", "LDY nn,X", "LDA nn,X", "LDX nn,Y", "?",
+  "BCS rr", "LDA (nn),Y", "?", "?", "LDY nn,X", "LDA nn,X", "LDX nn,Y", "?",
   "CLV", "LDA nnnn,Y", "TSX", "?", "LDY nnnn,X", "LDA nnnn,X", "LDX nnnn,Y", "?",
   "CPY #nn", "CMP (nn,X)", "?", "?", "CPY nn", "CMP nn", "DEC nn", "?",
   "INY", "CMP #nn", "DEX", "?", "CPY nnnn", "CMP nnnn", "DEC nnnn", "?",
-  "BNE nn", "CMP (nn),Y", "?", "?", "?", "CMP nn,X", "DEC nn,X", "?",
+  "BNE rr", "CMP (nn),Y", "?", "?", "?", "CMP nn,X", "DEC nn,X", "?",
   "CLD", "CMP nnnn,Y", "?", "?", "?", "CMP nnnn,X", "DEC nnnn,X", "?",
   "CPX #nn", "SBC (nn,X)", "?", "?", "CPX nn", "SBC nn", "INC nn", "?",
   "INX", "SBC #nn", "NOP", "?", "CPX nnnn", "SBC nnnn", "INC nnnn", "?",
-  "BEQ nn", "SBC (nn),Y", "?", "?", "?", "SBC nn,X", "INC nn,X", "?",
+  "BEQ rr", "SBC (nn),Y", "?", "?", "?", "SBC nn,X", "INC nn,X", "?",
   "SED", "SBC nnnn,Y", "?", "?", "?", "SBC nnnn,X", "INC nnnn,X", "?"
 };
 #endif
@@ -327,15 +326,24 @@ void list(Stream &stream, int start, int end)
         opcode = opcodes[data[i]];
         String s = opcode;
         // Fill in operands
-        if (s.indexOf("nnnn") != -1) {
+        if (s.indexOf("nnnn") != -1) { // absolute
           char op[5];
           sprintf(op, "$%04lX", data[i + 1] + 256 * data[i + 2]);
           s.replace("nnnn", op);
         }
-        if (s.indexOf("nn") != -1) {
+        if (s.indexOf("nn") != -1) { // page zero
           char op[3];
           sprintf(op, "$%02lX", data[i + 1]);
           s.replace("nn", op);
+        }
+        if (s.indexOf("rr") != -1) { // relative branch
+          char op[3];
+          if (data[i + 1] < 0x80) {
+              sprintf(op, "$%04lX", address[i] + 2 + data[i + 1]);
+          } else {
+              sprintf(op, "$%04lX", address[i] + 2 - (256 - data[i + 1]));
+          }
+          s.replace("rr", op);
         }
         opcode = s.c_str();
 
