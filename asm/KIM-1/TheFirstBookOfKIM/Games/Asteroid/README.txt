@@ -16,3 +16,13 @@ AND SPEEDING UP AS YOU GET INTO THE FIELD? WHAT ABOUT A FINAL
 "DESTINATION COUNT" AND A SIGNAL TO INDICATE YOU HAVE REACHED
 YOUR DESTINATION? HOW ABOUT ALLOWING A HIT OR TWO BEFORE YOU
 ARE FINALLY DISABLED?
+
+
+Note from User Agrucho on YouTube:
+
+The program doesn't work on some KIM-1 replicas and emulators. I found
+the problem. The replicas and emulators only have the RIOT 3, Asteroid
+was written to use the RIOT 2 timer. I modified the code to use the
+RIOT 3 timer, all good now, thanks. To use RIOT 3 Timer instead of
+RIOT 2 timer: change at 0280 from 06 to 46; change at 0283 from 07 to
+47.
