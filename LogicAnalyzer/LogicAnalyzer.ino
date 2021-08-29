@@ -39,7 +39,7 @@
 //#define D6502
 #define D65C02
 //#define D6809
-..#define DZ80
+//#define DZ80
 
 #if !defined(D6502) && !defined(D65C02) && !defined(D6809) && !defined(DZ80)
 #error "No CPU type defined!"
@@ -332,15 +332,18 @@ void help()
   Serial.println("s <number>           - Set number of samples");
   Serial.println("p <samples>          - Set pre-trigger samples");
   Serial.println("t a <address> [r|w]  - Trigger on address");
+#if defined (DZ80)
+  Serial.println("t i <address> [r|w]  - Trigger on i/o address");
+#endif
   Serial.println("t d <data> [r|w]     - Trigger on data");
   Serial.println("t reset 0|1          - Trigger on /RESET level");
-#if defined(Z80)
+#if defined(DZ80)
   Serial.println("t int 0|1            - Trigger on /INT level");
 #else
   Serial.println("t irq 0|1            - Trigger on /IRQ level");
 #endif
+#if !defined(DZ80)
   Serial.println("t nmi 0|1            - Trigger on /NMI level");
-#if !defined(Z80)
   Serial.println("t spare1 0|1         - Trigger on SPARE1 level");
   Serial.println("t spare2 0|1         - Trigger on SPARE2 level");
 #endif
@@ -1011,7 +1014,7 @@ void loop() {
     } else if (cmd == "t nmi 1") {
       triggerMode = tr_nmi;
       triggerLevel = true;
-#if !defined(Z80)
+#if !defined(DZ80)
     } else if (cmd == "t spare1 0") {
       triggerMode = tr_spare1;
       triggerLevel = false;
@@ -1053,7 +1056,22 @@ void loop() {
           triggerCycle = tr_either;
         }
       } else {
-        Serial.println("Invalid address, must be between 0 and FFFF.");
+        Serial.println("Invalid data, must be between 0 and FF.");
+      }
+    } else if (cmd.startsWith("t i ")) {
+      int n = strtol(cmd.substring(4, 6).c_str(), NULL, 16);
+      if ((n >= 0) && (n <= 0xff)) {
+        triggerAddress = n;
+        triggerMode = tr_io;
+        if ((cmd.length() == 8) && cmd.endsWith('r')) {
+          triggerCycle = tr_read;
+        } else if ((cmd.length() == 8) && cmd.endsWith('w')) {
+          triggerCycle = tr_write;
+        } else {
+          triggerCycle = tr_either;
+        }
+      } else {
+        Serial.println("Invalid address, must be between 0 and FF.");
       }
 
       // Go
