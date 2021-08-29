@@ -1,7 +1,7 @@
 /*
 
-  Logic Analyzer for 6502 or 6809 microprocessors based on a Teensy
-  4.1 microcontroller.
+  Logic Analyzer for 6502, 6809, or Z80 microprocessors based on a
+  Teensy 4.1 microcontroller.
 
   See https://github.com/jefftranter/6502/tree/master/LogicAnalyzer
 
@@ -11,6 +11,7 @@
   - Monitor /FIRQ pin (6809)
   - Monitor BA and BS pins (6809)
   - Support disassembly of 6809 instructions
+  - Support disassembly of Z80 instructions
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,6 +39,11 @@
 //#define D6502
 #define D65C02
 //#define D6809
+..#define DZ80
+
+#if !defined(D6502) && !defined(D65C02) && !defined(D6809) && !defined(DZ80)
+#error "No CPU type defined!"
+#endif
 
 // Some pin numbers
 #if defined(D6502) || defined(D65C02)
@@ -47,12 +53,24 @@
 #define E 2
 #define Q 3
 #endif
+#if defined(D6502) || defined(D65C02) || defined(D6809)
 #define RESET 5
 #define IRQ 29
 #define NMI 33
+#endif
+#if defined(DZ80)
+#define CLK 2
+#define M1 3
+#define MREQ 4
+#define IORQ 5
+#define RD 29
+#define WR 33
+#define RESET 38
+#define INT 34
+#endif
 #define BUTTON 31
 
-#define VERSION "0.25"
+#define VERSION "0.26"
 
 #if defined(D6502)
 const char *versionString = "6502 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
@@ -60,6 +78,8 @@ const char *versionString = "6502 Logic Analyzer version " VERSION " by Jeff Tra
 const char *versionString = "65C02 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #elif defined(D6809)
 const char *versionString = "6809 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
+#elif defined(DZ80)
+const char *versionString = "Z80 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #else
 #error "No processor defined!"
 #endif
@@ -75,9 +95,13 @@ const char *versionString = "6809 Logic Analyzer version " VERSION " by Jeff Tra
 #define WAIT_E_LOW while (digitalReadFast(E) == HIGH) ;
 #define WAIT_E_HIGH while (digitalReadFast(E) == LOW) ;
 #endif
+#if defined(DZ80)
+#define WAIT_CLK_LOW while (digitalReadFast(CLK) == HIGH) ;
+#define WAIT_CLK_HIGH while (digitalReadFast(CLK) == LOW) ;
+#endif
 
 // Type definitions
-typedef enum trigger_t { tr_address, tr_data, tr_reset, tr_irq, tr_nmi, tr_spare1, tr_spare2, tr_none } trigger_t;
+typedef enum trigger_t { tr_address, tr_io, tr_data, tr_reset, tr_irq, tr_nmi, tr_spare1, tr_spare2, tr_none } trigger_t;
 typedef enum cycle_t { tr_read, tr_write, tr_either } access_t;
 
 // Global variables
@@ -187,7 +211,13 @@ void setup() {
   pinMode(CORE_LED0_PIN, OUTPUT);
 
   // Default trigger address to reset vector
+#if defined(D6502) || defined(D65C02)
   triggerAddress = 0xfffc;
+#elif defined(D6809)
+  triggerAddress = 0xfffe;
+#elif defined(DZ80)
+  triggerAddress = 0x0000;
+#endif  
 
   // Manual trigger button - low on this pin forces a trigger.
   attachInterrupt(digitalPinToInterrupt(BUTTON), triggerButton, FALLING);
@@ -235,6 +265,21 @@ void help()
           break;
       }
       break;
+    case tr_io:
+      Serial.print("on io ");
+      Serial.print(triggerAddress, HEX);
+      switch (triggerCycle) {
+        case tr_read:
+          Serial.println(" read");
+          break;
+        case tr_write:
+          Serial.println(" write");
+          break;
+        case tr_either:
+          Serial.println(" read or write");
+          break;
+      }
+      break;
     case tr_data:
       Serial.print("on data ");
       Serial.print(triggerAddress, HEX);
@@ -255,7 +300,11 @@ void help()
       Serial.println(triggerLevel ? "high" : "low");
       break;
     case tr_irq:
+#if defined(DZ80)
+      Serial.print("on /INT ");
+#else
       Serial.print("on /IRQ ");
+#endif
       Serial.println(triggerLevel ? "high" : "low");
       break;
     case tr_nmi:
@@ -285,10 +334,16 @@ void help()
   Serial.println("t a <address> [r|w]  - Trigger on address");
   Serial.println("t d <data> [r|w]     - Trigger on data");
   Serial.println("t reset 0|1          - Trigger on /RESET level");
+#if defined(Z80)
+  Serial.println("t int 0|1            - Trigger on /INT level");
+#else
   Serial.println("t irq 0|1            - Trigger on /IRQ level");
+#endif
   Serial.println("t nmi 0|1            - Trigger on /NMI level");
+#if !defined(Z80)
   Serial.println("t spare1 0|1         - Trigger on SPARE1 level");
   Serial.println("t spare2 0|1         - Trigger on SPARE2 level");
+#endif
   Serial.println("t none               - Trigger freerun");
   Serial.println("g                    - Go/start analyzer");
   Serial.println("l [start] [end]      - List samples");
@@ -310,7 +365,7 @@ void list(Stream &stream, int start, int end)
   int i = first;
   int j = 0;
   while (true) {
-    char cycle;
+    const char *cycle;
 #if defined(D6502) || defined(D65C02)
     const char *opcode;
 #endif
@@ -322,7 +377,7 @@ void list(Stream &stream, int start, int end)
       // show as read or write.
 #if defined(D6502) || defined(D65C02)
       if  (control[i] & 0x10) {
-        cycle = 'I';
+        cycle = "F";
         opcode = opcodes[data[i]];
         String s = opcode;
         // Fill in operands
@@ -348,22 +403,45 @@ void list(Stream &stream, int start, int end)
         opcode = s.c_str();
 
       } else if (control[i] & 0x08) {
-        cycle = 'R';
+        cycle = "R";
         opcode = "";
       } else {
-        cycle = 'W';
+        cycle = "W";
         opcode = "";
       }
 #endif
 
 #if defined(D6809)
       if (control[i] & 0x08) {
-        cycle = 'R';
+        cycle = "R";
       } else {
-        cycle = 'W';
+        cycle = "W";
       }
 #endif
 
+#if defined (DZ80)
+// /M1 /MREQ /IOREQ /RD /WR 
+//  1    0      1    0   1   Memory read
+//  1    0      1    1   0   Memory write
+//  0    0      1    0   1   Instruction getch
+//  1    1      0    0   1   I/O read
+//  1    1      0    1   0   I/O write
+
+      if (!(control[i] & 0x10)) {
+          cycle = "F";
+      } else if (!(control[i] & 0x08) && !(control[i] & 0x02)) {
+          cycle = "R";
+      } else if (!(control[i] & 0x08) && !(control[i] & 0x01)) {
+          cycle = "W";
+      } else if (!(control[i] & 0x04) && !(control[i] & 0x02)) {
+          cycle = "IR";
+      } else if (!(control[i] & 0x04) && (control[i] & 0x01)) {
+          cycle = "IW";
+      } else {
+          cycle = "?";
+      }
+#endif
+     
       // Check for 6502 /RESET, /IRQ, or /NMI active, vector address, or
       // stack access
 #if defined(D6502) || defined(D65C02)
@@ -413,19 +491,30 @@ void list(Stream &stream, int start, int end)
       }
 #endif
 
+      // Check for Z80 /RESET or /INT active
+#if defined(DZ80)
+      if (!(control[i] & 0x04)) {
+          comment = "RESET ACTIVE";
+      } else if (!(control[i] & 0x02)) {
+          comment = "INT ACTIVE";
+      } else {
+          comment = "";
+      }
+#endif
+
       // Indicate when trigger happened
       if (i == triggerPoint) {
         comment = "<--- TRIGGER ----";
       }
 
 #if defined(D6502) || defined(D65C02)
-      sprintf(output, "%04lX  %c  %02lX  %-12s  %s",
+      sprintf(output, "%04lX  %-2s  %02lX  %-12s  %s",
               address[i], cycle, data[i], opcode, comment
              );
 #endif
 
-#if defined(D6809)
-      sprintf(output, "%04lX  %c  %02lX  %s",
+#if defined(D6809) || defined(DZ80)
+      sprintf(output, "%04lX  %-2s  %02lX  %s",
               address[i], cycle, data[i], comment
              );
 #endif
@@ -452,6 +541,9 @@ void exportCSV(Stream &stream)
 #if defined(D6809)
   stream.println("Index,R/W,/RESET,/IRQ,/NMI,Address,Data");
 #endif
+#if defined(DZ80)
+  stream.println("Index,/M1,/RD,/WR,/MREQ,/IORQ,/RESET,/INT,Address,Data");
+#endif
 
   int first = (triggerPoint - pretrigger + samples) % samples;
   int last = (triggerPoint - pretrigger + samples - 1) % samples;
@@ -464,11 +556,22 @@ void exportCSV(Stream &stream)
 #if defined(D6502) || defined(D65C02)
     bool sync = control[i] & 0x10;
 #endif
+#if defined(D6502) || defined(D65C02) || defined(D6809)
     bool rw = control[i] & 0x08;
     bool reset = control[i] & 0x04;
     bool irq = control[i] & 0x02;
     bool nmi = control[i] & 0x01;
-
+#endif
+#if defined(DZ80)
+    bool wr = control[i] & 0x01;
+    bool rd = control[i] & 0x02;
+    bool iorq = control[i] & 0x04;
+    bool mreq = control[i] & 0x08;
+    bool m1 = control[i] & 0x10;
+    bool reset = control[i] & 0x20;
+    bool intr = control[i] & 0x40;
+#endif
+    
 #if defined(D6502) || defined(D65C02)
     sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
             j,
@@ -488,6 +591,20 @@ void exportCSV(Stream &stream)
             reset ? '1' : '0',
             irq ? '1' : '0',
             nmi ? '1' : '0',
+            address[i],
+            data[i]
+           );
+#endif
+#if defined(DZ80)
+    sprintf(output, "%d,%c,%c,%c,%c,%c,%c,%c,%04lX,%02lX",
+            j,
+            m1 ? '1' : '0',
+            rd ? '1' : '0',
+            wr ? '1' : '0',
+            mreq ? '1' : '0',
+            iorq ? '1' : '0',
+            reset ? '1' : '0',
+            intr ? '1' : '0',
             address[i],
             data[i]
            );
@@ -606,6 +723,8 @@ void go()
     aTriggerBits = 0;
     aTriggerMask = 0;
 
+    // TODO: Add support for Z80 I/O read or write trigger.
+    
     // Check for r/w qualifer
     if (triggerCycle == tr_read) {
       cTriggerBits = 0b00000000000000000000000001000000;
@@ -617,6 +736,8 @@ void go()
       cTriggerBits = 0;
       cTriggerMask = 0;
     }
+
+    // TODO: Add support for Z80 I/O control line triggers
 
   } else if (triggerMode == tr_reset) {
     // GPIO port 9 pins:
@@ -687,6 +808,11 @@ void go()
     WAIT_Q_LOW;
     WAIT_Q_HIGH;
 #endif
+#if defined(DZ80)
+    // Wait CLK to go from high to low
+    WAIT_CLK_HIGH;
+    WAIT_CLK_LOW;
+#endif
 
     // Read address and control lines
     control[i] = GPIO9_PSR;
@@ -701,6 +827,11 @@ void go()
     // Wait for E to go from high to low
     WAIT_E_HIGH;
     WAIT_E_LOW;
+#endif
+#if defined(DZ80)
+    // Wait CLK to go from low to high
+    WAIT_CLK_LOW;
+    WAIT_CLK_HIGH;
 #endif
 
     // Read data lines
@@ -746,11 +877,13 @@ void unscramble()
   // Control lines
   for (int i = 0; i < samples; i++) {
     control[i] =
-      ((control[i] & CORE_PIN33_BITMASK)   ? 0x01 : 0) // /NMI
-      + ((control[i] & CORE_PIN29_BITMASK) ? 0x02 : 0) // /IRQ
-      + ((control[i] & CORE_PIN5_BITMASK)  ? 0x04 : 0) // /RESET
-      + ((control[i] & CORE_PIN4_BITMASK)  ? 0x08 : 0) // R/W
-      + ((control[i] & CORE_PIN3_BITMASK)  ? 0x10 : 0); // SYNC (6502)
+      ((control[i] & CORE_PIN33_BITMASK)   ? 0x01 : 0) // /NMI /WR (Z80)
+      + ((control[i] & CORE_PIN29_BITMASK) ? 0x02 : 0) // /IRQ /RD (Z80)
+      + ((control[i] & CORE_PIN5_BITMASK)  ? 0x04 : 0) // /RESET /IORQ (Z80)
+      + ((control[i] & CORE_PIN4_BITMASK)  ? 0x08 : 0) // R/W /MREQ (Z80)
+      + ((control[i] & CORE_PIN3_BITMASK)  ? 0x10 : 0) // SYNC (6502) Q (6809) /M1 (Z80)
+      + ((control[i] & CORE_PIN38_BITMASK) ? 0x20 : 0) // SPARE1 /RESET (Z80)
+      + ((control[i] & CORE_PIN34_BITMASK) ? 0x40 : 0); // SPARE2 /INT (Z80)
 
     // A15...A0
     address[i] =
@@ -857,18 +990,28 @@ void loop() {
     } else if (cmd == "t reset 1") {
       triggerMode = tr_reset;
       triggerLevel = true;
+#if defined(DZ80)
+    } else if (cmd == "t int 0") {
+      triggerMode = tr_irq;
+      triggerLevel = false;
+    } else if (cmd == "t int 1") {
+      triggerMode = tr_irq;
+      triggerLevel = true;
+#else
     } else if (cmd == "t irq 0") {
       triggerMode = tr_irq;
       triggerLevel = false;
     } else if (cmd == "t irq 1") {
       triggerMode = tr_irq;
       triggerLevel = true;
+#endif
     } else if (cmd == "t nmi 0") {
       triggerMode = tr_nmi;
       triggerLevel = false;
     } else if (cmd == "t nmi 1") {
       triggerMode = tr_nmi;
       triggerLevel = true;
+#if !defined(Z80)
     } else if (cmd == "t spare1 0") {
       triggerMode = tr_spare1;
       triggerLevel = false;
@@ -881,6 +1024,7 @@ void loop() {
     } else if (cmd == "t spare2 1") {
       triggerMode = tr_spare2;
       triggerLevel = true;
+#endif
     } else if (cmd.startsWith("t a ")) {
       int n = strtol(cmd.substring(4, 8).c_str(), NULL, 16);
       if ((n >= 0) && (n <= 0xffff)) {
