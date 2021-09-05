@@ -426,7 +426,7 @@ void list(Stream &stream, int start, int end)
 // /M1 /MREQ /IOREQ /RD /WR 
 //  1    0      1    0   1   Memory read
 //  1    0      1    1   0   Memory write
-//  0    0      1    0   1   Instruction getch
+//  0    0      1    0   1   Instruction fetch
 //  1    1      0    0   1   I/O read
 //  1    1      0    1   0   I/O write
 
@@ -438,13 +438,13 @@ void list(Stream &stream, int start, int end)
           cycle = "W";
       } else if (!(control[i] & 0x04) && !(control[i] & 0x02)) {
           cycle = "IR";
-      } else if (!(control[i] & 0x04) && (control[i] & 0x01)) {
+      } else if (!(control[i] & 0x04) && !(control[i] & 0x01)) {
           cycle = "IW";
       } else {
-          cycle = "?";
+          cycle = " ";
       }
 #endif
-     
+
       // Check for 6502 /RESET, /IRQ, or /NMI active, vector address, or
       // stack access
 #if defined(D6502) || defined(D65C02)
@@ -496,9 +496,9 @@ void list(Stream &stream, int start, int end)
 
       // Check for Z80 /RESET or /INT active
 #if defined(DZ80)
-      if (!(control[i] & 0x04)) {
+      if (!(control[i] & 0x20)) {
           comment = "RESET ACTIVE";
-      } else if (!(control[i] & 0x02)) {
+      } else if (!(control[i] & 0x40)) {
           comment = "INT ACTIVE";
       } else {
           comment = "";
@@ -885,8 +885,8 @@ void unscramble()
       + ((control[i] & CORE_PIN5_BITMASK)  ? 0x04 : 0) // /RESET /IORQ (Z80)
       + ((control[i] & CORE_PIN4_BITMASK)  ? 0x08 : 0) // R/W /MREQ (Z80)
       + ((control[i] & CORE_PIN3_BITMASK)  ? 0x10 : 0) // SYNC (6502) Q (6809) /M1 (Z80)
-      + ((control[i] & CORE_PIN38_BITMASK) ? 0x20 : 0) // SPARE1 /RESET (Z80)
-      + ((control[i] & CORE_PIN34_BITMASK) ? 0x40 : 0); // SPARE2 /INT (Z80)
+      + ((address[i] & CORE_PIN38_BITMASK) ? 0x20 : 0) // SPARE1 /RESET (Z80)
+      + ((data[i]    & CORE_PIN34_BITMASK) ? 0x40 : 0); // SPARE2 /INT (Z80)
 
     // A15...A0
     address[i] =
