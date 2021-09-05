@@ -47,3 +47,5 @@ Port Bit Pin  Signal Pin  Signal Pin  Signal Pin
  9    31  29   /IRQ    4   /IRQ    3   /RD     21
 
  9     7  33   /NMI    6   /NMI    2   /WR     22
+
+ -     -   -   GND    21   GND     1   GND     29
