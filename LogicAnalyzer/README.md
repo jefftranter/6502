@@ -101,4 +101,5 @@ microcontrollers without changes as it uses direct access to the GPIO
 registers. It uses the Teensyduino add-on to the Arduino IDE.
 
 The 6809 version is similar, but does not support disassembly as this
-is harder to do for the 6502 than the 6809.
+is harder to do for the 6809 than the 6502 or Z80 as there is no
+simple way to detect an instruction fetch.

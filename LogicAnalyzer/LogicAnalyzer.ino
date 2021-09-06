@@ -199,6 +199,45 @@ const char *opcodes[256] = {
 };
 #endif
 
+#ifdef DZ80
+// Instructions for Z80 disassembler.
+// Two-byte extended instructions are not yet supported.
+const char *opcodes[256] = {
+  "NOP", "LD", "LD", "INC", "INC", "DEC", "LD", "RLCA",
+  "EX", "ADD", "LD", "DEC", "INC", "DEC", "LD", "RRCA",
+  "DJNZ", "LD", "LD", "INC", "INC", "DEC", "LD", "RLA",
+  "JR", "ADD", "LD", "DEC", "INC", "DEC", "LD", "RRA",
+  "JR", "LD", "LD", "INC", "INC", "DEC", "LD", "DAA",
+  "JR", "ADD", "LD", "DEC", "INC", "DEC", "LD", "CPL",
+  "JR", "LD", "LD", "INC", "INC", "DEC", "LD", "SCF",
+  "JR", "ADD", "LD", "DEC", "INC", "DEC", "LD", "CCF",
+  "LD", "LD", "LD", "LD", "LD", "LD", "LD", "LD",
+  "LD", "LD", "LD", "LD", "LD", "LD", "LD", "LD",
+  "LD", "LD", "LD", "LD", "LD", "LD", "LD", "LD",
+  "LD", "LD", "LD", "LD", "LD", "LD", "LD", "LD",
+  "LD", "LD", "LD", "LD", "LD", "LD", "LD", "LD",
+  "LD", "LD", "LD", "LD", "LD", "LD", "LD", "LD",
+  "LD", "LD", "LD", "LD", "LD", "LD", "HALT", "LD",
+  "LD", "LD", "LD", "LD", "LD", "LD", "LD", "LD",
+  "ADD", "ADD", "ADD", "ADD", "ADD", "ADD", "ADD", "ADD",
+  "ADC", "ADC", "ADC", "ADC", "ADC", "ADC", "ADC", "ADC",
+  "SUB", "SUB", "SUB", "SUB", "SUB", "SUB", "SUB", "SUB",
+  "SBC", "SBC", "SBC", "SBC", "SBC", "SBC", "SBC", "SBC",
+  "AND", "AND", "AND", "AND", "AND", "AND", "AND", "AND",
+  "XOR", "XOR", "XOR", "XOR", "XOR", "XOR", "XOR", "XOR",
+  "OR", "OR", "OR", "OR", "OR", "OR", "OR", "OR",
+  "CP", "CP", "CP", "CP", "CP", "CP", "CP", "CP",
+  "RET", "POP", "JP", "JP", "CALL", "PUSH", "ADD", "RST",
+  "RET", "RET", "JP", "(extended)", "CALL", "CALL", "ADC", "RST",
+  "RET", "POP", "JP", "OUT", "CALL", "PUSH", "SUB", "RST",
+  "RET", "EXX", "JP", "IN", "CALL", "(extended)", "SBC", "RST",
+  "RET", "POP", "JP", "EX", "CALL", "PUSH", "AND", "RST",
+  "RET", "JP", "JP", "EX", "CALL", "(extended)", "XOR", "RST",
+  "RET", "POP", "JP", "DI", "CALL", "PUSH", "OR", "RST",
+  "RET", "LD", "JP", "EI", "CALL", "(extended)", "CP", "RST"
+};
+#endif
+
 // Startup function
 void setup() {
 
@@ -217,7 +256,7 @@ void setup() {
   triggerAddress = 0xfffe;
 #elif defined(DZ80)
   triggerAddress = 0x0000;
-#endif  
+#endif
 
   // Manual trigger button - low on this pin forces a trigger.
   attachInterrupt(digitalPinToInterrupt(BUTTON), triggerButton, FALLING);
@@ -369,7 +408,7 @@ void list(Stream &stream, int start, int end)
   int j = 0;
   while (true) {
     const char *cycle;
-#if defined(D6502) || defined(D65C02)
+#if defined(D6502) || defined(D65C02) || defined(DZ80)
     const char *opcode;
 #endif
     const char *comment;
@@ -423,7 +462,7 @@ void list(Stream &stream, int start, int end)
 #endif
 
 #if defined (DZ80)
-// /M1 /MREQ /IOREQ /RD /WR 
+// /M1 /MREQ /IOREQ /RD /WR
 //  1    0      1    0   1   Memory read
 //  1    0      1    1   0   Memory write
 //  0    0      1    0   1   Instruction fetch
@@ -432,16 +471,22 @@ void list(Stream &stream, int start, int end)
 
       if (!(control[i] & 0x10)) {
           cycle = "F";
+          opcode = opcodes[data[i]];
       } else if (!(control[i] & 0x08) && !(control[i] & 0x02)) {
           cycle = "R";
+          opcode = "";
       } else if (!(control[i] & 0x08) && !(control[i] & 0x01)) {
           cycle = "W";
+          opcode = "";
       } else if (!(control[i] & 0x04) && !(control[i] & 0x02)) {
           cycle = "IR";
+          opcode = "";
       } else if (!(control[i] & 0x04) && !(control[i] & 0x01)) {
           cycle = "IW";
+          opcode = "";
       } else {
           cycle = " ";
+          opcode = "";
       }
 #endif
 
@@ -510,13 +555,13 @@ void list(Stream &stream, int start, int end)
         comment = "<--- TRIGGER ----";
       }
 
-#if defined(D6502) || defined(D65C02)
+#if defined(D6502) || defined(D65C02) || defined(DZ80)
       sprintf(output, "%04lX  %-2s  %02lX  %-12s  %s",
               address[i], cycle, data[i], opcode, comment
              );
 #endif
 
-#if defined(D6809) || defined(DZ80)
+#if defined(D6809)
       sprintf(output, "%04lX  %-2s  %02lX  %s",
               address[i], cycle, data[i], comment
              );
@@ -574,7 +619,7 @@ void exportCSV(Stream &stream)
     bool reset = control[i] & 0x20;
     bool intr = control[i] & 0x40;
 #endif
-    
+
 #if defined(D6502) || defined(D65C02)
     sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
             j,
@@ -727,7 +772,7 @@ void go()
     aTriggerMask = 0;
 
     // TODO: Add support for Z80 I/O read or write trigger.
-    
+
     // Check for r/w qualifer
     if (triggerCycle == tr_read) {
       cTriggerBits = 0b00000000000000000000000001000000;
