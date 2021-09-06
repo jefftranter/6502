@@ -1,4 +1,4 @@
-SUBDIRS = "ROMs" "TheFirstBookOfKIM" Microchess Misc TinyBasic
+SUBDIRS = ROMs TheFirstBookOfKIM Microchess Misc TinyBasic ProgrammingAMicrocomputer
 
 all:
 	@for i in $(SUBDIRS); do \
