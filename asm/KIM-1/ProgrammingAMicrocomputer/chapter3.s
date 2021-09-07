@@ -1,25 +1,27 @@
 ; Code for Morse Code Oscillator, Chapter 3.
 
+        .ORG    $0000
+
 ; First we must set up the stop key so it will work properly
 
-START:  LDA     ZERO            ; This cell will contain "00"
+START:  LDA     z:ZERO          ; This cell will contain "00"
         STA     $17FA
-        LDA     ONEC            ; This one holds "1C"
+        LDA     z:ONEC          ; This one holds "1C"
         STA     $17FB
 
 ; Now we make A0 be input (and the rest of port A to be output) and we
 ; make B0 be output (and the rest of port B be output also)
 
-       LDA   K2                 ; This cell holds "FE"
+       LDA   z:K2               ; This cell holds "FE"
        STA   $1701              ; Direction A
-       LDA   ALLONES            ; This cell holds "FF" - all ones
+       LDA   z:ALLONES          ; This cell holds "FF" - all ones
        STA   $1703              ; Direction B
 
 ; We clear port A to have all zeros in it. Then we look at A0 to see
 ; if it has changed to a one indicating that the switch was closed.
 ; If not we loop back to try again.
 
-       LDA   ZERO
+       LDA   z:ZERO
        STA   $1700              ; Clear port A
 LOOP:  LDA   $1700
        BEQ   LOOP               ; Was it all zeros?
@@ -30,9 +32,9 @@ LOOP:  LDA   $1700
 ; back and see if the switch is still closed.
 
        INC   $1702              ; Toggle speaker
-       LDA   CONST              ; Determines how long between toggles
-       STA   COUNTER
-WAIT:  DEC   COUNTER
+       LDA   z:CONST            ; Determines how long between toggles
+       STA   z:COUNTER
+WAIT:  DEC   z:COUNTER
        BPL   WAIT
        JMP   LOOP
 

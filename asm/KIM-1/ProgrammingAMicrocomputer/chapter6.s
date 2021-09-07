@@ -1,5 +1,7 @@
 ; Code for Combination Lock, Chapter 6.
 
+        .ORG    $0000
+
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -48,7 +50,7 @@ HOLD:   LDA     PORTA
         BEQ     HOLD            ; Wait for some input
         LDX     #$64
 OUTER:  LDA     #$FF
-        STA     COUNT
+        STA     z:COUNT
 INNER:  DEC     COUNT           ; Inner
         BNE     INNER           ;       loop
         DEX

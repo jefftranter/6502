@@ -1,5 +1,7 @@
 ; Code for Keybounce, Chapter 5.
 
+        .ORG    $0000
+
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702

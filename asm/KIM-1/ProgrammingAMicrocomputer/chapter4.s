@@ -1,5 +1,7 @@
 ; Code for Piano Keyboard, Chapter 4.
 
+        .ORG    $0000
+
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -53,7 +55,7 @@ LOOP2:    BMI   FOUND           ; (2/3)
 ; put it in Y and count down to zero. Then we toggle the speaker and
 ; go back to see if any keys are still pressed:
 
-FOUND:    LDA    TABLE,X        ; (4)
+FOUND:    LDA    z:TABLE,X      ; (4)
           TAY                   ;        Get number from  to Y
 WAIT:     JMP    WI             ; (3)
 WI:       DEY                   ; (4)
