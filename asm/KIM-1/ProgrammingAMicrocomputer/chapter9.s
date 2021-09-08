@@ -6,10 +6,6 @@ PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
 DIRB    = $1703
-PORTC   = $1704
-DIRC    = $1705
-PORTD   = $1706
-DIRD    = $1707
 
 ; Stop button. Make A0 and B0 be output and A7 be input.
 

@@ -51,7 +51,7 @@ HOLD:   LDA     PORTA
         LDX     #$64
 OUTER:  LDA     #$FF
         STA     z:COUNT
-INNER:  DEC     COUNT           ; Inner
+INNER:  DEC     z:COUNT         ; Inner
         BNE     INNER           ;       loop
         DEX
         BNE     OUTER
