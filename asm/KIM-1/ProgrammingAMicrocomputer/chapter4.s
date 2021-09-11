@@ -1,4 +1,4 @@
-; Code for Piano Keyboard, Chapter 4.
+; Code for Piano Keyboard. Chapter 4.
 
         .ORG    $0000
 
@@ -18,13 +18,13 @@ START:  LDA     #$00
         STA     $17FB
         LDA     #$00            ; We'll get a new zero in A
         STA     DIRA            ; just in case some time we
-                                ; want somethng else
+                                ; want something else
         LDA     #$03
         STA     DIRB
 
 ; We look to see if one of the keys connected to port A is closed. If
 ; port A is not all zero then we try to find out which key by shifting
-; and counting in index regixter X. We exit to SECOND if no key of
+; and counting in index register X. We exit to SECOND if no key of
 ; this group was pressed and to FOUND when we discover and identify a
 ; key. Numbers in parentheses are the cycles to execute each
 ; instruction.
@@ -74,12 +74,12 @@ TABLE:    .BYTE  $00            ; C
           .BYTE  $B6            ; F
           .BYTE  $A9            ; F#
           .BYTE  $9D            ; G
-          .BYTE  $9D            ; G#  By coincidence the sae number
+          .BYTE  $9D            ; G#  By coincidence the same number
           .BYTE  $00            ; Phantom key
           .BYTE  $90            ; A
           .BYTE  $85            ; A#
           .BYTE  $7B            ; B
           .BYTE  $72            ; C
 
-; Note this table will generate tones somewhat flat.  If you have erfect
+; Note this table will generate tones somewhat flat.  If you have perfect
 ; pitch and this bothers you, try the table of page 52.

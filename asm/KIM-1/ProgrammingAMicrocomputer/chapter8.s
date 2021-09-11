@@ -1,4 +1,4 @@
-; Digital Clock, Chapter 8.
+; Digital Clock. Chapter 8.
 
         .ORG    $0000
 

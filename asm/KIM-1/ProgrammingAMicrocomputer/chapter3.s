@@ -1,4 +1,4 @@
-; Code for Morse Code Oscillator, Chapter 3.
+; Code for Morse Code Oscillator. Chapter 3.
 
         .ORG    $0000
 

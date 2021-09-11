@@ -1,4 +1,4 @@
-; Tune Player, Chapter 7.
+; Tune Player. Chapter 7.
 
         .ORG    $0000
 
@@ -119,7 +119,7 @@ PERTAB: .BYTE  $00              ; C
         .BYTE  $B6              ; F
         .BYTE  $A9              ; F#
         .BYTE  $9D              ; G
-        .BYTE  $9D              ; G#  By coincidence the sae number
+        .BYTE  $9D              ; G#  By coincidence the same number
         .BYTE  $00              ; Phantom key
         .BYTE  $90              ; A
         .BYTE  $85              ; A#

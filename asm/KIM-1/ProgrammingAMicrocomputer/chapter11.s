@@ -1,4 +1,4 @@
-; Substitution Cypher, Chapter 11.
+; Substitution Cypher. Chapter 11.
 
        .ORG     $0000
 

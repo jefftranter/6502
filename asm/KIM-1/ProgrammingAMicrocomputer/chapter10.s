@@ -1,4 +1,4 @@
-; MicroBART, Chapter 10.
+; MicroBART. Chapter 10.
 
         .ORG    $0200
 
@@ -169,7 +169,7 @@ GOAHEAD:
         STA     PORTB
 
 ; We check the next block after this one and if it is busy we stop our
-; traing and return. If it is free we reserve it by making it busy and
+; train and return. If it is free we reserve it by making it busy and
 ; then return.
 
         LDY     NEXT0,X

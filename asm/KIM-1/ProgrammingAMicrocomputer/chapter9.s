@@ -1,4 +1,4 @@
-; Tracking, Chapter 9.
+; Tracking. Chapter 9.
 
         .ORG    $0000
 

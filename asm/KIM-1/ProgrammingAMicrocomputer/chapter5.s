@@ -1,4 +1,4 @@
-; Code for Keybounce, Chapter 5.
+; Code for Keybounce. Chapter 5.
 
         .ORG    $0000
 
@@ -36,6 +36,6 @@ LOOP:   LDA     PORTA
         BNE     LOOP
 
 ; We have the samples all nicely stored in page 01 so we can stop,
-; using a "dynamic halt" if the machine doesn't have anythng better.
+; using a "dynamic halt" if the machine doesn't have anything better.
 
 STOP:   JMP     STOP

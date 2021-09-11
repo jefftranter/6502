@@ -1,4 +1,4 @@
-; Code for Elevator Control Program, Chapter 12.
+; Code for Elevator Control Program. Chapter 12.
 
         .ORG    $0200
 

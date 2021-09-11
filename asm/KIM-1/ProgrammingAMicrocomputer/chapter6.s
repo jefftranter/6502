@@ -1,4 +1,4 @@
-; Code for Combination Lock, Chapter 6.
+; Code for Combination Lock. Chapter 6.
 
         .ORG    $0000
 
@@ -7,7 +7,7 @@ DIRA    = $1701
 PORTB   = $1702
 DIRB    = $1703
 
-; Usual initializaton of stop key and stack pointer. Then we make
+; Usual initialization of stop key and stack pointer. Then we make
 ; A7-A4 be output, A3-A0 be input. We clear PORTA and make PORTB be
 ; output.
 
@@ -39,7 +39,7 @@ START:  LDA     #$00
 
 ; The subroutine SUB gets a light pattern for this state and displays
 ; it. Then it waits for a zero set of keys and *then* a non-zero set.
-; Once a key has been oressed we give the user about 1/4 of a second
+; Once a key has been pressed we give the user about 1/4 of a second
 ; to close any other keys.
 
 SUB:    LDA     LIGHT,Y         ; This is a table of patterns
