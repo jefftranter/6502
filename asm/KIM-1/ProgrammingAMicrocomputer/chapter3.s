@@ -1,5 +1,7 @@
 ; Code for Morse Code Oscillator. Chapter 3.
 
+; I have confirmed this program works on a real KIM-1 - Jeff Tranter
+
         .ORG    $0000
 
 ; First we must set up the stop key so it will work properly

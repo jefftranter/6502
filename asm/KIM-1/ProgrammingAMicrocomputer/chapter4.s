@@ -1,5 +1,7 @@
 ; Code for Piano Keyboard. Chapter 4.
 
+; I have confirmed this program works on a real KIM-1 - Jeff Tranter
+
         .ORG    $0000
 
 PORTA   = $1700
@@ -8,7 +10,7 @@ PORTB   = $1702
 DIRB    = $1703
 
 ; To initialize the computer we set up the stop key and make port A
-; be output and port B 7-2 be input so we can sense closure of the
+; be input and port B 7-2 be input so we can sense closure of the
 ; piano keys. Bits B1 will be output "just because" and B0 will be
 ; output so we can toggle the loudspeaker.
 
@@ -81,5 +83,5 @@ TABLE:    .BYTE  $00            ; C
           .BYTE  $7B            ; B
           .BYTE  $72            ; C
 
-; Note this table will generate tones somewhat flat.  If you have perfect
+; Note this table will generate tones somewhat flat. If you have perfect
 ; pitch and this bothers you, try the table of page 52.

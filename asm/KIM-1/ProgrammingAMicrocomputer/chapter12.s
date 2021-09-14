@@ -112,7 +112,7 @@ MOV:    LDY     UPDWN           ; UP=0 means Up. UP=1 means
 ; Either by request or because no higher calling was found (that
 ; shouldn't happen, of course) we come to a STOP which marks the door
 ; open, does a delay, then a scan and finally tests to see if any more
-; requests in the current direction.  If not we turn off the direction
+; requests in the current direction. If not we turn off the direction
 ; light and go back to idle.
 
 STOP:    LDA    #$80

@@ -58,7 +58,7 @@ INNER:  DEC     z:COUNT         ; Inner
 
 ; He has had enough time to close all the keys he is going to close
 ; so we get PORTA and compare it with the required combination stored
-; in the table COMB.  If it matches we go to the next state (return
+; in the table COMB. If it matches we go to the next state (return
 ; to the main program). If it doesn't match we reset to state A by
 ; jumping to START.
 
