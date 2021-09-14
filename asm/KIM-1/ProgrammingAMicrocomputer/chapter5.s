@@ -1,5 +1,7 @@
 ; Code for Keybounce. Chapter 5.
 
+; I have confirmed this program works on a real KIM-1 - Jeff Tranter
+
         .ORG    $0000
 
 PORTA   = $1700

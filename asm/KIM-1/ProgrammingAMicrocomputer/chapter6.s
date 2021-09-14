@@ -81,4 +81,3 @@ COMB:   .BYTE   $03
 ; The only variable is:
 
 COUNT:  .BYTE   $00             ; Clear to start with
-
