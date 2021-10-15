@@ -163,6 +163,9 @@ PUTON:  LDA     STAB3,Y         ; Put on the chain of forward
         INX
         JMP     READY
 
+; Skip to $0200 so we don't put code in page 1 where the stack is located.
+        .RES    $0200-*
+
 ; The message routine is very simple and only prints out "EM" where
 ; M is passed in the accumulator:
 

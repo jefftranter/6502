@@ -37,7 +37,7 @@ GETKEY: JSR     $1F6A            ; Subroutine to get a key
 ; addressing. This note we will pull apart into the name of a half period
 ; and a duration over which to play the note.
 
-        LDA      #$00
+        LDY      #$00
 NEWNOTE:
         LDA     (ADR1),Y        ; Get the note of the song
         AND     #$0F            ; Keep lower half
@@ -126,7 +126,8 @@ PERTAB: .BYTE  $00              ; C
         .BYTE  $7B              ; B
         .BYTE  $72              ; C
 
-        .ORG $0200
+; Skip to $0200 so we don't put code in page 1 where the stack is located.
+        .RES   $0200-*
 
 ; "0" Red River Valley
 

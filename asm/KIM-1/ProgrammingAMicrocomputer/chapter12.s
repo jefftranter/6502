@@ -1,6 +1,6 @@
 ; Code for Elevator Control Program. Chapter 12.
 
-        .ORG    $0200
+        .ORG    $0000
 
 PORTA   = $1700
 DIRA    = $1701
@@ -160,6 +160,9 @@ GET:     LDA    BANK,Y
          STA    UP,Y
          RTS
 BANK:    .BYTE  $20, $40, $10
+
+; Skip to $0200 so we don't put code in page 1 where the stack is located.
+        .RES    $0200-*
 
 ; Scan is the third subroutine. What is does is combine KAR requests
 ; with uprequests and then select only those at a higher floor than

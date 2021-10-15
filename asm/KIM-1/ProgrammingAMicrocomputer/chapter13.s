@@ -1,6 +1,6 @@
 ; Code for Dream Machine. Chapter 13.
 
-        .ORG    $0200
+        .ORG    $0000
 
 GETCH   = $1E5A
 OUTCH   = $1EA0
@@ -158,6 +158,9 @@ E5:     JMP     RNI
 
 JUMP:   STX     PC
         JMP     RNI
+
+; Skip to $0200 so we don't put code in page 1 where the stack is located.
+        .RES    $0200-*
 
 ; Subroutine jump saves the PC at the effective address (X) and then
 ; transfers control to location Y + 1.

@@ -1,6 +1,6 @@
 ; MicroBART. Chapter 10.
 
-        .ORG    $0200
+        .ORG    $0000
 
 PORTA   = $1700
 DIRA    = $1701
@@ -167,6 +167,9 @@ GOAHEAD:
         LDY     NEXT0,X
         ORA     BLITE,Y
         STA     PORTB
+
+; Skip to $0200 so we don't put code in page 1 where the stack is located.
+        .RES    $0200-*
 
 ; We check the next block after this one and if it is busy we stop our
 ; train and return. If it is free we reserve it by making it busy and

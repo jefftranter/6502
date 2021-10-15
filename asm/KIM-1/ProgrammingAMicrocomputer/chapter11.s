@@ -17,7 +17,8 @@ CYPHER: .RES    26              ; Save 26 cells in page 0
 EORD:   .BYTE   '?', 'D', '/', 'E', $0A
 ALFA:   .BYTE   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-       .ORG     $0200
+; Skip to $0200 so we don't put code in page 1 where the stack is located.
+        .RES    $0200-*
 
 ; This program does the simplest of the coding schemes, namely a sub-
 ; stitution cypher. We begin by clearing out the cypher alphabet
