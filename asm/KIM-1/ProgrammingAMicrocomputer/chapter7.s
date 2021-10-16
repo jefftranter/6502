@@ -71,8 +71,8 @@ LOOP:   JMP     NEXT            ; This is a time waster
 NEXT:   DEX
         BNE     LOOP
         INC     PORTB
-        LDA     PORTB           ; Is sign bit B7=1?
-        BPL     CLKOUT          ; When the timer runs out
+        LDA     $1707           ; Read timer status. Is sign bit B7=1?
+        BMI     CLKOUT          ; When the timer runs out
 
 ; To balance off the time taken at CLOCKOUT we will put in 3 jump to
 ; the next instruction and then return to HALFPER.
