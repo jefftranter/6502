@@ -2,18 +2,21 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
 DIRB    = $1703
+GETKEY  = $1F6A
 
 ; The usual initialization including making B0 be output and B7 be
 ; input.
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDA     #$01
         STA     DIRB
 
@@ -22,11 +25,12 @@ START:  LDA     #$00
 ; get the starting address of the Xth song from TABLO and TABHI. We
 ; store this address in ADR1 and ADR2 which must be in page zero.
 
-GETKEY: JSR     $1F6A            ; Subroutine to get a key
+LGETKEY:
+        JSR     GETKEY           ; Subroutine to get a key
         CMP     #$15             ; Returns 15H if no key
-        BEQ     GETKEY
+        BEQ     LGETKEY
         CMP     #$13             ; If we find the GO key pay
-        BEQ     GETKEY           ; no attention
+        BEQ     LGETKEY          ; no attention
         TAX
         LDA     z:TABLO,X
         STA     z:ADR1

@@ -2,6 +2,8 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -11,10 +13,10 @@ DIRB    = $1703
 ; A7-A4 be output, A3-A0 be input. We clear PORTA and make PORTB be
 ; output.
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDX     #$FF
         TXS                     ; Set stack pointer
         LDA     #$F0

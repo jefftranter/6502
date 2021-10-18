@@ -4,12 +4,15 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
+
 ; First we must set up the stop key so it will work properly
 
 START:  LDA     z:ZERO          ; This cell will contain "00"
-        STA     $17FA
+        STA     NMIV
         LDA     z:ONEC          ; This one holds "1C"
-        STA     $17FB
+        STA     NMIV+1
 
 ; Now we make A0 be input (and the rest of port A to be output) and we
 ; make B0 be output (and the rest of port B be output also)
@@ -43,8 +46,8 @@ WAIT:  DEC   z:COUNTER
 ; The constants we need for this program can be stored right after
 ; the JMP LOOP instruction. They are:
 
-ZERO:  .byte $00
-ONEC:  .byte $1C
+ZERO:  .byte <STOP
+ONEC:  .byte >STOP
 ALLONES:
        .byte $FF
 K2:    .byte $FE

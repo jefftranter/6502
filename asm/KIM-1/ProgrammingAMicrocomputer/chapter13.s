@@ -2,6 +2,8 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 GETCH   = $1E5A
 OUTCH   = $1EA0
 PORTA   = $1700
@@ -11,10 +13,10 @@ DIRB    = $1703
 
 ; We begin with the stop key and then set up A0 and A1 as input bits.
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDA     #$FC
         STA     DIRA
         LDA     #$00
@@ -85,7 +87,7 @@ NOIND:  LDX     ADDR
         STA     OPCODE
         LSR
         STA     OPCODE
-        STA     VAR+1
+        STA     z:VAR+1
         LDA     #$00
 VAR:    BEQ     *               ; VAR+1 is the address of the second byte
         JMP     INPUT

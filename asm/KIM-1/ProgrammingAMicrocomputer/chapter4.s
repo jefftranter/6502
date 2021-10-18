@@ -4,6 +4,8 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -14,10 +16,10 @@ DIRB    = $1703
 ; piano keys. Bits B1 will be output "just because" and B0 will be
 ; output so we can toggle the loudspeaker.
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDA     #$00            ; We'll get a new zero in A
         STA     DIRA            ; just in case some time we
                                 ; want something else

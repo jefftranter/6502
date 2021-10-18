@@ -2,6 +2,8 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -11,10 +13,10 @@ DIRB    = $1703
 ; port B be output and set the car to be idle with an open door on
 ; floor 0. Also we clear all requests.
 
-        LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+        LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDX     #$FF
         TXS                     ; Set stack pointer
         STX     DIRB
@@ -102,7 +104,7 @@ MOV:    LDY     UPDWN           ; UP=0 means Up. UP=1 means
          LDA    UP,Y
          ORA    KAR             ; Combine requests
          AND    YESI,X          ; Clear all except this floor
-         BNE    STOP            ; Stop if any calls
+         BNE    LSTOP           ; Stop if any calls
          JSR    SCAN            ; See if higher floors have
                                 ;  requests
          LDA    UPREQ,Y         ; Get upreq or downreq
@@ -115,7 +117,7 @@ MOV:    LDY     UPDWN           ; UP=0 means Up. UP=1 means
 ; requests in the current direction. If not we turn off the direction
 ; light and go back to idle.
 
-STOP:    LDA    #$80
+LSTOP:   LDA    #$80
          STA    DOOR
          LDY    #$20
          JSR    DELAY

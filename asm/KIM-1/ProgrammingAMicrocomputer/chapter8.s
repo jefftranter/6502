@@ -2,6 +2,9 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
+IRQV    = $17FE
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -33,15 +36,15 @@ SETTIME:
         TXS
         STX     DIRC            ; These ports control
         STX     DIRD            ; the display in KIM
-        LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+        LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         CLI                     ; Enable interrupt
         LDA     #<INTER         ; Set up
-        STA     $17FE           ; interrupt
+        STA     IRQV            ; interrupt
         LDA     #>INTER         ; address
-        STA     $17FF
+        STA     IRQV+1
 
 ; We will call the subroutine BINARIZE to convert the new time to
 ; binary and start up the timer with B7 as input:

@@ -4,6 +4,8 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -13,10 +15,10 @@ DIRB    = $1703
 ; input with the other bits being output. Then we initialize the
 ; stack pointer to point to line FF of page 01:
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDA     #$FE
         STA     DIRA
         LDA     #$FF            ; Put FF into stack pointer
@@ -40,4 +42,4 @@ LOOP:   LDA     PORTA
 ; We have the samples all nicely stored in page 01 so we can stop,
 ; using a "dynamic halt" if the machine doesn't have anything better.
 
-STOP:   JMP     STOP
+HALT:   JMP     HALT

@@ -3,6 +3,8 @@
        .ORG     $0000
 
 ; KIM-1 ROM routines
+STOP    = $1C00
+NMIV    = $17FA
 GETCH   = $1E5A
 OUTCH   = $1EA0
 
@@ -24,10 +26,10 @@ ALFA:   .BYTE   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 ; stitution cypher. We begin by clearing out the cypher alphabet
 ; (after setting up the stop key of course).
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDA     #$00
         LDY     #$26            ; Decimal
 LO:     STA     CYPHER,Y

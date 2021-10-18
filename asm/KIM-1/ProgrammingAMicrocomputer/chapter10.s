@@ -2,6 +2,8 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -10,10 +12,10 @@ DIRB    = $1703
 ; Initialize the stop key and set port A to be output and B5-B0 are
 ; output. B7 is input and set the stack pointer.
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDA     #$FF
         STA     DIRA
         LDA     #$3F

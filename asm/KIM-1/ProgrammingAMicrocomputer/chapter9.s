@@ -2,6 +2,8 @@
 
         .ORG    $0000
 
+STOP    = $1C00
+NMIV    = $17FA
 PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
@@ -9,10 +11,10 @@ DIRB    = $1703
 
 ; Stop button. Make A0 and B0 be output and A7 be input.
 
-START:  LDA     #$00
-        STA     $17FA
-        LDA     #$1C
-        STA     $17FB
+START:  LDA     #<STOP
+        STA     NMIV
+        LDA     #>STOP
+        STA     NMIV+1
         LDA     #$01
         STA     DIRA
         LDA     #$01
