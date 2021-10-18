@@ -4,6 +4,10 @@
 
         .ORG    $0000
 
+PORTA   = $1700
+DIRA    = $1701
+PORTB   = $1702
+DIRB    = $1703
 STOP    = $1C00
 NMIV    = $17FA
 
@@ -18,17 +22,17 @@ START:  LDA     z:ZERO          ; This cell will contain "00"
 ; make B0 be output (and the rest of port B be output also)
 
        LDA   z:K2               ; This cell holds "FE"
-       STA   $1701              ; Direction A
+       STA   DIRA               ; Direction A
        LDA   z:ALLONES          ; This cell holds "FF" - all ones
-       STA   $1703              ; Direction B
+       STA   DIRB               ; Direction B
 
 ; We clear port A to have all zeros in it. Then we look at A0 to see
 ; if it has changed to a one indicating that the switch was closed.
 ; If not we loop back to try again.
 
        LDA   z:ZERO
-       STA   $1700              ; Clear port A
-LOOP:  LDA   $1700
+       STA   PORTA              ; Clear port A
+LOOP:  LDA   PORTA
        BEQ   LOOP               ; Was it all zeros?
 
 ; At this point we have found the switch closed so we toggle the
@@ -36,7 +40,7 @@ LOOP:  LDA   $1700
 ; WAIT we count down until that counter goes to zero. Then we go
 ; back and see if the switch is still closed.
 
-       INC   $1702              ; Toggle speaker
+       INC   PORTB              ; Toggle speaker
        LDA   z:CONST            ; Determines how long between toggles
        STA   z:COUNTER
 WAIT:  DEC   z:COUNTER
