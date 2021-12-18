@@ -251,13 +251,13 @@ const char *opcodes[256] = {
 #ifdef D6800
 // Instructions for 6800 disassembler.
 const char *opcodes[256] = {
-  "?", "NOP", "?", "?", "?", "?", "?", "TAP",
-  "TPA", "INX", "DEX", "CLV", "SEV", "CLC", "SEC", "CLI", "SEI",
+  "?", "NOP", "?", "?", "?", "?", "TAP", "TPA",
+  "INX", "DEX", "CLV", "SEV", "CLC", "SEC", "CLI", "SEI",
   "SBA", "CBA", "?", "?", "?", "?", "TAB", "TBA",
   "?", "DAA", "?", "ABA", "?", "?", "?", "?",
   "BRA", "?", "BHI", "BLS", "BCC", "BCS", "BNE", "BEQ",
   "BVC", "BVS", "BPL", "BMI", "BGE", "BLT", "BGT", "BLE",
-  "TSX", "INS", "PULA", "PULB", "DES", "TXS", "PSHA" "PSHB",
+  "TSX", "INS", "PULA", "PULB", "DES", "TXS", "PSHA", "PSHB",
   "?", "RTS", "?", "RTI", "?", "?", "WAI", "SWI",
   "NEGA", "?", "?", "COMA", "LSRA", "?", "RORA", "ASRA",
   "ASLA", "ROLA", "DECA", "?", "INCA", "TSTA", "?", "CLRA",
@@ -270,19 +270,19 @@ const char *opcodes[256] = {
   "SUBA", "CMPA", "SBCA", "?", "ANDA", "BITA", "LDAA", "?",
   "EORA", "ADCA", "ORAA", "ADDA", "CPX", "BSR", "LDS", "?",
   "SUBA", "CMPA", "SBCA", "?", "ANDA", "BITA", "LDAA", "STAA",
-  "EORA", "ADCA", "ORAA", "ADDA", "CPX",  "?", "LDS",  "STS",
+  "EORA", "ADCA", "ORAA", "ADDA", "CPX", "?", "LDS", "STS",
   "SUBA", "CMPA", "SBCA", "?", "ANDA", "BITA", "LDAA", "STAA",
   "EORA", "ADCA", "ORAA", "ADDA", "CPX", "JSR", "LDS", "STS",
   "SUBA", "CMPA", "SBCA", "?", "ANDA", "BITA", "LDAA", "STAA",
-  "EORA", "ADCA", "ORAA", "ADDA", "CPX",  "JSR",  "LDS",  "STS",
+  "EORA", "ADCA", "ORAA", "ADDA", "CPX", "JSR", "LDS", "STS",
   "SUBB", "CMPB", "SBCB", "?", "ANDB", "BITB", "LDAB", "?",
-  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX",  "?",
+  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX", "?",
   "SUBB", "CMPB", "SBCB", "?", "ANDB", "BITB", "LDAB", "STAB",
-  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX",  "STX",
+  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX", "STX",
   "SUBB", "CMPB", "SBCB", "?", "ANDB", "BITB", "LDAB", "STAB",
-  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX",  "STX",
+  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX", "STX",
   "SUBB", "CMPB", "SBCB", "?", "ANDB", "BITB", "LDAB", "STAB",
-  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX",  "STX"
+  "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX", "STX"
 };
 #endif
 
