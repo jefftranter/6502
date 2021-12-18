@@ -1,6 +1,6 @@
 /*
 
-  Logic Analyzer for 6502, 6809, or Z80 microprocessors based on a
+  Logic Analyzer for 6502, 6700, 6809, or Z80 microprocessors based on a
   Teensy 4.1 microcontroller.
 
   See https://github.com/jefftranter/6502/tree/master/LogicAnalyzer
@@ -11,7 +11,6 @@
   - Monitor /FIRQ pin (6809)
   - Monitor BA and BS pins (6809)
   - Support disassembly of 6809 instructions
-  - Support disassembly of Z80 instructions
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,10 +37,11 @@
 // disassembly of the additional 65C02 instructions.
 //#define D6502
 #define D65C02
+//#define D6800
 //#define D6809
 //#define DZ80
 
-#if !defined(D6502) && !defined(D65C02) && !defined(D6809) && !defined(DZ80)
+#if !defined(D6502) && !defined(D65C02) && !defined(D6800) && !defined(D6809) && !defined(DZ80)
 #error "No CPU type defined!"
 #endif
 
@@ -68,14 +68,24 @@
 #define RESET 38
 #define INT 34
 #endif
+#if defined(D6800)
+#define PHI2 2
+#define VMA 3
+#define RW 4
+#define RES 5
+#define IRQ 29
+#define NMI 33
+#endif
 #define BUTTON 31
 
-#define VERSION "0.26"
+#define VERSION "0.27"
 
 #if defined(D6502)
 const char *versionString = "6502 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #elif defined(D65C02)
 const char *versionString = "65C02 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
+#elif defined(D6800)
+const char *versionString = "6800 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #elif defined(D6809)
 const char *versionString = "6809 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
 #elif defined(DZ80)
@@ -85,7 +95,7 @@ const char *versionString = "Z80 Logic Analyzer version " VERSION " by Jeff Tran
 #endif
 
 // Macros
-#if defined(D6502) || defined(D65C02)
+#if defined(D6502) || defined(D65C02) || defined(D6800)
 #define WAIT_PHI2_LOW while (digitalReadFast(PHI2) == HIGH) ;
 #define WAIT_PHI2_HIGH while (digitalReadFast(PHI2) == LOW) ;
 #endif
@@ -238,6 +248,44 @@ const char *opcodes[256] = {
 };
 #endif
 
+#ifdef D6800
+// Instructions for 6800 disassembler.
+const char *opcodes[256] = {
+  "?", "NOP", "?", "?", "?", "?", "?", "tap",
+  "tpa", "inx", "dex", "clv", "sev", "clc", "sec", "cli", "sei",
+  "sba", "cba", "?", "?", "?", "?", "tab", "tba",
+  "?", "daa", "?", "aba", "?", "?", "?", "?",
+  "bra", "?", "bhi", "bls", "bcc", "bcs", "bne", "beq",
+  "bvc", "bvs", "bpl", "bmi", "bge", "blt", "bgt", "ble",
+  "tsx", "ins", "pula", "pulb", "des", "txs", "psha" "pshb",
+  "?", "rts", "?", "rti", "?", "?", "wai", "swi",
+  "nega", "?", "?", "coma", "lsra", "?", "rora", "asra",
+  "asla", "rola", "deca", "?", "inca", "tsta", "?", "clra",
+  "negb", "?", "?", "comb", "lsrb", "?", "rorb", "asrb",
+  "aslb", "rolb", "decb", "?", "incb", "tstb", "?", "clrb",
+  "neg", "?", "?", "com", "lsr", "?", "ror", "asr",
+  "asl", "rol", "dec", "?", "inc", "tst", "jmp", "clr",
+  "neg", "?", "?", "com", "lsr", "?", "ror", "asr",
+  "asl", "rol", "dec", "?", "inc", "tst", "jmp", "clr",
+  "suba", "cmpa", "sbca", "?", "anda", "bita", "ldaa", "?",
+  "eora", "adca", "oraa", "adda", "cpx", "bsr", "lds", "?",
+  "suba", "cmpa", "sbca", "?", "anda", "bita", "ldaa", "staa",
+  "eora", "adca", "oraa", "adda", "cpx",  "?", "lds",  "sts",
+  "suba", "cmpa", "sbca", "?", "anda", "bita", "ldaa", "staa",
+  "eora", "adca", "oraa", "adda", "cpx", "jsr", "lds", "sts",
+  "suba", "cmpa", "sbca", "?", "anda", "bita", "ldaa", "staa",
+  "eora", "adca", "oraa", "adda", "cpx",  "jsr",  "lds",  "sts",
+  "subb", "cmpb", "sbcb", "?", "andb", "bitb", "ldab", "?",
+  "eorb", "adcb", "orab", "addb", "?", "?", "ldx",  "?",
+  "subb", "cmpb", "sbcb", "?", "andb", "bitb", "ldab", "stab",
+  "eorb", "adcb", "orab", "addb", "?", "?", "ldx",  "stx",
+  "subb", "cmpb", "sbcb", "?", "andb", "bitb", "ldab", "stab",
+  "eorb", "adcb", "orab", "addb", "?", "?", "ldx",  "stx",
+  "subb", "cmpb", "sbcb", "?", "andb", "bitb", "ldab", "stab",
+  "eorb", "adcb", "orab", "addb", "?", "?", "ldx",  "stx"
+};
+#endif
+
 // Startup function
 void setup() {
 
@@ -252,7 +300,7 @@ void setup() {
   // Default trigger address to reset vector
 #if defined(D6502) || defined(D65C02)
   triggerAddress = 0xfffc;
-#elif defined(D6809)
+#elif defined(D6800) || defined(D6809)
   triggerAddress = 0xfffe;
 #elif defined(DZ80)
   triggerAddress = 0x0000;
@@ -335,7 +383,11 @@ void help()
       }
       break;
     case tr_reset:
+#if defined(D6800)
+      Serial.print("on /RES ");
+#else
       Serial.print("on /RESET ");
+#endif
       Serial.println(triggerLevel ? "high" : "low");
       break;
     case tr_irq:
@@ -375,7 +427,11 @@ void help()
   Serial.println("t i <address> [r|w]  - Trigger on i/o address");
 #endif
   Serial.println("t d <data> [r|w]     - Trigger on data");
+#if defined(D6800)
+  Serial.println("t reset 0|1          - Trigger on /RES level");
+#else
   Serial.println("t reset 0|1          - Trigger on /RESET level");
+#endif
 #if defined(DZ80)
   Serial.println("t int 0|1            - Trigger on /INT level");
 #else
@@ -408,7 +464,7 @@ void list(Stream &stream, int start, int end)
   int j = 0;
   while (true) {
     const char *cycle;
-#if defined(D6502) || defined(D65C02) || defined(DZ80)
+#if defined(D6502) || defined(D65C02) || defined(D6800) || defined(DZ80)
     const char *opcode;
 #endif
     const char *comment;
@@ -462,12 +518,12 @@ void list(Stream &stream, int start, int end)
 #endif
 
 #if defined (DZ80)
-// /M1 /MREQ /IOREQ /RD /WR
-//  1    0      1    0   1   Memory read
-//  1    0      1    1   0   Memory write
-//  0    0      1    0   1   Instruction fetch
-//  1    1      0    0   1   I/O read
-//  1    1      0    1   0   I/O write
+      // /M1 /MREQ /IOREQ /RD /WR
+      //  1    0      1    0   1   Memory read
+      //  1    0      1    1   0   Memory write
+      //  0    0      1    0   1   Instruction fetch
+      //  1    1      0    0   1   I/O read
+      //  1    1      0    1   0   I/O write
 
       if (!(control[i] & 0x10)) {
           cycle = "F";
@@ -483,6 +539,26 @@ void list(Stream &stream, int start, int end)
           opcode = "";
       } else if (!(control[i] & 0x04) && !(control[i] & 0x01)) {
           cycle = "IW";
+          opcode = "";
+      } else {
+          cycle = " ";
+          opcode = "";
+      }
+#endif
+
+#if defined (D6800)
+      // VMA R/W
+      //  0   X  Internal
+      //  1   0  Memory read
+      //  1   1  Memory write
+      if (!(control[i] & 0x10)) {
+          cycle = "-";
+          opcode = ""
+      } else if ((control[i] & 0x10) && (control[i] & 0x08)) {
+          cycle = "R";
+          opcode = opcodes[data[i]];
+      } else if (!(control[i] & 0x10) && !(control[i] & 0x08)) {
+          cycle = "W";
           opcode = "";
       } else {
           cycle = " ";
@@ -512,7 +588,28 @@ void list(Stream &stream, int start, int end)
       }
 #endif
 
-      // Check for 6502 /RESET, /IRQ, or /NMI active, vector address.
+      // Check for 6800 /RES, /IRQ, or /NMI active, vector address.
+#if defined(D6800)
+      if (!(control[i] & 0x04)) {
+        comment = "RES ACTIVE";
+      } else if (!(control[i] & 0x02)) {
+        comment = "IRQ ACTIVE";
+      } else if (!(control[i] & 0x01)) {
+        comment = "NMI ACTIVE";
+      } else if ((address[i] == 0xfff8) || (address[i] == 0xfff8)) {
+        comment = "IRQ VECTOR";
+      } else if ((address[i] == 0xfffa) || (address[i] == 0xfffb)) {
+        comment = "SWI VECTOR";
+      } else if ((address[i] == 0xfffc) || (address[i] == 0xfffd)) {
+        comment = "NMI VECTOR";
+      } else if (address[i] == 0xfffe) { // Not 0xffff since it commonly occurs when bus is tri-state
+        comment = "RESET VECTOR";
+      } else {
+        comment = "";
+      }
+#endif
+
+      // Check for 6809 /RESET, /IRQ, or /NMI active, vector address.
 #if defined(D6809)
       if (!(control[i] & 0x04)) {
         comment = "RESET ACTIVE";
@@ -555,7 +652,7 @@ void list(Stream &stream, int start, int end)
         comment = "<--- TRIGGER ----";
       }
 
-#if defined(D6502) || defined(D65C02) || defined(DZ80)
+#if defined(D6502) || defined(D65C02) || defined(DZ80) || defined(D6800)
       sprintf(output, "%04lX  %-2s  %02lX  %-12s  %s",
               address[i], cycle, data[i], opcode, comment
              );
@@ -589,6 +686,9 @@ void exportCSV(Stream &stream)
 #if defined(D6809)
   stream.println("Index,R/W,/RESET,/IRQ,/NMI,Address,Data");
 #endif
+#if defined(D6800)
+  stream.println("Index,VMA,R/W,/RES,/IRQ,/NMI,Address,Data");
+#endif
 #if defined(DZ80)
   stream.println("Index,/M1,/RD,/WR,/MREQ,/IORQ,/RESET,/INT,Address,Data");
 #endif
@@ -604,11 +704,14 @@ void exportCSV(Stream &stream)
 #if defined(D6502) || defined(D65C02)
     bool sync = control[i] & 0x10;
 #endif
-#if defined(D6502) || defined(D65C02) || defined(D6809)
+#if defined(D6502) || defined(D65C02) || defined(D6800) || defined(D6809)
     bool rw = control[i] & 0x08;
     bool reset = control[i] & 0x04;
     bool irq = control[i] & 0x02;
     bool nmi = control[i] & 0x01;
+#endif
+#if defined(D6800)
+    bool vma = control[i] & 0x10;
 #endif
 #if defined(DZ80)
     bool wr = control[i] & 0x01;
@@ -624,6 +727,18 @@ void exportCSV(Stream &stream)
     sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
             j,
             sync ? '1' : '0',
+            rw ? '1' : '0',
+            reset ? '1' : '0',
+            irq ? '1' : '0',
+            nmi ? '1' : '0',
+            address[i],
+            data[i]
+           );
+#endif
+#if defined(D6800)
+    sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
+            j,
+            vma ? '1' : '0',
             rw ? '1' : '0',
             reset ? '1' : '0',
             irq ? '1' : '0',
@@ -846,7 +961,7 @@ void go()
 
   while (true) {
 
-#if defined(D6502) || defined(D65C02)
+#if defined(D6502) || defined(D65C02) || defined(D6800)
     // Wait for PHI2 to go from low to high
     WAIT_PHI2_LOW;
     WAIT_PHI2_HIGH;
@@ -866,7 +981,7 @@ void go()
     control[i] = GPIO9_PSR;
     address[i] = GPIO6_PSR;
 
-#if defined(D6502) || defined(D65C02)
+#if defined(D6502) || defined(D65C02) || defined(D6800)
     // Wait for PHI2 to go from high to low
     WAIT_PHI2_HIGH;
     WAIT_PHI2_LOW;
@@ -927,9 +1042,9 @@ void unscramble()
     control[i] =
       ((control[i] & CORE_PIN33_BITMASK)   ? 0x01 : 0) // /NMI /WR (Z80)
       + ((control[i] & CORE_PIN29_BITMASK) ? 0x02 : 0) // /IRQ /RD (Z80)
-      + ((control[i] & CORE_PIN5_BITMASK)  ? 0x04 : 0) // /RESET /IORQ (Z80)
+      + ((control[i] & CORE_PIN5_BITMASK)  ? 0x04 : 0) // /RESET /IORQ (Z80) /RES (6809)
       + ((control[i] & CORE_PIN4_BITMASK)  ? 0x08 : 0) // R/W /MREQ (Z80)
-      + ((control[i] & CORE_PIN3_BITMASK)  ? 0x10 : 0) // SYNC (6502) Q (6809) /M1 (Z80)
+      + ((control[i] & CORE_PIN3_BITMASK)  ? 0x10 : 0) // SYNC (6502) Q (6809) /M1 (Z80) VMA (6800)
       + ((address[i] & CORE_PIN38_BITMASK) ? 0x20 : 0) // SPARE1 /RESET (Z80)
       + ((data[i]    & CORE_PIN34_BITMASK) ? 0x40 : 0); // SPARE2 /INT (Z80)
 
