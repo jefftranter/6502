@@ -554,15 +554,14 @@ void list(Stream &stream, int start, int end)
       if (!(control[i] & 0x10)) {
           cycle = "-";
           opcode = "";
-      } else if ((control[i] & 0x10) && (control[i] & 0x08)) {
-          cycle = "R";
-          opcode = opcodes[data[i]];
-      } else if (!(control[i] & 0x10) && !(control[i] & 0x08)) {
-          cycle = "W";
-          opcode = "";
       } else {
-          cycle = " ";
-          opcode = "";
+          if (control[i] & 0x08) {
+              cycle = "R";
+              opcode = opcodes[data[i]];
+          } else {
+              cycle = "W";
+              opcode = "";
+          }
       }
 #endif
 
