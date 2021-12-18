@@ -553,7 +553,7 @@ void list(Stream &stream, int start, int end)
       //  1   1  Memory write
       if (!(control[i] & 0x10)) {
           cycle = "-";
-          opcode = ""
+          opcode = "";
       } else if ((control[i] & 0x10) && (control[i] & 0x08)) {
           cycle = "R";
           opcode = opcodes[data[i]];
