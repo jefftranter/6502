@@ -10,9 +10,11 @@ state to trigger on, and to capture and list the recorded data.
 
 It has been built on a protoboard and tested with my 6502 single board
 computer with a 65C02 running at 2 MHz and my 6809 single board
-computer runnin at 1 MHz.
+computer running at 1 MHz. It has also been tested in single
+board computers with 6800, 6809, and Z80 processors.
 
-Included here are the Arduino sketch and circuit schematic diagram.
+Included here are the Arduino sketch and circuit schematic diagram
+(there are versions for each processor).
 
 It can be conditionally compiled to support the 6502, 65C02, 6800,
 6809, or Z80 microprocessors.
@@ -25,6 +27,7 @@ Parts List:
 1  40-in DIP clip
 -  Ribbon cables to DIP clip
 -  Breadboard or proto board
+1  Momentary push button
 4  0.1uF bypass caps (optional)
 ```
 
@@ -100,6 +103,7 @@ The code is specific to the Teensy 4.1 and will not work with other
 microcontrollers without changes as it uses direct access to the GPIO
 registers. It uses the Teensyduino add-on to the Arduino IDE.
 
-The 6809 version is similar, but does not support disassembly as this
-is harder to do for the 6809 than the 6502 or Z80 as there is no
-simple way to detect an instruction fetch.
+On processors other than the 6502/65C02, disassembly is incomplete as
+there is no easy way to distinguish an instruction fetch from any
+other read cycle. The 6809 version does not yet support any
+disassembly due to the large number of instructions.

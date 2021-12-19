@@ -548,7 +548,7 @@ void list(Stream &stream, int start, int end)
 
 #if defined (D6800)
       // VMA R/W
-      //  0   X  Internal
+      //  0   X  Internal cycle
       //  1   0  Memory read
       //  1   1  Memory write
       if (!(control[i] & 0x10)) {
@@ -887,7 +887,7 @@ void go()
 
     // TODO: Add support for Z80 I/O read or write trigger.
 
-    // Check for r/w qualifer
+    // Check for r/w qualifier
     if (triggerCycle == tr_read) {
       cTriggerBits = 0b00000000000000000000000001000000;
       cTriggerMask = 0b00000000000000000000000001000000;
