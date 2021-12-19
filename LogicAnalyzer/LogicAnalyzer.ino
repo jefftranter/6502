@@ -10,7 +10,6 @@
   To Do:
   - Monitor /FIRQ pin (6809)
   - Monitor BA and BS pins (6809)
-  - Support disassembly of 6809 instructions
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -286,6 +285,44 @@ const char *opcodes[256] = {
 };
 #endif
 
+#ifdef D6809
+// Instructions for 6809 disassembler.
+const char *opcodes[256] = {
+  "NEG", "?", "?", "COMB", "LSR", "?", "ROR", "ASR",
+  "ASL", "ROL", "DEC", "?", "INC", "TST", "JMP", "CLR",
+  "(extended)", "(extended)", "NOP", "SYNC", "?", "?", "LBRA", "LBSR",
+  "?", "DAA", "ORCC", "?", "ANDCC", "SEX", "EXG", "TFR",
+  "BRA", "BRN", "BHI", "BLS", "BCC", "BCS", "BNE", "BEQ",
+  "BVC", "BVS", "BPL", "BMI", "BGE", "BLT", "BGT", "BLE",
+  "LEAX", "LEAY", "LEAS", "LEAU", "PSHS", "PULS", "PSHU", "PULU",
+  "?", "RTS", "ABX", "RTI", "CWAI", "MUL", "?", "SWI",
+  "NEGA", "?", "?", "COMA", "LSRA", "?", "RORA", "ASRA",
+  "ASLA", "ROLA", "DECA", "?", "INCA", "TSTA", "?", "CLRA",
+  "NEGB", "?", "?", "COMB", "LSRB", "?", "RORB", "ASRB",
+  "ASLB", "ROLB", "DECB", "?", "INCB", "TSTB", "?", "CLRB",
+  "NEG", "?", "?", "COMB", "LSR", "?", "ROR", "ASR",
+  "ASL", "ROL", "DEC", "?", "INC", "TST", "JMP", "CLR",
+  "NEG", "?", "?", "COMB", "LSR", "?", "ROR", "ASR",
+  "ASL", "ROL", "DEC", "?", "INC", "TST", "JMP", "CLR",
+  "SUBA", "CMPA", "SBCA", "SUBD", "ANDA", "BITA", "LDA", "?",
+  "EORA", "ADCA", "ORA", "ADDA", "CMPX", "BSR", "LDX", "?",
+  "SUBA", "CMPA", "SBCA", "SUBD", "ANDA", "BITA", "LDA", "STA",
+  "EORA", "ADCA", "ORA", "ADDA", "CMPX", "JSR", "LDX", "STX",
+  "SUBA", "CMPA", "SBCA", "SUBD", "ANDA", "BITA", "LDA", "STA",
+  "EORA", "ADCA", "ORA", "ADDA", "CMPX", "JSR", "LDX", "STX",
+  "SUBA", "CMPA", "SBCA", "SUBD", "ANDA", "BITA", "LDA", "STA",
+  "EORA", "ADCA", "ORA", "ADDA", "CMPX", "JSR", "LDX", "STX",
+  "SUBB", "CMPB", "SBCB", "ADDD", "ANDB", "BITB", "LDB", "?",
+  "EORB", "ADCB", "ORB", "ADDB", "LDD", "?", "LDU", "?",
+  "SUBB", "CMPB", "SBCB", "ADDD", "ANDB", "BITB", "LDB", "STB",
+  "EORB", "ADCB", "ORB", "ADDB", "LDD", "STD", "LDU", "STU",
+  "SUBB", "CMPB", "SBCB", "ADDD", "ANDB", "BITB", "LDB", "STB",
+  "EORB", "ADCB", "ORB", "ADDB", "LDD", "STD", "LDU", "STU",
+  "SUBB", "CMPB", "SBCB", "ADDD", "ANDB", "BITB", "LDB", "STB",
+  "EORB", "ADCB", "ORB", "ADDB", "LDD", "STD", "LDU", "STU"
+};
+#endif
+
 // Startup function
 void setup() {
 
@@ -512,8 +549,10 @@ void list(Stream &stream, int start, int end)
 #if defined(D6809)
       if (control[i] & 0x08) {
         cycle = "R";
+        opcode = opcodes[data[i]];
       } else {
         cycle = "W";
+        opcode = "";
       }
 #endif
 
@@ -651,17 +690,10 @@ void list(Stream &stream, int start, int end)
         comment = "<--- TRIGGER ----";
       }
 
-#if defined(D6502) || defined(D65C02) || defined(DZ80) || defined(D6800)
       sprintf(output, "%04lX  %-2s  %02lX  %-12s  %s",
               address[i], cycle, data[i], opcode, comment
              );
-#endif
 
-#if defined(D6809)
-      sprintf(output, "%04lX  %-2s  %02lX  %s",
-              address[i], cycle, data[i], comment
-             );
-#endif
       stream.println(output);
     }
 
