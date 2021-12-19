@@ -501,9 +501,7 @@ void list(Stream &stream, int start, int end)
   int j = 0;
   while (true) {
     const char *cycle;
-#if defined(D6502) || defined(D65C02) || defined(D6800) || defined(DZ80)
     const char *opcode;
-#endif
     const char *comment;
 
     if ((j >= start) && (j <= end)) {
@@ -529,9 +527,9 @@ void list(Stream &stream, int start, int end)
         if (s.indexOf("rr") != -1) { // relative branch
           char op[3];
           if (data[i + 1] < 0x80) {
-              sprintf(op, "$%04lX", address[i] + 2 + data[i + 1]);
+            sprintf(op, "$%04lX", address[i] + 2 + data[i + 1]);
           } else {
-              sprintf(op, "$%04lX", address[i] + 2 - (256 - data[i + 1]));
+            sprintf(op, "$%04lX", address[i] + 2 - (256 - data[i + 1]));
           }
           s.replace("rr", op);
         }
@@ -565,23 +563,23 @@ void list(Stream &stream, int start, int end)
       //  1    1      0    1   0   I/O write
 
       if (!(control[i] & 0x10)) {
-          cycle = "F";
-          opcode = opcodes[data[i]];
+        cycle = "F";
+        opcode = opcodes[data[i]];
       } else if (!(control[i] & 0x08) && !(control[i] & 0x02)) {
-          cycle = "R";
-          opcode = "";
+        cycle = "R";
+        opcode = "";
       } else if (!(control[i] & 0x08) && !(control[i] & 0x01)) {
-          cycle = "W";
-          opcode = "";
+        cycle = "W";
+        opcode = "";
       } else if (!(control[i] & 0x04) && !(control[i] & 0x02)) {
-          cycle = "IR";
-          opcode = "";
+        cycle = "IR";
+        opcode = "";
       } else if (!(control[i] & 0x04) && !(control[i] & 0x01)) {
-          cycle = "IW";
-          opcode = "";
+        cycle = "IW";
+        opcode = "";
       } else {
-          cycle = " ";
-          opcode = "";
+        cycle = " ";
+        opcode = "";
       }
 #endif
 
@@ -591,16 +589,16 @@ void list(Stream &stream, int start, int end)
       //  1   0  Memory read
       //  1   1  Memory write
       if (!(control[i] & 0x10)) {
-          cycle = "-";
-          opcode = "";
+        cycle = "-";
+        opcode = "";
       } else {
-          if (control[i] & 0x08) {
-              cycle = "R";
-              opcode = opcodes[data[i]];
-          } else {
-              cycle = "W";
-              opcode = "";
-          }
+        if (control[i] & 0x08) {
+          cycle = "R";
+          opcode = opcodes[data[i]];
+        } else {
+          cycle = "W";
+          opcode = "";
+        }
       }
 #endif
 
@@ -677,11 +675,11 @@ void list(Stream &stream, int start, int end)
       // Check for Z80 /RESET or /INT active
 #if defined(DZ80)
       if (!(control[i] & 0x20)) {
-          comment = "RESET ACTIVE";
+        comment = "RESET ACTIVE";
       } else if (!(control[i] & 0x40)) {
-          comment = "INT ACTIVE";
+        comment = "INT ACTIVE";
       } else {
-          comment = "";
+        comment = "";
       }
 #endif
 
