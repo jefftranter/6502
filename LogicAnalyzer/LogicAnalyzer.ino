@@ -71,7 +71,7 @@
 #define PHI2 2
 #define VMA 3
 #define RW 4
-#define RES 5
+#define RESET 5
 #define IRQ 29
 #define NMI 33
 #endif
@@ -420,11 +420,7 @@ void help()
       }
       break;
     case tr_reset:
-#if defined(D6800)
-      Serial.print("on /RES ");
-#else
       Serial.print("on /RESET ");
-#endif
       Serial.println(triggerLevel ? "high" : "low");
       break;
     case tr_irq:
@@ -464,11 +460,7 @@ void help()
   Serial.println("t i <address> [r|w]  - Trigger on i/o address");
 #endif
   Serial.println("t d <data> [r|w]     - Trigger on data");
-#if defined(D6800)
-  Serial.println("t reset 0|1          - Trigger on /RES level");
-#else
   Serial.println("t reset 0|1          - Trigger on /RESET level");
-#endif
 #if defined(DZ80)
   Serial.println("t int 0|1            - Trigger on /INT level");
 #else
@@ -555,7 +547,7 @@ void list(Stream &stream, int start, int end)
 #endif
 
 #if defined (DZ80)
-      // /M1 /MREQ /IOREQ /RD /WR
+      // /M1 /MREQ  /IORQ /RD /WR
       //  1    0      1    0   1   Memory read
       //  1    0      1    1   0   Memory write
       //  0    0      1    0   1   Instruction fetch
@@ -624,10 +616,10 @@ void list(Stream &stream, int start, int end)
       }
 #endif
 
-      // Check for 6800 /RES, /IRQ, or /NMI active, vector address.
+      // Check for 6800 /RESET, /IRQ, or /NMI active, vector address.
 #if defined(D6800)
       if (!(control[i] & 0x04)) {
-        comment = "RES ACTIVE";
+        comment = "RESET ACTIVE";
       } else if (!(control[i] & 0x02)) {
         comment = "IRQ ACTIVE";
       } else if (!(control[i] & 0x01)) {
@@ -716,7 +708,7 @@ void exportCSV(Stream &stream)
   stream.println("Index,R/W,/RESET,/IRQ,/NMI,Address,Data");
 #endif
 #if defined(D6800)
-  stream.println("Index,VMA,R/W,/RES,/IRQ,/NMI,Address,Data");
+  stream.println("Index,VMA,R/W,/RESET,/IRQ,/NMI,Address,Data");
 #endif
 #if defined(DZ80)
   stream.println("Index,/M1,/RD,/WR,/MREQ,/IORQ,/RESET,/INT,Address,Data");
@@ -1071,7 +1063,7 @@ void unscramble()
     control[i] =
       ((control[i] & CORE_PIN33_BITMASK)   ? 0x01 : 0) // /NMI /WR (Z80)
       + ((control[i] & CORE_PIN29_BITMASK) ? 0x02 : 0) // /IRQ /RD (Z80)
-      + ((control[i] & CORE_PIN5_BITMASK)  ? 0x04 : 0) // /RESET /IORQ (Z80) /RES (6809)
+      + ((control[i] & CORE_PIN5_BITMASK)  ? 0x04 : 0) // /RESET /IORQ (Z80)
       + ((control[i] & CORE_PIN4_BITMASK)  ? 0x08 : 0) // R/W /MREQ (Z80)
       + ((control[i] & CORE_PIN3_BITMASK)  ? 0x10 : 0) // SYNC (6502) Q (6809) /M1 (Z80) VMA (6800)
       + ((address[i] & CORE_PIN38_BITMASK) ? 0x20 : 0) // SPARE1 /RESET (Z80)

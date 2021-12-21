@@ -37,15 +37,15 @@ Port Bit Pin  Signal Pin  Signal Pin  Signal Pin  Signal Pin
  7    19  37
 
  8    18  28
- 8    23  30
+ 8    23  30   (DIRECTION OF DATA LINES: LOW=READ, HIGH=WRITE)
  8    22  31   (TRIGGER BUTTON)
 
  9     4   2   PHI2   39   E      34   CLK     6   PHI2   37
  9     5   3   SYNC    7   Q      35   /M1    27   VMA     5
  9     6   4   R/W    34   R/W    32   /MREQ  19   R/W    34
- 9     8   5   /RESET 40   /RESET 37   /IOREQ 20   /RES   40
+ 9     8   5   /RESET 40   /RESET 37   /IORQ  20   /RESET 40
  9    31  29   /IRQ    4   /IRQ    3   /RD    21   /IRQ    4
 
  9     7  33   /NMI    6   /NMI    2   /WR    22   /NMI    6
 
- -     -   -   GND    21   GND     1   GND    29   GND  1,21
+ -     -   -   GND  1,21   GND     1   GND    29   GND  1,21
