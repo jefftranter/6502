@@ -24,12 +24,18 @@ Parts List:
 ```
 1  Teensy 4.1 Microcontroller
 4  74LVC245AN Octal Level Shifter
-1  40-in DIP clip
--  Ribbon cables to DIP clip
--  Breadboard or proto board
+1  40-in DIP clip (pins rather than nails) e.g. 3M 923690-40 or 923739-40, Digikey 923690-40-ND
+2  20 pin 0.1" ribbon cables, e.g. Digikey A9BBG-2008F-ND or A9BBG-2006F-ND
 1  Momentary push button
-4  0.1uF bypass caps (optional)
+4  0.1uF bypass caps
+-  0.1" headers (cut to desired length)
+3  Flea clip
+1  PCB or proto board
 ```
+
+You can use my PCB design if desired, or build it on a protoboard.
+
+-----------------------------------------------------------------------
 
 Sample Session:
 
@@ -105,5 +111,4 @@ registers. It uses the Teensyduino add-on to the Arduino IDE.
 
 On processors other than the 6502/65C02, disassembly is incomplete as
 there is no easy way to distinguish an instruction fetch from any
-other read cycle. The 6809 version does not yet support any
-disassembly due to the large number of instructions.
+other read cycle.
