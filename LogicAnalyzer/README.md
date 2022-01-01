@@ -1,5 +1,5 @@
-This is prototype 6502/6800/6809/Z80 logic analyzer design using the
-Teensy 4.1 microcontroller.
+This is 6502/6800/6809/Z80 logic analyzer design using the Teensy 4.1
+microcontroller.
 
 It clips on to a 6502, 65C02, 6800, 6809, or Z80 chip and monitors the
 address, data, and control lines in real time.
@@ -8,10 +8,10 @@ There is a simple command line interface over the microcontroller's
 USB serial interface that allows you to set parameters, such as the
 state to trigger on, and to capture and list the recorded data.
 
-It has been built on a protoboard and tested with my 6502 single board
+It has been built on a PCB and tested with my 6502 single board
 computer with a 65C02 running at 2 MHz and my 6809 single board
-computer running at 1 MHz. It has also been tested in single
-board computers with 6800, 6809, and Z80 processors.
+computer running at 1 MHz. It has also been tested in single board
+computers with 6800, 6809, and Z80 processors.
 
 Included here are the Arduino sketch and circuit schematic diagram
 (there are versions for each processor).
@@ -29,7 +29,7 @@ Parts List:
 1  Momentary push button
 4  0.1uF bypass caps
 -  0.1" headers (cut to desired length)
-3  Flea clip
+3  Flea clips
 1  PCB or proto board
 ```
 
@@ -94,10 +94,16 @@ Construction Notes
 I initially built the circuit on a solderless breadboard and then made
 a more permanent unit on a proto board. See the photos.
 
-I used a 40-pin DIP clip that had pins that fit standard 0.1" headers.
-I used two old floppy disk ribbon cables that had suitable female
-connectors on each end, but you could wire up two 20-pin ribbon cables
-as needed.
+I used a 40-pin DIP clip that had pins that fit standard 0.1" headers
+attaches to two 20-pin ribbon cables.
+
+Plug the DIP cables into the appropriate pair of connectors for the
+CPU being used. The 6800 and 6502/65C02 share the same connectors as
+the pinouts are almost the same - you need to connect two flea clips
+to select between 6800 or 6502.
+
+On the Z80 you can use a flea clip to select whether to monitor the
+/INT or /NMI signal.
 
 The only hardware on the board, other than connectors, are the
 74LVC245 chips which are needed to convert the 5V levels of the 6502
