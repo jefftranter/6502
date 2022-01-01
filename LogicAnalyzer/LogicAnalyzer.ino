@@ -70,7 +70,7 @@ typedef enum { cpu_6502, cpu_65c02, cpu_6800, cpu_6809, cpu_z80 } cpu_t;
 uint32_t control[BUFFSIZE];           // Recorded control line data
 uint32_t address[BUFFSIZE];           // Recorded address data
 uint32_t data[BUFFSIZE];              // Recorded data lines
-uint32_t triggerAddress;              // Address or data to trigger on
+uint32_t triggerAddress = 0;          // Address or data to trigger on
 uint32_t aTriggerBits;                // GPIO bit pattern to trigger address on
 uint32_t aTriggerMask;                // bitmask of GPIO address bits
 uint32_t cTriggerBits;                // GPIO bit pattern to trigger control on
@@ -78,10 +78,10 @@ uint32_t cTriggerMask;                // bitmask of GPIO control bits
 uint32_t dTriggerBits;                // GPIO bit pattern to trigger data on
 uint32_t dTriggerMask;                // bitmask of GPIO data bits
 int samples = 20;                     // Total number of samples to record (up to BUFFSIZE)
-int pretrigger = 3;                   // Number of samples to record before trigger (up to samples)
+int pretrigger = 0;                   // Number of samples to record before trigger (up to samples)
 int triggerPoint = 0;                 // Sample in buffer corresponding to trigger point
 cpu_t cpu = cpu_65c02;                // Current CPU type
-trigger_t triggerMode = tr_address;   // Type of trigger
+trigger_t triggerMode = tr_none;      // Type of trigger
 cycle_t triggerCycle = tr_either;     // Trigger on read, write, or either
 bool triggerLevel = false;            // Trigger level (false=low, true=high);
 volatile bool triggerPressed = false; // Set by hardware trigger button
@@ -277,15 +277,6 @@ void setup() {
 
   // Will use on-board LED to indicate triggering.
   pinMode(CORE_LED0_PIN, OUTPUT);
-
-  // Default trigger address to reset vector
-  if ((cpu == cpu_6502) || (cpu == cpu_65c02)) {
-    triggerAddress = 0xfffc;
-  } else if ((cpu == cpu_6800) || (cpu == cpu_6809)) {
-    triggerAddress = 0xfffe;
-  } else if (cpu == cpu_z80) {
-    triggerAddress = 0x0000;
-  }
 
   // Manual trigger button - low on this pin forces a trigger.
   attachInterrupt(digitalPinToInterrupt(BUTTON), triggerButton, FALLING);
