@@ -31,87 +31,40 @@
 // able to go up to at least 30,000 before running out of memory.
 #define BUFFSIZE 5000
 
-// Uncomment one of the following three lines to determine what
-// processor to support. 65C02 is identical to 6502 except it supports
-// disassembly of the additional 65C02 instructions.
-//#define D6502
-#define D65C02
-//#define D6800
-//#define D6809
-//#define DZ80
-
-#if !defined(D6502) && !defined(D65C02) && !defined(D6800) && !defined(D6809) && !defined(DZ80)
-#error "No CPU type defined!"
-#endif
-
 // Some pin numbers
-#if defined(D6502) || defined(D65C02)
-#define PHI2 2
-#endif
-#if defined(D6809)
-#define E 2
-#define Q 3
-#endif
-#if defined(D6502) || defined(D65C02) || defined(D6809)
-#define RESET 5
-#define IRQ 29
-#define NMI 33
-#endif
-#if defined(DZ80)
+#define BUTTON 31
 #define CLK 2
+#define E 2
+#define INT 34
+#define IORQ 5
+#define IRQ 29
 #define M1 3
 #define MREQ 4
-#define IORQ 5
-#define RD 29
-#define WR 33
-#define RESET 38
-#define INT 34
-#endif
-#if defined(D6800)
-#define PHI2 2
-#define VMA 3
-#define RW 4
-#define RESET 5
-#define IRQ 29
 #define NMI 33
-#endif
-#define BUTTON 31
+#define PHI2 2
+#define Q 3
+#define RD 29
+#define RESET 5
+#define RW 4
+#define VMA 3
+#define WR 33
 
-#define VERSION "0.27"
-
-#if defined(D6502)
-const char *versionString = "6502 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
-#elif defined(D65C02)
-const char *versionString = "65C02 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
-#elif defined(D6800)
-const char *versionString = "6800 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
-#elif defined(D6809)
-const char *versionString = "6809 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
-#elif defined(DZ80)
-const char *versionString = "Z80 Logic Analyzer version " VERSION " by Jeff Tranter <tranter@pobox.com>";
-#else
-#error "No processor defined!"
-#endif
+const char *versionString = "Logic Analyzer version 0.30 by Jeff Tranter <tranter@pobox.com>";
 
 // Macros
-#if defined(D6502) || defined(D65C02) || defined(D6800)
 #define WAIT_PHI2_LOW while (digitalReadFast(PHI2) == HIGH) ;
 #define WAIT_PHI2_HIGH while (digitalReadFast(PHI2) == LOW) ;
-#endif
-#if defined(D6809)
 #define WAIT_Q_LOW while (digitalReadFast(Q) == HIGH) ;
 #define WAIT_Q_HIGH while (digitalReadFast(Q) == LOW) ;
 #define WAIT_E_LOW while (digitalReadFast(E) == HIGH) ;
 #define WAIT_E_HIGH while (digitalReadFast(E) == LOW) ;
-#endif
-#if defined(DZ80)
 #define WAIT_CLK_LOW while (digitalReadFast(CLK) == HIGH) ;
 #define WAIT_CLK_HIGH while (digitalReadFast(CLK) == LOW) ;
-#endif
 
 // Type definitions
-typedef enum trigger_t { tr_address, tr_io, tr_data, tr_reset, tr_irq, tr_nmi, tr_spare1, tr_spare2, tr_none } trigger_t;
-typedef enum cycle_t { tr_read, tr_write, tr_either } access_t;
+typedef enum { tr_address, tr_io, tr_data, tr_reset, tr_irq, tr_nmi, tr_spare1, tr_spare2, tr_none } trigger_t;
+typedef enum { tr_read, tr_write, tr_either } cycle_t;
+typedef enum { cpu_6502, cpu_65c02, cpu_6800, cpu_6809, cpu_z80 } cpu_t;
 
 // Global variables
 uint32_t control[BUFFSIZE];           // Recorded control line data
@@ -127,14 +80,14 @@ uint32_t dTriggerMask;                // bitmask of GPIO data bits
 int samples = 20;                     // Total number of samples to record (up to BUFFSIZE)
 int pretrigger = 3;                   // Number of samples to record before trigger (up to samples)
 int triggerPoint = 0;                 // Sample in buffer corresponding to trigger point
+cpu_t cpu = cpu_65c02;                // Current CPU type
 trigger_t triggerMode = tr_address;   // Type of trigger
 cycle_t triggerCycle = tr_either;     // Trigger on read, write, or either
 bool triggerLevel = false;            // Trigger level (false=low, true=high);
 volatile bool triggerPressed = false; // Set by hardware trigger button
 
-#ifdef D65C02
 // Instructions for 65C02 disassembler.
-const char *opcodes[256] = {
+const char *opcodes_65c02[256] = {
   "BRK", "ORA (nn,X)", "?", "?", "TSB nn", "ORA nn", "ASL nn", "RMB0 nn",
   "PHP", "ORA #nn", "ASLA", "?", "TSB XXXX", "ORA nnnn", "ASL nnnn", "BBR0 nn",
   "BPL rr", "ORA (nn),Y", "ORA (nn)", "?", "TRB nn", "ORA nn,X", "ASL nn,X", "RMB1 nn",
@@ -168,11 +121,9 @@ const char *opcodes[256] = {
   "BEQ rr", "SBC (nn),Y", "SBC (nn)", "?", "?", "SBC nn,X", "INC nn,X", "SMB7 nn",
   "SED", "SBC nnnn,Y", "PLX", "?", "?", "SBC nnnn,X", "INC nnnn,X", "BBS7 nnnn"
 };
-#endif
 
-#ifdef D6502
 // Instructions for 6502 disassembler.
-const char *opcodes[256] = {
+const char *opcodes_6502[256] = {
   "BRK", "ORA (nn,X)", "?", "?", "?", "ORA nn", "ASL nn", "?",
   "PHP", "ORA #nn", "ASLA", "?", "?", "ORA nnnn", "ASL nnnn", "?",
   "BPL rr", "ORA (nn),Y", "?", "?", "?", "ORA nn,X", "ASL nn,X", "?",
@@ -206,12 +157,10 @@ const char *opcodes[256] = {
   "BEQ rr", "SBC (nn),Y", "?", "?", "?", "SBC nn,X", "INC nn,X", "?",
   "SED", "SBC nnnn,Y", "?", "?", "?", "SBC nnnn,X", "INC nnnn,X", "?"
 };
-#endif
 
-#ifdef DZ80
 // Instructions for Z80 disassembler.
 // Two-byte extended instructions are not yet supported.
-const char *opcodes[256] = {
+const char *opcodes_z80[256] = {
   "NOP", "LD", "LD", "INC", "INC", "DEC", "LD", "RLCA",
   "EX", "ADD", "LD", "DEC", "INC", "DEC", "LD", "RRCA",
   "DJNZ", "LD", "LD", "INC", "INC", "DEC", "LD", "RLA",
@@ -245,11 +194,9 @@ const char *opcodes[256] = {
   "RET", "POP", "JP", "DI", "CALL", "PUSH", "OR", "RST",
   "RET", "LD", "JP", "EI", "CALL", "(extended)", "CP", "RST"
 };
-#endif
 
-#ifdef D6800
 // Instructions for 6800 disassembler.
-const char *opcodes[256] = {
+const char *opcodes_6800[256] = {
   "?", "NOP", "?", "?", "?", "?", "TAP", "TPA",
   "INX", "DEX", "CLV", "SEV", "CLC", "SEC", "CLI", "SEI",
   "SBA", "CBA", "?", "?", "?", "?", "TAB", "TBA",
@@ -283,11 +230,9 @@ const char *opcodes[256] = {
   "SUBB", "CMPB", "SBCB", "?", "ANDB", "BITB", "LDAB", "STAB",
   "EORB", "ADCB", "ORAB", "ADDB", "?", "?", "LDX", "STX"
 };
-#endif
 
-#ifdef D6809
 // Instructions for 6809 disassembler.
-const char *opcodes[256] = {
+const char *opcodes_6809[256] = {
   "NEG", "?", "?", "COMB", "LSR", "?", "ROR", "ASR",
   "ASL", "ROL", "DEC", "?", "INC", "TST", "JMP", "CLR",
   "(extended)", "(extended)", "NOP", "SYNC", "?", "?", "LBRA", "LBSR",
@@ -321,7 +266,6 @@ const char *opcodes[256] = {
   "SUBB", "CMPB", "SBCB", "ADDD", "ANDB", "BITB", "LDB", "STB",
   "EORB", "ADCB", "ORB", "ADDB", "LDD", "STD", "LDU", "STU"
 };
-#endif
 
 // Startup function
 void setup() {
@@ -335,13 +279,13 @@ void setup() {
   pinMode(CORE_LED0_PIN, OUTPUT);
 
   // Default trigger address to reset vector
-#if defined(D6502) || defined(D65C02)
-  triggerAddress = 0xfffc;
-#elif defined(D6800) || defined(D6809)
-  triggerAddress = 0xfffe;
-#elif defined(DZ80)
-  triggerAddress = 0x0000;
-#endif
+  if ((cpu == cpu_6502) || (cpu == cpu_65c02)) {
+    triggerAddress = 0xfffc;
+  } else if ((cpu == cpu_6800) || (cpu == cpu_6809)) {
+    triggerAddress = 0xfffe;
+  } else if (cpu == cpu_z80) {
+    triggerAddress = 0x0000;
+  }
 
   // Manual trigger button - low on this pin forces a trigger.
   attachInterrupt(digitalPinToInterrupt(BUTTON), triggerButton, FALLING);
@@ -372,6 +316,26 @@ void triggerButton()
 void help()
 {
   Serial.println(versionString);
+
+  Serial.print("CPU: ");
+  switch (cpu) {
+    case cpu_6502:
+      Serial.println("6502");
+      break;
+    case cpu_65c02:
+      Serial.println("65C02");
+      break;
+    case cpu_6800:
+      Serial.println("6800");
+      break;
+    case cpu_6809:
+      Serial.println("6809");
+      break;
+    case cpu_z80:
+      Serial.println("Z80");
+      break;
+  }
+
   Serial.print("Trigger: ");
   switch (triggerMode) {
     case tr_address:
@@ -424,11 +388,11 @@ void help()
       Serial.println(triggerLevel ? "high" : "low");
       break;
     case tr_irq:
-#if defined(DZ80)
-      Serial.print("on /INT ");
-#else
-      Serial.print("on /IRQ ");
-#endif
+      if (cpu == cpu_z80) {
+        Serial.print("on /INT ");
+      } else {
+        Serial.print("on /IRQ ");
+      }
       Serial.println(triggerLevel ? "high" : "low");
       break;
     case tr_nmi:
@@ -453,24 +417,25 @@ void help()
   Serial.print("Pretrigger samples: ");
   Serial.println(pretrigger);
   Serial.println("Commands:");
+  Serial.println("c <cpu>              - Set CPU to 6502, 65C02, 6800, 6809, or Z80");
   Serial.println("s <number>           - Set number of samples");
   Serial.println("p <samples>          - Set pre-trigger samples");
   Serial.println("t a <address> [r|w]  - Trigger on address");
-#if defined (DZ80)
-  Serial.println("t i <address> [r|w]  - Trigger on i/o address");
-#endif
+  if (cpu == cpu_z80) {
+    Serial.println("t i <address> [r|w]  - Trigger on i/o address");
+  }
   Serial.println("t d <data> [r|w]     - Trigger on data");
   Serial.println("t reset 0|1          - Trigger on /RESET level");
-#if defined(DZ80)
-  Serial.println("t int 0|1            - Trigger on /INT level");
-#else
-  Serial.println("t irq 0|1            - Trigger on /IRQ level");
-#endif
-#if !defined(DZ80)
-  Serial.println("t nmi 0|1            - Trigger on /NMI level");
-  Serial.println("t spare1 0|1         - Trigger on SPARE1 level");
-  Serial.println("t spare2 0|1         - Trigger on SPARE2 level");
-#endif
+  if (cpu == cpu_z80) {
+    Serial.println("t int 0|1            - Trigger on /INT level");
+  } else {
+    Serial.println("t irq 0|1            - Trigger on /IRQ level");
+  }
+  if (cpu != cpu_z80) {
+    Serial.println("t nmi 0|1            - Trigger on /NMI level");
+    Serial.println("t spare1 0|1         - Trigger on SPARE1 level");
+    Serial.println("t spare2 0|1         - Trigger on SPARE2 level");
+  }
   Serial.println("t none               - Trigger freerun");
   Serial.println("g                    - Go/start analyzer");
   Serial.println("l [start] [end]      - List samples");
@@ -492,188 +457,192 @@ void list(Stream &stream, int start, int end)
   int i = first;
   int j = 0;
   while (true) {
-    const char *cycle;
-    const char *opcode;
-    const char *comment;
+    const char *cycle = "";
+    const char *opcode = "";
+    const char *comment = "";
 
     if ((j >= start) && (j <= end)) {
 
       // 6502 SYNC high indicates opcode/instruction fetch, otherwise
       // show as read or write.
-#if defined(D6502) || defined(D65C02)
-      if  (control[i] & 0x10) {
-        cycle = "F";
-        opcode = opcodes[data[i]];
-        String s = opcode;
-        // Fill in operands
-        if (s.indexOf("nnnn") != -1) { // absolute
-          char op[5];
-          sprintf(op, "$%04lX", data[i + 1] + 256 * data[i + 2]);
-          s.replace("nnnn", op);
-        }
-        if (s.indexOf("nn") != -1) { // page zero
-          char op[3];
-          sprintf(op, "$%02lX", data[i + 1]);
-          s.replace("nn", op);
-        }
-        if (s.indexOf("rr") != -1) { // relative branch
-          char op[3];
-          if (data[i + 1] < 0x80) {
-            sprintf(op, "$%04lX", address[i] + 2 + data[i + 1]);
+      if ((cpu == cpu_65c02) || (cpu == cpu_6502)) {
+        if  (control[i] & 0x10) {
+          cycle = "F";
+          if (cpu == cpu_65c02) {
+            opcode = opcodes_65c02[data[i]];
           } else {
-            sprintf(op, "$%04lX", address[i] + 2 - (256 - data[i + 1]));
+            opcode = opcodes_6502[data[i]];
           }
-          s.replace("rr", op);
-        }
-        opcode = s.c_str();
+          String s = opcode;
+          // Fill in operands
+          if (s.indexOf("nnnn") != -1) { // absolute
+            char op[5];
+            sprintf(op, "$%04lX", data[i + 1] + 256 * data[i + 2]);
+            s.replace("nnnn", op);
+          }
+          if (s.indexOf("nn") != -1) { // page zero
+            char op[3];
+            sprintf(op, "$%02lX", data[i + 1]);
+            s.replace("nn", op);
+          }
+          if (s.indexOf("rr") != -1) { // relative branch
+            char op[3];
+            if (data[i + 1] < 0x80) {
+              sprintf(op, "$%04lX", address[i] + 2 + data[i + 1]);
+            } else {
+              sprintf(op, "$%04lX", address[i] + 2 - (256 - data[i + 1]));
+            }
+            s.replace("rr", op);
+          }
+          opcode = s.c_str();
 
-      } else if (control[i] & 0x08) {
-        cycle = "R";
-        opcode = "";
-      } else {
-        cycle = "W";
-        opcode = "";
-      }
-#endif
-
-#if defined(D6809)
-      if (control[i] & 0x08) {
-        cycle = "R";
-        opcode = opcodes[data[i]];
-      } else {
-        cycle = "W";
-        opcode = "";
-      }
-#endif
-
-#if defined (DZ80)
-      // /M1 /MREQ  /IORQ /RD /WR
-      //  1    0      1    0   1   Memory read
-      //  1    0      1    1   0   Memory write
-      //  0    0      1    0   1   Instruction fetch
-      //  1    1      0    0   1   I/O read
-      //  1    1      0    1   0   I/O write
-
-      if (!(control[i] & 0x10)) {
-        cycle = "F";
-        opcode = opcodes[data[i]];
-      } else if (!(control[i] & 0x08) && !(control[i] & 0x02)) {
-        cycle = "R";
-        opcode = "";
-      } else if (!(control[i] & 0x08) && !(control[i] & 0x01)) {
-        cycle = "W";
-        opcode = "";
-      } else if (!(control[i] & 0x04) && !(control[i] & 0x02)) {
-        cycle = "IR";
-        opcode = "";
-      } else if (!(control[i] & 0x04) && !(control[i] & 0x01)) {
-        cycle = "IW";
-        opcode = "";
-      } else {
-        cycle = " ";
-        opcode = "";
-      }
-#endif
-
-#if defined (D6800)
-      // VMA R/W
-      //  0   X  Internal cycle
-      //  1   0  Memory read
-      //  1   1  Memory write
-      if (!(control[i] & 0x10)) {
-        cycle = "-";
-        opcode = "";
-      } else {
-        if (control[i] & 0x08) {
+        } else if (control[i] & 0x08) {
           cycle = "R";
-          opcode = opcodes[data[i]];
+          opcode = "";
         } else {
           cycle = "W";
           opcode = "";
         }
       }
-#endif
+
+      if (cpu == cpu_6809) {
+        if (control[i] & 0x08) {
+          cycle = "R";
+          opcode = opcodes_6809[data[i]];
+        } else {
+          cycle = "W";
+          opcode = "";
+        }
+      }
+
+      if (cpu == cpu_z80) {
+        // /M1 /MREQ  /IORQ /RD /WR
+        //  1    0      1    0   1   Memory read
+        //  1    0      1    1   0   Memory write
+        //  0    0      1    0   1   Instruction fetch
+        //  1    1      0    0   1   I/O read
+        //  1    1      0    1   0   I/O write
+
+        if (!(control[i] & 0x10)) {
+          cycle = "F";
+          opcode = opcodes_z80[data[i]];
+        } else if (!(control[i] & 0x08) && !(control[i] & 0x02)) {
+          cycle = "R";
+          opcode = "";
+        } else if (!(control[i] & 0x08) && !(control[i] & 0x01)) {
+          cycle = "W";
+          opcode = "";
+        } else if (!(control[i] & 0x04) && !(control[i] & 0x02)) {
+          cycle = "IR";
+          opcode = "";
+        } else if (!(control[i] & 0x04) && !(control[i] & 0x01)) {
+          cycle = "IW";
+          opcode = "";
+        } else {
+          cycle = " ";
+          opcode = "";
+        }
+      }
+
+      if (cpu == cpu_6800) {
+        // VMA R/W
+        //  0   X  Internal cycle
+        //  1   0  Memory read
+        //  1   1  Memory write
+        if (!(control[i] & 0x10)) {
+          cycle = "-";
+          opcode = "";
+        } else {
+          if (control[i] & 0x08) {
+            cycle = "R";
+            opcode = opcodes_6809[data[i]];
+          } else {
+            cycle = "W";
+            opcode = "";
+          }
+        }
+      }
 
       // Check for 6502 /RESET, /IRQ, or /NMI active, vector address, or
       // stack access
-#if defined(D6502) || defined(D65C02)
-      if (!(control[i] & 0x04)) {
-        comment = "RESET ACTIVE";
-      } else if (!(control[i] & 0x02)) {
-        comment = "IRQ ACTIVE";
-      } else if (!(control[i] & 0x01)) {
-        comment = "NMI ACTIVE";
-      } else if ((address[i] == 0xfffa) || (address[i] == 0xfffb)) {
-        comment = "NMI VECTOR";
-      } else if ((address[i] == 0xfffc) || (address[i] == 0xfffd)) {
-        comment = "RESET VECTOR";
-      } else if ((address[i] == 0xfffe) || (address[i] == 0xffff)) {
-        comment = "IRQ/BRK VECTOR";
-      } else if ((address[i] >= 0x0100) && (address[i] <= 0x01ff)) {
-        comment = "STACK ACCESS";
-      } else {
-        comment = "";
+      if ((cpu == cpu_65c02) || (cpu == cpu_6502)) {
+        if (!(control[i] & 0x04)) {
+          comment = "RESET ACTIVE";
+        } else if (!(control[i] & 0x02)) {
+          comment = "IRQ ACTIVE";
+        } else if (!(control[i] & 0x01)) {
+          comment = "NMI ACTIVE";
+        } else if ((address[i] == 0xfffa) || (address[i] == 0xfffb)) {
+          comment = "NMI VECTOR";
+        } else if ((address[i] == 0xfffc) || (address[i] == 0xfffd)) {
+          comment = "RESET VECTOR";
+        } else if ((address[i] == 0xfffe) || (address[i] == 0xffff)) {
+          comment = "IRQ/BRK VECTOR";
+        } else if ((address[i] >= 0x0100) && (address[i] <= 0x01ff)) {
+          comment = "STACK ACCESS";
+        } else {
+          comment = "";
+        }
       }
-#endif
 
       // Check for 6800 /RESET, /IRQ, or /NMI active, vector address.
-#if defined(D6800)
-      if (!(control[i] & 0x04)) {
-        comment = "RESET ACTIVE";
-      } else if (!(control[i] & 0x02)) {
-        comment = "IRQ ACTIVE";
-      } else if (!(control[i] & 0x01)) {
-        comment = "NMI ACTIVE";
-      } else if ((address[i] == 0xfff8) || (address[i] == 0xfff8)) {
-        comment = "IRQ VECTOR";
-      } else if ((address[i] == 0xfffa) || (address[i] == 0xfffb)) {
-        comment = "SWI VECTOR";
-      } else if ((address[i] == 0xfffc) || (address[i] == 0xfffd)) {
-        comment = "NMI VECTOR";
-      } else if (address[i] == 0xfffe) { // Not 0xffff since it commonly occurs when bus is tri-state
-        comment = "RESET VECTOR";
-      } else {
-        comment = "";
+      if (cpu == cpu_6800) {
+        if (!(control[i] & 0x04)) {
+          comment = "RESET ACTIVE";
+        } else if (!(control[i] & 0x02)) {
+          comment = "IRQ ACTIVE";
+        } else if (!(control[i] & 0x01)) {
+          comment = "NMI ACTIVE";
+        } else if ((address[i] == 0xfff8) || (address[i] == 0xfff8)) {
+          comment = "IRQ VECTOR";
+        } else if ((address[i] == 0xfffa) || (address[i] == 0xfffb)) {
+          comment = "SWI VECTOR";
+        } else if ((address[i] == 0xfffc) || (address[i] == 0xfffd)) {
+          comment = "NMI VECTOR";
+        } else if (address[i] == 0xfffe) { // Not 0xffff since it commonly occurs when bus is tri-state
+          comment = "RESET VECTOR";
+        } else {
+          comment = "";
+        }
       }
-#endif
 
       // Check for 6809 /RESET, /IRQ, or /NMI active, vector address.
-#if defined(D6809)
-      if (!(control[i] & 0x04)) {
-        comment = "RESET ACTIVE";
-      } else if (!(control[i] & 0x02)) {
-        comment = "IRQ ACTIVE";
-      } else if (!(control[i] & 0x01)) {
-        comment = "NMI ACTIVE";
-      } else if ((address[i] == 0xfff2) || (address[i] == 0xfff3)) {
-        comment = "SWI3 VECTOR";
-      } else if ((address[i] == 0xfff4) || (address[i] == 0xfff5)) {
-        comment = "SWI2 VECTOR";
-      } else if ((address[i] == 0xfff6) || (address[i] == 0xfff7)) {
-        comment = "FIRQ VECTOR";
-      } else if ((address[i] == 0xfff8) || (address[i] == 0xfff8)) {
-        comment = "IRQ VECTOR";
-      } else if ((address[i] == 0xfffa) || (address[i] == 0xfffb)) {
-        comment = "SWI VECTOR";
-      } else if ((address[i] == 0xfffc) || (address[i] == 0xfffd)) {
-        comment = "NMI VECTOR";
-      } else if (address[i] == 0xfffe) { // Not 0xffff since it commonly occurs when bus is tri-state
-        comment = "RESET VECTOR";
-      } else {
-        comment = "";
+      if (cpu == cpu_6809) {
+        if (!(control[i] & 0x04)) {
+          comment = "RESET ACTIVE";
+        } else if (!(control[i] & 0x02)) {
+          comment = "IRQ ACTIVE";
+        } else if (!(control[i] & 0x01)) {
+          comment = "NMI ACTIVE";
+        } else if ((address[i] == 0xfff2) || (address[i] == 0xfff3)) {
+          comment = "SWI3 VECTOR";
+        } else if ((address[i] == 0xfff4) || (address[i] == 0xfff5)) {
+          comment = "SWI2 VECTOR";
+        } else if ((address[i] == 0xfff6) || (address[i] == 0xfff7)) {
+          comment = "FIRQ VECTOR";
+        } else if ((address[i] == 0xfff8) || (address[i] == 0xfff8)) {
+          comment = "IRQ VECTOR";
+        } else if ((address[i] == 0xfffa) || (address[i] == 0xfffb)) {
+          comment = "SWI VECTOR";
+        } else if ((address[i] == 0xfffc) || (address[i] == 0xfffd)) {
+          comment = "NMI VECTOR";
+        } else if (address[i] == 0xfffe) { // Not 0xffff since it commonly occurs when bus is tri-state
+          comment = "RESET VECTOR";
+        } else {
+          comment = "";
+        }
       }
-#endif
 
       // Check for Z80 /RESET or /INT active
-#if defined(DZ80)
-      if (!(control[i] & 0x20)) {
-        comment = "RESET ACTIVE";
-      } else if (!(control[i] & 0x40)) {
-        comment = "INT ACTIVE";
-      } else {
-        comment = "";
+      if (cpu == cpu_z80) {
+        if (!(control[i] & 0x20)) {
+          comment = "RESET ACTIVE";
+        } else if (!(control[i] & 0x40)) {
+          comment = "INT ACTIVE";
+        } else {
+          comment = "";
+        }
       }
-#endif
 
       // Indicate when trigger happened
       if (i == triggerPoint) {
@@ -700,19 +669,32 @@ void list(Stream &stream, int start, int end)
 // Show the recorded data in CSV format (e.g. to export to spreadsheet or other program).
 void exportCSV(Stream &stream)
 {
+  bool sync;
+  bool rw = false;
+  bool reset = false;
+  bool irq = false;
+  bool nmi = false;
+  bool vma = false;
+  bool wr = false;
+  bool rd = false;
+  bool iorq = false;
+  bool mreq = false;
+  bool m1 = false;
+  bool intr = false;
+
   // Output header
-#if defined(D6502) || defined(D65C02)
-  stream.println("Index,SYNC,R/W,/RESET,/IRQ,/NMI,Address,Data");
-#endif
-#if defined(D6809)
-  stream.println("Index,R/W,/RESET,/IRQ,/NMI,Address,Data");
-#endif
-#if defined(D6800)
-  stream.println("Index,VMA,R/W,/RESET,/IRQ,/NMI,Address,Data");
-#endif
-#if defined(DZ80)
-  stream.println("Index,/M1,/RD,/WR,/MREQ,/IORQ,/RESET,/INT,Address,Data");
-#endif
+  if ((cpu == cpu_65c02) || (cpu == cpu_6502)) {
+    stream.println("Index,SYNC,R/W,/RESET,/IRQ,/NMI,Address,Data");
+  }
+  if (cpu == cpu_6809) {
+    stream.println("Index,R/W,/RESET,/IRQ,/NMI,Address,Data");
+  }
+  if (cpu == cpu_6800) {
+    stream.println("Index,VMA,R/W,/RESET,/IRQ,/NMI,Address,Data");
+  }
+  if (cpu == cpu_z80) {
+    stream.println("Index,/M1,/RD,/WR,/MREQ,/IORQ,/RESET,/INT,Address,Data");
+  }
 
   int first = (triggerPoint - pretrigger + samples) % samples;
   int last = (triggerPoint - pretrigger + samples - 1) % samples;
@@ -722,77 +704,77 @@ void exportCSV(Stream &stream)
   int j = 0;
   while (true) {
     char output[50]; // Holds output string
-#if defined(D6502) || defined(D65C02)
-    bool sync = control[i] & 0x10;
-#endif
-#if defined(D6502) || defined(D65C02) || defined(D6800) || defined(D6809)
-    bool rw = control[i] & 0x08;
-    bool reset = control[i] & 0x04;
-    bool irq = control[i] & 0x02;
-    bool nmi = control[i] & 0x01;
-#endif
-#if defined(D6800)
-    bool vma = control[i] & 0x10;
-#endif
-#if defined(DZ80)
-    bool wr = control[i] & 0x01;
-    bool rd = control[i] & 0x02;
-    bool iorq = control[i] & 0x04;
-    bool mreq = control[i] & 0x08;
-    bool m1 = control[i] & 0x10;
-    bool reset = control[i] & 0x20;
-    bool intr = control[i] & 0x40;
-#endif
+    if ((cpu == cpu_65c02) || (cpu == cpu_6502)) {
+      sync = control[i] & 0x10;
+    }
+    if ((cpu == cpu_65c02) || (cpu == cpu_6502) || (cpu == cpu_6800) || (cpu == cpu_6809)) {
+      rw = control[i] & 0x08;
+      reset = control[i] & 0x04;
+      irq = control[i] & 0x02;
+      nmi = control[i] & 0x01;
+    }
+    if (cpu == cpu_6800) {
+      vma = control[i] & 0x10;
+    }
+    if (cpu == cpu_z80) {
+      wr = control[i] & 0x01;
+      rd = control[i] & 0x02;
+      iorq = control[i] & 0x04;
+      mreq = control[i] & 0x08;
+      m1 = control[i] & 0x10;
+      reset = control[i] & 0x20;
+      intr = control[i] & 0x40;
+    }
 
-#if defined(D6502) || defined(D65C02)
-    sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
-            j,
-            sync ? '1' : '0',
-            rw ? '1' : '0',
-            reset ? '1' : '0',
-            irq ? '1' : '0',
-            nmi ? '1' : '0',
-            address[i],
-            data[i]
-           );
-#endif
-#if defined(D6800)
-    sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
-            j,
-            vma ? '1' : '0',
-            rw ? '1' : '0',
-            reset ? '1' : '0',
-            irq ? '1' : '0',
-            nmi ? '1' : '0',
-            address[i],
-            data[i]
-           );
-#endif
-#if defined(D6809)
-    sprintf(output, "%d,%c,%c,%c,%c,%04lX,%02lX",
-            j,
-            rw ? '1' : '0',
-            reset ? '1' : '0',
-            irq ? '1' : '0',
-            nmi ? '1' : '0',
-            address[i],
-            data[i]
-           );
-#endif
-#if defined(DZ80)
-    sprintf(output, "%d,%c,%c,%c,%c,%c,%c,%c,%04lX,%02lX",
-            j,
-            m1 ? '1' : '0',
-            rd ? '1' : '0',
-            wr ? '1' : '0',
-            mreq ? '1' : '0',
-            iorq ? '1' : '0',
-            reset ? '1' : '0',
-            intr ? '1' : '0',
-            address[i],
-            data[i]
-           );
-#endif
+    if ((cpu == cpu_65c02) || (cpu == cpu_6502)) {
+      sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
+              j,
+              sync ? '1' : '0',
+              rw ? '1' : '0',
+              reset ? '1' : '0',
+              irq ? '1' : '0',
+              nmi ? '1' : '0',
+              address[i],
+              data[i]
+             );
+    }
+    if (cpu == cpu_6800) {
+      sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
+              j,
+              vma ? '1' : '0',
+              rw ? '1' : '0',
+              reset ? '1' : '0',
+              irq ? '1' : '0',
+              nmi ? '1' : '0',
+              address[i],
+              data[i]
+             );
+    }
+    if (cpu == cpu_6809) {
+      sprintf(output, "%d,%c,%c,%c,%c,%04lX,%02lX",
+              j,
+              rw ? '1' : '0',
+              reset ? '1' : '0',
+              irq ? '1' : '0',
+              nmi ? '1' : '0',
+              address[i],
+              data[i]
+             );
+    }
+    if (cpu == cpu_z80) {
+      sprintf(output, "%d,%c,%c,%c,%c,%c,%c,%c,%04lX,%02lX",
+              j,
+              m1 ? '1' : '0',
+              rd ? '1' : '0',
+              wr ? '1' : '0',
+              mreq ? '1' : '0',
+              iorq ? '1' : '0',
+              reset ? '1' : '0',
+              intr ? '1' : '0',
+              address[i],
+              data[i]
+             );
+    }
 
     stream.println(output);
 
@@ -986,41 +968,41 @@ void go()
 
   while (true) {
 
-#if defined(D6502) || defined(D65C02) || defined(D6800)
-    // Wait for PHI2 to go from low to high
-    WAIT_PHI2_LOW;
-    WAIT_PHI2_HIGH;
-#endif
-#if defined(D6809)
-    // Wait for Q to go from low to high
-    WAIT_Q_LOW;
-    WAIT_Q_HIGH;
-#endif
-#if defined(DZ80)
-    // Wait CLK to go from high to low
-    WAIT_CLK_HIGH;
-    WAIT_CLK_LOW;
-#endif
+    if ((cpu == cpu_65c02) || (cpu == cpu_6502) || (cpu == cpu_6800)) {
+      // Wait for PHI2 to go from low to high
+      WAIT_PHI2_LOW;
+      WAIT_PHI2_HIGH;
+    }
+    if (cpu == cpu_6809) {
+      // Wait for Q to go from low to high
+      WAIT_Q_LOW;
+      WAIT_Q_HIGH;
+    }
+    if (cpu == cpu_z80) {
+      // Wait CLK to go from high to low
+      WAIT_CLK_HIGH;
+      WAIT_CLK_LOW;
+    }
 
     // Read address and control lines
     control[i] = GPIO9_PSR;
     address[i] = GPIO6_PSR;
 
-#if defined(D6502) || defined(D65C02) || defined(D6800)
-    // Wait for PHI2 to go from high to low
-    WAIT_PHI2_HIGH;
-    WAIT_PHI2_LOW;
-#endif
-#if defined(D6809)
-    // Wait for E to go from high to low
-    WAIT_E_HIGH;
-    WAIT_E_LOW;
-#endif
-#if defined(DZ80)
-    // Wait CLK to go from low to high
-    WAIT_CLK_LOW;
-    WAIT_CLK_HIGH;
-#endif
+    if ((cpu == cpu_65c02) || (cpu == cpu_6502) || (cpu = cpu_6800)) {
+      // Wait for PHI2 to go from high to low
+      WAIT_PHI2_HIGH;
+      WAIT_PHI2_LOW;
+    }
+    if (cpu == cpu_6809) {
+      // Wait for E to go from high to low
+      WAIT_E_HIGH;
+      WAIT_E_LOW;
+    }
+    if (cpu == cpu_z80) {
+      // Wait CLK to go from low to high
+      WAIT_CLK_LOW;
+      WAIT_CLK_HIGH;
+    }
 
     // Read data lines
     data[i] = GPIO7_PSR;
@@ -1140,6 +1122,18 @@ void loop() {
     if ((cmd == "h") || (cmd == "?")) {
       help();
 
+      //CPU
+    } else if (cmd == "c 6502") {
+      cpu = cpu_6502;
+    } else if ((cmd == "c 65c02") || (cmd == "c 65C02")) {
+      cpu = cpu_65c02;
+    } else if (cmd == "c 6800") {
+      cpu = cpu_6800;
+    } else if (cmd == "c 6809") {
+      cpu = cpu_6809;
+    } else if ((cmd == "c z80") || (cmd == "c Z80")) {
+      cpu = cpu_z80;
+
       // Samples
     } else if (cmd.startsWith("s ")) {
       int n = 0;
@@ -1178,41 +1172,36 @@ void loop() {
     } else if (cmd == "t reset 1") {
       triggerMode = tr_reset;
       triggerLevel = true;
-#if defined(DZ80)
-    } else if (cmd == "t int 0") {
+    } else if ((cpu == cpu_z80) && (cmd == "t int 0")) {
       triggerMode = tr_irq;
       triggerLevel = false;
-    } else if (cmd == "t int 1") {
+    } else if ((cpu == cpu_z80) && (cmd == "t int 1")) {
       triggerMode = tr_irq;
       triggerLevel = true;
-#else
-    } else if (cmd == "t irq 0") {
+    } else if ((cpu != cpu_z80) && (cmd == "t irq 0")) {
       triggerMode = tr_irq;
       triggerLevel = false;
-    } else if (cmd == "t irq 1") {
+    } else if ((cpu != cpu_z80) && (cmd == "t irq 1")) {
       triggerMode = tr_irq;
       triggerLevel = true;
-#endif
     } else if (cmd == "t nmi 0") {
       triggerMode = tr_nmi;
       triggerLevel = false;
     } else if (cmd == "t nmi 1") {
       triggerMode = tr_nmi;
       triggerLevel = true;
-#if !defined(DZ80)
-    } else if (cmd == "t spare1 0") {
+    } else if ((cpu != cpu_z80) && (cmd == "t spare1 0")) {
       triggerMode = tr_spare1;
       triggerLevel = false;
-    } else if (cmd == "t spare1 1") {
+    } else if ((cpu != cpu_z80) && (cmd == "t spare1 1")) {
       triggerMode = tr_spare1;
       triggerLevel = true;
-    } else if (cmd == "t spare2 0") {
+    } else if ((cpu != cpu_z80) && (cmd == "t spare2 0")) {
       triggerMode = tr_spare2;
       triggerLevel = false;
-    } else if (cmd == "t spare2 1") {
+    } else if ((cpu != cpu_z80) && (cmd == "t spare2 1")) {
       triggerMode = tr_spare2;
       triggerLevel = true;
-#endif
     } else if (cmd.startsWith("t a ")) {
       int n = strtol(cmd.substring(4, 8).c_str(), NULL, 16);
       if ((n >= 0) && (n <= 0xffff)) {
