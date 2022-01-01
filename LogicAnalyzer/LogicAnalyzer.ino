@@ -5,11 +5,11 @@
 
   See https://github.com/jefftranter/6502/tree/master/LogicAnalyzer
 
-  Copyright (c) 2021 by Jeff Tranter <tranter@pobox.com>
+  Copyright (c) 2021-2022 by Jeff Tranter <tranter@pobox.com>
 
   To Do:
-  - Monitor /FIRQ pin (6809)
-  - Monitor BA and BS pins (6809)
+  - Add support for Z80 control line triggers.
+  - Add support for Z80 I/O read or write trigger.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -921,12 +921,16 @@ void go()
       cTriggerMask = 0;
     }
 
-    // TODO: Add support for Z80 I/O control line triggers
+    // TODO: Add support for Z80 I/O control line triggers.
 
   } else if (triggerMode == tr_reset) {
     // GPIO port 9 pins:
     // GPIO:   31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  09  08  07  06  05  04  03  02  01  00
-    // 6502:  IRQ XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX RST NMI R/W SYN PH2 XXX XXX XXX XXX
+    // 6502:  IRQ XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX RST NMI R/W SYN PHI2 XXX XXX XXX XXX
+    // 6809:  IRQ XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX RST NMI R/W Q   E    XXX XXX XXX XXX
+    // Z80:   RD  XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX IORQ WR MREQ M1 CLK  XXX XXX XXX XXX
+    // 6800:  IRQ XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX RST NMI R/W VMA PHI2 XXX XXX XXX XXX
+
     cTriggerBits = triggerLevel ? 0b00000000000000000000000100000000 : 0;
     cTriggerMask = 0b00000000000000000000000100000000;
     aTriggerBits = 0;
