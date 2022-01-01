@@ -988,7 +988,7 @@ void go()
     control[i] = GPIO9_PSR;
     address[i] = GPIO6_PSR;
 
-    if ((cpu == cpu_65c02) || (cpu == cpu_6502) || (cpu = cpu_6800)) {
+    if ((cpu == cpu_65c02) || (cpu == cpu_6502) || (cpu == cpu_6800)) {
       // Wait for PHI2 to go from high to low
       WAIT_PHI2_HIGH;
       WAIT_PHI2_LOW;
