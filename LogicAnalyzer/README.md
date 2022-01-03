@@ -11,6 +11,9 @@ state to trigger on, and to capture and list the recorded data.
 It has been built on a PCB and tested with 6502, 65C02, 6800, and Z80
 single board computers running at up to 2 MHz.
 
+It should work with other 6502 and Z80 compatible CPUs and the 6809E,
+but would need some wiring changes to work with a 6802.
+
 Included here are the Arduino sketch and circuit schematic diagram.
 The CPU can be selected at run time.
 
