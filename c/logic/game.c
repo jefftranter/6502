@@ -4,9 +4,6 @@
  *
  * Jeff Tranter <tranter@pobox.com>
  *
- * TO DO:
- * Parse data file and read into data structure.
- * Beep on bad input.
  */
 
 // Includes
@@ -56,6 +53,8 @@ typedef struct game_t {
 int difficultyLevel = 1;
 game_t games[MAX_GAMES];
 int numGames = 0;
+int correct = 0;
+int tries = 0;
 
 // Functions
 
@@ -214,31 +213,65 @@ int selectDifficulty()
 
 void fillInTruthTable()
 {
-    int g, i, e, o;
+    int g, i, e, o, a;
+    char c;
 
+    clearScreen();
+    printf("Fill in the Truth Table\n");
+    printf("=======================\n");
+
+    // TODO: Select difficulty level and select game at that level.
     //difficultyLevel = selectDifficulty();
 
-    for (g = 0; g < numGames; g++) {
-        printf("Name: %s\n", games[g].name);
-        printf("Expression: %s\n", games[g].expression);
-        printf("Level: %d\n", games[g].level);
-        printf("File: %s\n", games[g].imageFile);
+    // Pick a random game/cicruit.
+    g = rand() % numGames;
 
-        for (i = 0; i < games[g].numInputs + games[g].numOutputs; i++) {
-            printf("%c ", 'A'+i);
+    printf("Name: %s\n", games[g].name);
+    printf("Expression: %s\n", games[g].expression);
+    printf("Difficulty Level: %d\n", games[g].level);
+    //printf("File: %s\n", games[g].imageFile);
+
+    for (i = 0; i < games[g].numInputs + games[g].numOutputs; i++) {
+        printf("%c ", 'A'+i);
+    }
+    printf("\n");
+
+    for (e = 0; e < games[g].numEntries; e++) {
+        for (i = 0; i < games[g].numInputs; i++) {
+            printf("%d ", games[g].input[e][i]);
         }
-        printf("\n");
+        for (o = 0; o < games[g].numOutputs; o++) {
+            printf("?");
+            while (1) {
+#ifdef __CC65__
+                c = cgetc();
+#else
+                c = getchar();
+#endif
+                if (c == '0' ) {
+                    a = 0;
+                    break;
+                } else if (c == '1') {
+                    a = 1;
+                    break;
+                } else {
+                    beep();
+                }
+            }
 
-        for (e = 0; e < games[g].numEntries; e++) {
-            for (i = 0; i < games[g].numInputs; i++) {
-                printf("%d ", games[g].input[e][i]);
+            tries++;
+            if (a == games[g].output[e][o]) {
+                printf("%c Correct!\n", c);
+                correct++;
+            } else {
+                beep();
+                printf("%c Incorrect!\n", c);
             }
-            for (o = 0; o < games[g].numOutputs; o++) {
-                printf("%d ", games[g].output[e][o]);
-            }
-            printf("\n");
         }
     }
+
+    printf("Cumulative score: %d of %d correct (%d%%)\n", correct, tries, 100 * correct / tries);
+    pressKeyToContinue();
 }
 
 void guessTheCircuit()
