@@ -16,6 +16,7 @@
 #include <conio.h>
 #include <peekpoke.h>
 #endif
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -109,6 +110,7 @@ void readDataFile(const char *filename)
     while (!feof(fp)) {
         fgets(buffer, sizeof(buffer)-1, fp);
 
+        assert(i < MAX_GAMES);
         p = strtok(buffer, ",");
         strcpy(games[i].name, p);
         p = strtok(NULL, ",");
@@ -117,10 +119,13 @@ void readDataFile(const char *filename)
         games[i].level = atol(p);
         p = strtok(NULL, ",");
         games[i].numInputs = atol(p);
+        assert(games[i].numInputs <= MAX_INPUTS);
         p = strtok(NULL, ",");
         games[i].numOutputs = atol(p);
+        assert(games[i].numOutputs <= MAX_OUTPUTS);
         p = strtok(NULL, ",");
         games[i].numEntries = atol(p);
+        assert(games[i].numEntries <= MAX_ENTRIES);
         p = strtok(NULL, ",\n");
         strcpy(games[i].imageFile, p);
 
