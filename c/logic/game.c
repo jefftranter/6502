@@ -107,6 +107,7 @@ void readDataFile(const char *filename)
         return;
     }
 
+    i = 0;
     while (!feof(fp)) {
         fgets(buffer, sizeof(buffer)-1, fp);
 
@@ -253,8 +254,7 @@ int main (void)
 
     while (1) {
         clearScreen();
-
-        printf("The Boolean Game\n");
+        printf("The Boolean Game       by Jeff Tranter\n");
         printf("================\n");
         printf("1. Overview.\n");
         printf("2. Tutorial.\n");
