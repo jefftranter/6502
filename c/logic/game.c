@@ -1,11 +1,10 @@
 /*
  *
  * Boolean Logic Game
- * 
+ *
  * Jeff Tranter <tranter@pobox.com>
  *
  * TO DO:
- * Generate a minimal data file.
  * Parse data file and read into data structure.
  * Beep on bad input.
  */
@@ -19,43 +18,43 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Constants
 
 #define MAX_ENTRIES 16
-#define MAX_GAMES 32
-#define LEVEL_FILE "levels.csv"
+#define MAX_GAMES 10
+#define MAX_INPUTS 4
+#define MAX_OUTPUTS 1
 #ifdef __CC65__
 #define TUTORIAL "tutorial"
 #define OVERVIEW "overview"
+#define LEVELS "levels"
 #else
 #define TUTORIAL "tutorial.txt"
 #define OVERVIEW "overview.txt"
+#define LEVELS "levels.csv"
 #endif
 
 // Data types
 
 typedef struct game_t {
-    char *name;
+    char name[40];
+    char expression[40];
     int level;
     int numInputs;
     int numOutputs;
     int numEntries;
-    char *imageFile;
-    int input1[MAX_ENTRIES];
-    int input2[MAX_ENTRIES];
-    int input3[MAX_ENTRIES];
-    int input4[MAX_ENTRIES];
-    int output1[MAX_ENTRIES];
-    int output2[MAX_ENTRIES];
-    int output3[MAX_ENTRIES];
-    int output4[MAX_ENTRIES];
+    char imageFile[20];
+    int input[MAX_ENTRIES][MAX_INPUTS];
+    int output[MAX_ENTRIES][MAX_INPUTS];
 } game_t;
 
 // Global variables
 
-int difficultyLevel;
+int difficultyLevel = 1;
 game_t games[MAX_GAMES];
+int numGames = 0;
 
 // Functions
 
@@ -86,12 +85,66 @@ void pressKeyToContinue()
 }
 
 // Read game data file into data structure.
-void readDataFile()
+void readDataFile(const char *filename)
 {
+    FILE *fp;
+    char buffer[80];
+    char *p;
+    int i, e, in, out;
+
+    printf("Reading data file...");
+
+#ifdef __CC65__
+    _filetype = PRODOS_T_TXT;
+#endif
+
+    fp = fopen(filename, "r");
+
+    if (fp == NULL) {
+        perror(filename);
+        exit(EXIT_FAILURE);
+        return;
+    }
+
+    while (!feof(fp)) {
+        fgets(buffer, sizeof(buffer)-1, fp);
+
+        p = strtok(buffer, ",");
+        strcpy(games[i].name, p);
+        p = strtok(NULL, ",");
+        strcpy(games[i].expression, p);
+        p = strtok(NULL, ",");
+        games[i].level = atol(p);
+        p = strtok(NULL, ",");
+        games[i].numInputs = atol(p);
+        p = strtok(NULL, ",");
+        games[i].numOutputs = atol(p);
+        p = strtok(NULL, ",");
+        games[i].numEntries = atol(p);
+        p = strtok(NULL, ",\n");
+        strcpy(games[i].imageFile, p);
+
+        for (e = 0; e < games[i].numEntries; e++) {
+            fgets(buffer, sizeof(buffer)-1, fp);
+            p = strtok(buffer, ",");
+            for (in = 0; in < games[i].numInputs; in++) {
+                games[i].input[e][in] = atol(p);
+                p = strtok(NULL, ",\n");
+            }
+            for (out = 0; out < games[i].numOutputs; out++) {
+                games[i].output[e][out] = atol(p);
+                p = strtok(NULL, ",\n");
+            }
+        }
+        i++;
+    }
+    numGames = i;
+    fclose(fp);
+    printf("done.\n");
 }
 
 // Print file on screen with paging every 24 lines.
-void showFile(char *filename) {
+void showFile(const char *filename) {
     FILE *fp;
     char buffer[80];
     int lines = 0;
@@ -104,16 +157,17 @@ void showFile(char *filename) {
 
     if (fp == NULL) {
         perror(filename);
+        exit(EXIT_FAILURE);
         return;
     }
 
     clearScreen();
-    
+
     while (!feof(fp)) {
         fgets(buffer, sizeof(buffer)-1, fp);
         printf("%s", buffer);
 
-        lines += 1;
+        lines++;
         if (lines >= 23) {
             pressKeyToContinue();
             lines = 0;
@@ -146,7 +200,7 @@ int selectDifficulty()
             break;
         } else {
             beep();
-        }   
+        }
     }
 
     return c - '0';
@@ -154,7 +208,31 @@ int selectDifficulty()
 
 void fillInTruthTable()
 {
-    difficultyLevel = selectDifficulty();
+    int g, i, e, o;
+
+    //difficultyLevel = selectDifficulty();
+
+    for (g = 0; g < numGames; g++) {
+        printf("Name: %s\n", games[g].name);
+        printf("Expression: %s\n", games[g].expression);
+        printf("Level: %d\n", games[g].level);
+        printf("File: %s\n", games[g].imageFile);
+
+        for (i = 0; i < games[g].numInputs + games[g].numOutputs; i++) {
+            printf("%c ", 'A'+i);
+        }
+        printf("\n");
+
+        for (e = 0; e < games[g].numEntries; e++) {
+            for (i = 0; i < games[g].numInputs; i++) {
+                printf("%d ", games[g].input[e][i]);
+            }
+            for (o = 0; o < games[g].numOutputs; o++) {
+                printf("%d ", games[g].output[e][o]);
+            }
+            printf("\n");
+        }
+    }
 }
 
 void guessTheCircuit()
@@ -166,11 +244,11 @@ int main (void)
 {
     char c;
 
-    readDataFile();
+    readDataFile(LEVELS);
 
     while (1) {
         clearScreen();
-  
+
         printf("The Boolean Game\n");
         printf("================\n");
         printf("1. Overview.\n");
@@ -191,7 +269,7 @@ int main (void)
                 break;
             } else {
                 beep();
-            }   
+            }
         }
 
         switch (c) {
@@ -209,7 +287,7 @@ int main (void)
             break;
         case '5':
             clearScreen();
-            return EXIT_SUCCESS;        
+            return EXIT_SUCCESS;
             break;
         }
     }

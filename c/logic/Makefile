@@ -15,6 +15,8 @@ install: game
 	ac.sh -p $(HOME)/Documents/AppleIIc/diskimages/CC65-work.dsk tutorial txt 0 <tutorial.txt
 	ac.sh -d $(HOME)/Documents/AppleIIc/diskimages/CC65-work.dsk overview
 	ac.sh -p $(HOME)/Documents/AppleIIc/diskimages/CC65-work.dsk overview txt 0 <overview.txt
+	ac.sh -d $(HOME)/Documents/AppleIIc/diskimages/CC65-work.dsk levels
+	ac.sh -p $(HOME)/Documents/AppleIIc/diskimages/CC65-work.dsk levels txt 0 <levels.csv
 	ac.sh -d $(HOME)/Documents/AppleIIc/diskimages/CC65-work.dsk game
 	ac.sh -as $(HOME)/Documents/AppleIIc/diskimages/CC65-work.dsk game <game
 
