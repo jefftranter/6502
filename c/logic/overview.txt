@@ -1,0 +1,20 @@
+Overview
+========
+
+This game helps you learn and improve
+your knowledge of boolean algebra as
+used by electronic logic gates.
+
+Given a circuit, you have to guess a
+missing entry in the truth table,
+i.e. the value of an input or output
+that is valid for the circuit.
+
+Alternatively, you can be shown a truth
+table and need to identify the circuit
+that matches it.
+
+You can test your knowledge at
+different skill levels, ranging from
+simple one-gate circuits to circuits
+with multiple logic gates.

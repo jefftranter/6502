@@ -1,0 +1,109 @@
+Tutorial
+========
+
+Here are the basic types of gates used
+in the program and the corresponding
+boolean expressions and truth tables.
+
+Logic levels of low, zero, or false are
+indicated by 0. Logic levels of high,
+one, or true are indicated by 1.
+In some cases a value may be undefined
+or doesn't matter, and is indicated as X.
+
+Here are truth tables for the basic
+logic gates that are used in the
+circuits:
+
+Buffer: B = A
++-----+------+
+|Input|Output|
+|  A  |  B   |
++-----+------+
+|  0  | 0    |
+|  1  | 1    |
++-----+------+
+
+Inverter: B NOT A
++-----+------+
+|Input|Output|
+|  A  |  B   |
++-----+------+
+|  0  | 1    |
+|  1  | 0    |
++-----+------+
+
+2-Input AND Gate
+C = A AND B
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  0   |
+| 0 | 1 |  0   |
+| 1 | 0 |  0   |
+| 1 | 1 |  1   |
++---+---+------+
+
+2-Input OR Gate
+C = A OR B
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  0   |
+| 0 | 1 |  1   |
+| 1 | 0 |  1   |
+| 1 | 1 |  1   |
++---+---+------+
+
+2-Input Exclusive OR Gate
+C = A EXOR B
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  0   |
+| 0 | 1 |  1   |
+| 1 | 0 |  1   |
+| 1 | 1 |  0   |
++---+---+------+
+
+2-Input NAND Gate
+C = NOT (A AND B)
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  1   |
+| 0 | 1 |  1   |
+| 1 | 0 |  1   |
+| 1 | 1 |  0   |
++---+---+------+
+
+2-Input NOR Gate
+C = NOT (A OR B)
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  1   |
+| 0 | 1 |  0   |
+| 1 | 0 |  0   |
+| 1 | 1 |  0   |
++---+---+------+
+
+2-Input Exclusive NOR Gate
+C = NOT (A EXOR B)
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  1   |
+| 0 | 1 |  0   |
+| 1 | 0 |  0   |
+| 1 | 1 |  1   |
++---+---+------+
+
+Other gates are similar and may have up
+to 4 inputs.
