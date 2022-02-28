@@ -211,6 +211,7 @@ int selectDifficulty()
     return c - '0';
 }
 
+//#pragma code-name (push, "LC")
 void fillInTruthTable()
 {
     int g, i, e, o, a;
@@ -273,10 +274,73 @@ void fillInTruthTable()
     printf("Cumulative score: %d of %d correct (%d%%)\n", correct, tries, 100 * correct / tries);
     pressKeyToContinue();
 }
+//#pragma code-name (pop)
 
 void guessTheCircuit()
 {
-    difficultyLevel = selectDifficulty();
+    int g, i, e, o, a;
+    char c;
+
+    clearScreen();
+    printf("Guess the Circuit\n");
+    printf("=================\n");
+
+    // TODO: Select difficulty level and select game at that level.
+    //difficultyLevel = selectDifficulty();
+
+    // Pick a random game/cicruit.
+    g = rand() % numGames;
+
+    printf("Given the following truth table:\n");
+
+    for (i = 0; i < games[g].numInputs + games[g].numOutputs; i++) {
+        printf("%c ", 'A'+i);
+    }
+    printf("\n");
+
+    for (e = 0; e < games[g].numEntries; e++) {
+        for (i = 0; i < games[g].numInputs; i++) {
+            printf("%d ", games[g].input[e][i]);
+        }
+        for (o = 0; o < games[g].numOutputs; o++) {
+            printf("%d ", games[g].output[e][o]);
+        }
+        printf("\n");
+    }
+
+    printf("Which circuit matches?\n");
+
+    for (i = 0; i < numGames; i++) {
+        printf("%d. %s: %s.\n", i, games[i].name, games[i].expression);
+    }
+
+    printf("Answer: ");
+
+    while (1) {
+#ifdef __CC65__
+        c = cgetc();
+#else
+        c = getchar();
+#endif
+        if (c >= '0' && c <= '9') {
+            a = c - '0';
+            break;
+        } else {
+            beep();
+        }
+    }
+
+    if (a == g) {
+        printf("Correct!\n");
+        correct++;
+    } else {
+        beep();
+        printf("Incorrect! The answer was %d.\n", c=g);
+    }
+
+    tries++;
+    printf("Cumulative score: %d of %d correct (%d%%).\n", correct, tries, 100 * correct / tries);
+    pressKeyToContinue();
 }
 
 int main (void)
