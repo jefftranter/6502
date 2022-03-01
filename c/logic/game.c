@@ -92,6 +92,8 @@ void readDataFile(const char *filename)
     char *p;
     int i, e, in, out;
 
+    clearScreen();
+
     printf("Reading data file...");
 
 #ifdef __CC65__
@@ -188,11 +190,11 @@ int selectDifficulty()
     char c;
 
     printf("Select Difficulty Level:\n");
-    printf("1. Basic Gates.\n");
-    printf("2. Simple Circuits.\n");
-    printf("3. Intermediate Circuits.\n");
-    printf("4. Complex circuit.\n");
-    printf("5. Return to main menu.\n");
+    printf("1.Basic Gates.\n");
+    printf("2.Simple Circuits.\n");
+    printf("3.Intermediate Circuits.\n");
+    printf("4.Complex circuit.\n");
+    printf("5.Return to main menu.\n");
     printf("Selection? ");
 
     while (1) {
@@ -202,6 +204,7 @@ int selectDifficulty()
         c = getchar();
 #endif
         if (c >= '1' && c <= '5') {
+            printf("%c\n", c);
             break;
         } else {
             beep();
@@ -271,7 +274,11 @@ void fillInTruthTable()
         }
     }
 
-    printf("Cumulative score: %d of %d correct (%d%%)\n", correct, tries, 100 * correct / tries);
+    if (tries != 0) {
+        printf("Cumulative score: %d of %d correct (%d%%).\n", correct, tries, 100 * correct / tries);
+    } else {
+        printf("Cumulative score: %d of %d correct\n", correct, tries);
+    }
     pressKeyToContinue();
 }
 //#pragma code-name (pop)
@@ -311,7 +318,7 @@ void guessTheCircuit()
     printf("Which circuit matches?\n");
 
     for (i = 0; i < numGames; i++) {
-        printf("%d. %s: %s.\n", i, games[i].name, games[i].expression);
+        printf("%d.%s:%s.\n", i, games[i].name, games[i].expression);
     }
 
     printf("Answer: ");
@@ -324,6 +331,7 @@ void guessTheCircuit()
 #endif
         if (c >= '0' && c <= '9') {
             a = c - '0';
+            printf("%c\n", c);
             break;
         } else {
             beep();
@@ -335,7 +343,7 @@ void guessTheCircuit()
         correct++;
     } else {
         beep();
-        printf("Incorrect! The answer was %d.\n", c=g);
+        printf("Incorrect! The answer was %d.\n", g);
     }
 
     tries++;
@@ -353,11 +361,11 @@ int main (void)
         clearScreen();
         printf("The Boolean Game       by Jeff Tranter\n");
         printf("================\n");
-        printf("1. Overview.\n");
-        printf("2. Tutorial.\n");
-        printf("3. Play Fill in the Truth Table.\n");
-        printf("4. Play Guess the Circuit.\n");
-        printf("5. Quit.\n");
+        printf("1.Overview.\n");
+        printf("2.Tutorial.\n");
+        printf("3.Play Fill in the Truth Table.\n");
+        printf("4.Play Guess the Circuit.\n");
+        printf("5.Quit.\n");
 
         printf("Selection? ");
 
@@ -368,6 +376,7 @@ int main (void)
             c = getchar();
 #endif
             if (c >= '1' && c <= '5') {
+                printf("%c\n", c);
                 break;
             } else {
                 beep();
@@ -388,8 +397,28 @@ int main (void)
             guessTheCircuit();
             break;
         case '5':
-            clearScreen();
-            return EXIT_SUCCESS;
+            printf("Do you want to quit? ");
+            while (1) {
+#ifdef __CC65__
+                c = cgetc();
+#else
+                c = getchar();
+#endif
+                if (c == 'y' || c == 'Y') {
+                    printf("%c\n", c);
+                    if (tries != 0) {
+                        printf("Cumulative score: %d of %d correct (%d%%).\n", correct, tries, 100 * correct / tries);
+                    } else {
+                        printf("Cumulative score: %d of %d correct.\n", correct, tries);
+                    }
+                    return EXIT_SUCCESS;
+                } else if (c == 'n' || c == 'N') {
+                    printf("%c\n", c);
+                    break;
+                } else {
+                    beep();
+                }
+            }
             break;
         }
     }
