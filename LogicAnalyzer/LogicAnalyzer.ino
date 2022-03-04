@@ -546,7 +546,7 @@ void list(Stream &stream, int start, int end)
         } else {
           if (control[i] & 0x08) {
             cycle = "R";
-            opcode = opcodes_6809[data[i]];
+            opcode = opcodes_6800[data[i]];
           } else {
             cycle = "W";
             opcode = "";
