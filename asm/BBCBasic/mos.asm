@@ -11,7 +11,7 @@
 ; http://danceswithferrets.org/geekblog/?p=961
 
 ; Memory map:
-; RAM from $0000 to $3FFF
+; RAM from $0000 to $7FFF
 ; BBC Basic and MOS in ROM from $C000 to $FFFF
 
         LF      = $0A           ; Line feed
@@ -62,6 +62,8 @@ _RESET:
         txs
 
 ; Initialize ACIA
+        lda     #$03            ; Reset 6850
+        sta     ACIAControl
         lda     #$15            ; Set ACIA to 8N1 and divide by 16 clock
         sta     ACIAControl
 
