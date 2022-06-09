@@ -85,7 +85,7 @@ cont:
         jmp     L8000           ; Basic entry point
 
 StartMsg:
-        .byte   "BBC BASIC v2 for 6502 SBC 06-May-2021",CR,LF,0
+        .byte   "BBC BASIC v2 for 6502 SBC 09-Jun-2022",CR,LF,0
 
 ; NMI routine
 _NMI:
@@ -212,7 +212,7 @@ loop:   jsr     OSRDCH          ; Get character
         beq     loop            ; If so, ignore
         cmp     #DEL            ; Delete?
         beq     delete
-        cmp     #DEL            ; Backspace?
+        cmp     #BS             ; Backspace?
         beq     delete
         sta     ($37),Y         ; Save in buffer
         cmp     #CR             ; CR?
