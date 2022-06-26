@@ -25,11 +25,13 @@ Woz monitor ROM and cannot be changed.
 ---
 
 Also included is a port to the Ohio Scientific Superboard
-II/Challenger 1P and compatibles like the Briel Computers Superboard
+II/Challenger 1P and compatibles like the Briel Computer's Superboard
 ///. To build this version use the make file Makefile.osi.
 
 Another port is to my 6502 Single Board Computer design. To build this
-version use the make file Makefile.sbc.
+version use the make file Makefile.sbc. The file basic.bin or
+basic.run can be burned into an EPROM or EEPROM and will run Enhanced
+Basic on boot.
 
 SAVE enables output to the serial/cassette port (just like for the OSI
 BASIC in ROM). To turn off SAVE, do "POKE 517,0".
