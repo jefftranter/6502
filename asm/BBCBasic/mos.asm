@@ -1,7 +1,7 @@
 ; Port of Acorn System/Atom MOS System Calls to my 6502
 ; Single Board Computer.
 ;
-; Jeff Tranter <tranter@pobpox.com>
+; Jeff Tranter <tranter@pobox.com>
 ;
 ; Helpful references:
 ; http://mdfs.net/Docs/Comp/Acorn/Atom/MOSEntries
