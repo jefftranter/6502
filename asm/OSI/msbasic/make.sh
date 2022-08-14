@@ -6,7 +6,7 @@ fi
 for i in osi; do
 
 echo $i
-ca65 -D $i -l msbasic.lst msbasic.s -o tmp/$i.o &&
+ca65 -D $i -I /usr/local/share/cc65/asminc -l msbasic.lst msbasic.s -o tmp/$i.o &&
 ld65 -C $i.cfg tmp/$i.o -o tmp/$i.bin -Ln tmp/$i.lbl -mtmp/$i.map
 
 done

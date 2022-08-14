@@ -1,0 +1,334 @@
+Boolean Logic Game
+
+- Design for 40 or 80 columns
+- ASCII art or option to show images at upper part of screen or toggle
+- Data stored in files
+
+ACII Art for gates:
+
+   +
+   | \
+   |   \
+ --|    >O--
+   |   /
+   | /
+   +
+
+    __
+ --|  \
+   |   |O---
+ --|__/
+
+
+     |\
+     |  \
+     |    \
+   --|     >O--
+     |    /
+     |  /
+     |/
+
+See: https://ascii.co.uk/art/circuits~
+
+     __
+A --|  \o-- C
+B --|__/
+
+
+Boolean Logic Game
+------------------
+
+1. Tutorial
+- Show basic gates and their truth table.
+
+2. Fill In Truth Table
+- Show player a logic circuit
+- Player has to enter missing truth table values
+
+3. Guess the Circuit
+- Show player truth table
+- Player has to select correct logic circuit
+
+
+- Basic building blocks:
+  - buffer, inverter (NOT)
+  - AND, OR, EXOR (2, 3, or 4 input)
+  - NAND, NOR, EXNOR (2, 3, or 4 input)
+  - combinations of above
+
+Examples:
+
+The Boolean Game
+================
+
+1. Overview.
+2. Tutorial.
+3. Play Fill in the Truth Table.
+4. Play Guess the Circuit.
+
+Selection? 1
+
+Overview
+========
+
+This game helps you learn and improve your knowledge
+of boolean algebra as used by electronic logic gates.
+
+Given a circuit, you have to guess a missing entry in the truth table,
+i.e. the value of an input or output that is valid for the circuit.
+
+Alternatively, you an be shown a truth table and need to identify
+the circuit that matches it.
+
+You can test your knowledge at different skill levels, ranging from
+simple one-gate circuits to circuits with multiple logic gates.
+
+<Press any key to return to the main menu>
+
+2. Tutorial.
+
+Here are the basic types of gates used in the program and the
+corresponding boolean expressions and truth tables.
+
+Logic levels of low, zero, or false are indicated by "0".
+Logic levels of high, one, or true are indicated by "1".
+In some cases a value may be undefined or doesn't matter, and is indicated as "X".
+
+Here are truth tables for the basic logic gates that are used in the ciruits:
+
+Buffer: B = A
++-----+------+
+|Input|Output|
+|  A  |  B   |
++-----+------+
+|  0  | 0    |
+|  1  | 1    |
++-----+------+
+
+<Press any key to continue>
+
+Inverter: B NOT A
++-----+------+
+|Input|Output|
+|  A  |  B   |
++-----+------+
+|  0  | 1    |
+|  1  | 0    |
++-----+------+
+
+2-Input AND Gate: C = A AND B
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  0   |
+| 0 | 1 |  0   |
+| 1 | 0 |  0   |
+| 1 | 1 |  1   |
++---+---+------+
+
+2-Input OR Gate: C = A OR B
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  0   |
+| 0 | 1 |  1   |
+| 1 | 0 |  1   |
+| 1 | 1 |  1   |
++---+---+------+
+
+2-Input Exclusive OR Gate: C = A EXOR B
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  0   |
+| 0 | 1 |  1   |
+| 1 | 0 |  1   |
+| 1 | 1 |  0   |
++---+---+------+
+
+2-Input NAND Gate: C = NOT (A AND B)
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  1   |
+| 0 | 1 |  1   |
+| 1 | 0 |  1   |
+| 1 | 1 |  0   |
++---+---+------+
+
+2-Input NOR Gate: C = NOT (A OR B)
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  1   |
+| 0 | 1 |  0   |
+| 1 | 0 |  0   |
+| 1 | 1 |  0   |
++---+---+------+
+
+2-Input Exclusive NOR Gate: C = NOT (A EXOR B)
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  1   |
+| 0 | 1 |  0   |
+| 1 | 0 |  0   |
+| 1 | 1 |  1   |
++---+---+------+
+
+Other gates are similar and may have up to 4 inputs.
+
+<Press any key to return to the main menu>
+
+Select Difficulty Level:
+1. Basic Gates.
+2. Simple Circuits.
+3. Entermediate Circuits.
+4. Complex circuit.
+5. Return to main menu.
+
+Selection? 1
+
+
+Given this circuit:
+
+C = NOT (B AND A)
+     __
+A --|  \o-- C
+B --|__/
+
+Fill in the missing truth table values:
+
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  ?   |
+| 0 | 1 |  ?   |
+| 1 | 0 |  ?   |
+| ? | 1 |  0   |
++---+---+------+
+
+Level: xx  Correct: xxx   Incorrect: xxx
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+Given this truth table:
+
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  ?   |
+| 0 | 1 |  ?   |
+| 1 | 0 |  ?   |
+| 1 | 1 |  ?   |
++---+---+------+
+
+Which is the correct circuit?
+
+
+Data file format:
+
+<name>,<expresion>,<level>,<# inputs>,<# outputs">,<# entries>,<image file>
+<i1>,<i2>,<i3>,<i4>,<o1>,<o2>,<o3>,<o4>
+
+e.g.
+
+Buffer,B = A,1,1,1,2,buffer.txt
+0,0
+1,1
+
+Inverter,B NOT A,1,1,1,2,inverter.txt
+0,1
+1,0
+
+2-Input AND Gate,C = A AND B,1,2,1,4,2and.txt
+0,0,0
+0,1,0
+1,0,0
+1,1,1
+
+2-Input OR Gate,C = A OR B,1,2,1,4,2or.txt
+0,0,0
+0,1,1
+1,0,1
+1,1,1
+
+2-Input Exclusive OR Gate,C = A EXOR B,1,2,1,4,exor.txt
+0,0,0
+0,1,1
+1,0,1
+1,1,0
+
+2-Input NAND,C = NOT (A AND B),1,2,1,4,2nand.txt
+0,0,1
+0,1,1
+1,0,1
+1,1,0
+
+2-Input NOR,C = NOT (A OR B),1,2,1,4,2nor.txt
+0,0,1
+0,1,0
+1,0,0
+1,1,0
+
+2-Input Exclusive NOR Gate,C = NOT (A EXOR B),1,1,4,2exor.txt
+0,0,1
+0,1,0
+1,0,0
+1,1,1
+
+3-Input NOR,D = NOT (A OR B OR C),1,3,1,8,"nor.txt
+0,0,0,1
+0,0,1,0
+0,1,0,0
+0,1,1,0
+1,0,0,0
+1,0,1,0
+1,0,0,0
+1,1,1,0
+
+2-2 AND OR INVERT,E = NOT((A AND B) OR (C AND D)),2,4,1,16,22aoi.txt
+0,0,0,0,1
+0,0,0,1,1
+0,0,1,0,1
+0,0,1,1,0
+0,1,0,0,1
+0,1,0,1,1
+0,1,1,0,1
+0,1,1,1,0
+1,0,0,0,1
+1,0,0,1,1
+1,0,1,0,1
+1,0,1,1,0
+1,1,0,0,0
+1,1,0,1,0
+1,1,1,0,0
+1,1,1,1	0
+
+
+
+
+
+     __
+A --|  \o-- C
+B --|__/
+
+Fill in the missing truth table values:
+
++-------+------+
+|Input  |Output|
+| A | B |  C   |
++---+---+------+
+| 0 | 0 |  ?   |
+| 0 | 1 |  ?   |
+| 1 | 0 |  ?   |
+| ? | 1 |  0   |
++---+---+------+

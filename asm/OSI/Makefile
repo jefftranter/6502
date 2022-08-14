@@ -19,7 +19,7 @@ cegmon.lod: cegmon.bin
 	./bintolod -s F800 -l F800 cegmon.bin >cegmon.lod
 
 osirom.bin: fill.o diskboot.o keyboard.o osi65v.o coldstart.o
-	ld65 -t none -vm -m osirom.map -o osirom.bin fill.o diskboot.o keyboard.o osi65v.o coldstart.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m osirom.map -o osirom.bin fill.o diskboot.o keyboard.o osi65v.o coldstart.o
 
 fill.o:	fill.s
 	ca65 -g -l fill.lst --feature labels_without_colons --feature pc_assignment fill.s
@@ -43,10 +43,10 @@ cegmon.o: cegmon.s
 	ca65 -g -l cegmon.lst --feature labels_without_colons --feature pc_assignment cegmon.s
 
 osibasic.bin: osibasic.o
-	ld65 -t none -vm -m osirom.map -o osibasic.bin osibasic.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m osirom.map -o osibasic.bin osibasic.o
 
 cegmon.bin: cegmon.o
-	ld65 -t none -vm -m cegmon.map -o cegmon.bin cegmon.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m cegmon.map -o cegmon.bin cegmon.o
 
 basicrom.bin: basic.bin osibasic.bin
 	cat basic.bin osibasic.bin >basicrom.bin

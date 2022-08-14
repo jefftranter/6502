@@ -5,7 +5,7 @@ basic.mon: basic.bin
 	bintomon -v -l 0x5000 basic.bin >basic.mon
 
 basic.bin: basic.o
-	ld65 -t none -vm -m basic.map -o basic.bin basic.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m basic.map -o basic.bin basic.o
 
 basic.o: basic.asm min_mon.asm
 	ca65 -g -l min_mon.lst --feature labels_without_colons -o basic.o min_mon.asm

@@ -4,7 +4,7 @@ sweet16.mon: sweet16.bin
 	bintomon -l 0x289 sweet16.bin >sweet16.mon
 
 sweet16.bin: sweet16.o
-	ld65 -t none -vm -m sweet16.map -o sweet16.bin sweet16.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m sweet16.map -o sweet16.bin sweet16.o
 
 sweet16.o: sweet16.s
 	ca65 -g -l sweet16.lst sweet16.s

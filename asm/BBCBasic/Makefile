@@ -4,7 +4,7 @@ basic2.run: basic2.bin
 	srec_cat basic2.bin -binary -offset 0xc000 -o basic2.run
 
 basic2.bin: basic2.o
-	ld65 -t none -vm -m basic2.map -o basic2.bin basic2.o
+	ld65 BBCBasic/Makefile -vm -m basic2.map -o basic2.bin basic2.o
 
 basic2.o: basic2.asm mos.asm
 	ca65 -g -l basic2.lst -o basic2.o basic2.asm

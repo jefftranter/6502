@@ -3,7 +3,7 @@
 ;
 ; Build using:
 ; ca65 -g -l example2.lst example2.s
-; ld65 -t none -vm -o example2.bin example2.o
+; ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -o example2.bin example2.o
 ; ./bintolod -s 0000 -l 0000 example2.bin >example2.lod
 ;
 ; Then upload and run using:
