@@ -1478,7 +1478,7 @@ Options:
         JSR PrintCR             ; new line
 .endif
 
-; Add a delay after all writes to accomodate slow EEPROMs.
+; Add a delay after all writes to accommodate slow EEPROMs.
 ; Applies to COPY, FILL, and TEST commands.
 ; Depending on the manufacturer, anywhere from 0.5ms to 10ms may be needed.
 ; Value of $20 works well for me (approx 1.5ms delay with 2MHz clock).

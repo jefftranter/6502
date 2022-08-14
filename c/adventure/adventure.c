@@ -749,7 +749,7 @@ void initialize()
     turnsPlayed = 0;
     gameOver= 0;
 
-    /* These doors can get changed during game and may need to be reset O*/
+    /* These doors can get changed during game and may need to be reset */
     Move[17][North] = 0;
     Move[21][North] = 0;
 
