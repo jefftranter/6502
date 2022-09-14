@@ -1,7 +1,7 @@
 ;
 ; Test and demonstration of the floating point math routines
 ;
-; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2022 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 ; Version Date         Comments
 ; 0.0     03-Aug-2012  First version started
 ; 0.1     08-Aug-2012  Hooked up DeJong BDC/binary code
+; 0.1     14-Sep-2022  Fix error in float to fixed in test.s
 
         .include "wozfp.s"
         .include "bcdfloat.s"
@@ -103,18 +104,6 @@ FloatToFixed:
         STA M1+2
         JSR PrintCR
 
-        LDY #>EnterFloatString
-        JSR PrintString
-        JSR GetByte
-        STA X1
-        JSR PrintSpace
-        JSR GetByte
-        STA M1
-        JSR GetByte
-        STA M1+1
-        JSR GetByte
-        STA M1+2
-        JSR PrintCR
         JSR FIX                 ; Returns in M1 (high) and M1+1 (low)
         LDX #<FixedPointIsString
         LDY #>FixedPointIsString
