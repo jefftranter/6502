@@ -10,10 +10,10 @@
 # Commodore 64 and compatibles like the C64 Mini:
 #
 # Running "make c64" will build for the Commodore 64 using cc65. Copy
-# the resulting file "adventure" to your media and run it from BASIC
+# the resulting file "adventure1" to your media and run it from BASIC
 # using the commands:
 #
-#   LOAD"ADVENTURE",8
+#   LOAD"ADVENTURE1",8
 #   RUN
 #
 # With a C64 Mini you can use the Linux utility c1541 to copy the file
@@ -26,7 +26,7 @@
 # Apple 2 series:
 #
 # Running "make apple2" will build for the Apple 2 platform using
-# cc65. Copy the resulting file "adventure" to your media and run it
+# cc65. Copy the resulting file "adventure1" to your media and run it
 # from BASIC. I have tested it with an Apple //c using a FloppyEmu
 # flash drive. I used AppleCommander to copy the binary to a ProDOS
 # disk image.
@@ -34,7 +34,7 @@
 # Ohio Scientific Challenger 1P/SuperBoard II and compatibles like the Briel Superboard III:
 #
 # Running "make osi" will build for this platform. Transfer the
-# generated file adventure.mon over a serial interface using the OSI
+# generated file adventure1.mon over a serial interface using the OSI
 # monitor.
 # Not currently supported as cc65 does not support file i/o on the
 # OSIC1P platform.
@@ -46,26 +46,26 @@ all: default
 
 default: native
 
-native: adventure.c
-	gcc -Wall -g -o adventure adventure.c
+native: adventure1.c
+	gcc -Wall -g -o adventure1 adventure1.c
 
-c64:	adventure.c
-	cl65 -O -t c64 adventure.c -L /usr/local/share/cc65/lib
+c64:	adventure1.c
+	cl65 -O -t c64 adventure1.c -L /usr/local/share/cc65/lib
 
-apple2: adventure.c
-	cl65 -O -t apple2enh adventure.c -o adventure -L /usr/local/share/cc65/lib
+apple2: adventure1.c
+	cl65 -O -t apple2enh adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
 
-osi:	adventure.c
-	cl65 -O -t osic1p adventure.c -L /usr/local/share/cc65/lib
-	bintomon -l 0x200 -r 0x200 adventure >adventure.mon
+osi:	adventure1.c
+	cl65 -O -t osic1p adventure1.c -L /usr/local/share/cc65/lib
+	bintomon -l 0x200 -r 0x200 adventure1 >adventure1.mon
 
-replica1: adventure.c
-	cl65 -O -t replica1 adventure.c -o adventure -L /usr/local/share/cc65/lib
+replica1: adventure1.c
+	cl65 -O -t replica1 adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
 
-apple1: adventure.c
-	cl65 -O -t apple1 adventure.c -o adventure -L /usr/local/share/cc65/lib
+apple1: adventure1.c
+	cl65 -O -t apple1 adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
 
 clean:
-	$(RM) adventure.o adventure.lst adventure.map adventure adventure.mon
+	$(RM) adventure1.o adventure1.lst adventure1.map adventure1 adventure1.mon
 
 distclean: clean
