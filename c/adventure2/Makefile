@@ -50,13 +50,13 @@ native: adventure2.c
 	gcc -Wall -g -o adventure2 adventure2.c
 
 c64:	adventure2.c
-	cl65 -O -t c64 adventure2.c -L /usr/local/share/cc65/lib
+	CC65_HOME=/usr/local/share/cc65	cl65 -O -t c64 adventure2.c -L /usr/local/share/cc65/lib
 
 apple2: adventure2.c
-	cl65 -O -t apple2enh adventure2.c -o adventure2 -L /usr/local/share/cc65/lib
+	CC65_HOME=/usr/local/share/cc65	cl65 -O -t apple2enh adventure2.c -o adventure2 -L /usr/local/share/cc65/lib
 
 osi:	adventure2.c
-	cl65 -O -t osic1p adventure2.c -L /usr/local/share/cc65/lib
+	CC65_HOME=/usr/local/share/cc65	cl65 -O -t osic1p adventure2.c -L /usr/local/share/cc65/lib
 	bintomon -l 0x200 -r 0x200 adventure2 >adventure2.mon
 
 clean:

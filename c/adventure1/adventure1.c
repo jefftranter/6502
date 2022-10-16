@@ -7,7 +7,7 @@
  * Written in standard C but designed to run on the Apple Replica 1
  * or Apple II using the CC65 6502 assembler.
  *
- * Copyright 2012-2015 Jeff Tranter
+ * Copyright 2012-2022 Jeff Tranter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@
  * 0.1      18 Mar 2012  First beta version
  * 0.9      19 Mar 2012  First public release
  * 1.0      06 Sep 2015  Lower case and other Apple II improvements.
+ * 1.1      26 Jul 2022  Added backup/restore commands.
  *
  */
 
@@ -40,6 +41,11 @@
 #include <conio.h>
 #endif
 
+/* Uncomment the next line to define this if you want backup and
+   restore commands to use files. Otherwise uses memory. Requires
+   platform support for file i/o. */
+//#define FILEIO 1
+
 /* CONSTANTS */
 
 /* Maximum number of items user can carry */
@@ -47,6 +53,9 @@
 
 /* Number of locations */
 #define NUMLOCATIONS 32
+
+/* Number of (memory-resident) saved games */
+#define SAVEGAMES 10
 
 /* TYPES */
 
@@ -124,6 +133,22 @@ typedef enum {
     Woods30,
     Woods31,
 } Location_t;
+
+/* Structure to hold entire game state */
+typedef struct {
+    number valid;
+    Item_t Inventory[MAXITEMS];
+    Location_t locationOfItem[LastItem+1];
+    Direction_t Move[NUMLOCATIONS][6];
+    number currentLocation;
+    int turnsPlayed;
+    number lampLit;
+    number lampFilled;
+    number ateFood;
+    number drankWater;
+    number ratAttack;
+    number wolfState;
+} GameState_t;
 
 /* TABLES */
 
@@ -261,12 +286,21 @@ number wolfState;
 /* Set when game is over */
 number gameOver;
 
+#ifndef FILEIO
+/* Memory-resident saved games */
+GameState_t savedGame[SAVEGAMES];
+#endif
+
 const char *introText = "     Abandoned Farmhouse Adventure\n           By Jeff Tranter\n\nYour three-year-old grandson has gone\nmissing and was last seen headed in the\ndirection of the abandoned family farm.\nIt's a dangerous place to play. You\nhave to find him before he gets hurt,\nand it will be getting dark soon...\n";
 
-const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
+#ifdef FILEIO
+const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nbackup <file>\nrestore <file>\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
+#else
+const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nbackup <number>\nrestore <number>\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
+#endif /* FILEIO */
 
 /* Line of user input */
-char buffer[40];
+char buffer[80];
 
 /* Clear the screen */
 void clearScreen()
@@ -367,6 +401,7 @@ void doLook()
 void doQuit()
 {
     printf("%s", "Are you sure you want to quit (y/n)? ");
+    fflush(NULL);
     fgets(buffer, sizeof(buffer)-1, stdin);
     if (tolower(buffer[0]) == 'y') {
         gameOver = 1;
@@ -380,7 +415,7 @@ void doDrop()
     char *sp;
     char *item;
 
-    /* Command line should be like "D[ROP] ITEM" Item name will be after after first space. */
+    /* Command line should be like "D[ROP] ITEM" Item name will be after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
         printf("Drop what?\n");
@@ -412,7 +447,7 @@ void doTake()
     char *sp;
     char *item;
 
-    /* Command line should be like "T[AKE] ITEM" Item name will be after after first space. */
+    /* Command line should be like "T[AKE] ITEM" Item name will be after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
         printf("Take what?\n");
@@ -507,7 +542,7 @@ void doExamine()
     char *sp;
     char *item;
 
-    /* Command line should be like "E[XAMINE] ITEM" Item name will be after after first space. */
+    /* Command line should be like "E[XAMINE] ITEM" Item name will be after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
         printf("Examine what?\n");
@@ -564,7 +599,7 @@ void doUse()
     char *sp;
     char *item;
 
-    /* Command line should be like "U[SE] ITEM" Item name will be after after first space. */
+    /* Command line should be like "U[SE] ITEM" Item name will be after first space. */
     sp = strchr(buffer, ' ');
     if (sp == NULL) {
         printf("Use what?\n");
@@ -660,10 +695,293 @@ void doUse()
     printf("Nothing happens\n");
 }
 
+#ifdef FILEIO
+/* Backup command - file version */
+void doBackup()
+{
+    char *sp;
+    char *name;
+    number i, j;
+    FILE *fp;
+
+    /* Command line should be like "B[ACKUP] NAME" */
+    /* Save file name will be after first space. */
+    sp = strchr(buffer, ' ');
+    if (sp == NULL) {
+        printf("Backup under what name?\n");
+        return;
+    }
+
+    name = sp + 1;
+
+    printf("Backing up game state under name '%s'.\n", name);
+
+    fp = fopen(name, "w");
+    if (fp == NULL) {
+        printf("Unable to open file '%s'.\n", name);
+        return;
+    }
+
+    fprintf(fp, "%s\n", "#Adventure1 Save File");
+
+    fprintf(fp, "Inventory:");
+    for (i = 0; i < MAXITEMS; i++) {
+        fprintf(fp, " %d", Inventory[i]);
+    }
+    fprintf(fp, "\n");
+
+    fprintf(fp, "Items:");
+    for (i = 0; i <= LastItem; i++) {
+        fprintf(fp, " %d", locationOfItem[i]);
+    }
+    fprintf(fp, "\n");
+
+    fprintf(fp, "Map:\n");
+    for (i = 0; i < NUMLOCATIONS; i++) {
+        for (j = 0; j < 6; j++) {
+            fprintf(fp, " %d", Move[i][j]);
+        }
+        fprintf(fp, "\n");
+    }
+
+    fprintf(fp, "Variables: %d %d %d %d %d %d %d %d\n",
+           currentLocation,
+           turnsPlayed,
+           lampLit,
+           lampFilled,
+           ateFood,
+           drankWater,
+           ratAttack,
+           wolfState);
+
+    i = fclose(fp);
+    if (i != 0) {
+        printf("Unable to close file, error code %d.\n", i);
+    }
+}
+#else
+/* Backup command - memory-resident version */
+void doBackup()
+{
+    char *sp;
+    number i, j, n;
+
+    /* Command line should be like "B[ACKUP] <NUMBER>" */
+    /* Number will be after first space. */
+    sp = strchr(buffer, ' ');
+    if (sp == NULL) {
+        printf("Backup under what number?\n");
+        return;
+    }
+
+    n = strtol(sp + 1, NULL, 10);
+    if  (n <= 0 || n > SAVEGAMES) {
+        printf("Invalid backup number. Specify %d through %d.\n", 1, SAVEGAMES);
+        return;
+    }
+
+    printf("Backing up game state under number %d.\n", n);
+
+    savedGame[n-1].valid = 1;
+    for (i = 0; i < MAXITEMS; i++) {
+        savedGame[n-1].Inventory[i] = Inventory[i];
+    }
+    for (i = 0; i < LastItem+1; i++) {
+        savedGame[n-1].locationOfItem[i] = locationOfItem[i];
+    }
+    for (i = 0; i < NUMLOCATIONS; i++) {
+        for (j = 0; j < 6; j++) {
+            savedGame[n-1].Move[i][j] = Move[i][j];
+        }
+    }
+    savedGame[n-1].currentLocation = currentLocation;
+    savedGame[n-1].turnsPlayed = turnsPlayed;
+    savedGame[n-1].lampLit = lampLit;
+    savedGame[n-1].lampFilled = lampFilled;
+    savedGame[n-1].ateFood = ateFood;
+    savedGame[n-1].drankWater = drankWater;
+    savedGame[n-1].ratAttack = ratAttack;
+    savedGame[n-1].wolfState = wolfState;
+}
+
+#endif /* FILEIO */
+
+#ifdef FILEIO
+/* Restore command - file version */
+void doRestore()
+{
+    char *sp;
+    char *name;
+    number i, j;
+    FILE *fp;
+
+    /* Command line should be like "R[ESTORE] NAME" */
+    /* Save file name will be after first space. */
+    sp = strchr(buffer, ' ');
+    if (sp == NULL) {
+        printf("Restore from what file?\n");
+        return;
+    }
+
+    name = sp + 1;
+
+    printf("Restoring game state from file '%s'.\n", name);
+
+    fp = fopen(name, "r");
+    if (fp == NULL) {
+        printf("Unable to open file '%s'.\n", name);
+        return;
+    }
+
+    /* Check for header line */
+    fgets(buffer, sizeof(buffer) - 1, fp);
+    if (strcmp(buffer, "#Adventure1 Save File\n")) {
+        printf("File is not a valid game file.\n");
+        fclose(fp);
+        return;
+    }
+
+    /* Inventory: 3 0 0 0 0 */
+    i = fscanf(fp, "Inventory: %d %d %d %d %d\n",
+           (int*) &Inventory[0],
+           (int*) &Inventory[1],
+           (int*) &Inventory[2],
+           (int*) &Inventory[3],
+           (int*) &Inventory[4]);
+    if (i != 5) {
+        printf("File is not a valid game file.\n");
+        fclose(fp);
+        return;
+    }
+
+    /* Items: 0 1 8 0 7 6 9 2 16 15 18 25 29 10 12 19 */
+    i = fscanf(fp, "Items: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+           (int*) &locationOfItem[0],
+           (int*) &locationOfItem[1],
+           (int*) &locationOfItem[2],
+           (int*) &locationOfItem[3],
+           (int*) &locationOfItem[4],
+           (int*) &locationOfItem[5],
+           (int*) &locationOfItem[6],
+           (int*) &locationOfItem[7],
+           (int*) &locationOfItem[8],
+           (int*) &locationOfItem[9],
+           (int*) &locationOfItem[10],
+           (int*) &locationOfItem[11],
+           (int*) &locationOfItem[12],
+           (int*) &locationOfItem[13],
+           (int*) &locationOfItem[14],
+           (int*) &locationOfItem[15],
+           (int*) &locationOfItem[16]);
+
+    if (i != 17) {
+        printf("File is not a valid game file.\n");
+        fclose(fp);
+        return;
+    }
+
+    fscanf(fp, "Map:\n");
+
+    for (i = 0; i < NUMLOCATIONS; i++) {
+        j = fscanf(fp, " %d %d %d %d %d %d\n",
+               (int*) &Move[i][0],
+               (int*) &Move[i][1],
+               (int*) &Move[i][2],
+               (int*) &Move[i][3],
+               (int*) &Move[i][4],
+               (int*) &Move[i][5]);
+        if (j != 6) {
+            printf("File is not a valid game file.\n");
+            fclose(fp);
+            return;
+        }
+    }
+
+    /* Variables: 1 0 0 0 0 0 0 0 */
+    i = fscanf(fp, "Variables: %d %d %d %d %d %d %d %d\n",
+           &currentLocation,
+           &turnsPlayed,
+           &lampLit,
+           &lampFilled,
+           &ateFood,
+           &drankWater,
+           &ratAttack,
+           &wolfState);
+
+    if (i != 8) {
+        printf("File is not a valid game file.\n");
+        fclose(fp);
+        return;
+    }
+
+    i = fclose(fp);
+    if (i != 0) {
+        printf("Unable to close file, error code %d.\n", i);
+    }
+}
+#else
+/* Restore command - memory-resident version */
+void doRestore()
+{
+    char *sp;
+    number i, j, n;
+
+    /* Command line should be like "R[ESTORE] <NUMBER>" */
+    /* Number will be after first space. */
+    sp = strchr(buffer, ' ');
+    if (sp == NULL) {
+        printf("Restore from what number?\n");
+        return;
+    }
+
+    n = strtol(sp + 1, NULL, 10);
+    if  (n <= 0 || n > SAVEGAMES) {
+        printf("Invalid restore number. Specify %d through %d.\n", 1, SAVEGAMES);
+        return;
+    }
+
+    if (savedGame[n-1].valid != 1) {
+        printf("No game has been stored for number %d.\n", n);
+        printf("Stored games:");
+        for (i = 0; i < SAVEGAMES; i++) {
+            if (savedGame[i].valid == 1) {
+                printf(" %d", i+1);
+            }
+        }
+        printf("\n");
+        return;
+    }
+
+    printf("Restoring game state from number %d.\n", n);
+
+    savedGame[n-1].valid = 1;
+    for (i = 0; i < MAXITEMS; i++) {
+        Inventory[i] = savedGame[n-1].Inventory[i];
+    }
+    for (i = 0; i < LastItem+1; i++) {
+        locationOfItem[i] = savedGame[n-1].locationOfItem[i];
+    }
+    for (i = 0; i < NUMLOCATIONS; i++) {
+        for (j = 0; j < 6; j++) {
+            Move[i][j] = savedGame[n-1].Move[i][j];
+        }
+    }
+    currentLocation = savedGame[n-1].currentLocation;
+    turnsPlayed = savedGame[n-1].turnsPlayed;
+    lampLit = savedGame[n-1].lampLit;
+    lampFilled = savedGame[n-1].lampFilled;
+    ateFood = savedGame[n-1].ateFood;
+    drankWater = savedGame[n-1].drankWater;
+    ratAttack = savedGame[n-1].ratAttack;
+    wolfState = savedGame[n-1].wolfState;
+}
+#endif /* FILEIO */
+
 /* Prompt user and get a line of input */
 void prompt()
 {
     printf("? ");
+    fflush(NULL);
     fgets(buffer, sizeof(buffer)-1, stdin);
 
     /* Remove trailing newline */
@@ -747,7 +1065,7 @@ void initialize()
     ratAttack = 0;
     wolfState = 0;
     turnsPlayed = 0;
-    gameOver= 0;
+    gameOver = 0;
 
     /* These doors can get changed during game and may need to be reset */
     Move[17][North] = 0;
@@ -780,6 +1098,14 @@ void initialize()
 /* Main program (obviously) */
 int main(void)
 {
+#ifndef FILEIO
+    /* Mark all saved games as initially invalid */
+    int i;
+    for (i = 0; i < SAVEGAMES; i++) {
+        savedGame[i].valid = 0;
+    }
+#endif
+
     while (1) {
         initialize();
         clearScreen();
@@ -812,6 +1138,10 @@ int main(void)
                 doDrop();
             } else if (tolower(buffer[0]) == 'q') {
                 doQuit();
+            } else if (tolower(buffer[0]) == 'b') {
+                doBackup();
+            } else if (tolower(buffer[0]) == 'r') {
+                doRestore();
             } else if (!strcasecmp(buffer, "xyzzy")) {
                 printf("Nice try, but that won't work here.\n");
             } else {
@@ -824,6 +1154,7 @@ int main(void)
 
         printf("Game over after %d turns.\n", turnsPlayed);
         printf("%s", "Do you want to play again (y/n)? ");
+        fflush(NULL);
         fgets(buffer, sizeof(buffer)-1, stdin);
         if (tolower(buffer[0]) == 'n') {
             break;
