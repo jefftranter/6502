@@ -570,7 +570,7 @@ Exit:
         PLA
         RTS
 
-; Install handler to jump to our routine when BRK occurr due to an error.
+; Install handler to jump to our routine when BRK occurs due to an error.
 SetupBrkHandler:
         LDA $FFFE               ; get address of BRK vector
         STA T1                  ; and save in page zero
