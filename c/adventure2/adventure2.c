@@ -56,11 +56,15 @@
 #endif /* JOYSTICK */
 #endif /* __CC65__ */
 
-/* Uncomment the next line to define this if you want backup and
-   restore commands to use files. Otherwise uses memory. Requires
-   platform support for file i/o (known to work on Apple 2 and
-   Commodore 64. */
-//#define FILEIO 1
+/* Define FILEIO if you want backup and restore commands to use files.
+ * Otherwise uses memory. Requires platform support for file i/o
+ * (known to work on Apple 2 and Commodore 64 with cc65 as well as
+ * Linux.
+ */
+
+#if defined(__linux__) || defined(__APPLE2ENH__) || defined(__C64__)
+#define FILEIO 1
+#endif
 
 /* CONSTANTS */
 
