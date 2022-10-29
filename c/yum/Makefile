@@ -11,8 +11,7 @@ yum.mon: yum.bin
 	bintomon -v -f yum.bin >yum.mon
 
 yum.bin: yum.c Makefile
-	cl65 -O -l yum.lst -vm -m yum.map -t apple2enh -o yum.bin yum.c -L /usr/local/share/cc65/lib
-#	cl65 -O -l -vm -m yum.map -t replica1 -o yum.bin yum.c
+	CC65_HOME=/usr/local/share/cc65 cl65 -O -l yum.lst -vm -m yum.map -t apple2enh -o yum.bin yum.c -L /usr/local/share/cc65/lib
 
 # SEND is a script I wrote.
 upload: yum.mon

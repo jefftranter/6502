@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <apple1.h>
+#include <conio.h>
 
 int main (void)
 {
@@ -20,10 +20,10 @@ int main (void)
 
     printf("PRESS A KEY TO CONTINUE\n");
 
-    while (!keypressed())
-        ;
-    i = readkey();
-    printf("KEY WAS: %c\n", i);
+    //while (!keypressed())
+    //    ;
+    //i = readkey();
+    //printf("KEY WAS: %c\n", i);
 
     return 0;
 }

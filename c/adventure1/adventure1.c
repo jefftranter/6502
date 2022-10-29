@@ -43,7 +43,8 @@
 
 /* Uncomment the next line to define this if you want backup and
    restore commands to use files. Otherwise uses memory. Requires
-   platform support for file i/o. */
+   platform support for file i/o (known to work on Apple 2 and
+   Commodore 64. */
 //#define FILEIO 1
 
 /* CONSTANTS */
