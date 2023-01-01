@@ -27,7 +27,6 @@
  * limitations under the License.
  *
  * To Do:
- * Fit all output lines to 40 chars max.
  * Allow abbreviating object names to unique characters.
  *
  * Revision History:
@@ -927,7 +926,8 @@ void doUse()
 
     /* Use water dispenser */
     if (!strcasecmp(item, "dispenser")) {
-        printf("You receive a painful shock but are otherwise unharmed.\n");
+        printf("You receive a painful shock but are\n");
+        printf("otherwise unharmed.\n");
         return;
     }
 
@@ -935,17 +935,20 @@ void doUse()
     if (!strcasecmp(item, "remote control")) {
         if (!bombExploded && currentLocation == TownHall && ((carryingItem("seal") || itemIsHere("seal")))) {
             /* if location is town hall and seal is there, produce an explosion and gain access to control room. */
-            printf("There is a huge explosion! An opening in the floor leads to the control room.\n");
+            printf("There is a huge explosion! An opening\n");
+            printf("in the floor leads to the control room.\n");
             Move[TownHall][Down] = ControlRoom;
             bombExploded = 1;
             return;
         } else if (!bombExploded && currentLocation != TownHall && ((carryingItem("seal") || itemIsHere("seal")))) {
             /* If location is somewhere else, give clue that player has the right idea but this is not the time and place. */
-            printf("You have the right idea but this is not the right place.\n");
+            printf("You have the right idea, but this is\n");
+            printf("not the right place.\n");
             return;
         } else if (!bombExploded && currentLocation != TownHall && !(carryingItem("seal") && !itemIsHere("seal"))) {
             /* If only remote is here, make a click but nothing happens. Give clue that something is missing. */
-            printf("You hear a click, but something more is missing.\n");
+            printf("You hear a click, but something\n");
+            printf("more is missing.\n");
             return;
         }
     }
@@ -959,7 +962,8 @@ void doUse()
         if (currentLocation == Lawn) {
             printf("There is a helicopter here.\n");
         } else {
-            printf("In the distance you here the sound of a helicopter landing.\n");
+            printf("In the distance you hear the sound\n");
+            printf("of a helicopter landing.\n");
         }
         return;
     }
@@ -967,12 +971,14 @@ void doUse()
     /* Use helicopter */
     if (!strcasecmp(item, "helicopter")) {
         if (carryingItem("#2 badge")) {
-            printf("The helicopter picks you up and takes you away from The Village.\n");
+            printf("The helicopter picks you up and takes\n");
+            printf("you away from The Village.\n");
             printf("You have escaped!\n");
             gameOver = 1;
             return;
         } else {
-            printf("The helicopter refuses to pick you up. It was summoned for #2.\n");
+            printf("The helicopter refuses to pick you up.\n");
+            printf("It was summoned for #2.\n");
             return;
         }
     }
