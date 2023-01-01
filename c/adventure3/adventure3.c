@@ -26,9 +26,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * To Do:
- * Allow abbreviating object names to unique characters.
- *
  * Revision History:
  *
  * Version  Date         Comments
@@ -488,6 +485,30 @@ number itemIsHere(const char *item)
     return 0;
 }
 
+/* Check for an abbreviated item name. Return full name of item if it
+   uniquely matches. Otherwise returns the orignal name. Only check
+   for items being carried or at current location. */
+char *getMatch(char *name)
+{
+    int matches = 0;
+    int index = 0;
+    int i;
+
+    for (i = 1; i <= LastItem; i++) {
+        if (carryingItem(DescriptionOfItem[i]) || itemIsHere(DescriptionOfItem[i])) {
+            if (!strncasecmp(DescriptionOfItem[i], name, strlen(name))) {
+                index = i;
+                matches++;
+            }
+        }
+    }
+
+    if (matches == 1) {
+        strcpy(name, DescriptionOfItem[index]);
+    }
+    return name;
+}
+
 /* Inventory command */
 void doInventory()
 {
@@ -567,6 +588,8 @@ void doDrop()
 
     item = sp + 1;
 
+    item = getMatch(item);
+
     /* See if we have this item */
     for (i = 0; i < MAXITEMS; i++) {
         if ((Inventory[i] != 0) && (!strcasecmp(DescriptionOfItem[Inventory[i]], item))) {
@@ -598,6 +621,8 @@ void doTake()
     }
 
     item = sp + 1;
+
+    item = getMatch(item);
 
     /* Special case - take helicopter */
     if (!strcasecmp(item, "helicopter")) {
@@ -718,6 +743,9 @@ void doExamine()
     }
 
     item = sp + 1;
+
+    item = getMatch(item);
+
     ++turnsPlayed;
 
     /* Make sure item is being carried or is in the current location */
@@ -915,6 +943,8 @@ void doUse()
     }
 
     item = sp + 1;
+
+    item = getMatch(item);
 
     /* Make sure item is being carried or is in the current location */
     if (!carryingItem(item) && !itemIsHere(item)) {
