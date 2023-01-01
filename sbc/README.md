@@ -6,7 +6,7 @@ modified version and designed a PCB layout. Changes include:
   RS-232).
 - Removed serial hardware handshaking as I could not get it to work
   over FTDI.
-- Jumper option to run the CPU from a separate clock (2MHz) or from
+- Jumper option to run the CPU from a separate clock (2 MHz) or from
   the 1.8432 MHz serial clock.
 - Power LED.
 - Jumper option to power from USB.
