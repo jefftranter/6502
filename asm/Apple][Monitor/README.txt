@@ -5,7 +5,7 @@ adaptations by Wendell Sander. The Apple II source was code
 reverse-engineered and ported to the CA65 assembler by me, Jeff
 Tranter <tranter@pobox.com>.
 
-See http://www.apple1notes.com/old_apple/Monitor_II_on_1.html
+See https://apple1notes.com/?page_id=42#ama
 
 I adapted the original monitor source from the "Red Book" to build
 under the CA65 assembler, then applied the patches for the Apple 1.
