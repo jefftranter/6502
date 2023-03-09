@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int all[1000];
+#define MAX 1000
+
+int all[MAX];
 
 void eratosthenes(int top)
 {
@@ -39,8 +41,8 @@ skip:
 
 int main()
 {
-  printf("\n\n\nPrime numbers up to 1000:\n");
-  eratosthenes(1000);
+  printf("\n\n\nPrime numbers up to %d:\n", MAX);
+  eratosthenes(MAX);
   printf("\nDone.\n");
   return 0;
 }
