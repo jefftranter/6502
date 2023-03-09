@@ -39,6 +39,13 @@
 # Not currently supported as cc65 does not support file i/o on the
 # OSIC1P platform.
 
+# My 6502 Single Board Computer:
+#
+# Running "make sbc" will build for this platform using cc65. You need
+# a patched version of cc65 with support for the "sbc" target as
+# provided elsewhere in this git repository. Load the .run file from
+# JMON using the "J" command.
+
 # Apple 1 and compatibles like the Briel Replica 1:
 # TBD
 
@@ -59,7 +66,11 @@ osi:	adventure3.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t osic1p adventure3.c -L /usr/local/share/cc65/lib
 	bintomon -l 0x200 -r 0x200 adventure3 >adventure3.mon
 
+sbc: adventure3.c
+	CC65_HOME=/usr/local/share/cc65	cl65 -O -t sbc adventure3.c -o adventure3 -L /usr/local/share/cc65/lib
+	srec_cat adventure3 -binary -offset 0x0200 -o adventure3.run -Execution_Start_Address 0x0200
+
 clean:
-	$(RM) adventure3.o adventure3.lst adventure3.map adventure3 adventure3.mon
+	$(RM) adventure3.o adventure3.lst adventure3.map adventure3 adventure3.mon adventure3.run
 
 distclean: clean

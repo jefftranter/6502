@@ -90,6 +90,7 @@
 ; 1.3.5  13-Dec-2020   Added port to my Single Board Computer
 ; 1.3.6  03-Mar-2021   Add J (S record loading) and W (S record writing) commands.
 ; 1.3.7  26-May-2021   Added P (scope loop) command.
+; 1.3.8  08-Mar-2023   Move variables to top of RAM on SBC platform (to allow loading code at $0200).
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -3257,9 +3258,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.7 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.8 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.7 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.8 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
@@ -3475,7 +3476,11 @@ S0String:
 
 ; Non-Page Zero Variables. Note: These must be in RAM. Use a .org
 ; below corresponding to RAM if the program is linked into ROM.
+.ifdef SBC
+.org $7FC0
+.else
 .org $1000
+.endif
 
 T2:       .res 1                ; Temp variable 2
 RETOK:    .res 1                ; Sets whether <Return> key is accepted in some input routines
