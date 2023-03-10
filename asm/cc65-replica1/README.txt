@@ -1,20 +1,9 @@
-These are patches for the CC65 assembler/compiler tools to add support
-for the Apple 1 and Replica 1. The patches were based on ones for
-earlier versions of CC65 and updated for 2.17, which was the latest
-at the time of writing.
+These are patches for the CC65 assembler/C compiler tools to add
+support for the Briel Replica 1 computer. The patches apply to the
+latest version of cc65 and are periodically updated.
 
-Apply the patch to the source and then build it as normal.
+Apply the patch to the cc65 source and then build it as normal or use
+the "build" script with suitable changes for your system.
 
-These commands should work under Linux to build it (or use the "build"
-script):
-
-  tar xjf cc65-sources-2.13.3.tar.bz2
-  patch -p0  <cc65-2.13.3-replica1.patch
-  cd cc65-2.13.3
-  make -f make/gcc.mak
-  sudo make -f make/gcc.mak install
-
-I had hoped to get these patches applied to the original source at
-cc65.org but the maintainers felt that it was too specialized a
-platform to support.
-
+It adds a new target called "replica1". See the files in the example
+folder for some examples of how to build and run a C program.

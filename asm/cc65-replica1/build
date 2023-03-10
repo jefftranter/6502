@@ -1,18 +1,23 @@
 #!/bin/sh
+#
+# Check out latest cc65 source code, apply patches for replica1
+# target, build, and install.
 
 set -e
-if [ -d cc65-2.13.3 ]
-then
-  echo "Source directory already exists, exiting."
-  exit 1
-fi
-echo "*** Extracting source"
-tar xjf cc65-sources-2.13.3.tar.bz2
-echo "*** Applying patch"
-patch -p0  <cc65-2.13.3-replica1.patch
-cd cc65-2.13.3
-echo "*** Building"
-make -s -f make/gcc.mak
-echo "*** Installing"
-sudo make -s -f make/gcc.mak install prefix=/usr/local/replica1
-echo "*** Done"
+
+echo "*** Checking out cc65 source code ***"
+git clone https://github.com/cc65/cc65.git
+cd cc65
+
+echo "*** Applying patch ***"
+patch -p1 <../cc65-replica1.patch
+
+echo "*** Building ***"
+make -s -j4
+
+echo "*** Installing ***"
+sudo make PREFIX=/usr/local -s install
+
+echo "*** Cleaning ***"
+make -s clean
+rm -rf cc65

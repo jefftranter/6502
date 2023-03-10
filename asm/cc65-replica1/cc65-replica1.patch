@@ -1,0 +1,369 @@
+diff --git a/asminc/replica1.inc b/asminc/replica1.inc
+new file mode 100644
+index 000000000..8018c5eb5
+--- /dev/null
++++ b/asminc/replica1.inc
+@@ -0,0 +1,22 @@
++; ---------------------------------------------------------------------------
++;
++; Replica 1 definitions
++;
++; ---------------------------------------------------------------------------
++
++RAMSTART := $0300     ; Entry point
++
++; ---------------------------------------------------------------------------
++; Hardware Addresses
++; ---------------------------------------------------------------------------
++
++; Keyboard input
++KBD     :=      $D010   ; Read keyboard
++KBDRDY  :=      $D011   ; Clear keyboard strobe
++
++;-----------------------------------------------------------------------------
++; ROM routines
++;-----------------------------------------------------------------------------
++
++RESET   :=      $FF00   ; RESET entry point into monitor
++ECHO    :=      $FFEF   ; Echo character in A to video hardware
+diff --git a/cfg/replica1.cfg b/cfg/replica1.cfg
+new file mode 100644
+index 000000000..bea70ecac
+--- /dev/null
++++ b/cfg/replica1.cfg
+@@ -0,0 +1,39 @@
++# replica1.cfg   (32k)
++#
++# Briel Replica 1
++#
++# ld65 --config replica1.cfg -o <prog>.bin <prog>.o
++
++FEATURES {
++    STARTADDRESS: default = $0300;
++    CONDES: segment = STARTUP,
++            type    = constructor,
++            label   = __CONSTRUCTOR_TABLE__,
++            count   = __CONSTRUCTOR_COUNT__;
++    CONDES: segment = STARTUP,
++            type    = destructor,
++            label   = __DESTRUCTOR_TABLE__,
++            count   = __DESTRUCTOR_COUNT__;
++}
++
++SYMBOLS {
++    __STACKSIZE__:    type = weak, value = $0080;   # 128 byte program stack
++    __STARTADDRESS__: type = export, value = %S;
++}
++
++MEMORY {
++    ZP:       file = %O, define = yes, start = $0000, size = $00EE;
++    CPUSTACK: file = "", define = yes, start = $0100, size = $0100;
++    RAM:      file = %O, define = yes, start = %S, size = $8000 - %S - __STACKSIZE__;
++    ROM:      file = "", define = yes, start = $E000, size = $2000;
++}
++
++SEGMENTS {
++    ZEROPAGE: load = ZP,  type = zp,  define = yes;
++    STARTUP:  load = RAM, type = ro,  define = yes;
++    CODE:     load = RAM, type = ro,  define = yes;
++    RODATA:   load = RAM, type = ro,  define = yes;
++    ONCE:     load = RAM, type = ro,  define = yes;
++    DATA:     load = RAM, type = rw,  define = yes;
++    BSS:      load = RAM, type = bss, define = yes;
++}
+diff --git a/libsrc/Makefile b/libsrc/Makefile
+index 627897d9b..42e12f991 100644
+--- a/libsrc/Makefile
++++ b/libsrc/Makefile
+@@ -33,6 +33,7 @@ TARGETS = apple2       \
+           none         \
+           osic1p       \
+           pce          \
++          replica1     \
+           sim6502      \
+           sim65c02     \
+           supervision  \
+diff --git a/libsrc/replica1/clrscr.s b/libsrc/replica1/clrscr.s
+new file mode 100644
+index 000000000..d53b7463d
+--- /dev/null
++++ b/libsrc/replica1/clrscr.s
+@@ -0,0 +1,10 @@
++;
++; void clrscr (void);
++;
++
++        .export         _clrscr
++
++        .include        "replica1.inc"
++
++_clrscr:
++        rts
+diff --git a/libsrc/replica1/crt0.s b/libsrc/replica1/crt0.s
+new file mode 100644
+index 000000000..d924ef7d2
+--- /dev/null
++++ b/libsrc/replica1/crt0.s
+@@ -0,0 +1,46 @@
++;
++; Startup code for cc65 (REPLICA1 version)
++;
++
++        .export         _init, _exit
++        .export         __STARTUP__ : absolute = 1      ; Mark as startup
++
++        .import         _main
++        .import         initlib, donelib, copydata, zerobss
++        .import         __RAM_START__, __RAM_SIZE__     ; Linker generated
++        .import         __STACKSIZE__                   ; Linker generated
++
++        .include        "zeropage.inc"
++        .include        "replica1.inc"
++
++
++; Place the startup code in a special segment
++
++.segment  "STARTUP"
++
++
++; A little light housekeeping
++
++_init:    cld                          ; Clear decimal mode
++
++; Set cc65 argument stack pointer
++
++          lda     #<(__RAM_START__ + __RAM_SIZE__)
++          sta     sp
++          lda     #>(__RAM_START__ + __RAM_SIZE__)
++          sta     sp+1
++
++; Initialize memory storage
++
++          jsr     zerobss              ; Clear BSS segment
++          jsr     copydata             ; Initialize DATA segment
++          jsr     initlib              ; Run constructors
++
++; Call main()
++
++          jsr     _main
++
++; Back from main (this is also the _exit entry). Jumps to Woz monitor
++; entry point.
++
++_exit:    jmp    RESET
+diff --git a/libsrc/replica1/ctype.s b/libsrc/replica1/ctype.s
+new file mode 100644
+index 000000000..1301965eb
+--- /dev/null
++++ b/libsrc/replica1/ctype.s
+@@ -0,0 +1,5 @@
++; Character specification table.
++;
++; uses the "common" definition
++
++        .include "ctype_common.inc"
+diff --git a/libsrc/replica1/kbhit.s b/libsrc/replica1/kbhit.s
+new file mode 100644
+index 000000000..1c22f373e
+--- /dev/null
++++ b/libsrc/replica1/kbhit.s
+@@ -0,0 +1,15 @@
++;
++; unsigned char kbhit (void);
++;
++
++                .export _kbhit
++
++.include        "replica1.inc"
++
++_kbhit:
++        ldx     #$00
++        lda     KBDRDY
++        rol
++        txa
++        rol
++        rts
+diff --git a/libsrc/replica1/read.s b/libsrc/replica1/read.s
+new file mode 100644
+index 000000000..f0a21d5e2
+--- /dev/null
++++ b/libsrc/replica1/read.s
+@@ -0,0 +1,53 @@
++;
++; int __fastcall__ read (int fd, void* buf, unsigned count);
++;
++
++.include        "replica1.inc"
++
++.import         popax, popptr1
++.importzp       ptr1, ptr2, ptr3
++
++.export         _read
++
++.proc           _read
++
++        sta     ptr3
++        stx     ptr3+1           ; Count in ptr3
++        inx
++        stx     ptr2+1           ; Increment and store in ptr2
++        tax
++        inx
++        stx     ptr2
++        jsr     popptr1          ; Buffer address in ptr1
++        jsr     popax
++
++begin:  dec     ptr2
++        bne     getch
++        dec     ptr2+1
++        beq     done             ; If buffer full, return
++
++        ; Read from device and echo to device
++getch:  lda     KBDRDY
++        bpl     getch            ; if < 128, no key pressed
++        lda     KBD
++        and     #$7F             ; Clear high bit
++        ldx     #$00
++        jsr     ECHO
++
++        cmp     #$0D             ; Check for '\r'
++        bne     putch            ; ...if CR character
++        lda     #$0A             ; Replace with '\n'
++        jsr     ECHO             ; and echo it
++
++putch:  ldy     #$00             ; Put char into return buffer
++        sta     (ptr1),y
++        inc     ptr1             ; Increment pointer
++        bne     begin
++        inc     ptr1+1
++        bne     begin
++
++done:   lda     ptr3
++        ldx     ptr3+1
++        rts                      ; Return count
++
++.endproc
+diff --git a/libsrc/replica1/write.s b/libsrc/replica1/write.s
+new file mode 100644
+index 000000000..21ff11463
+--- /dev/null
++++ b/libsrc/replica1/write.s
+@@ -0,0 +1,45 @@
++;
++; int __fastcall__ write (int fd, const void* buf, int count);
++;
++
++.include        "replica1.inc"
++
++.import         popax, popptr1
++.importzp       ptr1, ptr2, ptr3
++
++.export         _write
++
++.proc           _write
++
++        sta     ptr3
++        stx     ptr3+1          ; Count in ptr3
++        inx
++        stx     ptr2+1          ; Increment and store in ptr2
++        tax
++        inx
++        stx     ptr2
++        jsr     popptr1         ; Buffer address in ptr1
++        jsr     popax
++
++begin:  dec     ptr2
++        bne     outch
++        dec     ptr2+1
++        beq     done
++
++outch:  ldy     #0
++        lda     (ptr1),y
++        jsr     ECHO            ; Send character using Monitor call
++        cmp     #$0A            ; Check for 'n'
++        bne     next            ; ...if LF character
++        lda     #$0D            ; Add a carriage return
++        jsr     ECHO
++next:   inc     ptr1
++        bne     begin
++        inc     ptr1+1
++        jmp     begin
++
++done:   lda     ptr3
++        ldx     ptr3+1
++        rts                     ; Return count
++
++.endproc
+diff --git a/src/ca65/main.c b/src/ca65/main.c
+index 7183ff046..0aeb1003c 100644
+--- a/src/ca65/main.c
++++ b/src/ca65/main.c
+@@ -346,6 +346,10 @@ static void SetSys (const char* Sys)
+             NewSymbol ("__KIM1__", 1);
+             break;
+ 
++        case TGT_REPLICA1:
++            NewSymbol ("__REPLICA1__", 1);
++            break;
++
+         default:
+             AbEnd ("Invalid target name: '%s'", Sys);
+ 
+diff --git a/src/cc65/main.c b/src/cc65/main.c
+index f800ac43e..4e42737b8 100644
+--- a/src/cc65/main.c
++++ b/src/cc65/main.c
+@@ -303,6 +303,10 @@ static void SetSys (const char* Sys)
+             DefineNumericMacro ("__KIM1__", 1);
+             break;
+ 
++        case TGT_REPLICA1:
++            DefineNumericMacro ("__REPLICA1__", 1);
++            break;
++
+         default:
+             AbEnd ("Unknown target system '%s'", Sys);
+     }
+diff --git a/src/common/target.c b/src/common/target.c
+index ad62990bd..1ddce9394 100644
+--- a/src/common/target.c
++++ b/src/common/target.c
+@@ -173,6 +173,7 @@ static const TargetEntry TargetMap[] = {
+     {   "pce",          TGT_PCENGINE     },
+     {   "pet",          TGT_PET          },
+     {   "plus4",        TGT_PLUS4        },
++    {   "replica1",     TGT_REPLICA1     },
+     {   "sim6502",      TGT_SIM6502      },
+     {   "sim65c02",     TGT_SIM65C02     },
+     {   "supervision",  TGT_SUPERVISION  },
+@@ -221,6 +222,7 @@ static const TargetProperties PropertyTable[TGT_COUNT] = {
+     { "cx16",           CPU_65C02,      BINFMT_BINARY,      CTPET   },
+     { "sym1",           CPU_6502,       BINFMT_BINARY,      CTNone  },
+     { "kim1",           CPU_6502,       BINFMT_BINARY,      CTNone  },
++    { "replica1",       CPU_6502,       BINFMT_BINARY,      CTNone  },
+ };
+ 
+ /* Target system */
+diff --git a/src/common/target.h b/src/common/target.h
+index 0cec74b6e..62be13cdf 100644
+--- a/src/common/target.h
++++ b/src/common/target.h
+@@ -88,6 +88,7 @@ typedef enum {
+     TGT_CX16,
+     TGT_SYM1,
+     TGT_KIM1,
++    TGT_REPLICA1,
+     TGT_COUNT                   /* Number of target systems */
+ } target_t;
+ 
+diff --git a/targettest/Makefile b/targettest/Makefile
+index 4d989d0df..0c786ffed 100644
+--- a/targettest/Makefile
++++ b/targettest/Makefile
+@@ -761,6 +761,7 @@ TARGETS :=     \
+   pce          \
+   pet          \
+   plus4        \
++  replica1     \
+   sim6502      \
+   sim65c02     \
+   supervision  \

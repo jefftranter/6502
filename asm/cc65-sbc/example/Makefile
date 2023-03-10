@@ -9,7 +9,7 @@ sieve.run: sieve
 	srec_cat sieve -binary -offset 0x0200 -o sieve.run -Execution_Start_Address 0x0200
 
 hello: hello.c
-	CC65_HOME=/usr/local/share/cc65 cl65 -O -vm -m hello1.map -t $(PLATFORM) hello.c
+	CC65_HOME=/usr/local/share/cc65 cl65 -O -vm -m hello.map -t $(PLATFORM) hello.c
 
 sieve: sieve.c
 	CC65_HOME=/usr/local/share/cc65 cl65 -O -vm -m sieve.map -t $(PLATFORM) sieve.c
