@@ -46,8 +46,12 @@
 # provided elsewhere in this git repository. Load the .run file from
 # JMON using the "J" command.
 
-# Apple 1 and compatibles like the Briel Replica 1:
-# TBD
+# Briel Replica 1:
+#
+# Running "make replica1" will build for this platform using cc65. You need
+# a patched version of cc65 with support for the "replica1" target as
+# provided elsewhere in this git repository. Load the .mon file from
+# the WozMon monitor.
 
 all: default
 
@@ -68,9 +72,7 @@ osi:	adventure1.c
 
 replica1: adventure1.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t replica1 adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
-
-apple1: adventure1.c
-	CC65_HOME=/usr/local/share/cc65	cl65 -O -t apple1 adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
+	bintomon -1 -l 0x300 -r 0x300 adventure1 >adventure1.mon
 
 sbc: adventure1.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t sbc adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
