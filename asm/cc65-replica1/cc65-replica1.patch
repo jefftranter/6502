@@ -85,10 +85,10 @@ index 627897d9b..42e12f991 100644
            supervision  \
 diff --git a/libsrc/replica1/clrscr.s b/libsrc/replica1/clrscr.s
 new file mode 100644
-index 000000000..d53b7463d
+index 000000000..d05c6b06b
 --- /dev/null
 +++ b/libsrc/replica1/clrscr.s
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,12 @@
 +;
 +; void clrscr (void);
 +;
@@ -98,6 +98,8 @@ index 000000000..d53b7463d
 +        .include        "replica1.inc"
 +
 +_clrscr:
++        lda     #$0C            ; Form feed
++        jsr     ECHO            ; Send character
 +        rts
 diff --git a/libsrc/replica1/crt0.s b/libsrc/replica1/crt0.s
 new file mode 100644
