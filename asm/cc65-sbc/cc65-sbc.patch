@@ -88,7 +88,7 @@ index 627897d9b..4d7490332 100644
            supervision  \
 diff --git a/libsrc/sbc/clrscr.s b/libsrc/sbc/clrscr.s
 new file mode 100644
-index 000000000..4a440483f
+index 000000000..2afa95b84
 --- /dev/null
 +++ b/libsrc/sbc/clrscr.s
 @@ -0,0 +1,11 @@
@@ -101,8 +101,8 @@ index 000000000..4a440483f
 +        .include        "sbc.inc"
 +
 +_clrscr:
-+
-+        jmp    ClearScreen
++        lda     #$0C            ; Form feed
++        jmp     MONCOUT         ; Send character
 diff --git a/libsrc/sbc/crt0.s b/libsrc/sbc/crt0.s
 new file mode 100644
 index 000000000..8703675e2
