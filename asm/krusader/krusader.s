@@ -13,9 +13,11 @@
 ;		DSMBL = $7BCA($FACA)
 
 APPLE1  =1
-INROM	=1
+INROM	=0
 TABTOSPACE = 1
 UNK_ERR_CHECK = 0
+
+MONRDKEY = $FF4A        ; Console in routine
 
 MINIMONITOR = INROM & 1
 DOTRACE = MINIMONITOR & 1 
@@ -32,7 +34,7 @@ BRKAS2 = 1		; if 1, BRK will assemble to two $00 bytes
 	.if INROM	
 MONTOR	=ESCAPE
 	.ELSE
-MONTOR	=$FF1F
+MONTOR	=$DF00
 GETLINE	=MONTOR		; doesn't work in RAM version because needs adjusted monitor code
 	.endif
 
@@ -369,13 +371,8 @@ LIST:			; L 	- list all
 	BEQ @RET
 	JSR PRNTLN
 	JSR UPDTCL
-	LDA KBDRDY
-	.if APPLE1
-	BPL @NEXT
-	.else
-	BEQ @NEXT
-	.endif
-	LDA KBD
+        JSR MONRDKEY
+        BCC @NEXT
 @RET:	RTS
 	
 ; ****************************************
@@ -2102,15 +2099,9 @@ DSMBL:
 	STY PCH
 	;DEC COUNT	; Done first 19 instrs
 	;BNE @DSMBL2	; * Yes, loop.  Else DSMBL 20th
-	
-	LDA KBDRDY	; Now disassemble until key press
-	.if APPLE1
-	BPL @DSMBL2
-	.else
-	BEQ @DSMBL2
-	.endif
-	LDA KBD
 
+        JSR  MONRDKEY
+        BCC  @DSMBL2
 	
 INSTDSP:	JSR PRPC	; Print PCL,H
 	LDA (PCL,X)	; Get op code
@@ -2808,23 +2799,14 @@ OUTSP:
 	
 CRLF:			; Go to a new line.
 	LDA #CR		; "CR"
-	.if APPLE1
-	JMP OUTCH
-	.else
 	JSR OUTCH
 	LDA #LF		; "LF" - is this needed for the Apple 1?
 	JMP OUTCH
-	.endif
 
 GETCH:   		; Get a character from the keyboard.
-	LDA KBDRDY
-	.if APPLE1
-	BPL GETCH
-	LDA KBD
+	JSR MONRDKEY
+	BCC GETCH
 	AND #INMASK
-	.else
-	BEQ GETCH
-	.endif
 	RTS
 	
 ;-------------------------------------------------------------------------
@@ -2853,8 +2835,8 @@ IN              =     $0200           ;  Input buffer to $027F
 
 ;KBD             =     $D010           ;  PIA.A keyboard input
 ;KBDCR           =     $D011           ;  PIA.A keyboard control register
-DSP             =     $D012           ;  PIA.B display output register
-DSPCR           =     $D013           ;  PIA.B display control register
+;DSP             =     $D012           ;  PIA.B display output register
+;DSPCR           =     $D013           ;  PIA.B display control register
 
 MONPROMPT          =     '\'             ;  Prompt character
 
@@ -2862,12 +2844,6 @@ MONPROMPT          =     '\'             ;  Prompt character
                 
 RESET:          CLD                   ;  Clear decimal arithmetic mode
                 CLI
-                LDY     #$7F	      ;  Mask for DSP data direction reg
-                STY     DSP           ;   (DDR mode is assumed after reset)
-                LDA     #$A7          ;  KBD and DSP control register mask
-                STA     KBDRDY        ;  Enable interrupts, set CA1, CB1 for
-                STA     DSPCR         ;   positive edge sense/output mode.
-
 
 ESCAPE:         LDA     #MONPROMPT       ;  Print prompt character
                 JSR     OUTCH         ;  Output it.
@@ -2977,8 +2953,8 @@ MOD8CHK:        LDA     XAML          ;  If address MOD 8 = 0 start new line
 	
 	.if APPLE1
 ; Apple 1 I/O values
-KBD     =$D010		; Apple 1 Keyboard character read.
-KBDRDY  =$D011		; Apple 1 Keyboard data waiting when negative.
+;KBD     =$A001		; 6850 ACIA transmit/receive data register
+;KBDRDY  =$A000		; 6850 ACIA control/status register
 
         .res $FFDC-*
 OUTHEX:	PHA 		; Print 1 hex byte. 
@@ -3029,9 +3005,9 @@ OUTCH:	STA PUTCH
 	.ENDIF
 	.ELSE
 ; Apple 1 I/O values
-OUTCH	=$FFEF		; Apple 1 Echo
-PRHEX	=$FFE5		; Apple 1 Echo
-OUTHEX	=$FFDC		; Apple 1 Print Hex Byte Routine
-KBD     =$D010		; Apple 1 Keyboard character read.
-KBDRDY  =$D011		; Apple 1 Keyboard data waiting when negative.
+OUTCH	=$FF3B		; Apple 1 Echo
+PRHEX	=$EC98		; Apple 1 Echo
+OUTHEX	=$EC8F		; Apple 1 Print Hex Byte Routine
+;KBD     =$D010		; Apple 1 Keyboard character read.
+;KBDRDY  =$D011		; Apple 1 Keyboard data waiting when negative.
 	.endif	; inrom
