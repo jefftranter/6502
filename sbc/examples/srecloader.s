@@ -215,7 +215,7 @@ validType:
         sta     recordType      ; Save char as record type '0'..'9'
 
         jsr     getHexByte      ; Get byte count
-        bcs     invalidRecord 
+        bcs     invalidRecord
         cmp     #3              ; Invalid if byteCount  < 3
         bmi     invalidRecord
         sta     byteCount       ; Save as byte count
@@ -360,9 +360,9 @@ getHexByte:
         jsr     getHexChar      ; Get high nybble
         bcs     bad1            ; Branch if invalid
         asl                     ; Shift return value left to upper nybble
-        asl 
-        asl 
-        asl 
+        asl
+        asl
+        asl
         sta     temp1           ; Save value
         jsr     getHexChar      ; Get low nybble
         bcs     bad1            ; Branch if invalid
@@ -401,7 +401,7 @@ temp1:
 checksum:
         .res 1                  ; Calculated checksum
 bytesRead:
-        .res 1                  ; Number of record bytes read 
+        .res 1                  ; Number of record bytes read
 recordType:
         .res 1                  ; S record type field, e.g '9'
 byteCount:
@@ -414,4 +414,4 @@ endAddress:
 goAddress:
         .res 2                  ; Go address
 bytesWritten:
-        .res 1                  ; Number of record bytes written 
+        .res 1                  ; Number of record bytes written
