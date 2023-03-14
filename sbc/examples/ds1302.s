@@ -1,6 +1,11 @@
-; Example of programmming real-time clock using a real-time clock
+; Example of programming real-time clock using a real-time clock
 ; module based on the Dallas Semiconductor DS1302 timekeeping chip
 ; connected to the 6522 VIA.
+;
+; Optionally sets date and time.
+; Displays clock and RAM values continuously until a key is pressed, e.g.
+; 08:30:00 14/03/2023
+; RAM: AA 55 00 FF FE 5A 90 FF E3 0F 34 FA 7F EF FC 16 E6 FA 71 3F EF BE 72 DA FF DE 6F F7 EE CB 62
 ;
 ; Jeff Tranter <tranter@pobox.com>
 ;
@@ -15,13 +20,15 @@
 ; PB1  CLK
 ; PB2  DAT
 ;
-; You will also need a pullup resistor connected from PB1 to VCC;
-; suggested value 10Kohms.
+; You need to use a clock module that is 5V tolerant. You will also
+; need a pullup resistor connected from PB1 to VCC; suggested value
+; 10Kohms.
 ;
 ; Notes:
 ; 1. See the DS1302 datasheet for details.
-; 2. No support yet for RAM functions.
-; 3. No support yet for burst mode.
+; 2. No support for burst mode.
+; 3. Could potentially use 6522 shift register and handshaking pins, but
+;    this was done with bit-banging to keep it more portable and generic.
 
 ; Constants
 
@@ -35,103 +42,160 @@
         CLK     = $02           ; CLK bit in VIA
         DAT     = $04           ; DAT bit in VIA
 
+        CR      = $0D           ; Carriage Return
+        LF      = $0A           ; Line Feed
+
         PRBYTE  = $EC8F         ; Print A in hex
         MONCOUT = $FF3B         ; Output char in A
         MONRDKEY = $FF4A        ; Console in routine
 
 ; Code
 
-; Enable code below if you want to initially set the date.
+START:  ldx     #$FF            ; Set up stack
+        txs
 
-.if 1
+; Enable code below if you want to initially set the date and time (to
+; the values below).
 
-START:  lda     #$07            ; Select register 7 (control)
-        sta     REGNUM
+.if 0
+        ldx     #$07            ; Select register 7 (control)
         lda     #$00            ; Turn off write protect
-        sta     REGDATA
+        clc                     ; Select clock register
         jsr     WRITE           ; Call write routine
-        lda     #$06            ; Select register 6 (year)
-        sta     REGNUM
+
+        ldx     #$06            ; Select register 6 (year)
         lda     #$23            ; Year 2023
-        sta     REGDATA
+        clc                     ; Select clock register
         jsr     WRITE           ; Call write routine
-        lda     #$04            ; Select register 4 (month)
-        sta     REGNUM
+
+        ldx     #$04            ; Select register 4 (month)
         lda     #$03            ; Month 03
-        sta     REGDATA
-        jsr     WRITE           ; Call write routine
-        lda     #$03            ; Select register 3 (day)
-        sta     REGNUM
-        lda     #$13            ; Day 13
-        sta     REGDATA
+        clc                     ; Select clock register
         jsr     WRITE           ; Call write routine
 
-        lda     #$02            ; Select register 2 (hours)
-        sta     REGNUM
-        lda     #$22            ; Hour 22
-        sta     REGDATA
+        ldx     #$03            ; Select register 3 (day)
+        lda     #$14            ; Day 14
+        clc                     ; Select clock register
         jsr     WRITE           ; Call write routine
 
-        lda     #$01            ; Select register 1 (minutes)
-        sta     REGNUM
-        lda     #$30            ; Minutes 30
-        sta     REGDATA
+        ldx     #$02            ; Select register 2 (hours)
+        lda     #$17            ; Hour 17
+        clc                     ; Select clock register
         jsr     WRITE           ; Call write routine
 
-        lda     #$00            ; Select register 0 (seconds)
-        sta     REGNUM
+        ldx     #$01            ; Select register 1 (minutes)
+        lda     #$00            ; Minutes 0
+        clc                     ; Select clock register
+        jsr     WRITE           ; Call write routine
+
+        ldx     #$00            ; Select register 0 (seconds)
         lda     #$00            ; Seconds 0
-        sta     REGDATA
+        clc                     ; Select clock register
+        jsr     WRITE           ; Call write routine
+
+        ldx     #$00            ; Select RAM location 0
+        lda     #$AA            ; Data to write
+        sec                     ; Select RAM
+        jsr     WRITE           ; Call write routine
+
+        ldx     #$01            ; Select RAM location 1
+        lda     #$55            ; Data to write
+        sec                     ; Select RAM
+        jsr     WRITE           ; Call write routine
+
+        ldx     #$02            ; Select RAM location 2
+        lda     #$00            ; Data to write
+        sec                     ; Select RAM
+        jsr     WRITE           ; Call write routine
+
+        ldx     #$03            ; Select RAM location 3
+        lda     #$FF            ; Data to write
+        sec                     ; Select RAM
         jsr     WRITE           ; Call write routine
 
 .endif
 
-DISP:   lda     #$02            ; Select register 2 (hours)
-        sta     REGNUM
+DISP:   ldx     #$02            ; Select register 2 (hours)
+        clc                     ; Select clock register
         jsr     READ            ; Call read routine
-        lda     REGDATA         ; Get data read
         and     #$3F            ; Mask out hours
         jsr     PRBYTE          ; Print it
         lda     #':'
         jsr     MONCOUT
-        lda     #$01            ; Select register 1 (minutes)
-        sta     REGNUM
+        ldx     #$01            ; Select register 1 (minutes)
+        clc                     ; Select clock register
         jsr     READ            ; Call read routine
-        lda     REGDATA         ; Get data read
         jsr     PRBYTE          ; Print it
         lda     #':'
         jsr     MONCOUT
-        lda     #$00            ; Select register 1 (seconds)
-        sta     REGNUM
+        ldx     #$00            ; Select register 1 (seconds)
+        clc                     ; Select clock register
         jsr     READ            ; Call read routine
-        lda     REGDATA         ; Get data read
         jsr     PRBYTE          ; Print it
         lda     #' '
         jsr     MONCOUT
-        lda     #$03            ; Select register 3 (date)
-        sta     REGNUM
+        ldx     #$03            ; Select register 3 (date)
+        clc                     ; Select clock register
         jsr     READ            ; Call read routine
-        lda     REGDATA         ; Get data read
         jsr     PRBYTE          ; Print it
         lda     #'/'
         jsr     MONCOUT
-        lda     #$04            ; Select register 4 (month)
-        sta     REGNUM
+        ldx     #$04            ; Select register 4 (month)
+        clc                     ; Select clock register
         jsr     READ            ; Call read routine
-        lda     REGDATA         ; Get data read
         jsr     PRBYTE          ; Print it
         lda     #'/'
         jsr     MONCOUT
-        lda     #$06            ; Select register 6 (year)
-        sta     REGNUM
+        lda     #'2'            ; Print first two fixed digits of year
+        jsr     MONCOUT
+        lda     #'0'
+        jsr     MONCOUT
+        ldx     #$06            ; Select register 6 (year)
+        clc                     ; Select clock register
         jsr     READ            ; Call read routine
-        lda     REGDATA         ; Get data read
         jsr     PRBYTE          ; Print it
-        lda     #$0D            ; Print CR
+        lda     #CR             ; Print CR
         jsr     MONCOUT
-        lda     #$0A            ; Print LF
+        lda     #LF             ; Print LF
         jsr     MONCOUT
-        ldy     #$00            ; Delay between reads
+
+        lda     #'R'            ; Print "RAM:"
+        jsr     MONCOUT
+        lda     #'A'
+        jsr     MONCOUT
+        lda     #'M'
+        jsr     MONCOUT
+        lda     #':'
+        jsr     MONCOUT
+
+        ldx     #0              ; Initial register number
+rlp:    lda     #' '
+        jsr     MONCOUT
+        txa                     ; Save X
+        pha
+        jsr     READ            ; Call read routine
+        jsr     PRBYTE          ; Print it
+        pla                     ; Restore X
+        tax
+        inx                     ; Increment register number
+        cpx     #31             ; Last register? (Note 31, not 32 RAM locations)
+        bne     rlp
+
+        lda     #CR             ; Print CR
+        jsr     MONCOUT
+        lda     #LF             ; Print LF
+        jsr     MONCOUT
+
+        jsr     DELAY           ; Delay between updates
+        jsr     MONRDKEY        ; Key pressed?
+        bcs     retn            ; If so, branch
+        jmp     DISP            ; Otherwise keep looping
+retn:   brk                     ; Return to monitor
+
+
+; DELAY: Fixed delay of approx. 1 sec (2 MHz clock).
+
+DELAY:  ldy     #$00
 outer:  ldx     #$00
 inner:  nop
         nop
@@ -148,15 +212,20 @@ inner:  nop
         bne     inner
         dey
         bne     outer
-        jsr     MONRDKEY        ; Key pressed?
-        bcs     retn            ; If so, branch
-        jmp     DISP            ; Otherwise keep looping
-retn:   brk                     ; Return to monitor
+        rts
 
-; Read data in register REGNUM and return in REGDAT. Changes value of
-; REGNUM.
 
-READ:   lda     #RST|CLK|DAT    ; Set RST, CLK, and DAT as outputs, others as inputs
+; READ: Read data in clock register. Pass register number in X. Set
+; carry bit to read RAM, clear to read clock register. Returns
+; register data in A.
+
+READ:   stx     REGNUM          ; Save values passed to routine
+        bcs     ram1
+        lda     #$00
+        beq     nxt1            ; Branch always
+ram1:   lda     #DAT
+nxt1:   sta     RAMCLK
+        lda     #RST|CLK|DAT    ; Set RST, CLK, and DAT as outputs, others as inputs
         sta     DDRB            ; Write to DDRB
         lda     #$00            ; Set CLK and RST low
         sta     ORB
@@ -175,22 +244,19 @@ nxt:    and     #<~DAT          ; Clear data bit
         lsr     REGNUM          ; Shift bit into carry
         bcc     s0              ; Branch to send 0, fall through to send 1
         ora     #DAT            ; Set data bit to 1
-s0:     ora     #RST            ; Always want RST high
-        ora     #CLK            ; Toggle CLK high and then low
+s0:     ora     #RST|CLK        ; Always want RST high. Toggle CLK high and then low.
         sta     ORB
         eor     #CLK
         sta     ORB
         dex                     ; Decrement bit count
         bne     nxt             ; Continue sending bits if not done
-        lda     #$00            ; Set DAT line to 1 for RAM or 0 for clock register
-        ora     #RST
-        ora     #CLK            ; Toggle CLK high and then low
+        lda     RAMCLK          ; Set DAT bit for RAM or clock mode
+        ora     #RST|CLK        ; Toggle CLK high and then low
         sta     ORB
         eor     #CLK
         sta     ORB
         lda     #DAT            ; Set DAT line to 1
-        ora     #RST
-        ora     #CLK            ; Toggle CLK high and then low
+        ora     #RST|CLK        ; Toggle CLK high and then low
         sta     ORB
         eor     #CLK
         sta     ORB
@@ -216,18 +282,28 @@ r0:     lda     #RST            ; Toggle CLK low
         sta     ORB
         lda     #CLK            ; Set RST low
         sta     ORB
+        lda     REGDATA         ; Return value
         rts                     ; Done
 
-; Write data stored in REGDAT to register REGNUM. Changes value of
-; REGNUM.
 
-WRITE:  lda     #RST|CLK|DAT    ; Set RST, CLK, and DAT as outputs, others as inputs
+; WRITE: Write data to clock register. Pass register number in X and
+; register data in A. Set carry bit to write RAM, clear to write clock
+; register.
+
+WRITE:  stx     REGNUM          ; Save values passed to routine
+        sta     REGDATA
+        bcs     ram2
+        lda     #$00
+        beq     nxt2            ; Branch always
+ram2:   lda     #DAT
+nxt2:   sta     RAMCLK
+        lda     #RST|CLK|DAT    ; Set RST, CLK, and DAT as outputs, others as inputs
         sta     DDRB            ; Write to DDRB
         lda     #$00            ; Set CLK and RST low
         sta     ORB
         nop                     ; Short delay
-        lda     #RST            ; Set RST high
-        sta     ORB             ; Note that DAT line is set to 0 (write)
+        lda     #RST            ; Set RST high, DAT line low (write)
+        sta     ORB
         nop                     ; Short delay
         ora     #CLK            ; Toggle CLK high and then low
         sta     ORB
@@ -238,28 +314,26 @@ wnxt:   and     #<~DAT          ; Clear data bit
         lsr     REGNUM          ; Shift bit into carry
         bcc     ws0             ; Branch to send 0, fall through to send 1
         ora     #DAT            ; Set data bit to 1
-ws0:    ora     #RST            ; Always want RST high
-        ora     #CLK            ; Toggle CLK high and then low
+ws0:    ora     #RST|CLK        ; Always want RST high. Toggle CLK high and then low.
         sta     ORB
         eor     #CLK
         sta     ORB
         dex                     ; Decrement bit count
         bne     wnxt            ; Continue sending bits if not done
-        lda     #$00            ; Set DAT line to 1 for RAM or 0 for clock register
-        ora     #RST
-        ora     #CLK            ; Toggle CLK high and then low
+        lda     RAMCLK          ; Set DAT bit for RAM or clock mode
+        ora     #RST|CLK        ; Toggle CLK high and then low
         sta     ORB
         eor     #CLK
         sta     ORB
         lda     #DAT            ; Set DAT line to 1
-        ora     #RST
-        ora     #CLK            ; Toggle CLK high and then low
+        ora     #RST|CLK        ; Toggle CLK high and then low
         sta     ORB
         eor     #CLK
         sta     ORB
         ldx     #8              ; Number of bits to write
-        lda     #RST|CLK        ; Toggle CLK high
-wrl:    lsr     REGDATA         ; Shift bit into carry
+wrl:    lda     #RST|CLK        ; Toggle CLK high
+        and     #<~DAT          ; Clear data bit
+        lsr     REGDATA         ; Shift bit into carry
         bcc     w0
         ora     #DAT            ; Set data bit
 w0:     sta     ORB
@@ -279,3 +353,5 @@ REGNUM:
         .res    1               ; Register to read/write
 REGDATA:
         .res    1               ; Register data to read/write
+RAMCLK:
+        .res    1               ; Set to 1 to read/write RAM, 0 for clock registers
