@@ -4,7 +4,7 @@
 ;
 ; Optionally sets date and time.
 ; Displays clock and RAM values continuously until a key is pressed, e.g.
-; 08:30:00 14/03/2023
+; Clock: 08:30:00 14/03/2023
 ; RAM: AA 55 00 FF FE 5A 90 FF E3 0F 34 FA 7F EF FC 16 E6 FA 71 3F EF BE 72 DA FF DE 6F F7 EE CB 62
 ;
 ; Jeff Tranter <tranter@pobox.com>
@@ -48,10 +48,12 @@
         PRBYTE  = $EC8F         ; Print A in hex
         MONCOUT = $FF3B         ; Output char in A
         MONRDKEY = $FF4A        ; Console in routine
+        IMPRINT  = $EC5E        ; Embedded string printer
 
 ; Code
 
-START:  ldx     #$FF            ; Set up stack
+START:  cld
+        ldx     #$FF            ; Set up stack
         txs
 
 ; Enable code below if you want to initially set the date and time (to
@@ -115,7 +117,9 @@ START:  ldx     #$FF            ; Set up stack
 
 .endif
 
-DISP:   ldx     #$02            ; Select register 2 (hours)
+DISP:   jsr     IMPRINT
+        .byte   "Clock: ", 0
+        ldx     #$02            ; Select register 2 (hours)
         clc                     ; Select clock register
         jsr     READ            ; Call read routine
         and     #$3F            ; Mask out hours
@@ -159,15 +163,8 @@ DISP:   ldx     #$02            ; Select register 2 (hours)
         lda     #LF             ; Print LF
         jsr     MONCOUT
 
-        lda     #'R'            ; Print "RAM:"
-        jsr     MONCOUT
-        lda     #'A'
-        jsr     MONCOUT
-        lda     #'M'
-        jsr     MONCOUT
-        lda     #':'
-        jsr     MONCOUT
-
+        jsr     IMPRINT
+        .byte   "RAM:", 0
         ldx     #0              ; Initial register number
 rlp:    lda     #' '
         jsr     MONCOUT
