@@ -52,7 +52,7 @@
 
 ; Code
 
-START:  cld
+START:  cld                     ; Ensure in binary mode
         ldx     #$FF            ; Set up stack
         txs
 

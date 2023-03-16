@@ -1,10 +1,10 @@
 all: bas jm run
 
-bas: button.bas hello.bas lcd.bas led.bas rtc.bas ds1302.bas
+bas: button.bas hello.bas lcd.bas led.bas rtc.bas ds1302.bas dht.bas
 
-jm: button.jm hello.jm lcd.jm led.jm rtc.jm ds1302.jm
+jm: button.jm hello.jm lcd.jm led.jm rtc.jm ds1302.jm dht.jm
 
-run: button.run hello.run lcd.run led.run rtc.run ds1302.run
+run: button.run hello.run lcd.run led.run rtc.run ds1302.run dht.run
 
 hello.run: hello.bin
 	srec_cat hello.bin -binary -offset 0x2000 -o hello.run -Execution_Start_Address 0x2000
@@ -110,6 +110,21 @@ ds1302.bin: ds1302.o
 
 ds1302.o: ds1302.s
 	ca65 -g -l ds1302.lst ds1302.s
+
+dht.run: dht.bin
+	srec_cat dht.bin -binary -offset 0x1000 -o dht.run -Execution_Start_Address 0x1000
+
+dht.jm: dht.bin
+	../../asm/jmon/loader2.py -l 4096 dht.bin >dht.jm
+
+dht.bas: dht.bin
+	../../asm/jmon/loader.py -l 4096 dht.bin >dht.bas
+
+dht.bin: dht.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m dht.map -o dht.bin dht.o
+
+dht.o: dht.s
+	ca65 -g -l dht.lst dht.s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.bas *.jm *.run
