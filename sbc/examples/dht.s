@@ -26,6 +26,9 @@
 ; External routines
         WAIT    = $FEA8         ; ROM delay routine
         IMPRINT = $EC5E         ; Embedded string printer
+        PRHEX   = $EC98         ; Print one hex digit
+        MONCOUT = $FF3B         ; Print a character
+        MONRDKEY = $FF4A        ; Console in routine
 
         .org    $1000           ; Start address
 
@@ -39,7 +42,7 @@ START:  cld                     ; Ensure in binary mode
         txs
 
         jsr     IMPRINT
-        .byte   CR,"Starting...", CR,0
+        .byte   CR,"Starting (press a key to stop)", CR,0
 
 loop:   lda     #%11111111      ; Set data line initially high
         sta     PORTA
@@ -186,55 +189,105 @@ one:    sta    bits,x           ; Store it
 ; e.g. 0011 0010 0000 0000 0001 0100 0000 0100 0100 1010
 ; becomes: 32 00 14 04 4A
 
+        ldy    #0               ; Initialize index into bytes
+        ldx    #0               ; Initialize index to start
+byt:    lda    #0               ; Initialize data byte
+lp:     ora    bits,x           ; Add data bit
+        inx                     ; Update counter
+        cpx    #8               ; Eight bits done?
+        beq    byte             ; Branch if so
+        cpx    #16              ; Same for other full bytes TODO: Write cleaner/smaller code to do this
+        beq    byte             ; Branch if so
+        cpx    #24
+        beq    byte
+        cpx    #32
+        beq    byte
+        cpx    #40
+        beq    byte             ; Branch if so
+        asl                     ; Shift left
+        clc
+        bcc    lp               ; And repeat
+byte:   sta    bytes,y          ; Save a byte of data
+        iny
+        cpy    #5               ; Five bytes done?
+        bne    byt              ; Branch of not
+
 ; Now do checksum check on the data: sum of first 4 bytes (modulo 256) should equal 5th byte.
 ; Otherwise report error.
+; e.g. 2F 00 15 00 44
+
+        clc
+        lda    bytes
+        adc    byte+1
+        adc    byte+2
+        adc    byte+3
+        cmp    bytes+3
+        bne    gudcs
+        jsr    IMPRINT
+        .byte  "Error: checksum mismatch.", CR,0
+        brk
+gudcs:
 
 ; Now calculate and display humidity
+; e.g. 2F 00 14 08 4B
+; 2F = 47, 00 = 0, 47.0%
+; TODO: DH22 calculation is different
+
+        jsr    IMPRINT
+        .byte  "Humidity:    ",0
+        lda    bytes        ; Get integer part of humidity
+        sta    BIN          ; Convert to decimal
+        jsr    BINBCD8
+        jsr    PRINTDEC     ; Print it
+        lda    #'.'         ; Print decimal point
+        jsr    MONCOUT
+        lda    bytes+1      ; Get decimal part of humidity
+        sta    BIN          ; Convert to decimal
+        jsr    BINBCD8
+        jsr    PRINTDEC     ; Print it
 
 ; Now calculate and display temperature
+; e.g. 2F 00 14 08 4B
+; 14 = 20, 08 = 8, 20.8C
+; TODO: DH22 calculation is different
+; TODO: Handle negative temperatures (most significant bit is 1)
+
+        jsr    IMPRINT
+        .byte  "%",CR,"Temperature: ",0
+        lda    bytes+2      ; Get integer part of temperature
+        sta    BIN          ; Convert to decimal
+        jsr    BINBCD8
+        jsr    PRINTDEC     ; Print it
+        lda    #'.'         ; Print decimal point
+        jsr    MONCOUT
+        lda    bytes+3      ; Get decimal part of humidity
+        sta    BIN          ; Convert to decimal
+        jsr    BINBCD8
+        jsr    PRINTDEC     ; Print it
 
         jsr     IMPRINT
-        .byte   "Done.", CR,0
+        .byte   "C",CR,0
 
-        brk
 
 ; Don't read again for at least 2 seconds.
 
-        jsr     DELAY           ; Delay 2 seconds
-        jsr     DELAY
+        jsr     DELAY           ; Delay 4 seconds
 
+; Stop if key pressed
+
+        jsr     MONRDKEY        ; Key pressed?
+        bcs     retn            ; If so, branch
         jmp     loop            ; Repeat
+retn:   brk                     ; Return to monitor
 
-; DELAY: Fixed delay of approx. 1 sec (2 MHz clock).
-; Registers changed: none
+; DELAY: Fixed delay of approx. 3 sec (2 MHz clock).
+; Registers changed: A, X
 
-DELAY:  pha                     ; Save registers
-        txa
-        pha
-        tya
-        pha
-        ldy     #$00
-outer:  ldx     #$00
-inner:  nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
+DELAY:  ldx     #50             ; Approx 4 seconds
+del:    lda     #$FF
+        jsr     WAIT
         dex
-        bne     inner
-        dey
-        bne     outer
-        pla                     ; Restore registers
-        tay
-        pla
-        tax
-        pla
+        bne     del
         rts
 
 
@@ -266,6 +319,55 @@ poll2:  bit     PORTA           ; Read data port
 ex2:    txa                     ; Put result in A
         rts
 
+; Print 2 byte BCD number (at address BCD) with leading zeroes suppressed.
+PRINTDEC:
+        lda     BCD+1           ; Get first digit
+        cmp     #$00            ; Leading zero?
+        beq     skip            ; If so, skip
+        jsr     PRHEX           ; Print it
+skip:   lda     BCD             ; Get second digit
+        lsr
+        lsr
+        lsr
+        lsr
+        cmp     #$00            ; Is it a zero?
+        bne     prn             ; If not, print it
+        tax                     ; Save it
+        lda     BCD+1           ; Was first digit also zero?
+        beq     skip2           ; If so, skip this as well
+        txa                     ; Otherwise print it
+prn:    jsr     PRHEX           ; Print it
+skip2:  lda     BCD             ; Get third digit
+        and     #$0F
+        jsr     PRHEX           ; Print it
+        rts                     ; Return
+
+; From: http://6502.org/source/integers/hex2dec-more.htm
+; Convert an 8 bit binary value to BCD
+; This function converts an 8 bit binary value into a 16 bit BCD. It
+; works by transferring one bit a time from the source and adding it
+; into a BCD value that is being doubled on each iteration. As all the
+; arithmetic is being done in BCD the result is a binary to decimal
+; conversion.  All conversions take 311 clock cycles.
+
+BINBCD8:
+        sed                     ; Switch to decimal mode
+        lda     #0              ; Ensure the result is clear
+        sta     BCD+0
+        sta     BCD+1
+        ldx     #8              ; The number of source bits
+CNVBIT: asl     BIN             ; Shift out one bit
+        lda     BCD+0           ; And add into result
+        adc     BCD+0
+        sta     BCD+0
+        lda     BCD+1           ; propagating any carry
+        adc     BCD+1
+        sta     BCD+1
+        dex                     ; And repeat for next bit
+        bne     CNVBIT
+        cld
+        rts                     ; All Done.
+
 ; Data
 
 start1: .res    1               ; Count of first start pulse low
@@ -273,4 +375,6 @@ start2: .res    1               ; Count of first start pulse high
 count:  .res    3*356           ; Data for pulse length counts
 bits:   .res    40              ; Data bit samples
 bytes:  .res    5               ; Sensor data bytes
+BIN:    .res    1               ; Used by BINBCD8 routine
+BCD:    .res    2               ; "
         .end
