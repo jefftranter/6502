@@ -29,7 +29,7 @@
 
         .org    $1000           ; Start address
 
-; Page zero lcoations used
+; Page zero locations used
         PTR     = $20           ; Address for indirect addressing
 
 ; Code
@@ -129,32 +129,35 @@ okay1:
 ; e.g. for above
 ; 4 3 10 10 3 ...
 
-; X will be index into data bits
-; Y will be index into samples
-
+        lda     #<count         ; PTR will hold indirect address of samples
+        sta     PTR
         ldy     #0
-        ldx     #0
+        lda     #>count
+        sta     PTR+1
+        ldx     #0              ; X will be index into data bits
 
 ; Find first FF
 
-findff: lda    count,y
-        cmp    #$FF
-        beq    foundff
-        iny
-        bne    findff
-
-; TODO: Use indirect addressing above to handle > 256 samples
+findff: lda    (PTR),y          ; Get sample
+        cmp    #$FF             ; Is if FF?
+        beq    foundff          ; If so, branch
+        inc    PTR              ; Otherwise advance pointer address
+        bne    nov1
+        inc    PTR+1
+nov1:   bne    findff           ; And continue
 
 ; Count number of FF samples
 foundff:
         lda    #0               ; Initially zero count
         sta    bits,x
-cntff:  lda    count,y          ; Get sample
+cntff:  lda    (PTR),y          ; Get sample
         cmp    #$FF             ; Is is still FF?
         bne    endff            ; Branch if not
         inc    bits,x           ; Increment count
-        iny                     ; Advance pointer to samples
-        bne    cntff            ; Repeat
+        inc    PTR              ; Otherwise advance pointer address
+        bne    nov2
+        inc    PTR+1
+nov2:   bne    cntff            ; Repeat
 
 ; Continue for 40 data bits
 
@@ -166,6 +169,18 @@ endff:  inx                     ; Advance to next data bit
 ; Will call <= 7 a 0, > 7 a 1
 ; e.g. for above
 ; 0 0 1 1 0 ...
+
+        ldx    #0               ; Initialize index to start
+decid:  lda    bits,x           ; Get count
+        cmp    #7               ; Compare to 7
+        bcc    zero             ; Branch if <= 7
+        lda    #1               ; Make it a one
+        bne    one              ; Branch always
+zero:   lda    #0               ; Make it a zero
+one:    sta    bits,x           ; Store it
+        inx                     ; Advance to next count
+        cpx    #40              ; Done 40 bits?
+        bne    decid            ; Repeat if not
 
 ; Now convert the 40 bits into 5 bytes of data
 ; e.g. 0011 0010 0000 0000 0001 0100 0000 0100 0100 1010
@@ -257,4 +272,5 @@ start1: .res    1               ; Count of first start pulse low
 start2: .res    1               ; Count of first start pulse high
 count:  .res    3*356           ; Data for pulse length counts
 bits:   .res    40              ; Data bit samples
+bytes:  .res    5               ; Sensor data bytes
         .end
