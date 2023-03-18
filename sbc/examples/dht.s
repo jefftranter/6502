@@ -29,11 +29,17 @@
 
         .org    $1000           ; Start address
 
+; Page zero lcoations used
+        PTR     = $20           ; Address for indirect addressing
+
 ; Code
 
 START:  cld                     ; Ensure in binary mode
         ldx     #$FF            ; Set up stack
         txs
+
+        jsr     IMPRINT
+        .byte   CR,"Starting...", CR,0
 
 loop:   lda     #%11111111      ; Set data line initially high
         sta     PORTA
@@ -61,9 +67,9 @@ loop:   lda     #%11111111      ; Set data line initially high
 ; signal for ~80 microseconds again.
 
         jsr     ExpectLow
-        sta     count
+        sta     start1
         jsr     ExpectHigh
-        sta     count+1
+        sta     start2
 
 ; Now sample and store the levels of the data pulses.
 ; They are very short so we can only record them in a tight loop and analyze them later.
@@ -74,19 +80,19 @@ loop:   lda     #%11111111      ; Set data line initially high
 
         ldy     #0
 fst1:   lda     PORTA           ; (4)
-        sta     count+2,y       ; (5)
+        sta     count,y         ; (5)
         iny                     ; (2)
         bne     fst1            ; (3)
 
         ldy     #0
 fst2:   lda     PORTA
-        sta     count+$100+2,y
+        sta     count+$100,y
         iny
         bne     fst2
 
         ldy     #0
 fst3:   lda     PORTA
-        sta     count+$200+2,y
+        sta     count+$200,y
         iny
         bne     fst3
 
@@ -97,13 +103,14 @@ fst3:   lda     PORTA
 ; for the start signal and the rest of the data is invalid (most
 ; likely means there is no sensor connected).
 
-        lda     count
+        lda     start1
         beq     timerr
-        lda     count+1
+        lda     start2
         beq     timerr
         bne     okay1
 timerr: jsr     IMPRINT
-        .byte   "Timeout waiting for start signal", CR, LF, 0
+        .byte   "Error: Timeout waiting for start signal",CR,0
+        brk
 okay1:
 
 ; Now analyze data bit samples.
@@ -122,6 +129,39 @@ okay1:
 ; e.g. for above
 ; 4 3 10 10 3 ...
 
+; X will be index into data bits
+; Y will be index into samples
+
+        ldy     #0
+        ldx     #0
+
+; Find first FF
+
+findff: lda    count,y
+        cmp    #$FF
+        beq    foundff
+        iny
+        bne    findff
+
+; TODO: Use indirect addressing above to handle > 256 samples
+
+; Count number of FF samples
+foundff:
+        lda    #0               ; Initially zero count
+        sta    bits,x
+cntff:  lda    count,y          ; Get sample
+        cmp    #$FF             ; Is is still FF?
+        bne    endff            ; Branch if not
+        inc    bits,x           ; Increment count
+        iny                     ; Advance pointer to samples
+        bne    cntff            ; Repeat
+
+; Continue for 40 data bits
+
+endff:  inx                     ; Advance to next data bit
+        cpx    #40              ; Done 40 bits?
+        bne    findff           ; If not, repeat
+
 ; Now go through list and decide if each is a 0 or 1 bit
 ; Will call <= 7 a 0, > 7 a 1
 ; e.g. for above
@@ -137,6 +177,9 @@ okay1:
 ; Now calculate and display humidity
 
 ; Now calculate and display temperature
+
+        jsr     IMPRINT
+        .byte   "Done.", CR,0
 
         brk
 
@@ -208,8 +251,10 @@ poll2:  bit     PORTA           ; Read data port
 ex2:    txa                     ; Put result in A
         rts
 
-; Data for pulse length counts
+; Data
 
-count:  .res    770             ; 3 * 256 + 2
-
+start1: .res    1               ; Count of first start pulse low
+start2: .res    1               ; Count of first start pulse high
+count:  .res    3*356           ; Data for pulse length counts
+bits:   .res    40              ; Data bit samples
         .end
