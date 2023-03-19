@@ -1,4 +1,4 @@
-; DHT11/DHT21/DHT22 temperature/humidity sensor demo.
+; DHT11/DHT12/DHT21/DHT22 temperature/humidity sensor demo.
 ;
 ; Connect sensor module data line to VIA PA0 (with pullup resistor if
 ; not present on module).
@@ -6,27 +6,25 @@
 ;
 ; Sample output:
 ;
-; Starting (press a key to stop)
-; Humidity: 47.0%  Temperature: 20.4C
+; DHT22 Sensor demo (press a key to stop)
+; Humidity: 31.9%  Temperature: 20.3C
 ;
 ; Some of the logic came from the Arduino implementation here:
 ;  https://github.com/adafruit/DHT-sensor-library/blob/master/DHT.cpp
 ;
 ; TODO:
-; - Add support for DHT22.
-; - Refactor some repetitive code.
+; - Handle negative temperatures.
 ; - See if I can get it work at 1 MHz clock speed.
 ;
 ; Jeff Tranter <tranter@pobox.com>
 
 ; Define one of the symbols below for the sensor type used
         DHT11   = 1
+;       DHT12   = 1
+;       DHT21   = 1
 ;       DHT22   = 1
 
-.if .defined(DHT11) .and .defined(DHT22)
-.error "Only define one sensor type"
-.endif
-.if (.not .defined(DHT11)) .and (.not .defined(DHT22))
+.if (.not .defined(DHT11)) .and (.not .defined(DHT12)) .and (.not .defined(DHT21)) .and (.not .defined(DHT22))
 .error "Must define sensor type"
 .endif
 
@@ -57,7 +55,16 @@ START:  cld                     ; Ensure in binary mode
         txs
 
         jsr     IMPRINT
-        .byte   CR,"Starting (press a key to stop)", CR,0
+.if .defined(DHT11)
+        .byte   CR,"DHT11 Sensor demo (press a key to stop)", CR,0
+.elseif .defined(DHT12)
+        .byte   CR,"DHT12 Sensor demo (press a key to stop)", CR,0
+.elseif .defined(DHT21)
+        .byte   CR,"DHT21 Sensor demo (press a key to stop)", CR,0
+.elseif .defined(DHT22)
+        .byte   CR,"DHT22 Sensor demo (press a key to stop)", CR,0
+.endif
+
 
 loop:   lda     #%11111111      ; Set data line initially high
         sta     PORTA
@@ -68,8 +75,12 @@ loop:   lda     #%11111111      ; Set data line initially high
         lda     #%11111110      ; Set data line low
         sta     PORTA
 
-;       lda     #$1B            ; Delay 1.1 ms (DHT21/DHT22)
-        lda     #$7C            ; Delay 20 ms (DHT11)
+.if .defined(DHT11) .or .defined(DHT12)
+        lda     #$7C            ; Delay 20 ms
+.elseif .defined(DHT21) .or .defined(DHT22)
+        lda     #$1B            ; Delay 1.1 ms
+.endif
+
         jsr     WAIT
 
         lda     #%11111111      ; Set data line high
@@ -116,8 +127,8 @@ fst3:   lda     PORTA
 
 ; Now analyze the samples.
 
-; First two samples should be for for start signal consisting of a low
-; of 80 us and high for 80 msec. If either zero, it timed out waiting
+; First two samples should be the start signal consisting of a low of
+; 80 us and high for 80 msec. If either is zero, it timed out waiting
 ; for the start signal and the rest of the data is invalid (most
 ; likely means there is no sensor connected).
 
@@ -241,45 +252,62 @@ gudcs:
 
 ; Now calculate and display humidity
 ; e.g. 2F 00 14 08 4B
-; 2F = 47, 00 = 0, 47.0%
-; TODO: DH22 calculation is different
+; DHT11/DHT12: $2F = 47, $00 = 0 -> 47.0%
+; DHT21/DHT22: $01D6 = 470 -> 47.0%
 
         jsr    IMPRINT
         .byte  "Humidity: ",0
+.if .defined(DHT11) .or .defined(DHT12)
         lda    bytes        ; Get integer part of humidity
         sta    BIN          ; Convert to decimal
         jsr    BINBCD8
-        jsr    PRINTDEC     ; Print it
+        jsr    PRINTDEC2    ; Print it
         lda    #'.'         ; Print decimal point
         jsr    MONCOUT
         lda    bytes+1      ; Get decimal part of humidity
         sta    BIN          ; Convert to decimal
         jsr    BINBCD8
-        jsr    PRINTDEC     ; Print it
+        jsr    PRINTDEC2    ; Print it
+.elseif .defined(DHT21) .or .defined(DHT22)
+        lda    bytes        ; Get 16-bit binary temperature
+        sta    BIN+1
+        lda    bytes+1
+        sta    BIN
+        jsr    BINBCD16     ; Convert to decimal
+        jsr    PRINTDEC3    ; Print it
+.endif
 
 ; Now calculate and display temperature
 ; e.g. 2F 00 14 08 4B
-; 14 = 20, 08 = 8, 20.8C
-; TODO: DH22 calculation is different
+; DHT11/DHT12: $14 = 20, $08 = 8-> 20.8C
+; DHT21/DHT22: $00D0 -> 208 -> 20.8c
 ; TODO: Handle negative temperatures (most significant bit is 1)
 
         jsr    IMPRINT
         .byte  "%  Temperature: ",0
+.if .defined(DHT11) .or .defined(DHT12)
         lda    bytes+2      ; Get integer part of temperature
-        sta    BIN          ; Convert to decimal
-        jsr    BINBCD8
-        jsr    PRINTDEC     ; Print it
+        sta    BIN
+        jsr    BINBCD8      ; Convert to decimal
+        jsr    PRINTDEC2    ; Print it
         lda    #'.'         ; Print decimal point
         jsr    MONCOUT
         lda    bytes+3      ; Get decimal part of humidity
         sta    BIN          ; Convert to decimal
         jsr    BINBCD8
-        jsr    PRINTDEC     ; Print it
-
+        jsr    PRINTDEC2    ; Print it
+.elseif .defined(DHT21) .or .defined(DHT22)
+        lda    bytes+2      ; Get 16-bit binary temperature
+        sta    BIN+1
+        lda    bytes+3
+        sta    BIN
+        jsr    BINBCD16     ; Convert to decimal
+        jsr    PRINTDEC3    ; Print it
+.endif
         jsr     IMPRINT
         .byte   "C",CR,0
 
-; Don't read again for at least 1 second (DHT11) or 2 seconds (DHT22).
+; Don't read again for at least 1 second (DHT11/DHT12) or 2 seconds (DHT21/DHT22).
 
         jsr     DELAY           ; Delay 4 seconds
 
@@ -299,7 +327,6 @@ del:    lda     #$FF
         dex
         bne     del
         rts
-
 
 ; ExpectHigh: Return (in A) count of loop cycles spent at high level
 ; or 0 if it times out waiting for level to change.
@@ -330,7 +357,7 @@ ex2:    txa                     ; Put result in A
         rts
 
 ; Print 2 byte BCD number (at address BCD) with leading zeroes suppressed.
-PRINTDEC:
+PRINTDEC2:
         lda     BCD+1           ; Get first digit
         cmp     #$00            ; Leading zero?
         beq     skip            ; If so, skip
@@ -352,6 +379,27 @@ skip2:  lda     BCD             ; Get third digit
         jsr     PRHEX           ; Print it
         rts                     ; Return
 
+; Print 3 byte BCD number (at address BCD) with leading zeroes suppressed.
+; Assumes  third byte is zero and can be ignored.
+; Value needs to be scaled down by 10 and decimal point printed.
+PRINTDEC3:
+        lda     BCD+1           ; Get first digit
+        cmp     #$00            ; Leading zero?
+        beq     skip3           ; If so, skip
+        jsr     PRHEX           ; Print it
+skip3:  lda     BCD             ; Get second digit
+        lsr
+        lsr
+        lsr
+        lsr
+        jsr     PRHEX           ; Print it
+        lda     #'.'            ; Print decimal point
+        jsr    MONCOUT
+        lda     BCD             ; Get third digit
+        and     #$0F
+        jsr     PRHEX           ; Print it
+        rts                     ; Return
+
 ; From: http://6502.org/source/integers/hex2dec-more.htm
 ; Convert an 8 bit binary value to BCD
 ; This function converts an 8 bit binary value into a 16 bit BCD. It
@@ -366,7 +414,8 @@ BINBCD8:
         sta     BCD+0
         sta     BCD+1
         ldx     #8              ; The number of source bits
-CNVBIT: asl     BIN             ; Shift out one bit
+CNVBIT1:
+        asl     BIN             ; Shift out one bit
         lda     BCD+0           ; And add into result
         adc     BCD+0
         sta     BCD+0
@@ -374,9 +423,41 @@ CNVBIT: asl     BIN             ; Shift out one bit
         adc     BCD+1
         sta     BCD+1
         dex                     ; And repeat for next bit
-        bne     CNVBIT
+        bne     CNVBIT1
         cld
         rts                     ; All Done.
+
+; From: http://6502.org/source/integers/hex2dec-more.htm
+; Convert an 16 bit binary value to BCD
+; This function converts a 16 bit binary value into a 24 bit BCD. It
+; works by transferring one bit a time from the source and adding it
+; into a BCD value that is being doubled on each iteration. As all the
+; arithmetic is being done in BCD the result is a binary to decimal
+; conversion. All conversions take 915 clock cycles.
+
+BINBCD16:
+        sed                     ; Switch to decimal mode
+        lda     #0              ; Ensure the result is clear
+        sta     BCD+0
+        sta     BCD+1
+        sta     BCD+2
+        ldx     #16             ; The number of source bits
+CNVBIT2:
+        asl     BIN+0           ; Shift out one bit
+        rol     BIN+1
+        lda     BCD+0           ; And add into result
+        adc     BCD+0
+        sta     BCD+0
+        lda     BCD+1           ; propagating any carry
+        adc     BCD+1
+        sta     BCD+1
+        lda     BCD+2           ; ... thru whole result
+        adc     BCD+2
+        sta     BCD+2
+        dex                     ; And repeat for next bit
+        bne     CNVBIT2
+        cld                     ; Back to binary
+        rts
 
 ; Data
 
@@ -385,6 +466,8 @@ start2: .res    1               ; Count of first start pulse high
 count:  .res    3*356           ; Data for pulse length counts
 bits:   .res    40              ; Data bit samples
 bytes:  .res    5               ; Sensor data bytes
-BIN:    .res    1               ; Used by BINBCD8 routine
-BCD:    .res    2               ; "
+BIN:    .res    2               ; Used by BINBCD8 and BINBCD16 routines
+                                ; "
+BCD:    .res    3               ; "
+
         .end
