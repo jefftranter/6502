@@ -209,20 +209,16 @@ one:    sta    bits,x           ; Store it
 byt:    lda    #0               ; Initialize data byte
 lp:     ora    bits,x           ; Add data bit
         inx                     ; Update counter
-        cpx    #8               ; Eight bits done?
-        beq    byte             ; Branch if so
-        cpx    #16              ; Same for other full bytes TODO: Write cleaner/smaller code to do this
-        beq    byte             ; Branch if so
-        cpx    #24
-        beq    byte
-        cpx    #32
-        beq    byte
-        cpx    #40
-        beq    byte             ; Branch if so
+        pha                     ; Save A
+        txa                     ; Get bit count
+        and    #%00000111       ; Look at 3 least significant bits
+        beq    byte             ; Branch if it is a multiple of 8 bits
+        pla                     ; Restore A
         asl                     ; Shift left
         clc
         bcc    lp               ; And repeat
-byte:   sta    bytes,y          ; Save a byte of data
+byte:   pla                     ; Restore A
+        sta    bytes,y          ; Save a byte of data
         iny
         cpy    #5               ; Five bytes done?
         bne    byt              ; Branch of not
