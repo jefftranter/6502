@@ -488,13 +488,12 @@ CNVBIT2:
 
 ; Data
 
-start1: .res    1               ; Count of first start pulse low
-start2: .res    1               ; Count of first start pulse high
-count:  .res    3*356           ; Data for pulse length counts
-bits:   .res    40              ; Data bit samples
-bytes:  .res    5               ; Sensor data bytes
-BIN:    .res    2               ; Used by BINBCD8 and BINBCD16 routines
-                                ; "
-BCD:    .res    3               ; "
+start1  =      *                  ; Count of first start pulse low (1)
+start2  =      *+1                ; Count of first start pulse high (1)
+count   =      *+1+1              ; Data for pulse length counts (3*256)
+bits    =      *+1+1+3*256        ; Data bit samples (40)
+bytes   =      *+1+1+3*256+40     ; Sensor data bytes (5)
+BIN     =      *+1+1+3*256+40+5   ; Used by BINBCD8 and BINBCD16 routines (2)
+BCD     =      *+1+1+3*256+40+5+2 ; " (3)
 
         .end
