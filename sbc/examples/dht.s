@@ -2,7 +2,7 @@
 ;
 ; Connect sensor module data line to VIA PA0 (with pullup resistor if
 ; not present on module).
-; Timing assumes CPU running at 2 MHz.
+; Set sensor type and clock speed in source code below.
 ;
 ; Sample output:
 ;
@@ -14,15 +14,22 @@
 ;
 ; TODO:
 ; - Handle negative temperatures.
-; - See if I can get it work at 1 MHz clock speed.
 ;
 ; Jeff Tranter <tranter@pobox.com>
+
+; Define which on these two CPU clock speeds are being used.
+;       CPU1MHZ = 1
+        CPU2MHZ = 1
 
 ; Define one of the symbols below for the sensor type used
         DHT11   = 1
 ;       DHT12   = 1
 ;       DHT21   = 1
 ;       DHT22   = 1
+
+.if (.not .defined(CPU1MHZ)) .and (.not .defined(CPU2MHZ))
+.error "Must define CPU clock speed"
+.endif
 
 .if (.not .defined(DHT11)) .and (.not .defined(DHT12)) .and (.not .defined(DHT21)) .and (.not .defined(DHT22))
 .error "Must define sensor type"
@@ -76,9 +83,17 @@ loop:   lda     #%11111111      ; Set data line initially high
         sta     PORTA
 
 .if .defined(DHT11) .or .defined(DHT12)
+.if .defined(CPU1MHZ)
+        lda     #$57            ; Delay 20 ms
+.elseif .defined(CPU2MHZ)
         lda     #$7C            ; Delay 20 ms
+.endif
 .elseif .defined(DHT21) .or .defined(DHT22)
+.if .defined(CPU1MHZ)
+        lda     #$18            ; Delay 1.1 ms
+.elseif .defined(CPU2MHZ)
         lda     #$1B            ; Delay 1.1 ms
+.endif
 .endif
 
         jsr     WAIT
@@ -89,7 +104,11 @@ loop:   lda     #%11111111      ; Set data line initially high
         lda     #%00000000      ; Set PA0 as input
         sta     DDRA
 
+.if .defined(CPU1MHZ)
+        lda     #$03            ; Delay 55us to let sensor pull data line low.
+.elseif .defined(CPU2MHZ)
         lda     #$04            ; Delay 55us to let sensor pull data line low.
+.endif
         jsr     WAIT
 
 ; First expect a low signal for ~80 microseconds followed by a high
@@ -195,13 +214,17 @@ endff:  inx                     ; Advance to next data bit
         bne    findff           ; If not, repeat
 
 ; Now go through list and decide if each is a 0 or 1 bit
-; Will call <= 7 a 0, > 7 a 1
+; Will call <= 7 a 0, > 7 a 1 (for 1 MHz clock speed use value 3)
 ; e.g. for above
 ; 0 0 1 1 0 ...
 
         ldx    #0               ; Initialize index to start
 decid:  lda    bits,x           ; Get count
+.if .defined(CPU1MHZ)
+        cmp    #3               ; Compare to 3
+.elseif .defined(CPU2MHZ)
         cmp    #7               ; Compare to 7
+.endif
         bcc    zero             ; Branch if <= 7
         lda    #1               ; Make it a one
         bne    one              ; Branch always
@@ -318,10 +341,14 @@ gudcs:
         jmp     loop            ; Repeat
 retn:   brk                     ; Return to monitor
 
-; DELAY: Fixed delay of approx. 3 sec (2 MHz clock).
+; DELAY: Fixed delay of approx. 4 sec.
 ; Registers changed: A, X
 
+.if .defined(CPU1MHZ)
+DELAY:  ldx     #28             ; Approx 4 seconds
+.elseif .defined(CPU2MHZ)
 DELAY:  ldx     #50             ; Approx 4 seconds
+.endif
 del:    lda     #$FF
         jsr     WAIT
         dex
