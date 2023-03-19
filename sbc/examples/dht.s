@@ -4,15 +4,31 @@
 ; not present on module).
 ; Timing assumes CPU running at 2 MHz.
 ;
+; Sample output:
+;
+; Starting (press a key to stop)
+; Humidity: 47.0%  Temperature: 20.4C
+;
 ; Some of the logic came from the Arduino implementation here:
 ;  https://github.com/adafruit/DHT-sensor-library/blob/master/DHT.cpp
 ;
 ; TODO:
-; - Finish implementation
-; - Add support for DHT22
-; - See if it can also run at 1 MHz
+; - Add support for DHT22.
+; - Refactor some repetitive code.
+; - See if I can get it work at 1 MHz clock speed.
 ;
 ; Jeff Tranter <tranter@pobox.com>
+
+; Define one of the symbols below for the sensor type used
+        DHT11   = 1
+;       DHT22   = 1
+
+.if .defined(DHT11) .and .defined(DHT22)
+.error "Only define one sensor type"
+.endif
+.if (.not .defined(DHT11)) .and (.not .defined(DHT22))
+.error "Must define sensor type"
+.endif
 
 ; 6522 Chip registers
         VIA     = $8000         ; 6522 VIA base address
@@ -21,7 +37,6 @@
 
 ; Constants
         CR      = $0D           ; Carriage Return
-        LF      = $0A           ; Line Feed
 
 ; External routines
         WAIT    = $FEA8         ; ROM delay routine
@@ -234,7 +249,7 @@ gudcs:
 ; TODO: DH22 calculation is different
 
         jsr    IMPRINT
-        .byte  "Humidity:    ",0
+        .byte  "Humidity: ",0
         lda    bytes        ; Get integer part of humidity
         sta    BIN          ; Convert to decimal
         jsr    BINBCD8
@@ -253,7 +268,7 @@ gudcs:
 ; TODO: Handle negative temperatures (most significant bit is 1)
 
         jsr    IMPRINT
-        .byte  "%",CR,"Temperature: ",0
+        .byte  "%  Temperature: ",0
         lda    bytes+2      ; Get integer part of temperature
         sta    BIN          ; Convert to decimal
         jsr    BINBCD8
@@ -268,8 +283,7 @@ gudcs:
         jsr     IMPRINT
         .byte   "C",CR,0
 
-
-; Don't read again for at least 2 seconds.
+; Don't read again for at least 1 second (DHT11) or 2 seconds (DHT22).
 
         jsr     DELAY           ; Delay 4 seconds
 
