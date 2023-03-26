@@ -53,6 +53,12 @@
 # provided elsewhere in this git repository. Load the .mon file from
 # the WozMon monitor.
 
+# KIM-1:
+#
+# Running "make kim1" will build for this platform using cc65. You will
+# require a KIM-1 with a 60K memory expansion. Load the PTP file from
+# the serial port.
+
 all: default
 
 default: native
@@ -78,7 +84,11 @@ sbc: adventure2.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t sbc adventure2.c -o adventure2 -L /usr/local/share/cc65/lib
 	srec_cat adventure2 -binary -offset 0x0200 -o adventure2.run -Execution_Start_Address 0x0200
 
+kim1: adventure2.c
+	CC65_HOME=/usr/local/share/cc65	cl65 -O -t kim1 -C kim1-60k.cfg adventure2.c -o adventure2 -L /usr/local/share/cc65/lib
+	srec_cat adventure2 -binary -offset 0x0200 -o adventure2.ptp -MOS_Technologies
+
 clean:
-	$(RM) adventure2.o adventure2.lst adventure2.map adventure2 adventure2.mon adventure2.run
+	$(RM) adventure2 *.o *.lst *.map *.mon *.run *.ptp
 
 distclean: clean
