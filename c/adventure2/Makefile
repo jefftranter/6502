@@ -86,7 +86,7 @@ sbc: adventure2.c
 
 kim1: adventure2.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t kim1 -C kim1-60k.cfg adventure2.c -o adventure2 -L /usr/local/share/cc65/lib
-	srec_cat adventure2 -binary -offset 0x0200 -o adventure2.ptp -MOS_Technologies
+	srec_cat adventure2 -binary -offset 0x2000 -o adventure2.ptp -MOS_Technologies
 
 clean:
 	$(RM) adventure2 *.o *.lst *.map *.mon *.run *.ptp
