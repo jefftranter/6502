@@ -1,4 +1,4 @@
-SUBDIRS = ROMs TheFirstBookOfKIM Microchess Misc TinyBasic ProgrammingAMicrocomputer
+SUBDIRS = ROMs TheFirstBookOfKIM Microchess Misc TinyBasic ProgrammingAMicrocomputer MSBasic
 
 all:
 	@for i in $(SUBDIRS); do \
