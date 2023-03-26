@@ -11,7 +11,7 @@ kb9v2.ptp: kb9v2.bin
 upload:
 	ascii-xfr -s -l 100 -c 100 INIT1 > /dev/ttyUSB0
 	sleep 2
-	SEND -n kb9v2.ptp
+	ascii-xfr -s -l 100 -c 10 kb9v2.ptp > /dev/ttyUSB0
 	sleep 2
 	ascii-xfr -s -l 100 -c 100 INIT2 > /dev/ttyUSB0
 
