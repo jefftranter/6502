@@ -1,4 +1,4 @@
-SUBDIRS = Games Utilities Potpourri
+SUBDIRS = Random
 
 all:
 	@for i in $(SUBDIRS); do \
