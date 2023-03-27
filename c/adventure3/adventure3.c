@@ -445,7 +445,7 @@ number matchesCommand(const char *cmd, const char *str)
 /* Clear the screen */
 void clearScreen()
 {
-#if defined(__CC65__)
+#if defined(__CC65__) && !defined(__KIM1__)
     clrscr();
 #else
     number i;
@@ -1337,7 +1337,7 @@ void prompt()
 
     printf("\n? ");
 
-#ifdef __CC65__
+#if defined(__CC65__) && !defined(__KIM1__)
     while (1) {
         if (kbhit()) {
             fgets(buffer, sizeof(buffer)-1, stdin); /* Get keyboard input */
