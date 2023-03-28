@@ -1,6 +1,6 @@
 PLATFORM = apple2enh
 
-all: hello1.mon hello2.mon nqueens.mon sieve.mon
+all: hello1.mon hello2.mon nqueens.mon sieve.mon kim1.ptp
 
 hello1.mon: hello1
 	bintomon -v -f hello1 >hello1.mon
@@ -26,8 +26,14 @@ sieve.mon: sieve
 sieve: sieve.c
 	CC65_HOME=/usr/local/share/cc65 cl65 -O -vm -m sieve.map -t $(PLATFORM) sieve.c
 
+kim1: kim1.c
+	CC65_HOME=/usr/local/share/cc65 cl65 -O -vm -m kim1.map -t kim1 -C kim1-60k.cfg kim1.c
+
+kim1.ptp: kim1
+	srec_cat kim1 -binary -offset 0x2000 -o kim1.ptp -MOS_Technologies
+
 clean:
-	$(RM) *.o *.lst *.map hello1 hello2 nqueens sieve
+	$(RM) *.o *.lst *.map hello1 hello2 nqueens sieve kim1
 
 distclean: clean
-	$(RM) *.mon
+	$(RM) *.mon *.ptp
