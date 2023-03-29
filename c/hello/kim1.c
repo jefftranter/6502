@@ -1,3 +1,5 @@
+/* Example illustrating scandisplay() and getkey() functions. */
+
 #include <stdio.h>
 #include <kim1.h>
 

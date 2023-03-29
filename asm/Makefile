@@ -10,6 +10,7 @@ SUBDIRS = \
     disasm \
     ehbasic \
     jmon \
+    kimath \
     KIM-1 \
     msbasic \
     OSI \
