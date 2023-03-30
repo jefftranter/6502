@@ -19,10 +19,20 @@ mathpac.bin: mathpac.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m mathpac.map -o mathpac.bin mathpac.o
 
 mathpac.run: mathpac.bin
-	srec_cat mathpac.bin -binary -unfill 0x00 10 -offset 0x3000 -o mathpac.run -Execution_Start_Address 0x3607
+	srec_cat mathpac.bin -binary -offset 0x0000 -crop 0x0000 0x0001 0x0300 0x0400 0x3000 0x37e9 -o mathpac.run -Execution_Start_Address 0x3607
 
 mathpac.ptp: mathpac.bin
-	srec_cat mathpac.bin -binary -unfill 0x00 10 -offset 0x3000 -o mathpac.ptp -MOS_Technologies
+	srec_cat mathpac.bin -binary -offset 0x0000 -crop 0x0000 0x0001 0x0300 0x0400 0x3000 0x37e9 -o mathpac.ptp -MOS_Technologies
+
+upload: kimath.ptp mathpac.ptp
+	echo "L" >/dev/ttyUSB0
+	sleep 1
+	ascii-xfr -s -l 100 -c 10 kimath.ptp > /dev/ttyUSB0
+	sleep 1
+	echo "L" >/dev/ttyUSB0
+	ascii-xfr -s -l 100 -c 10 mathpac.ptp > /dev/ttyUSB0
+	sleep 1
+	echo "3607 G" >/dev/ttyUSB0
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.run *.ptp

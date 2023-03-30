@@ -30,9 +30,9 @@
          MVMY = $FD20
          MVNX = $FD2C
          MVXM = $FCF4
-         MVXN = $FAA2
+         MVXN = $FCF8
          MVXY = $FCEC
-         MVXZ = $FC40
+         MVXZ = $FCF0
          MVYX = $FCFC
          MVYZ = $FD00
          MVZM = $FD14
@@ -40,7 +40,7 @@
          MVZX = $FD0C
          MVZY = $FD10
          NKON = $01
-         PGARG = $FD87
+         PGTARG = $FDE1
          PREC = $10
          PSTRES = $FE3C
          PTR = $0C
@@ -58,26 +58,30 @@
 
         .org  $0000
 N       .byte $10       ;set to 10 or length
-         .res 3
-LENGTH   .res 1
-        .org  $0017
+        .res 3
+LENGTH  .res 1
+;       .org  $0017
+        .res $0017-*
 PER     .res  1
 QUADCT  .res  1
 ID      .res  1
 SIGN    .res  1
 CAL1    .res  1
 CAL2    .res  1
-        .org  $0040
+;       .org  $0040
+        .res  $0040-*
 LR      .res  64        ;I/O buffer 64 bytes
 ; Page 03 used for numeric storage.
 ; clear all bytes to 00. Set last 11
 ; bytes of page 03 ( or first 11 of
 ; page 04)to FF.
-        .org $0300
+;       .org $0300
+        .res $0300-*
         .res 256-11, $00
         .res 11, $FF
 
-        .org $3000
+;       .org $3000
+        .res $3000-*
 PACKER  JSR CLRY        ;routine to load  raw
         LDX #$00        ;number at (ARGYL,
         LDY #$00        ;ARGYH) into Ry.
@@ -331,12 +335,12 @@ RECALL  JSR SRCH
         ADC #$01
         STA LENGTH
         JSR CLRZ
-        JSR PGARG
+        JSR PGTARG
         JSR MVZY
         LDA ID
-        RTS
-RECAL1  JSR SRCH
-FORGET  BEQ FORGE1
+RECAL1  RTS
+FORGET  JSR SRCH
+        BEQ FORGE1
         LDA #$00
         STA (PTR),Y
 FORGE1  RTS
@@ -816,7 +820,7 @@ RNDF3   JSR MVXZ
         .res $0E, $00
 INVEC   JMP CHARIN      ;user input routine
 OTVEC   JMP CHAROUT     ;user output routine
-ECHO    .byte $0D       ;echo character
+ECHO    .byte $0A       ;echo character
 SCICAL  LDA #$01        ;START OF ROUTINE
         STA CAL1
 BACK    DEC CAL1        ;backspace routine
@@ -962,7 +966,7 @@ OP3     CMP #$2B        ;+
         JMP ADD
 OP4     CMP #$2D        ;-
         BNE OP5
-        EOR SUB
+        JMP SUB
 OP5     JMP MVXZ
 
 ; Tables:
@@ -1013,7 +1017,7 @@ TAB2:   .byte $FF
         .byte $FF
         .word INV
         .byte $FF
-        .word LOG
+        .word LOGT
         .byte $FF
         .word RAD
         .byte $FF

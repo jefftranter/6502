@@ -133,7 +133,7 @@ add5    lda ex
         sta ez
 ;
 ;   Move rx to ra.
-;       
+;
         jsr raerx
         bit temp
         bmi add13
@@ -612,7 +612,6 @@ atanx   lda #14
         sta deg
         lda #156
         jmp logend
-         
 ;
 ;   Left shift ra one digit.
 ;
@@ -822,8 +821,8 @@ yztst   ldx n
 yztst0  lda ry,x
         bne xztst1
         dex
-        bpl yztst0      ; *** NOTE: Change 'bpl' to 'bne' ***
-        bmi xztst2      ; *** NOTE: Change 'bmi' to 'beq' ***
+        bne yztst0      ; *** NOTE: Change 'bpl' to 'bne' ***
+        beq xztst2      ; *** NOTE: Change 'bmi' to 'beq' ***
 ;
 ;   Swap rx and ry.
 ;

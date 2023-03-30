@@ -13,6 +13,28 @@ Also included is an example application described in the KIMATH documentation.
 
 All have been confirmed to run on a KIM-1 computer with 60K of RAM.
 
+Sample run of MATHPAC:
+
+```
+@=1/3
+.33333333333333
+@=1.23E6*4.56E-7
+.56088
+@=LOG(1E6)
+6.00000001
+@=ALG(3)
+1000
+@=SIN(45)
+.70710678
+@=COS(0)
+1.
+A=SQR(2)
+@=A
+1.41421356
+@=A*A
+1.99999999328787
+```
+
 I obtained the original files from these locations:
 
 http://www.crbond.com/downloads/kimath.zip
