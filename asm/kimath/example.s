@@ -94,6 +94,7 @@ EX     =        2       ; use 2 extra digits in calculation
        STA      RES+1   ; destination register
        JSR      USTRES  ; move it
        JSR      PRINTL  ; user-supplied routine to print out L.
+       RTS
 
 VAL    .res     1
 
