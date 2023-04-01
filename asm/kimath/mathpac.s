@@ -435,7 +435,7 @@ SQRT2   STA CNT
         LDA #$07
         STA NKON
         JMP SQRT0
-; routine to find the largest interger
+; routine to find the largest integer
 ; less than or equal to Rx.
 INT     LDA N
         PHA             ;save length

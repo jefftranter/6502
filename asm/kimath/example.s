@@ -120,9 +120,15 @@ EX     =        2       ; use 2 extra digits in calculation
        JMP      $1C00
        RTS
 
+; Routine to adjust exponent so that the range is within that accepted
+; by the square root function (1..100). The orginal exponent is saved
+; and restored later by SQROUT.
+
 VAL    .res     1
 
-SQRIN  SED
+SQRIN  LDA      #0      ; Initialize VAL (bug in original code)
+       STA      VAL
+       SED
 SQ1    SEC
        LDA      ex
        SBC      #2
