@@ -213,14 +213,14 @@ PRINTL LDA   #'L'        ; Symbol name
 ; Sample output: A=-1.234567E-12
 
 PRINTPA
+       STA   VAL         ; Save value name for later
        STX   RES         ; Save address in page zero
        STY   RES+1
-       PHA               ; Save A
        LDA   #$0D        ; Print CR
        JSR   SCHAROUT
        LDA   #$0A        ; Print LF
        JSR   SCHAROUT
-       PLA               ; Get value name
+       LDA   VAL         ; Get value name
        JSR   SCHAROUT
        LDA   #'='
        JSR   SCHAROUT
@@ -239,9 +239,18 @@ DIGS   LDA   (RES),Y     ; Get a character
        BNE   NOPT
        LDA   #'.'        ; Print decimal point
        JSR   SCHAROUT
-NOPT   CPY   #NDIG+2     ; Done?
+
+; Hack: Output value has one more digit than inputs. Not sure why.
+
+NOPT   LDA   VAL         ; Get value name
+       CMP   #'F'        ; Is it the output value?
+       BNE   NOTF        ; Branch of not
+       CPY   #NDIG+2     ; Done?
        BNE   DIGS        ; Continue if not
-       LDA   #'E'        ; Print 'E'
+       BEQ   EXP         ; Branch alway
+NOTF   CPY   #NDIG+1     ; Done?
+       BNE   DIGS        ; Continue if not
+EXP    LDA   #'E'        ; Print 'E'
        JSR   SCHAROUT
        LDA   (RES,X)     ; Look at exponent sign bit
        AND   #%01000000

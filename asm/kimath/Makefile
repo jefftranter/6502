@@ -39,10 +39,10 @@ example.ptp: example.bin
 upload: kimath.ptp mathpac.ptp
 	echo "L" >/dev/ttyUSB0
 	sleep 1
-	ascii-xfr -s -l 100 -c 10 kimath.ptp > /dev/ttyUSB0
+	ascii-xfr -s -l 50 -c 10 kimath.ptp > /dev/ttyUSB0
 	sleep 1
 	echo "L" >/dev/ttyUSB0
-	ascii-xfr -s -l 100 -c 10 mathpac.ptp > /dev/ttyUSB0
+	ascii-xfr -s -l 50 -c 10 mathpac.ptp > /dev/ttyUSB0
 	sleep 1
 	echo "3607 G" >/dev/ttyUSB0
 
