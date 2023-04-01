@@ -1,7 +1,9 @@
-; Example program from KMATH manual.
+; Example program from KIMATH manual.
 ;
-; Port to CC65 and additions to make it run standalone by Jeff Tranter
-;  <tranter@pobox.com>
+; Calculates resonant frequency using the formula 1/(2*PI*SQRT(L*C))
+;
+; Port to CC65, bug fixes, and additions to make it run standalone by
+; Jeff Tranter <tranter@pobox.com>
 
 ; KIM-1 ROM  Routines
 
@@ -85,7 +87,7 @@ EX     =        2       ; use 2 extra digits in calculation
 
 ; (7) get 2pi to RX
 
-       LDA      #<TWOPI ; address low of First constant
+       LDA      #<TWOPI ; address low of first constant
        STA      KONL
        LDA      #>TWOPI
        STA      KONH
@@ -107,7 +109,7 @@ EX     =        2       ; use 2 extra digits in calculation
 ; (10) Move RZ to RY and divide
 
        JSR      MVZY    ; move RZ to RY
-       JSR      DIVIDE  ;
+       JSR      DIVIDE
 
 ; (11) Move RZ to L and print it out
 
@@ -122,7 +124,7 @@ EX     =        2       ; use 2 extra digits in calculation
 
 ; Routine to adjust exponent so that the range is within that accepted
 ; by the square root function (1..100). The orginal exponent is saved
-; and restored later by SQROUT.
+; in VAL and restored later by SQROUT.
 
 VAL    .res     1
 
@@ -157,7 +159,7 @@ SQROUT LDA      VAL
 ; Test data in unpacked ASCII format
 ; L = 888 uH (+8.88E-4)
 ; C = 365 pF (+3.65E-10)
-; Result should be 279.55496 kHz (+2.7955496E+5)
+; Result should be 279.554960 kHz (+2.79554960E+5)
 L1:   .byte $40, '8', '8', '8', '0', '0', '0', '0', '0', '0', '4'
 C1:   .byte $40, '3', '6', '5', '0', '0', '0', '0', '0', '1', '0'
 
@@ -183,7 +185,7 @@ COPYL  LDA      L1,X
        RTS
 
 ; User-supplied routine to print out L.
-; Sample output: F=2.7955497E+05
+; Sample output: F=2.79554960E05
 
 PRINTL LDA   #$0D        ; Print CR
        JSR   CHAROUT
@@ -206,7 +208,7 @@ DIGS   LDA   L,X         ; Get a character
        BNE   NOPT
        LDA   #'.'        ; Print decimal point
        JSR   CHAROUT
-NOPT   CPX   #NDIG+1     ; Done?
+NOPT   CPX   #NDIG+2     ; Done?
        BNE   DIGS        ; Continue if not
        LDA   #'E'        ; Print 'E'
        JSR   CHAROUT
