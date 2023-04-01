@@ -119,7 +119,7 @@ EX     =        2       ; use 2 extra digits in calculation
        STA      RES+1   ; destination register
        JSR      USTRES  ; move it
        JSR      PRINTL  ; user-supplied routine to print out L.
-       JMP      $1C00
+       JMP      $1C00   ; Go to KIM-1 monitor (comment out to just return)
        RTS
 
 ; Routine to adjust exponent so that the range is within that accepted
@@ -160,8 +160,8 @@ SQROUT LDA      VAL
 ; L = 888 uH (+8.88E-4)
 ; C = 365 pF (+3.65E-10)
 ; Result should be 279.554960 kHz (+2.79554960E+5)
-L1:   .byte $40, '8', '8', '8', '0', '0', '0', '0', '0', '0', '4'
-C1:   .byte $40, '3', '6', '5', '0', '0', '0', '0', '0', '1', '0'
+L1    .byte $40, '8', '8', '8', '0', '0', '0', '0', '0', '0', '4'
+C1    .byte $40, '3', '6', '5', '0', '0', '0', '0', '0', '1', '0'
 
 ; User-supplied routine to read value of C into register C.
 ; Uses hard-coded value above.
@@ -184,48 +184,99 @@ COPYL  LDA      L1,X
        BNE      COPYL
        RTS
 
-; User-supplied routine to print out L.
-; Sample output: F=2.79554960E05
+; User-supplied routine to print out input values and then result (in
+; L).
+; Sample output:
+; L=8.88E-04
+; C=3.65E-10
+; F=2.79554960E05
 
-PRINTL LDA   #$0D        ; Print CR
-       JSR   CHAROUT
+PRINTL LDA   #'L'        ; Symbol name
+       LDX   #<L1        ; Pointer to value
+       LDY   #>L1
+       JSR   PRINTPA     ; Call print routine
+
+       LDA   #'C'        ; Symbol name
+       LDX   #<C1        ; Pointer to value
+       LDY   #>C1
+       JSR   PRINTPA     ; Call print routine
+
+       LDA   #'F'        ; Symbol name
+       LDX   #<L         ; Pointer to value
+       LDY   #>L
+       JSR   PRINTPA     ; Call print routine
+       RTS
+
+; Routine to print a packed ASCII number to the console.
+; The value name (e.g. 'L') is passed in A.
+; The address of the number is passed in X (lo) and Y (hi).
+; Sample output: A=-1.234567E-12
+
+PRINTPA
+       STX   RES         ; Save address in page zero
+       STY   RES+1
+       PHA               ; Save A
+       LDA   #$0D        ; Print CR
+       JSR   SCHAROUT
        LDA   #$0A        ; Print LF
-       JSR   CHAROUT
-       LDA   #'F'
-       JSR   CHAROUT
+       JSR   SCHAROUT
+       PLA               ; Get value name
+       JSR   SCHAROUT
        LDA   #'='
-       JSR   CHAROUT
-       LDA   L           ; Sign byte
+       JSR   SCHAROUT
+       LDX   #$00
+       LDY   #$00        ; Index into value
+       LDA   (RES),Y     ; Sign byte
        AND   #%10000000  ; Look at mantissa sign bit
        BEQ   MPLUS       ; Plus if zero
        LDA   #'-'
-       JSR   CHAROUT
-MPLUS  LDX   #$01        ; Index into value
-DIGS   LDA   L,X         ; Get a character
-       JSR   CHAROUT     ; Print it
-       INX               ; Update index
-       CPX   #2
+       JSR   SCHAROUT
+MPLUS  INY               ; Advance index to start of value
+DIGS   LDA   (RES),Y     ; Get a character
+       JSR   SCHAROUT    ; Print it
+       INY               ; Update index
+       CPY   #2          ; Check for decimal point after first digit
        BNE   NOPT
        LDA   #'.'        ; Print decimal point
-       JSR   CHAROUT
-NOPT   CPX   #NDIG+2     ; Done?
+       JSR   SCHAROUT
+NOPT   CPY   #NDIG+2     ; Done?
        BNE   DIGS        ; Continue if not
        LDA   #'E'        ; Print 'E'
-       JSR   CHAROUT
-       LDA   L           ; Look at exponent sign bit
+       JSR   SCHAROUT
+       LDA   (RES,X)     ; Look at exponent sign bit
        AND   #%01000000
        BEQ   EPLUS       ; Plus if zero
        LDA   #'-'
-       JSR   CHAROUT
-EPLUS  LDA   L,X         ; First digit of exponent
-       JSR   CHAROUT
-       INX
-       LDA   L,X         ; Second digit of exponent
-       JSR   CHAROUT
+       JSR   SCHAROUT
+EPLUS  LDA   (RES),Y     ; First digit of exponent
+       JSR   SCHAROUT
+       INY
+       LDA   (RES),Y     ; Second digit of exponent
+       JSR   SCHAROUT
        LDA   #$0D        ; Print CR
-       JSR   CHAROUT
+       JSR   SCHAROUT
        LDA   #$0A        ; Print LF
-       JSR   CHAROUT
+       JSR   SCHAROUT
+       RTS
+
+; Call CHAROUT, preserving A, X, and Y registers (KIM-1 routine
+; changes them).
+
+TMP    .res     1
+
+SCHAROUT
+       STA    TMP
+       TXA
+       PHA
+       TYA
+       PHA
+       LDA    TMP
+       JSR    CHAROUT
+       PLA
+       TAY
+       PLA
+       TAX
+       LDA    TMP
        RTS
 
        .END
