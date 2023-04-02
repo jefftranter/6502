@@ -1,3 +1,6 @@
+# This builds the KIM-1 version of Basic and generates a PTP file that
+# can be loaded from the serial monitor. Run it from address 4065.
+
 all: kb9v2.ptp
 
 kb9v2.o: msbasic.s
