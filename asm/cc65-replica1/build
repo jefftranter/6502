@@ -20,4 +20,5 @@ sudo make PREFIX=/usr/local -s install
 
 echo "*** Cleaning ***"
 make -s clean
+cd ..
 rm -rf cc65
