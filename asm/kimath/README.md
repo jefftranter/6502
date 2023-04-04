@@ -9,6 +9,10 @@ originally published in issue 20 of Dr. Dobb's Journal. I have ported
 it to the cc65 assembler and filled in some missing pieces needed to
 get it to build and run on a KIM-1 (along with KIMATH).
 
+I've included the KIMATH bug fix described in the MATHPAC article.
+I've also included a bug fix to USTRES reported by the original author
+in the November 1977 issue of Kilobaud Magazine.
+
 Also included is the example application described in the KIMATH documentation.
 
 All have been confirmed to run on a KIM-1 computer with 60K of RAM.

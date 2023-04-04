@@ -239,16 +239,7 @@ DIGS   LDA   (RES),Y     ; Get a character
        BNE   NOPT
        LDA   #'.'        ; Print decimal point
        JSR   SCHAROUT
-
-; Hack: Output value has one more digit than inputs. Not sure why.
-
-NOPT   LDA   VAL         ; Get value name
-       CMP   #'F'        ; Is it the output value?
-       BNE   NOTF        ; Branch of not
-       CPY   #NDIG+2     ; Done?
-       BNE   DIGS        ; Continue if not
-       BEQ   EXP         ; Branch alway
-NOTF   CPY   #NDIG+1     ; Done?
+NOPT   CPY   #NDIG+1     ; Done?
        BNE   DIGS        ; Continue if not
 EXP    LDA   #'E'        ; Print 'E'
        JSR   SCHAROUT

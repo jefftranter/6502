@@ -1169,7 +1169,7 @@ ustrs1  lda rz,y
         ora #$30
         sta (res),y
         bne ustrs0
-ustrs2  iny
+ustrs2  nop             ; Bug fix, was iny
         lda ez
         lsr
         lsr
