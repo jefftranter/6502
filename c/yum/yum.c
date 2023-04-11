@@ -119,6 +119,33 @@ char *labels[MAXCATEGORY] = { "1's", "2's", "3's", "4's", "5's", "6's", "Sub-tot
 
 /* FUNCTIONS */
 
+#if defined(__OSIC1P__)
+
+/* Have to implement fgets() ourselves as it is not available. */
+char* _fgets(char* buf, size_t size, FILE*)
+{
+    int c;
+    char *p;
+
+    /* get max bytes or upto a newline */
+    for (p = buf, size--; size > 0; size--) {
+        if ((c = cgetc()) == EOF)
+            break;
+        cputc(c); /* echo back */
+        *p++ = c;
+        if (c == '\n' || c == '\r')
+            break;
+    }
+    *p = 0;
+    if (p == buf || c == EOF)
+        return NULL;
+    return (p);
+}
+
+#define fgets _fgets
+#define printf cprintf
+#endif
+
 /* Mark all dice to be rolled. */
 void markAllDiceToBeRolled()
 {
@@ -151,7 +178,7 @@ void initialize()
 /* Clear the screen. */
 void clearScreen()
 {
-#if defined(__APPLE2__) || defined(__C64__)
+#if defined(__APPLE2__) || defined(__C64__) || defined(__OSIC1P__)
     clrscr();
 #else
     int i;
@@ -175,7 +202,7 @@ void pressEnter(char *s)
 #ifdef __CC65__
     /* On CC65 platform use keyPressed() routine and use this to set the random seed. */
 
-#if defined(__APPLE2__) || defined(__C64__)
+#if defined(__APPLE2__) || defined(__C64__) || defined(__OSIC1P__)
     while (!kbhit()) {
         randomSeed++;
     }

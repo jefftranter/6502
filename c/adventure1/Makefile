@@ -34,10 +34,8 @@
 # Ohio Scientific Challenger 1P/SuperBoard II and compatibles like the Briel Superboard III:
 #
 # Running "make osi" will build for this platform. Transfer the
-# generated file adventure1.mon over a serial interface using the OSI
+# generated file adventure1.c1p over a serial interface using the OSI
 # monitor.
-# Not currently supported as cc65 does not support file i/o on the
-# OSIC1P platform.
 
 # My 6502 Single Board Computer:
 #
@@ -74,7 +72,7 @@ apple2: adventure1.c
 
 osi:	adventure1.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t osic1p adventure1.c -L /usr/local/share/cc65/lib
-	bintomon -l 0x200 -r 0x200 adventure1 >adventure1.mon
+	srec_cat adventure1 -binary -offset 0x200 -o adventure1.c1p -Ohio_Scientific -execution-start-address=0x200
 
 replica1: adventure1.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t replica1 adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
@@ -89,6 +87,6 @@ kim1: adventure1.c
 	srec_cat adventure1 -binary -offset 0x2000 -o adventure1.ptp -MOS_Technologies
 
 clean:
-	$(RM) adventure1 *.o *.lst *.map *.mon *.run *.ptp
+	$(RM) adventure1 *.o *.lst *.map *.mon *.run *.ptp *.c1p
 
 distclean: clean

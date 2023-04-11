@@ -414,6 +414,33 @@ const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlo
 /* Line of user input */
 char buffer[80];
 
+#if defined(__OSIC1P__)
+
+/* Have to implement fgets() ourselves as it is not available. */
+char* _fgets(char* buf, size_t size, FILE*)
+{
+    int c;
+    char *p;
+
+    /* get max bytes or upto a newline */
+    for (p = buf, size--; size > 0; size--) {
+        if ((c = cgetc()) == EOF)
+            break;
+        cputc(c); /* echo back */
+        *p++ = c;
+        if (c == '\n' || c == '\r')
+            break;
+    }
+    *p = 0;
+    if (p == buf || c == EOF)
+        return NULL;
+    return (p);
+}
+
+#define fgets _fgets
+#define printf cprintf
+#endif
+
 /*
  * Check if string str starts with command or abbreviated command cmd, e.g
  * "h", "he", "hel", or "help" matches "help". Not case sensitive. Ends
