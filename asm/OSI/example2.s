@@ -7,7 +7,7 @@
 ; ./bintolod -s 0000 -l 0000 example2.bin >example2.lod
 ;
 ; Then upload and run using:
-; ascii-xfr -s example2.lod >/dev/ttyUSB0 
+; ascii-xfr -s example2.lod >/dev/ttyUSB0
 
 ; Useful ROM Routines:
 ; Get key from keyboard and return in A

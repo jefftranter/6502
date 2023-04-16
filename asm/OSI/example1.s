@@ -10,7 +10,7 @@
 ; ./bintolod -s 0000 -l 0000 example1.bin >example1.lod
 ;
 ; Then upload and run using:
-; ascii-xfr -s example1.lod >/dev/ttyUSB0 
+; ascii-xfr -s example1.lod >/dev/ttyUSB0
 
         GETKEY := $FEED
 

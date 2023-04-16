@@ -1,4 +1,4 @@
-all: osirom.lod basicrom.lod cegmon.lod
+all: osirom.lod basicrom.lod cegmon.lod os65dv32.bin
 
 patch: errormessage.patch garbagecollection.patch
 	patch -p3 <errormessage.patch
@@ -54,6 +54,9 @@ basicrom.bin: basic.bin osibasic.bin
 basic.bin:
 	cd msbasic ; ./make.sh
 	cp msbasic/tmp/osi.bin basic.bin
+
+os65dv32.bin: os65dv32.s
+	a65 -B -L os65dv32.s
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin *.lod

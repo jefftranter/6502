@@ -61,7 +61,7 @@ DATA    JSR     INPUT   ; DATA MODE  Get character (from keyboard or cassette)
         INC     PNTL    ; Increment current address (low byte)
         BNE     DAT3    ; If low byte became zero...
         INC     PNTH    ;   increment high byte too.
-DAT3    LDY     #0      
+DAT3    LDY     #0
         LDA     (PNTL),Y ; get data from new current address
         STA     DAT     ; save it
         JMP     INNER
