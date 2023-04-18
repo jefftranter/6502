@@ -55,8 +55,11 @@ basic.bin:
 	cd msbasic ; ./make.sh
 	cp msbasic/tmp/osi.bin basic.bin
 
-os65dv32.bin: os65dv32.s
-	a65 -B -L os65dv32.s
+os65dv32.bin: os65dv32.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -o os65dv32.bin os65dv32.o 
+
+os65dv32.o: os65dv32.s
+	ca65 --feature labels_without_colons -g -l os65dv32.lst os65dv32.s
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin *.lod
