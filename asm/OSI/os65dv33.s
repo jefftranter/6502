@@ -1,18 +1,30 @@
-; This source code was entered from the original scanned PDF. Changes
-; were made to get it to build with the ca65 assembler. Minor typos and
-; formatting issues were corrected. It appears to generate the same code
-; as in the original document, but I have not tested it.
+; This OS-65D V3.3 disassembly was based on the V3.2 disassembly and
+; subsequently modified based on a dump of memory on a running system.
+;
+; This was performed on a system rugning the OS-65D version for the
+; C1P, so there may be some differences from the C3 version.
+;
+;
+; Key differences between V3.2 and V3.3:
+; - Screen display commands were added.
+; - Editor commands were added.
+; - Buffer addresses changed and no longer vary between 8" and 5" disks.
+; - Many other small changes.
 ;
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ;************************************************************************
 ;
-;                        OS-65D V3.2 DISASSEMBLY
+;                        OS-65D V3.3 DISASSEMBLY
 ;                                   by
 ;                          Software Consultants
 ;                            7053 Rose Trail
 ;                           Memphis, TN 38134
 ;                             (901) 377-3503
+;
+;                            with V3.3 updates
+;                                   by
+;                               Jeff Tranter
 ;
 ;
 ; This document is not from any official source, but was done using the
@@ -101,7 +113,7 @@
 ; THE CODE FROM $2200 TO $22FF IS OVERLAYED BY BASIC WHEN IT IS CALLED.
 ;
         LDA #1
-        JSR PATCH0      ; SET SECTOR # AND STEP RATE
+        STA a:SECTNM    ; SET SECTOR # to 1
         JSR SETTK       ; MOVE TO TRACK 1
         LDA #$2A
         STA z:MEMHI     ; SET HI MEM ADDR
@@ -152,7 +164,7 @@ CLRVID  STA (MEMLO),Y
         INC z:MEMHI
         DEX
         BNE CLRVID
-        STX z:PAGE0     ; X = 0
+        STX z:MEMLO     ; X = 0
 ;
 ; WE ORIGINALLY THOUGHT THE ABOVE INSTRUCTION WAS USED FOR A
 ; FOR A PURPOSE WE HAVE NEVER SEEN DOCUMENTED. WHEN BASIC IS RUN
@@ -187,19 +199,17 @@ MEMTST  LDY #$BF        ; START TEST @ $BF00
         BNE MEMTST+2    ; ALWAYS JUMP BACK
 HMFND   STY HIMEM       ; STORE HIGHEST MEMORY PAGE
         LDX #1          ; CHECK FOR SERIAL OR VIDEO
-        LDA $0F01       ; (EITHER 65-A OR 65-V PROM)
+        LDA $FE01       ; (EITHER 65-A OR 65-V PROM)
         BEQ *+2+1
         INX             ; IF VIDEO SET X=2
-        STX DEFDEV      ; STORE DEFAULT DEVICE
+        STX INDST       ; STORE DEFAULT DEVICE
 ; THE DEFAULT DEVICE ABOVE IS PICKED UP BY BEXEC* AND PUT INTO THE
 ; INPUT & OUTPUT DISTRIBUTOR BYTES. THIS IS THE REASON THAT THE
 ; BASIC STARTUP MESSAGE IS NOT PRINTED ON BOOTING THE SYSTEM, SINCE
 ; THE OUTPUT DISTRIBUTOR ON DISK IS $00, WHICH DOES NOT OUTPUT TO
 ; ANYTHING.
-        NOP
-        LDX #1          ; SET VIDEO TO 64 CHAR/LINE
-                        ; TURN OFF SOUND GENERATOR, COLOR
-        STX VIDSIZ
+        STX OUTDST
+        STX $2AC6
         JMP GOBAS       ; SKIP OVER UNUSED CODE!
 ;
 ;$2297-$22B2 IS UNUSED CODE
@@ -217,27 +227,18 @@ HMFND   STY HIMEM       ; STORE HIGHEST MEMORY PAGE
         STA VIDOUT,X
         INY
         BNE $22A4
-GOBAS   JMP BASIC       ; LOAD AND EXECUTE BASIC
-;
-; THE JUMP ABOVE IS TO THE SAME ROUTINE USED WITH THE 'BA'
-; COMMAND. YET 'BEXEC*' IS RUN ONLY WHEN THE SYSTEM IS BOOTED.
-; THE METHOD USED TO DO THIS IS REALLY QUITE ELEGANT. THE INPUT
-; DISTRIBUTOR ON DISK IS SET FOR MEMORY INPUT, WHILE THE MEMORY
-; INPUT POINTER ON DISK POINTS TO $2E25. THIS IS WITHIN THE OS
-; INPUT BUFFER. AND WHAT IS AT $2E25 ON DISK? WHY, 'RUN BEXEC* (CR)',
-; OF COURSE. THEN WHEN 'BEXEC.' RUNS, IT SETS THE INPUT AND OUTPUT
-; DISTRIBUTORS FROM THE DEFAULT DEVICE (SEE NOTE @ $228B), SO THE
-; NEXT TIME THE 'BA' COMMAND IS EXECUTED, 'BEXEC*' IS NOT RUN.
-;
-; THIS PATCH ADDED FOR ADAPTIVE STEP RATE
-PATCH0  STA SECTNM      ; SET SECTOR TO 1
-        LDX #$08
-        STX z:STEPRT    ; STEP RATE
-        RTS
+
+GOBAS   JSR STROUT
+        .BYTE $0D,$0A,"OS-65D V3.0",$00
+        JMP OS65D3
 ;
 ; $22C7 THRU $22EB IS A TABLE USED BY THE UNUSED ROUTINE @$2297.
 ;
-        .RES $22EC-*
+        .BYTE $0B,$40,$8D,$40,$91,$40,$AF,$40
+        .BYTE $2D,$80,$9E,$80,$A1,$D7,$2A,$D7
+        .BYTE $34,$D7,$3C,$D7,$8B,$D7,$97,$D7
+        .BYTE $BA,$D7,$7D,$D7,$84,$D7,$80,$B1
+        .BYTE $87,$AA,$31,$00,$00
 ;
 ; MEMCHK : MEMORY CHECK SUBROUTINE. CALLED @ $2278
 ;
@@ -391,7 +392,7 @@ IOTABL  .WORD TERMIN-1  ; TERMINAL (ACIA): BASIC DEVICE 1
         .WORD MEMIN-1   ; MEMORY: BASIC DEVICE 5
         .WORD DK1IN-1   ; DISK1: BASIC DEVICE 6
         .WORD DK2IN-1   ; DISK2: BASIC DEVICE 7
-        .WORD X16INP-1  ; CA10X: BASIC DEVICE 8
+        .WORD $24B0-1   ; CA10X: BASIC DEVICE 8 (OBSOLETE)
 ;
 ; OUTPUT DISPATCH TABLE
 ;
@@ -402,7 +403,7 @@ IOTABL  .WORD TERMIN-1  ; TERMINAL (ACIA): BASIC DEVICE 1
         .WORD MEMOT-1   ; MEMORY: BASIC DEVICE 5
         .WORD DK1OUT-1  ; DISK1: BASIC DEVICE 6
         .WORD DK2OUT-1  ; DISK2: BASIC DEVICE 7
-        .WORD X16OUT-1  ; CA10X: BASIC DEVICE 8
+        .WORD $24BD-1   ; CA10X: BASIC DEVICE 8 (OBSOLETE)
 ;
 ; GENERAL STORAGE AREA
 ;
@@ -453,7 +454,7 @@ INECHO  JSR IN1         ; INPUT AND ECHO
 ; OUTPUT CHARACTER IN A
 ;
 PRINT   JSR SAVAXY      ; SAVE ALL REGISTERS
-        LDA OUTDST      ; GET OUTPUT DISTRIBUTOR
+        JSR $25A6
         LDY #$10        ; DENOTES OUTPUT
 ;
 ; DO I/O, EITHER INPUT OR OUTPUT BASED ON VALUE IN Y
@@ -475,9 +476,9 @@ DONXIO  BNE DOIO+4      ; ($234F) IF ANY BITS STILL ON
 ; RSTAXY : RESTORE A,X,Y (USED AFTER SAVAXY)
 ; WARNING! THIS ROUTINE MASKS OUT THE UPPER BIT IN A
 ;
-RSTAXY  LDX PH          ; RESET X
-        LDY PH          ; RESET Y
-        LDA PH          ; RESET A
+RSTAXY  LDX #$01        ; RESET X
+        LDY #$00        ; RESET Y
+        LDA #$20        ; RESET A
         AND #$7F        ; KILL UPPER BIT IN A
         RTS             ; BACK WE GO
 ;
@@ -496,7 +497,7 @@ PATCH1  STY IOOFS       ; STORE I/O OFFSET
 ; IODISP : I/O DISPATCH ROUTINE
 ;
 IODISP  ASL A           ; MULTIPLY I/O DEVICE BY 2
-        ADC PH          ; I/O OFFSET (0=INPUT $10=OUTPUT)
+        ADC #$10        ; I/O OFFSET (0=INPUT $10=OUTPUT)
         TAX             ; GET SET TO GET I/O ADDRESS
         LDA IOTABL+1,X  ; GET HI BYTE
         PHA             ; PUSH ON STACK
@@ -517,7 +518,7 @@ NULLIN  LDA #$00
 ; MEMIN : INPUT FROM MEMORY ROUTINE (BASIC DEVICE 5)
 ; THIS ROUTINE IS ALSO USED FOR THE INDIRECT FILE FUNCTION.
 ;
-MEMIN   LDA a:PH        ; GET BYTE FROM MEMORY
+MEMIN   LDA DSPTBL      ; GET BYTE FROM MEMORY
                         ; MODIFIED BY COMINC
         LDX #$00        ; SET OFFSET
         BEQ COMINC      ; GO TO COMMON INCREMENT ROUTINE
@@ -538,7 +539,7 @@ MEMOT   STA a:PH        ; PUT BYTE IN MEMORY
 ;
 COMINC  STA A_HOLD      ; SAVE A
         INC MINADR,X    ; INCREMENT MEMORY ADDRESS
-        BNE *+2+5       ; ($23A0)
+        BNE *+2+3       ; ($23A0)
         INC MINADR+1,X
         RTS
 ;
@@ -546,7 +547,7 @@ COMINC  STA A_HOLD      ; SAVE A
 ;
 DK1IN   LDY #$00        ; SET Y OFFSET
         JSR CKBFEN-2    ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($23AB) IF NOT END OF BUFFER, CONT
+        BNE *+2+3       ; ($23AB) IF NOT END OF BUFFER, CONT
         JSR DK1NXT      ; READ NEXT TRACK
         LDA a:PH        ; LOAD BYTE (MODIFIED BY COMINC)
         LDX #$22        ; SET THE OFFSET
@@ -567,7 +568,7 @@ DK1OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
         PHA             ; SAVE BYTE TO BE WRITTEN
         LDY #$17        ; SET Y FOR OFFSET
         JSR CKBFEN-2    ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($23C1) CONTINUE IF NOT AT END
+        BNE *+2+3       ; ($23C1) CONTINUE IF NOT AT END
         JSR DK1NXT      ; WRITE THIS TRACK, READ NEXT
         PLA             ; RESTORE THE OUTPUT BYTE
         STA a:PH        ; PUT IN BUFFER (MODIFIED BY COMINC)
@@ -578,7 +579,7 @@ DK1OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
 ; DK1NXT : DISK 1 NEXT TRACK READ, USED BY DK1IN AND DK1OUT
 ;
 DK1NXT  LDA D1BFDR      ; GET BUFFER 'DIRTY' FLAG
-        BEQ *+2+7       ; ($2306) IF NOT 'DIRTY' CONTINUE
+        BEQ *+2+5       ; ($2306) IF NOT 'DIRTY' CONTINUE
         LDX #$00        ; SET OFFSET
         JSR WTDKBF      ; GOSUB TO WRITE DISK BUFFER
         LDA D1BFLO      ; RESET READ/WRITE ADDRESS
@@ -597,7 +598,7 @@ DK1NXT  LDA D1BFDR      ; GET BUFFER 'DIRTY' FLAG
 DK2IN   LDX #$08        ; SET OFFSETS
         LDY #$51
         JSR CKBFEN      ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($23FC) IF NOT END, CONTINUE
+        BNE *+2+3       ; ($23FC) IF NOT END, CONTINUE
         JSR DK2NXT      ; WRITE THIS BUFFER, READ NEXT
         LDA a:PH        ; LOAD BYTE FROM BUFFER
                         ; MODIFIED BY COMINC
@@ -612,7 +613,7 @@ DK2OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
         LDX #$08        ; SET OFFSETS
         LDY #$6A
         JSR CKBFEN      ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($2414) IF NOT END THEN CONTINUE
+        BNE *+2+3       ; ($2414) IF NOT END THEN CONTINUE
         JSR DK2NXT      ; WRITE BUFFER, READ NEXT TRACK
         PLA             ; GET BYTE TO BE WRITTEN
         STA a:PH        ; PUT IN BUFFER (MODIFIED BY COMINC)
@@ -623,7 +624,7 @@ DK2OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
 ; DK2NXT : DISK 2 NEXT TRACK READ, USED BY DK2IN AND DK2OUT
 ;
 DK2NXT  LDA D2BFDR      ; GET BUFFER 'DIRTY' FLAG
-        BEQ *+2+7       ; ($242A) CONTINUE IF NOT 'DIRTY'
+        BEQ *+2+5       ; ($242A) CONTINUE IF NOT 'DIRTY'
         LDX #$08        ; SET OFFSET
         JSR WTDKBF      ; GO WRITE THIS BUFFER
         LDA D2BFLO      ; RESET READ/WRITE ADDRESSES
@@ -671,7 +672,7 @@ BDMHTK  LDA #$00        ; CLEAR BUFFER 'DIRTY' FLAG
 ;
 CKBFEN  LDA D1IADR,Y    ; LOW ADDRESS OF BYTE TO BE READ
         CMP D1BFHI,X    ; LOW ADDRESS OF END OF BUFFER
-        BNE *+2+8       ; ($2476) IF NOT THE SAME THEN RETURN
+        BNE *+2+6       ; ($2476) IF NOT THE SAME THEN RETURN
         LDA D1IADR+1,Y  ; HI ADDRESS OF BYTE TO BE READ
         CMP D1BFHI+1,X  ; HI ADDRESS OF END OF BUFFER
 L2476   RTS             ; RETURN WITH Z FLAG SET IF END
@@ -714,50 +715,27 @@ MODMIN  LDA #$80        ; HIGH ADDRESS FOR INDIRECT FILE
 ; NOP'S ($EA) WILL ALLOW THIS.
 ;
 PTROUT  PHA             ; SAVE BYTE TO BE PRINTED
-        LDA PTRPIA      ; CHECK PIA STATUS REGISTER
-        LSR A
-        BCS PTROUT+1    ; ($24A0) NOT CLEAR, KEEP WAITING
-        PLA             ; RESTORE THE OUTPUT BYTE
-        AND #$7F        ; KILL THE UPPER BIT
-        STA PTRPIA+2    ; OUTPUT THE BYTE
-        LDA PTRPIA+$20  ; STROBE THE BYTE TO THE PRINTER
+        EOR #$FF
+        STA KPORT
+        LDA KPORT
+        EOR #$FF
+        STA $2525
+        PLA
+        BIT $2525
         RTS
-;
-; BEFORE USING EITHER OF THE CA10X ROUTINES, THE PORT NUMBER MUST
-; BE SET IN X16DEV ($2323)
-;
-; X16INP : CA10X INPUT ROUTINE (BASIC DEVICE 8)
-;
-X16INP  LDX X16DEV      ; GET ACIA DEVICE#
-        LDA X16ACI,X    ; GET ACIA STATUS REGISTER
-        LSR A           ; SHIFT STATUS BIT TO CARRY
-        BCC X16INP      ; TRY AGAIN IF NOT READY
-        BCS PATCH3      ; ($2508) GO TO PATCH3 TO INPUT
-        BRK             ; (NOT USED)
-        BRK             ; (NOT USED)
-;
-; X16OUT : CA10X OUTPUT ROUTINE (BASIC DEVICE 8)
-X16OUT  PHA             ; SAVE THE OUTPUT BYTE
-        LDX X16DEV      ; GET THE CURRENT DEVICE NUMBER
-        LDA X16ACI,X    ; GET THE STATUS REGISTER
-        LSR A
-        LSR A
-        BCC X16OUT+1    ; ($24BE) IF NOT READY, TRY AGAIN
-        PLA             ; GET THE BYTE TO BE OUTPUT
-        STA X16ACI+1,X  ; WRITE IT
-        RTS
+        .RES 27
 ;
 ; TERMOT : TERMINAL OUTPUT ROUTINE (BASIC DEVICE 1)
 ;
-TERMOT  PHA             ; SAVE THE BYTE TO OUTPUT
-        LDA TERMAC      ; GET THE ACIA STATUS
+TERMOT  PHA
+        LDA $F000
         LSR A
         LSR A
-        BCC TERMOT+1    ; ($24CE) IF NOT READY, TRY AGAIN
-        PLA             ; GET THE BYTE TO PRINT
-        STA TERMIO      ; OUTPUT IT
-        PHA             ; SAVE IT AGAIN
-        LDA TERMAC      ; GET THE STATUS AGAIN
+        BCC $24CE
+        PLA
+        STA $F001
+        PHA
+        LDA $F000
         LSR A           ; CHECK FOR INPUT READY
         BCC TORTN       ; NO KEY PRESSED, GO BACK
         JSR TERMIN      ; INPUT A CHARACTER
@@ -766,17 +744,17 @@ TERMOT  PHA             ; SAVE THE BYTE TO OUTPUT
         BNE TORTN       ; NO, GO BACK
         JSR TERMIN      ; YES, INPUT A BYTE
         CMP #$11        ; CONTROL Q?
-        BNE *+2-5       ; ($24EA) NO, TRY AGAIN
+        BNE *+2-7       ; ($24EA) NO, TRY AGAIN
 TORTN   PLA             ; RESTORE THE OUTPUT BYTE
         STA A_HOLD      ; SAVE IT
         RTS
 ;
 ; TERMIN : SERIAL TERMINAL INPUT ROUTINE (BASIC DEVICE 1)
-TERMIN  LDA TERMAC      ; GET ACIA STATUS
+TERMIN  LDA $F000       ; GET ACIA STATUS
         INC RNDSED      ; BUMP THE RANDOM SEED
         LSR A           ; CHECK RCV READY
         BCC TERMIN      ; IF NOT TRY AGAIN
-        LDA TERMIO      ; INPUT THE BYTE
+        LDA $F001       ; INPUT THE BYTE
         AND #$7F        ; KILL THE UPPER BIT
 TIRTN   STA A_HOLD      ; SAVE THE CHARACTER
         RTS
@@ -802,13 +780,13 @@ SERINP  LDA UART+5      ; GET THE UART STATUS
         BCC SERINP      ; NOT READY, TRY AGAIN
         LDA UART+3      ; INPUT A BYTE
         STA UART+7      ; ACKNOWLEDGE INPUT
-        STA A_HOLD      ; SAVE THE BYTE
+        STA IOTABL      ; SAVE THE BYTE
         RTS
 ;
 ; THE FOLLOWING IS A "WHO KNOWS" INSTRUCTION
 ; THIS IS ANOTHER CASE OF HOW TO USE UP COMPUTER TIME
 ;
-        JSR KIRTN       ; JUMP SUBROUTINE TO RTS
+        JSR $2544       ; JUMP SUBROUTINE TO RTS
 ;
 ; KBINP : POLLED KEYBOARD INPUT ROUTINE (BASIC DEVICE 2)
 ;
@@ -822,7 +800,7 @@ SERINP  LDA UART+5      ; GET THE UART STATUS
 ;
 KBINP   JSR SWAP4       ; SAVE $213-$216
         INC RNDSED      ; BUMP THE RANDOM SEED
-        JSR KPOLL       ; CALL THE ROUTINE IN ROM
+        JSR $32CC       ; CALL THE ROUTINE
         BEQ KBINP+3     ; ($252E) IF NULL THEN TRY AGAIN
 ;
 ; THIS IS ANOTHER STRANGE INSTRUCTION. THE PRESENT KEYBOARD ROUTINE
@@ -891,7 +869,8 @@ CKCTLX  CMP #$18        ; CONTROL X? (LOAD INDIRECT FILE)
         JSR MODMIN      ; GOSUB TO SET INPUT HIGH ADDRESS
         STA MINADR      ; SET INPUT LOW ADDRESS
         BCS CKIRTN+3    ; ($2596) ALWAYS BRANCH TO EXIT
-CKCTLP  CMP #$10        ; IS IT CONTROL P
+CKCTLP  NOP             ; CODE REMOVED IN V3.3
+        NOP             ; CODE REMOVED IN V3.3
         BNE CKIRTN+5    ; ($2598) NO, JUMP TO EXIT
         LDA OUTDST      ; GET THE OUTPUT DISTRIBUTOR
         EOR #$08        ; FLIP-FLOP THE PRINTER OUTPUT
@@ -901,51 +880,44 @@ CKIRTN  STA OUTDST      ; SAVE THE DISTRIBUTOR
 ;
 ; VIDOUT : 540 VIDEO OUTPUT ROUTINE (BASIC DEVICE 2)
 ;
-; AS DELIVERED WITH THE SYSTEM THE 540 VIDEO DRIVER IS NOTHING
-; MORE THAN A "GLASS TELETYPE" WITH NON-DESTRUCTIVE BACKSPACE
-; AND FORWARD SPACE. CONSIDERING THE SOFTWARE SUPPLIED WITH OTHER
-; COMPARABLE SYSTEMS, THIS IS RIDICULOUS. THE ROUTINE WILL NOT EVEN
-; ALLOW YOU TO PRINT ANY OF THE OSI GRAPHICS CHARACTERS AND
-; FORCES YOU TO "POKE" THEM TO THE SCREEN. ONE CHANGE THAT YOU
-; COULD MAKE WOULD BE TO CHANGE THE INSTRUCTIONS FROM $25B9 TO
-; $25C0 AND $25A1,$25A2 TO NOP'S. THIS WILL ALLOW YOU TO PRINT SOME
-; GRAPHICS CHARACTERS. WARNING: THIS ROUTINE IS BAD ABOUT USING
-; SELF MODIFYING CODE.
+; THIS CODE WAS SIGNIFICANTLY IMPROVED OVER THE "GLASS TELETYPE"
+; VIDEO OUTPUT CODE IN V3.2.
 ;
-VIDOUT  TYA             ; SAVE Y FOR LATER
+VIDOUT  LDA $2363
+        JMP $32CF
+        BRK
+        BRK
+        AND #$7F
+        JMP PRINT
+        JSR $37DA
         PHA
-        LDY LCHAR       ; GET CHARACTER 'UNDER' CURSOR
-        LDA A_HOLD      ; GET OUTPUT CHARACTER
-        AND #$7F        ; STRIP TO 7 BIT ASCII
-        LDX PH          ; GET OFFSET IN PRINT LINE
-        CMP #$0D        ; IS IT A 'CR'
-        BEQ CR          ; YES, DO IT
-        CMP #$0A        ; IS IT A 'LF'
-        BEQ LF          ; YES, DO IT
-        CMP #$08        ; BACKSPACE? (non dest cut H)
-        BEQ BSPACE      ; YES, DO IT
-        CMP #$10        ; IS IT CNTRL P
-        BEQ CNTLP       ; YES, DO IT
-        CMP #$0C        ; IS IT CNTRL L (forward space non dest)
-        BEQ CNTLP       ; YES, DO IT
-        CMP #$20        ; IS IT < 'SPACE'
-        BMI EXIT        ; YES, INVALID CHARACTER
-        CMP #$7B        ; IS IT > '{'
-        BPL EXIT        ; YES, INVALID CHARACTER
-        STA PLINE,X     ; OUTPUT CHARACTER TO SCREEN
-        INX             ; BUMP LINE POINTER
-        CPX #$80        ; LAST CHARACTER ON LINE
-        BEQ SCROLL      ; YES, DO SCROLL
-EXIT    LDY PLINE,X     ; GET CHAR. 'UNDER' NEW CURSOR
-        STY LCHAR       ; SAVE IT
-        LDA #$5F        ; GET CURSOR CHARACTER
-        STA PLINE,X     ; OUTPUT IT
-        STX VOTOFS      ; SAVE OFFSET
-        PLA             ; RESTORE Y
-        TAY
-        LDA #$01        ; CHECK FOR 'CNTRL'
+        AND #$8D
+        BEQ L1
+        CMP $2AC6
+        BNE L2
+L1      PLA
+        RTS
+L2      LDA #$00
+        BNE L1
+        LDY $2363
+        LDX $31A9
+        LDA #$00
+        BNE MOVE
+        CPY #$0C
+        BEQ $25FE
+        CPY #$0A
+        BNE BSPACE
+        INC $31AB
+        CPX $31AB
+        BCS L1
+        BCC $2601
+        BRK
+        BRK
+        NOP
+        NOP
+EXIT    LDA #$01        ; CHECK FOR 'CNTRL'
         JSR KEYTST
-        BVS KTRTN       ; NO, WE ARE DONE
+        BVC KTRTN       ; NO, WE ARE DONE
         LDA #$08        ; CHECK FOR 'S'
         JSR KEYTST
         BPL KTRTN       ; NO, WE ARE DONE
@@ -953,50 +925,52 @@ EXIT    LDY PLINE,X     ; GET CHAR. 'UNDER' NEW CURSOR
         PHA             ; AND SAVE
         JSR KBINP       ; INPUT FROM POLLED KEYBOARD
         CMP #$13        ; CNTRL S?
-        BEQ *+2-5       ; ($25EB) YES, KEEP LOOPING
+        BEQ *+2-7       ; ($25EB) YES, KEEP LOOPING
         JMP PATCH4      ; EXIT THE ROUTINE
-BSPACE  TYA             ; RESTORE CHAR. 'UNDER' CURSOR
-        STA PLINE,X     ; PRINT IT
-        DEX             ; BUMP LINE POINTER BACK 1
-        BCS EXIT        ; GO BACK
-CNTLP   TYA             ; RESTORE CHAR. 'UNDER' CURSOR
-        STA PLINE,X
-        INX             ; BUMP LINE POINTER
-        BCS EXIT        ; EXIT THIS ROUTINE
-CR      TYA             ; RESTORE CHAR. 'UNDER' CURSOR
-        STA PLINE,X
-        LDX #$40        ; RESET LINE POINTER
-        BNE EXIT        ; JUMP TO EXIT
-SCROLL  LDX #$40        ; RESET LINE POINTER
-        BNE *+2+6       ; ($2613) JUMP A LITTLE
-LF      TYA             ; RESTORE CHAR. 'UNDER' CURSOR
-        STA PLINE,X
-        STX VLOSAV      ; SAVE LINE OFFSET
-        LDA #$20        ; SET TO CLEAR LOWER LINE
-        LDX #$80        ; SET OFFSET
-        STA PLINE,X     ; OUTPUT IT
-        INX             ; BUMP THE OFFSET
-        BNE *+2-4       ; ($261A) LOOP UNTIL DONE
-        LDY #$CF        ; GET SET TO SCROLL
-SETNXT  INY             ; FIRST TIME THROUGH Y = $D0
-        STY VLP1        ; ADJUST LINE POINTER
-        STY VLP2        ; ADJUST LINE POINTER
-MOVE    LDA a:PH,X      ; MOVE UP 1 LINE AT A TIME
-        STA a:PH,X
-        INX             ; BUMP THE LINE POINTER
-        BEQ SETNXT      ; IF MOVED LINE, SET FOR NEXT
-        BPL MOVE        ; KEEP LOOPING
-        CPY #$D7        ; HAVE WE DONE THEM ALL
-        BCC MOVE        ; NO, KEEP LOOPING
-        LDX PH          ; RESTORE LINE OFFSET
-        BNE EXIT        ; JUMP TO EXIT
-LCHAR   .RES 1           ; CHARACTER 'UNDER' CURSOR
+BSPACE
+        CPY #$1B
+        BNE $25B3
+        DEC $25C0
+        BNE $25B3
+        INC $31AB
+        TXA
+        SEC
+        SBC $31AB
+        SEC
+        ADC $31AA
+        STA $25B6
+        TAX
+        LDA $235F
+        LDY $2361
+        PHA
+        LDA #$0A
+        JSR $2343
+        DEX
+        BNE $2617
+        TXA
+        STA $25B6
+        STA $31AB
+        PLA
+        TAX
+        JMP $31A1
+MOVE    BMI $2638
+        TYA
+        PHA
+        LDY #$00
+        SEC
+        SBC #$0A
+        INY
+        BCS $2630
+        JMP $3180
+        JMP $3193
+        BRK
+        BRK
 ;
 ; KEYTST : TEST POLLED KEYBOARD FOR KEYDOWN IN ROW IN ACCUM
 ;
-KEYTST STA KPORT        ; ENABLE THE ROW
-       BIT KPORT        ; CHECK FOR KEY DOWN
-KTRTN  RTS
+KEYTST  JMP $249F
+        BIT KPORT        ; CHECK FOR KEY DOWN
+KTRTN   RTS
 ;
 ; SWAP4 : PATCH ADDED TO ENABLE USE OF POLLED KEYBOARD ROUTINE
 ; @$FD00. SWAPS OUT 4 BYTES FROM $213-$216 TO $2657-$265A
@@ -1033,14 +1007,14 @@ HOME    JSR STEPOT      ; STEP HEAD OUT
 HOLOOP  LDA #$02        ; CHECK FOR TRACK 0
         BIT FLOPIN
         BEQ TENMS       ; DELAY 10MS AND RETURN IF TR 0
-        JSR STEPIN      ; STEP HEAD IN
-        BEQ HOLOOP      ; LOOP BACK AND THY AGAIN
+        JSR $2C54       ; STEP HEAD IN
+        BNE HOLOOP      ; LOOP BACK AND THY AGAIN
 ;
 ; TENMS : 10 MS DELAY. ACTUALLY @ 1MHZ THE DELAY IS CLOSER TO 11 MS
 ;
 TENMS   LDX #$0C
         LDY #$31        ; LOOP COUNT FOR  DELAY
-        JSR DELAY       ; DO 1 MS DELAY
+        JSR $2707       ; DO 1 MS DELAY
         DEX
         BNE TENMS+2     ; ($267A) NOT DONE, KEEP ON
         RTS
@@ -1060,10 +1034,10 @@ STEP    STA FLOPOT
         JSR STEPIN-1    ; ($2682) KILLS 12 CLOCK CYCLES
         AND #$F7        ; TURN OFF STEP BIT
         JSR SETFLO      ; STA @ $C002 AND RETURN
-        JSR DELAY+6     ; ($2706) KILL 14 CYCLES
+        JSR $270D       ; ($270D) KILL 14 CYCLES
         ORA #$08        ; TURN ON STEP BIT
         JSR SETFLO      ; STA @ $C002 AND RETURN
-        LDX STEPRT      ; GET STEP RATE
+        LDX #$08        ; STEP RATE
         BNE TENMS+2     ; ($267A) DELAY STEP RATE MS
 ;
 ; (ROUTINE @ $26A6) THIS ROUTINE CONVERTS A HEX TRACK NUMBER
@@ -1076,27 +1050,27 @@ CNVHTN  LDA TRKNM
         LDX #$FF        ; INIT X TO COUNT 10'S
         INX
         SBC #10         ; SUBTRACT 10 FROM TRACK#
-        BCS *+2-3       ; ($26AC) IF >=0 BUMP X AND DO AGAIN
+        BCS *+2-5       ; ($26AC) IF >=0 BUMP X AND DO AGAIN
         ADC #10         ; ADD BACK LAST 10 FOR REMAINDER
-        STA TKNHLD      ; SAVE REMAINDER
+        STA SCTLEN      ; SAVE REMAINDER
         TXA             ; GET NUMBER OF TENS
         ASL A           ; SHIFT TO HIGH NIBBLE
         ASL A
         ASL A
         ASL A
-        ORA TKNHLD      ; COMBINE WITH REMAINDER
+        ORA SCTLEN      ; COMBINE WITH REMAINDER
 ;
 ; SETTK : CHECK FOR VALID TRACK NUMBER AND MOVE HEAD THERE
 ; TRACK NUMBER IN ACCUMULATOR
 ;
-SETTK   STA TKNHLD      ; SAVE TRACK NUMBER
+SETTK   STA SCTLEN      ; SAVE TRACK NUMBER
         PHA
         BIT $269E       ; CHECK FOR 8 BIT
-        BEQ ERR8-2      ; ($26CB) IF NOT, CONTINUE
+        BEQ ERR8-5      ; ($26CB) IF NOT, CONTINUE
         AND #$06        ; CHECK FOR 4 BIT OR 2 BIT
         BNE ERR8        ; YES, LOW NIBBLE > 9 : ERROR 8
         PLA             ; RESTORE TRACK NUMBER
-        CMP #$77        ; TRACK < 77?
+        CMP #$40        ; TRACK < 40?
         BCC MOVEHD      ; YES, CONTINUE
 ERR8    LDA #$08        ; ERROR 8, BAD TRACK NUMBER
         BNE ERR6A+2     ; ($26DE) JUMP TO ERROR HANDLER
@@ -1107,10 +1081,10 @@ MOVEHD  LDA  DSKDR      ; GET DISK DRIVE
         BCC CKTK        ; YES, CONTINUE
 ERR6A   LDA #$06        ; DRIVE NOT READY : ERROR 6
         JMP ERRENT      ; JUMP TO OS ERROR ROUTINE
-CKTK    LDA TKNHLD      ; RETRIEVE TRACK NUMBER
+CKTK    LDA SCTLEN      ; RETRIEVE TRACK NUMBER
         CMP TKNUM       ; SAME AS PRESENT TRACK NUMBER?
-        BEQ STCCNT      ; YES, DON'T MOVE THE HEAD
-        BCS *+2+9       ; ($26F1) BRANCH IF > PRESENT TRACK
+        BEQ STCCNT+7    ; YES, DON'T MOVE THE HEAD
+        BCS *+2+7       ; ($26F1) BRANCH IF > PRESENT TRACK
         JSR STEPIN      ; STEP HEAD IN ONE TRACK
         LDA #$99        ; SET TO SUBTRACT 1 FROM TKNUM
         BCC *+2+6       ; ($26F5) JUMP
@@ -2390,6 +2364,1155 @@ SCRBUF  .RES 256        ; SCRATCH BUFFER FOR DIRECTORY
 ;
 SWAP0   .RES 256        ; PAGE 9 HOLD AREA (USED BY BASIC)
 SWAP1   .RES 256        ; STACK  "    "     "    "  "
+
+; BELOW CODE IS NEW IN V3.3
+
+        LDA #$04
+        STA $E0
+        JMP $2754
+        STY $31AA
+        PLA
+        SEC
+        SBC $31AA
+        STA $31A9
+        STA $31AB
+        DEC $25C0
+        BPL $31A1
+        INC $25C0
+        CPY #$50
+        BEQ $31AC
+        CPY #$43
+        BNE $31A6
+        INC $25C0
+        LDA #$00
+        STA $2363
+        JMP $25B3
+        EOR ($01,X)
+        BRK
+        INC $25B6
+        LDA $235F
+        PHA
+        LDA $2361
+        PHA
+        LDA #$00
+        JSR $2343
+        JSR $31CD
+        PLA
+        STA $2361
+        PLA
+        STA $235F
+        DEC $25B6
+        JMP $31A1
+        JSR $3233
+        JSR $32FC
+        JSR $3321
+        LDA #$AF
+        LDX #$DF
+        JSR $324C
+        STY $E6
+        JSR $3268
+        INC $E6
+        LDX $E6
+        JSR $3330
+        LDY #$00
+        LDA ($E2),Y
+        LDX #$07
+        CMP $323C,X
+        BEQ $3202
+        DEX
+        BPL $31EF
+        CMP #$7F
+        BCS $31FF
+        CMP #$20
+        BCS $3212
+        LDA #$20
+        INX
+        LDA ($E0),Y
+        AND #$01
+        CMP $3244,X
+        BEQ $320F
+        TXA
+        EOR #$0F
+        TAX
+        TXA
+        ORA #$A0
+        JSR $2343
+        CPY $F5
+        INY
+        BCC $31EB
+        JSR $3268
+        JSR $3263
+        LDA $E6
+        CMP $F4
+        BCC $31DF
+        LDA #$AF
+        LDX #$AC
+        JSR $324C
+        JSR $331E
+        JSR $3305
+        JSR $2D73
+        ORA $0A0A
+        ASL A
+        BRK
+        RTS
+        JSR $A6A8
+        TXS
+        .BYTE $A7
+        STA $A5AA,X
+        BRK
+        BRK
+        BRK
+        ORA ($00,X)
+        ORA ($00,X)
+        ORA ($48,X)
+        JSR $3263
+        TXA
+        JSR $2343
+        PLA
+        LDY $F5
+        ORA #$80
+        JSR $2343
+        DEY
+        BPL $3257
+        TXA
+        JSR $2343
+        LDA #$0D
+        JMP $2343
+        LDA #$DC
+        JMP $2343
+        .BYTE 'C'
+        .BYTE $23
+        JSR $0D3B
+        .BYTE $DA
+        JSR $AC20
+        BRK
+        LDX #$F8
+        BNE $3280
+        JSR $2761
+        LDX #$08
+        LDA $FE
+        PHA
+        LDA $FF
+        PHA
+        LDA #$79
+        STA $FE
+        LDA #$3A
+        STA $FF
+        STX $32C8
+        LDY #$03
+        JSR $32C2
+        LDY #$01
+        JSR $32C2
+        LDA $0200
+        CMP #$29
+        BNE $32BB
+        LDY #$00
+        LDA ($FE),Y
+        INY
+        TAX
+        LDA ($FE),Y
+        STX $FE
+        LDX $32C8
+        BPL $32B4
+        CLC
+        ADC #$08
+        STA $FF
+        JSR $32C2
+        BNE $32A2
+        PLA
+        STA $FF
+        PLA
+        STA $FE
+        RTS
+        LDA ($FE),Y
+        BEQ $32CB
+        CLC
+        ADC #$08
+        STA ($FE),Y
+        RTS
+        JMP $3590
+        JSR $33C0
+        JMP $25D7
+        .BYTE $CB
+        CMP $CB,X
+        CMP ($FF),Y
+        ORA a:$40
+        BRK
+        ORA $00,X
+        ORA $15
+        .BYTE $AB
+        ASL $0D20
+        .BYTE $34
+        ASL $3F
+        .BYTE $0B
+        .BYTE $2F
+        .BYTE $8B
+        BNE $3300
+        BPL $32FA
+        ORA $1F
+        .BYTE $17
+        .BYTE $17
+        STA $D0
+        ASL $3F
+        .BYTE $0B
+        .BYTE $2F
+        .BYTE $8B
+        BNE $328A
+        .BYTE $EF
+        .BYTE $32
+        STX $32ED
+        STY $32EE
+        LDX #$17
+        LDA $E0,X
+        LDY $32D5,X
+        STA $32D5,X
+        STY $E0,X
+        DEX
+        BPL $3307
+        LDY $32EE
+        LDX $32ED
+        LDA $32EF
+        RTS
+        LDA $ED
+        BIT $EFA5
+        PHA
+        JSR $332E
+        LDA ($E2),Y
+        TAX
+        PLA
+        STA ($E2),Y
+        RTS
+        LDX $EB
+        LDA #$00
+        STA $E3
+        TXA
+        LDY $F2
+        ASL A
+        ROL $E3
+        DEY
+        BNE $3337
+        ADC $F6
+        STA $E2
+        STA $E0
+        LDA $E3
+        ADC $F7
+        STA $E3
+        ADC #$04
+        STA $E1
+        LDY $EA
+        RTS
+        LDA #$FF
+        PHA
+        EOR $F3
+        PHA
+        TXA
+        TAY
+        LDX $F4
+        BCS $3367
+        LDA #$00
+        PHA
+        LDA $F3
+        ADC #$00
+        PHA
+        TXA
+        LDY $F4
+        STA $E9
+        PLA
+        STA $E6
+        PLA
+        STA $E7
+        TYA
+        PHA
+        TXA
+        PHA
+        JSR $3330
+        LDA $E2
+        STA $E0
+        LDA $E3
+        STA $E1
+        JSR $339A
+        PLA
+        TAX
+        JSR $3330
+        JSR $339A
+        PLA
+        TAX
+        JSR $3330
+        LDY $F5
+        JSR $357E
+        DEY
+        DEY
+        BPL $3390
+        LDA #$00
+        RTS
+        LDA $F4
+        SEC
+        SBC $E9
+        TAX
+        BEQ $33BF
+        LDA $E0
+        STA $E2
+        CLC
+        ADC $E6
+        STA $E0
+        LDA $E1
+        STA $E3
+        ADC $E7
+        STA $E1
+        LDY $F5
+        LDA ($E0),Y
+        STA ($E2),Y
+        DEY
+        BPL $33B5
+        DEX
+        BNE $33A2
+        RTS
+        PHA
+        JSR $32FC
+        JSR $3321
+        PLA
+        LDX $E8
+        BEQ $33F4
+        BPL $33EC
+        STA $E9
+        INC $E8
+        CMP #$02
+        BEQ $33E6
+        CMP #$1F
+        BEQ $33E8
+        CMP #$1D
+        BEQ $33E8
+        CMP #$11
+        BEQ $33E6
+        CMP #$16
+        BNE $3461
+        INC $E8
+        INC $E8
+        BNE $33FC
+        STA $E5,X
+        DEC $E8
+        BNE $33FC
+        BEQ $3461
+        LDX $E4
+        BMI $33FE
+        BNE $33FC
+        DEC $E4
+        LDA #$00
+        CMP #$1B
+        BNE $3404
+        DEC $E8
+        LDX $EB
+        CMP #$08
+        BNE $3417
+        DEY
+        BPL $3417
+        DEX
+        BPL $3415
+        INX
+        JSR $3350
+        TAX
+        LDY $F5
+        CMP #$10
+        BNE $3424
+        CPY $F5
+        BNE $3423
+        LDA #$0A
+        LDY #$FF
+        INY
+        CMP #$0D
+        BNE $342A
+        LDY #$00
+        CMP #$0A
+        BNE $343C
+        CPX $F4
+        BNE $343B
+        LDX #$00
+        STY $EA
+        JSR $335C
+        BEQ $3459
+        INX
+        CMP #$0E
+        BNE $3447
+        INY
+        TYA
+        ORA #$07
+        TAY
+        BNE $3475
+        STX $EB
+        STY $EA
+        CMP #$20
+        BCC $3459
+        STA ($E2),Y
+        LDA $EE
+        STA ($E0),Y
+        LDA #$10
+        BNE $33F4
+        JSR $331E
+        STX $EF
+        JMP $364B
+        LDA $E9
+        LDX $EB
+        CMP #$12
+        BNE $346D
+        LDX #$00
+        BEQ $3428
+        CMP #$11
+        BNE $3481
+        LDX $E6
+        LDY $E7
+        CPY $F5
+        BEQ $347B
+        BCS $3459
+        CPX $F4
+        BEQ $3447
+        BCC $3447
+        CMP #$0B
+        BEQ $342E
+        CMP #$0C
+        BNE $348F
+        DEX
+        BPL $3447
+        INX
+        LDA #$1A
+        CMP #$13
+        BNE $3496
+        JSR $335C
+        CMP #$1A
+        BNE $349D
+        JSR $3350
+        CMP #$1F
+        BNE $34A5
+        LDX $E6
+        BCS $34B3
+        CMP #$01
+        BNE $34AD
+        LDX #$00
+        BCS $34B3
+        CMP #$19
+        BNE $34B5
+        LDX #$0E
+        STX $EE
+        CMP #$05
+        BNE $34C7
+        TYA
+        ADC #$40
+        STA $E7
+        TXA
+        ADC #$41
+        STA $E6
+        LDA #$03
+        BNE $34D1
+        CMP #$21
+        BNE $34D5
+        LDA ($E2),Y
+        STA $E6
+        LDA #$02
+        STA $E4
+        LDA #$00
+        CMP #$0F
+        BNE $34DD
+        LDX $F4
+        BCS $34E1
+        CMP #$18
+        BNE $34F5
+        CPY $F5
+        JSR $357E
+        BCC $34E1
+        INX
+        JSR $3330
+        LDY #$00
+        CPX $F4
+        BCC $34E1
+        BEQ $34E1
+        TYA
+        CMP #$16
+        BNE $3520
+        CLC
+        TXA
+        ADC $E6
+        CMP $F4
+        BCS $356F
+        TYA
+        ADC $E7
+        CMP $F5
+        BCS $356F
+        TYA
+        ADC $E2
+        STA $E2
+        BCC $3511
+        INC $E3
+        LDX #$01
+        LDA $E2,X
+        STA $F6,X
+        LDA $E6,X
+        STA $F4,X
+        DEX
+        BPL $3513
+        BMI $355E
+        CMP #$14
+        BNE $352A
+        LDY #$02
+        LDX #$05
+        BNE $3532
+        CMP #$15
+        BNE $3545
+        LDY #$03
+        LDX #$0B
+        STA $EC
+        STY $D800
+        LDY #$05
+        LDA $32F0,X
+        STA $00F2,Y
+        DEX
+        DEY
+        BPL $3539
+        LDA #$1C
+        LDY #$00
+        STY $E2
+        STY $E0
+        LDX #$D0
+        STX $E3
+        LDX #$D4
+        STX $E1
+        LDX #$04
+        CMP #$1C
+        BNE $3561
+        JSR $357E
+        BNE $3559
+        JMP $3469
+        CMP #$02
+        BEQ $356A
+        CMP #$1D
+        BNE $356F
+        CLC
+        JSR $3572
+        BNE $356A
+        JMP $3459
+        LDA ($E0),Y
+        AND #$0F
+        EOR $E6
+        BNE $3586
+        LDA $E7
+        BCS $3584
+        LDA #$20
+        STA ($E2),Y
+        LDA #$0E
+        STA ($E0),Y
+        INY
+        BNE $358E
+        INC $E3
+        INC $E1
+        DEX
+        TXA
+        RTS
+        JSR $32FC
+        LDX $E4
+        BMI $359E
+        DEC $E4
+        LDY $E4,X
+        JMP $363B
+        INC $F1
+        LDA $F1
+        AND #$0F
+        BNE $35B2
+        JSR $331E
+        LDA $F1
+        AND #$10
+        BNE $35B2
+        JSR $3321
+        LDX #$01
+        JSR $364E
+        PHA
+        INX
+        LDY #$06
+        JSR $364E
+        BNE $35C9
+        DEY
+        TXA
+        ASL A
+        TAX
+        BCC $35BB
+        TAY
+        BCS $35E0
+        PHA
+        TYA
+        ASL A
+        ASL A
+        ASL A
+        STA $32EF
+        PLA
+        LDX #$FF
+        INX
+        ASL A
+        BCC $35D4
+        TXA
+        ADC $32EF
+        TAX
+        LDY $365C,X
+        TYA
+        BEQ $3608
+        PLA
+        BMI $35EE
+        CPY $F0
+        BNE $35EE
+        LDY #$00
+        BEQ $363B
+        PHA
+        AND #$20
+        BEQ $3608
+        CPX #$0C
+        BCS $3608
+        STY $F0
+        LDY #$1B
+        STY $32EF
+        PLA
+        LDA $3694,X
+        DEC $E8
+        PHA
+        JMP $33C4
+        PLA
+        STY $F0
+        CPY #$0D
+        BEQ $363B
+        CPY #$20
+        BEQ $363B
+        CPY #$00
+        BEQ $363B
+        PHA
+        AND #$07
+        LDX #$20
+        CPY #$00
+        BPL $3624
+        AND #$06
+        LDX #$10
+        LSR A
+        BCC $362C
+        BEQ $362E
+        LDX #$30
+        BIT $04F0
+        TXA
+        EOR $F0
+        TAY
+        PLA
+        AND #$40
+        BEQ $363B
+        TYA
+        AND #$1F
+        TAY
+        LDX #$07
+        DEC $32EF
+        BNE $363D
+        DEX
+        BNE $363D
+        TYA
+        AND #$7F
+        STA $32EF
+        JMP $3305
+        TXA
+        EOR #$FF
+        STA $DF00
+        STA $DF00
+        LDA $DF00
+        EOR #$FF
+        RTS
+        LDA ($B2),Y
+        .BYTE $B3
+        LDY $B5,X
+        LDX $B7,Y
+        BRK
+        CLV
+        LDA $BAB0,Y
+        LDA a:$007F
+        BRK
+        LDX $6F6C
+        TXA
+        ORA a:$0000
+        BRK
+        .BYTE 'w'
+        ADC $72
+        .BYTE 't'
+        ADC $6975,Y
+        BRK
+        .BYTE 's'
+        .BYTE 'd'
+        ROR $67
+        PLA
+        ROR A
+        .BYTE 'k'
+        BRK
+        SEI
+        .BYTE 'c'
+        ROR $62,X
+        ROR $AC6D
+        BRK
+        ADC ($61),Y
+        .BYTE 'z'
+        JSR $BBAF
+        BVS $3695
+        .BYTE $14
+        ORA $12,X
+        CLC
+        .BYTE $0C
+        .BYTE $0B
+        .BYTE $1A
+        BRK
+        .BYTE $13
+        ORA $0001,Y
+        JSR $2343
+        PLA
+        ROR A
+        BCS $36AD
+        LDA #$11
+        JSR $2343
+        JSR $00C0
+        JSR $0E10
+        JSR $1618
+        PHA
+        TXA
+        JSR $2343
+        PLA
+        CMP #$2C
+        BNE $36C5
+        JSR $00C0
+        BNE $36B3
+        JSR $0E0D
+        PLA
+        PLA
+        JMP $0A32
+        BRK
+        BRK
+        LDA #$00
+        BNE $36D6
+        JMP $1CD1
+        JSR $0A73
+        LDA #$00
+        STA $19
+        LDA #$00
+        STA $1A
+        PLA
+        PLA
+        LDA #$FF
+        STA $87
+        JSR $08AC
+        JMP $07B4
+        CMP $232C
+        BNE $36F9
+        PLA
+        PLA
+        PLA
+        PLA
+        JMP $2291
+        PHA
+        LDA $232D
+        BEQ $3707
+        LDX #$00
+        JSR $2477
+        JSR $2761
+        PLA
+        JSR $17D8
+        RTS
+        CMP #$46
+        BEQ $3713
+        JMP $0E1E
+        JSR $00C0
+        BEQ $3710
+        CMP #$2C
+        BNE $3713
+        JSR $00C0
+        JSR $0CCD
+        JSR $0CBE
+        JSR $1520
+        STA $2CED
+        STX $E1
+        STY $E2
+        JMP $1953
+        JSR $3744
+        BEQ $370B
+        PLA
+        PLA
+        JMP $2ABA
+        STA $374D
+        LDA $2E79,X
+        BNE $3749
+        STA $374D
+        LDA ($E1),Y
+        JSR $3A5F
+        CMP #$4D
+        RTS
+        BRK
+        BRK
+        BRK
+        BRK
+        .BYTE $1B
+        BRK
+        .BYTE 'G'
+        .BYTE 'b'
+        .BYTE 'D'
+        BPL $3766
+        BPL $3764
+        PHP
+        .BYTE $7F
+        .BYTE '_'
+        .BYTE $14
+        ASL $09
+        .BYTE $12
+        RTI
+        .BYTE $07
+        JSR $0D7B
+        .BYTE $04
+        .BYTE $04
+        .BYTE 'O'
+        .BYTE $07
+        BRK
+        BRK
+        .BYTE $FF
+        BRK
+        LDY $87
+        INY
+        BEQ $3778
+        JMP $10D0
+        JSR $00C6
+        BEQ $3797
+        CMP #$21
+        BNE $3788
+        JSR $00C0
+        BEQ $37A4
+        BNE $3794
+        JSR $00C6
+        BCC $378F
+        BCS $3794
+        JSR $096C
+        BEQ $37A4
+        JMP $0E1E
+        INC $19
+        BNE $379D
+        INC $1A
+        LDY #$01
+        LDA ($AC),Y
+        BNE $37A4
+        RTS
+        JSR $0633
+        BCS $37B7
+        LDY #$03
+        LDA ($AC),Y
+        STA $1A
+        DEY
+        LDA ($AC),Y
+        STA $19
+        DEY
+        BNE $379D
+        LDY #$FF
+        STY $376F
+        INY
+        STY $16
+        JSR $06D8
+        LDY #$FF
+        STY $376D
+        INY
+        STY $376E
+        STY $376F
+        STY $16
+        LDA $3767
+        STA ($EE),Y
+        PLA
+        PLA
+        JMP $047D
+        LDY $376F
+        BNE $37E3
+        LDA $2322
+        RTS
+        LDY $EE
+        CPY $3756
+        BCS $37FE
+        CMP $3765
+        BCC $37FE
+        CMP #$20
+        BNE $37F8
+        CPY $3753
+        BEQ $37FE
+        LDY #$00
+        STA ($EE),Y
+        INC $EE
+        LDA #$00
+        RTS
+        CMP #$3F
+        BNE $3808
+        JMP $05C1
+        CMP #$21
+        BNE $3816
+        CPX $3753
+        BNE $3816
+        LDA #$91
+        JMP $05C3
+        JMP $05C5
+        LDA $3753
+        STA $EE
+        LDA $3754
+        STA $EF
+        LDA $376E
+        BEQ $382F
+        LDY #$00
+        LDA $3767
+        STA ($EE),Y
+        LDY #$FF
+        INY
+        LDA ($EE),Y
+        CMP $3767
+        BEQ $3843
+        LDX $376D
+        BEQ $3831
+        JSR $0AEE
+        BNE $3831
+        LDX #$00
+        STX $376D
+        STY $3768
+        LDA $16
+        STA $3769
+        LDA $376C
+        BEQ $3882
+        STX $376C
+        LDX $3768
+        LDA $3767
+        RTS
+        LDA #$FF
+        STA $376C
+        STA $376E
+        BNE $382F
+        LDY #$00
+        LDA ($EE),Y
+        LDY $3768
+        CMP $3767
+        BEQ $3882
+        JSR $0A73
+        LDX #$00
+        STX $16
+        DEX
+        STX $376D
+        BNE $382F
+        JMP $38CE
+        LDX $375C
+        BEQ $38BA
+        LDX $375A
+        BEQ $38BA
+        LDA ($EE),Y
+        CMP $3767
+        BEQ $389F
+        LDA $375A
+        INY
+        JSR $0AEE
+        BNE $388F
+        TYA
+        BEQ $38C4
+        DEC $16
+        LDX #$02
+        LDA $375C
+        JSR $0AEE
+        DEX
+        BEQ $38A6
+        BMI $38B5
+        LDA #$20
+        BNE $38A9
+        DEC $16
+        DEY
+        BPL $389F
+        JSR $0AEE
+        JSR $0A73
+        LDA #$00
+        STA $16
+        LDY #$01
+        DEY
+        BMI $38C4
+        LDA $3767
+        STA ($EE),Y
+        STY $3768
+        JSR $0587
+        CMP $375B
+        BNE $38DC
+        JMP $3983
+        CMP $3758
+        BEQ $38E6
+        CMP $3759
+        BNE $38E9
+        JMP $39D6
+        CMP $375F
+        BNE $38F1
+        JMP $3869
+        CMP $3760
+        BNE $38F9
+        JMP $3977
+        CMP $3761
+        BNE $3901
+        JMP $39B7
+        CMP $3762
+        BNE $3909
+        JMP $39A9
+        CMP $3763
+        BNE $3911
+        JMP $3885
+        CMP $375D
+        BEQ $391B
+        CMP $375E
+        BNE $391E
+        JMP $3A00
+        CMP $3767
+        BNE $3926
+        JMP $385F
+        CMP $3765
+        BCC $38CE
+        CMP $3766
+        BCC $3933
+        JMP $38CE
+        CPY $3755
+        BCS $3930
+        LDX $16
+        CPX $376A
+        BCS $3930
+        PHA
+        TXA
+        CLC
+        ADC #$03
+        CMP $376A
+        BCC $394F
+        LDA $3764
+        JSR $0AEE
+        PLA
+        INC $16
+        PHA
+        DEC $16
+        JSR $0AEE
+        CPY $3757
+        BCC $3963
+        LDA $3764
+        JSR $0AEE
+        LDA ($EE),Y
+        TAX
+        PLA
+        STA ($EE),Y
+        INY
+        TXA
+        CMP $3767
+        BEQ $3996
+        CPY $3755
+        BCS $3991
+        BCC $3952
+        LDX $375C
+        BEQ $39D3
+        LDA #$00
+        STA $3768
+        BEQ $399B
+        STA $375C
+        TYA
+        BEQ $39D3
+        TAX
+        DEX
+        STX $3768
+        CLC
+        BCC $399B
+        LDA $3767
+        DEC $16
+        INC $3768
+        STA ($EE),Y
+        CPY $3768
+        BEQ $39D3
+        DEY
+        LDA $375C
+        JSR $0AEE
+        BNE $399B
+        LDX $375A
+        BEQ $39D3
+        LDX $3755
+        INX
+        STX $3768
+        BNE $39EB
+        LDX $375A
+        BEQ $39D3
+        LDA #$00
+        STA $3768
+        CLC
+        LDA $376B
+        ADC $3768
+        STA $3768
+        TYA
+        CMP $3768
+        BCS $39C1
+        BCC $39EB
+        JMP $38CE
+        LDX $375A
+        BNE $39E0
+        STA $375A
+        BNE $39E5
+        CMP $375A
+        BNE $39D3
+        STY $3768
+        INC $3768
+        LDA ($EE),Y
+        CMP $3767
+        BEQ $39D3
+        CPY $3768
+        BCS $39D3
+        INY
+        LDA $375A
+        JSR $0AEE
+        BNE $39EB
+        LDY #$00
+        LDA ($EE),Y
+        LDY $3768
+        CMP $3767
+        BEQ $39D3
+        LDA $375C
+        BNE $3A23
+        LDA $3764
+        LDX $16
+        CPX $376A
+        BCS $3A1E
+        LDA $375E
+        JSR $0AEE
+        BNE $3A3F
+        DEC $16
+        LDA ($EE),Y
+        CMP $3767
+        BNE $3A42
+        LDX #$02
+        LDA $375C
+        JSR $0AEE
+        DEX
+        BEQ $3A2E
+        BMI $3A3D
+        LDA #$20
+        BNE $3A31
+        DEC $16
+        JMP $38C6
+        INY
+        LDA ($EE),Y
+        DEY
+        STA ($EE),Y
+        PHA
+        CMP $3767
+        BNE $3A50
+        LDA #$20
+        JSR $0AEE
+        DEC $16
+        INY
+        PLA
+        CMP $3767
+        BNE $3A42
+        JMP $399B
+        CMP #$61
+        BCC $3A69
+        CMP #$7B
+        BCS $3A69
+        EOR #$20
+        RTS
+        JSR $3A5F
+        CMP #$0D
+        BEQ $3A69
+        JMP $2CEC
+        EOR $2E,X
+        ADC ($42,X)
+        CMP $7F,X
+        .BYTE $3A
+        .BYTE $13
+        EOR ($03),Y
 ;
 ; AND THAT (FINALLY!) BRINGS US UP TO THE START OF THE BASIC WORKSPACE.
 ;
