@@ -1083,11 +1083,11 @@ ERR6A   LDA #$06        ; DRIVE NOT READY : ERROR 6
         JMP ERRENT      ; JUMP TO OS ERROR ROUTINE
 CKTK    LDA SCTLEN      ; RETRIEVE TRACK NUMBER
         CMP TKNUM       ; SAME AS PRESENT TRACK NUMBER?
-        BEQ STCCNT+7    ; YES, DON'T MOVE THE HEAD
+        BEQ STCCNT-3    ; YES, DON'T MOVE THE HEAD
         BCS *+2+7       ; ($26F1) BRANCH IF > PRESENT TRACK
         JSR STEPIN      ; STEP HEAD IN ONE TRACK
         LDA #$99        ; SET TO SUBTRACT 1 FROM TKNUM
-        BCC *+2+6       ; ($26F5) JUMP
+        BCC *+2+4       ; ($26F5) JUMP
         JSR STEPOT      ; MOVE HEAD OUT 1 TRACK
         TXA             ; X=1 : SET TO ADD 1 TO TKNUM
         SED
@@ -1098,20 +1098,23 @@ CKTK    LDA SCTLEN      ; RETRIEVE TRACK NUMBER
 ;
 ; DELAY : DELAY=18*Y+14 CYCLES (DELAY=896us IF Y=$C1)
 ;
-DELAY   JSR COMINC+6    ; ($239B) BNE AND RTS : 14 CYCLES
+DELAY   LDA $FA
+        ASL A
+        ASL A
+        ASL A
+        TAX
+        RTS
+        JSR $239B
         DEY
-        BNE DELAY       ; IF NOT DONE DO IT AGAIN
+        BNE *-4
         NOP
+        RTS
+        LDY #$00
         RTS
 ;
 ; SET TRACK CODE CONTINUED FROM $26E6
 ;
-STCCNT  CMP #$43        ; ARE WE PAST TRACK 42
-        LDA FLOPOT
-        AND #$BF        ; RESET LOW CURRENT BIT
-        LDY #$00        ; WHO KNOWS?
-        NOP
-        BCS SETFLO      ; IF PAST TRACK 42, CONTINUE
+STCCNT  BCS SETFLO      ; IF PAST TRACK 42, CONTINUE
         LDA #$40
         ORA FLOPOT      ; (PIA2) SET LOW CURRENT BIT
 SETFLO  STA FLOPOT      ; STORE IT
@@ -1122,7 +1125,7 @@ SETFLO  STA FLOPOT      ; STORE IT
 WAITIH  LDA FLOPIN      ; GET DISK STATUS
         BMI WAITIH      ; IF BIT 7 ON, GO TEST AGAIN
         LDA FLOPIN      ; GET DISK STATUS
-        BPL *+2-3       ; ($2722) IF BIT 7 OFF, TRY AGAIN
+        BPL *+2-5       ; ($2722) IF BIT 7 OFF, TRY AGAIN
         RTS
 ;
 ; LDHDWI : LOAD HEAD AND WAIT FOR INDEX HOLD
@@ -1169,13 +1172,13 @@ UNLDHD  LDA #$80
 ;
 ; INITAL : INITIALIZE ALL TRACKS (EXCEPT ZERO) ON CURRENT DRIVE
 ;
-INITAL  LDA #$76        ; SET HIGHEST TRACK NUMBER
+INITAL  LDA #$39        ; SET HIGHEST TRACK NUMBER
         STA HSTTK
         JSR HOME        ; HOME THE HEAD
         JSR INCTKN      ; INCREMENT TRACK
         JSR INITTK      ; INITIALIZE THIS TRACK
         LDA TKNUM       ; GET CURRENT TRACK NUMBER
-        CMP #$76        ; AT 76 YET?
+        CMP #$39        ; AT 76 YET?
         BNE INITAL+7    ; ($276F) NO, KEEP ON
         RTS
 ;
@@ -1183,7 +1186,7 @@ INITAL  LDA #$76        ; SET HIGHEST TRACK NUMBER
 ;
 INITTK  LDA #$02
         BIT FLOPIN      ; CHECK FOR TRACK 0
-        BNE *+2+6       ; ($2788) NO, CONTINUE
+        BNE *+6         ; ($2788) NO, CONTINUE
 ERE3    LDA #$03        ; DO ERROR #3
         BNE ERR4+2      ; JUMP TO ERROR HANDLER
         LDA #$20
@@ -1195,7 +1198,7 @@ ERR4    LDA #$04        ; DO ERROR #4
         LDA #$FC        ; GET SET TO TURN ON
         AND FLOPOT      ; WRITE ENABLE AND ERASE ENABLE
         STA FLOPOT
-        LDX #$01        ; DO 1 ms DELAY
+        LDX #$0A        ; DO 1 ms DELAY
         JSR TENMS+2
         LDX #$43        ; TRACK START CODE BYTE1
         JSR DKWTX       ; WRITE IT
@@ -1206,7 +1209,7 @@ ERR4    LDA #$04        ; DO ERROR #4
         LDX #$58        ; TRACK TYPE CODE
         JSR DKWTX       ; WRITE IT
         LDA FLOPIN      ; WAIT FOR INDEX, ERASE IS ON
-        BMI *+2-3       ; ($27B9) NOT YET, TRY AGAIN
+        BMI *-3         ; ($27B9) NOT YET, TRY AGAIN
         LDA #$83        ; TURN OFF WRITE ENABLE, ERASE
         BNE UNLDHD+2    ; ($2763) ENABLE, UNLOAD HEAD & RET
 ;
@@ -1242,10 +1245,10 @@ DSKBYT  LDA ACIA        ; GET ACIA STATUS
 ;
 DSKWRT  LDA PGCNT       ; GET NUMBER OF PAGES
         BEQ ERRB        ; IF 0 DO ERROR B
-        BPL *+2+6       ; ($27EC) IF BIT 7 IS ON DO ERROR B
+        BPL *+6         ; ($27EC) IF BIT 7 IS ON DO ERROR B
 ERRB    LDA #$0B        ; ERROR B ROUTINE
         BNE ERR4+2      ; ($2791) JUMP
-        CMP #$0E        ; IF>D, THEN ERROR B
+        CMP #$09        ; IF>D, THEN ERROR B
         BPL ERRB
         LDA #$02        ; TEST FOR TRACK 0
         BIT FLOPIN
@@ -1254,9 +1257,9 @@ ERRB    LDA #$0B        ; ERROR B ROUTINE
         STA SCTLEN      ; PUT 1 IN SECTOR LENGTH
         LDA #$20        ; TEST FOR WRITE PROTECT
         BIT FLOPIN
-        BNE *+2+6       ; ($2805) NOT WRITE PROTECT, CONTINUE
+        BNE *+6         ; ($2805) NOT WRITE PROTECT, CONTINUE
         LDA #$04        ; WRITE PROTECT IS ON, ERROR 4
-        BNE DSKWRT+8    ; ($27EA) JUMP
+        BNE DSKWRT+9    ; ($27EA) JUMP
         LDA #$01
         STA WRTRTY      ; SET RETRY COUNT
 REWRT   LDA #$03
@@ -1268,7 +1271,7 @@ REWRT   LDA #$03
         STA FLOPOT
         LDX #$02        ; DELAY 200us
         JSR HUNDUS
-        LDA #$FD        ; TURN ON ERASE ENABLE
+        LDA #$FF        ; TURN ON ERASE ENABLE
         AND FLOPOT
         STA FLOPOT
         JSR DLYFA       ; ANOTHER 800us DELAY
@@ -1316,7 +1319,7 @@ RTYCMP  CLC
                         ; IF THIS IS A RETRY
         SBC PGCNT       ; RESET HIGH MEMORY ADDRESS
         STA MEMHI
-        JSR RDCDSK      ; COMPARE DATA WRITTEN TO DISK
+        JSR $2905      ; COMPARE DATA WRITTEN TO DISK
 ;
 ; WARNING! IF WRITE STARTED FROM PAGE 0, ABOVE ROUTINE WILL
 ; READ FROM DISK INSTEAD OF COMPARE.
@@ -1337,7 +1340,7 @@ ERR2    LDA #$02        ; ERROR #2
 ;
 ; DLYFA : 800us DELAY TIMES VALUE IN SCTLEN ($FA)
 ;
-DLYFA   JSR DLYFA1      ; GO COMPUTE VALUE FOR X
+DLYFA   JSR $2700       ; GO COMPUTE VALUE FOR X
 ;
 ; HUNDUS : APPROXIMATELY 100us DELAY PER X
 ;
@@ -1425,7 +1428,7 @@ RDCDSK  PHA             ; SAVE READ/COMPARE FLAG
                         ; (0=READ)
         JSR SETSCT      ; POSITION HEAD
         JSR DKBT9       ; GET BYTE FROM DISK
-        CMP #$76        ; IS IT A SECTOR START CODE?
+        CMP #$39        ; IS IT A SECTOR START CODE?
         BNE *+2-5       ; ($290B) NO, TRY AGAIN
         JSR DKBT9       ; GET ANOTHER BYTE
         CMP SECTNM      ; IS THIS THE RIGHT SECTOR?
@@ -1515,7 +1518,7 @@ ERR1    LDA #$01        ; ALL RETRIES FAILED, ERROR #1
 ; BPSECT : BYPASS SECTOR
 ;
 BPSECT  JSR DKBTCI      ; GET BYTE FROM DISK
-        CMP #$76        ; SECTOR START CODE?
+        CMP #$39        ; SECTOR START CODE?
         BNE BPSECT      ; NO, TRY AGAIN
         LDX #$02        ; SET TO READ 2 BYTES
         JSR DKBTCI      ; GET BYTE FROM DISK
@@ -2241,14 +2244,14 @@ PRTHEX  AND #$0F        ; MASK UPPER 4 BITS
 ; OF THE FILE NAME IS AT. THEN CALL THIS ROUTINE.
 ; RETURNS WITH STARTING TRACK IN A, LAST TRACK @ $E5 .
 ;
-FNDFL   LDA #$76
+FNDFL   LDA #$39
         STA HSTTK       ; SET HIGHEST TRACK NUMBER
         JSR BUFBYT      ; GET BYTE FROM BUFFER
         DEC BUFOFS      ; SET POINTER BACK
         CMP #$41
         BPL *+2+12      ; ($2DBE) IF ALPHA THEN LOOK FOR NAME
         LDX #$00        ; HERE IF TRACK NUMBER ENTERED
-        LDA #$76
+        LDA #$39
         STA SCRBUF+1,X
         JMP BLDHEX      ; GET TRACK# IN A AND RETURN
 ;
