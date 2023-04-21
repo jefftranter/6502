@@ -188,7 +188,7 @@ MEMTST  LDY #$BF        ; START TEST @ $BF00
 HMFND   STY HIMEM       ; STORE HIGHEST MEMORY PAGE
         LDX #1          ; CHECK FOR SERIAL OR VIDEO
         LDA $0F01       ; (EITHER 65-A OR 65-V PROM)
-        BEQ *+2+1
+        BEQ *+3
         INX             ; IF VIDEO SET X=2
         STX DEFDEV      ; STORE DEFAULT DEVICE
 ; THE DEFAULT DEVICE ABOVE IS PICKED UP BY BEXEC* AND PUT INTO THE
@@ -538,7 +538,7 @@ MEMOT   STA a:PH        ; PUT BYTE IN MEMORY
 ;
 COMINC  STA A_HOLD      ; SAVE A
         INC MINADR,X    ; INCREMENT MEMORY ADDRESS
-        BNE *+2+5       ; ($23A0)
+        BNE *+7         ; ($23A0)
         INC MINADR+1,X
         RTS
 ;
@@ -546,7 +546,7 @@ COMINC  STA A_HOLD      ; SAVE A
 ;
 DK1IN   LDY #$00        ; SET Y OFFSET
         JSR CKBFEN-2    ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($23AB) IF NOT END OF BUFFER, CONT
+        BNE *+7         ; ($23AB) IF NOT END OF BUFFER, CONT
         JSR DK1NXT      ; READ NEXT TRACK
         LDA a:PH        ; LOAD BYTE (MODIFIED BY COMINC)
         LDX #$22        ; SET THE OFFSET
@@ -567,7 +567,7 @@ DK1OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
         PHA             ; SAVE BYTE TO BE WRITTEN
         LDY #$17        ; SET Y FOR OFFSET
         JSR CKBFEN-2    ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($23C1) CONTINUE IF NOT AT END
+        BNE *+7         ; ($23C1) CONTINUE IF NOT AT END
         JSR DK1NXT      ; WRITE THIS TRACK, READ NEXT
         PLA             ; RESTORE THE OUTPUT BYTE
         STA a:PH        ; PUT IN BUFFER (MODIFIED BY COMINC)
@@ -578,7 +578,7 @@ DK1OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
 ; DK1NXT : DISK 1 NEXT TRACK READ, USED BY DK1IN AND DK1OUT
 ;
 DK1NXT  LDA D1BFDR      ; GET BUFFER 'DIRTY' FLAG
-        BEQ *+2+7       ; ($2306) IF NOT 'DIRTY' CONTINUE
+        BEQ *+9         ; ($2306) IF NOT 'DIRTY' CONTINUE
         LDX #$00        ; SET OFFSET
         JSR WTDKBF      ; GOSUB TO WRITE DISK BUFFER
         LDA D1BFLO      ; RESET READ/WRITE ADDRESS
@@ -597,7 +597,7 @@ DK1NXT  LDA D1BFDR      ; GET BUFFER 'DIRTY' FLAG
 DK2IN   LDX #$08        ; SET OFFSETS
         LDY #$51
         JSR CKBFEN      ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($23FC) IF NOT END, CONTINUE
+        BNE *+7         ; ($23FC) IF NOT END, CONTINUE
         JSR DK2NXT      ; WRITE THIS BUFFER, READ NEXT
         LDA a:PH        ; LOAD BYTE FROM BUFFER
                         ; MODIFIED BY COMINC
@@ -612,7 +612,7 @@ DK2OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
         LDX #$08        ; SET OFFSETS
         LDY #$6A
         JSR CKBFEN      ; CHECK FOR END OF BUFFER
-        BNE *+2+5       ; ($2414) IF NOT END THEN CONTINUE
+        BNE *+7         ; ($2414) IF NOT END THEN CONTINUE
         JSR DK2NXT      ; WRITE BUFFER, READ NEXT TRACK
         PLA             ; GET BYTE TO BE WRITTEN
         STA a:PH        ; PUT IN BUFFER (MODIFIED BY COMINC)
@@ -623,7 +623,7 @@ DK2OUT  CMP #$0A        ; IF LINE FEED THEN RETURN
 ; DK2NXT : DISK 2 NEXT TRACK READ, USED BY DK2IN AND DK2OUT
 ;
 DK2NXT  LDA D2BFDR      ; GET BUFFER 'DIRTY' FLAG
-        BEQ *+2+7       ; ($242A) CONTINUE IF NOT 'DIRTY'
+        BEQ *+9         ; ($242A) CONTINUE IF NOT 'DIRTY'
         LDX #$08        ; SET OFFSET
         JSR WTDKBF      ; GO WRITE THIS BUFFER
         LDA D2BFLO      ; RESET READ/WRITE ADDRESSES
@@ -671,7 +671,7 @@ BDMHTK  LDA #$00        ; CLEAR BUFFER 'DIRTY' FLAG
 ;
 CKBFEN  LDA D1IADR,Y    ; LOW ADDRESS OF BYTE TO BE READ
         CMP D1BFHI,X    ; LOW ADDRESS OF END OF BUFFER
-        BNE *+2+8       ; ($2476) IF NOT THE SAME THEN RETURN
+        BNE *+10        ; ($2476) IF NOT THE SAME THEN RETURN
         LDA D1IADR+1,Y  ; HI ADDRESS OF BYTE TO BE READ
         CMP D1BFHI+1,X  ; HI ADDRESS OF END OF BUFFER
 L2476   RTS             ; RETURN WITH Z FLAG SET IF END
@@ -766,7 +766,7 @@ TERMOT  PHA             ; SAVE THE BYTE TO OUTPUT
         BNE TORTN       ; NO, GO BACK
         JSR TERMIN      ; YES, INPUT A BYTE
         CMP #$11        ; CONTROL Q?
-        BNE *+2-5       ; ($24EA) NO, TRY AGAIN
+        BNE *-3         ; ($24EA) NO, TRY AGAIN
 TORTN   PLA             ; RESTORE THE OUTPUT BYTE
         STA A_HOLD      ; SAVE IT
         RTS
@@ -953,7 +953,7 @@ EXIT    LDY PLINE,X     ; GET CHAR. 'UNDER' NEW CURSOR
         PHA             ; AND SAVE
         JSR KBINP       ; INPUT FROM POLLED KEYBOARD
         CMP #$13        ; CNTRL S?
-        BEQ *+2-5       ; ($25EB) YES, KEEP LOOPING
+        BEQ *-3         ; ($25EB) YES, KEEP LOOPING
         JMP PATCH4      ; EXIT THE ROUTINE
 BSPACE  TYA             ; RESTORE CHAR. 'UNDER' CURSOR
         STA PLINE,X     ; PRINT IT
@@ -968,7 +968,7 @@ CR      TYA             ; RESTORE CHAR. 'UNDER' CURSOR
         LDX #$40        ; RESET LINE POINTER
         BNE EXIT        ; JUMP TO EXIT
 SCROLL  LDX #$40        ; RESET LINE POINTER
-        BNE *+2+6       ; ($2613) JUMP A LITTLE
+        BNE *+8         ; ($2613) JUMP A LITTLE
 LF      TYA             ; RESTORE CHAR. 'UNDER' CURSOR
         STA PLINE,X
         STX VLOSAV      ; SAVE LINE OFFSET
@@ -976,7 +976,7 @@ LF      TYA             ; RESTORE CHAR. 'UNDER' CURSOR
         LDX #$80        ; SET OFFSET
         STA PLINE,X     ; OUTPUT IT
         INX             ; BUMP THE OFFSET
-        BNE *+2-4       ; ($261A) LOOP UNTIL DONE
+        BNE *-2         ; ($261A) LOOP UNTIL DONE
         LDY #$CF        ; GET SET TO SCROLL
 SETNXT  INY             ; FIRST TIME THROUGH Y = $D0
         STY VLP1        ; ADJUST LINE POINTER
@@ -1076,7 +1076,7 @@ CNVHTN  LDA TRKNM
         LDX #$FF        ; INIT X TO COUNT 10'S
         INX
         SBC #10         ; SUBTRACT 10 FROM TRACK#
-        BCS *+2-3       ; ($26AC) IF >=0 BUMP X AND DO AGAIN
+        BCS *-1         ; ($26AC) IF >=0 BUMP X AND DO AGAIN
         ADC #10         ; ADD BACK LAST 10 FOR REMAINDER
         STA TKNHLD      ; SAVE REMAINDER
         TXA             ; GET NUMBER OF TENS
@@ -1110,10 +1110,10 @@ ERR6A   LDA #$06        ; DRIVE NOT READY : ERROR 6
 CKTK    LDA TKNHLD      ; RETRIEVE TRACK NUMBER
         CMP TKNUM       ; SAME AS PRESENT TRACK NUMBER?
         BEQ STCCNT      ; YES, DON'T MOVE THE HEAD
-        BCS *+2+9       ; ($26F1) BRANCH IF > PRESENT TRACK
+        BCS *+11        ; ($26F1) BRANCH IF > PRESENT TRACK
         JSR STEPIN      ; STEP HEAD IN ONE TRACK
         LDA #$99        ; SET TO SUBTRACT 1 FROM TKNUM
-        BCC *+2+6       ; ($26F5) JUMP
+        BCC *+8         ; ($26F5) JUMP
         JSR STEPOT      ; MOVE HEAD OUT 1 TRACK
         TXA             ; X=1 : SET TO ADD 1 TO TKNUM
         SED
@@ -1148,7 +1148,7 @@ SETFLO  STA FLOPOT      ; STORE IT
 WAITIH  LDA FLOPIN      ; GET DISK STATUS
         BMI WAITIH      ; IF BIT 7 ON, GO TEST AGAIN
         LDA FLOPIN      ; GET DISK STATUS
-        BPL *+2-3       ; ($2722) IF BIT 7 OFF, TRY AGAIN
+        BPL *-1         ; ($2722) IF BIT 7 OFF, TRY AGAIN
         RTS
 ;
 ; LDHDWI : LOAD HEAD AND WAIT FOR INDEX HOLD
@@ -1209,7 +1209,7 @@ INITAL  LDA #$76        ; SET HIGHEST TRACK NUMBER
 ;
 INITTK  LDA #$02
         BIT FLOPIN      ; CHECK FOR TRACK 0
-        BNE *+2+6       ; ($2788) NO, CONTINUE
+        BNE *+8         ; ($2788) NO, CONTINUE
 ERE3    LDA #$03        ; DO ERROR #3
         BNE ERR4+2      ; JUMP TO ERROR HANDLER
         LDA #$20
@@ -1232,7 +1232,7 @@ ERR4    LDA #$04        ; DO ERROR #4
         LDX #$58        ; TRACK TYPE CODE
         JSR DKWTX       ; WRITE IT
         LDA FLOPIN      ; WAIT FOR INDEX, ERASE IS ON
-        BMI *+2-3       ; ($27B9) NOT YET, TRY AGAIN
+        BMI *-1         ; ($27B9) NOT YET, TRY AGAIN
         LDA #$83        ; TURN OFF WRITE ENABLE, ERASE
         BNE UNLDHD+2    ; ($2763) ENABLE, UNLOAD HEAD & RET
 ;
@@ -1268,7 +1268,7 @@ DSKBYT  LDA ACIA        ; GET ACIA STATUS
 ;
 DSKWRT  LDA PGCNT       ; GET NUMBER OF PAGES
         BEQ ERRB        ; IF 0 DO ERROR B
-        BPL *+2+6       ; ($27EC) IF BIT 7 IS ON DO ERROR B
+        BPL *+8         ; ($27EC) IF BIT 7 IS ON DO ERROR B
 ERRB    LDA #$0B        ; ERROR B ROUTINE
         BNE ERR4+2      ; ($2791) JUMP
         CMP #$0E        ; IF>D, THEN ERROR B
@@ -1280,7 +1280,7 @@ ERRB    LDA #$0B        ; ERROR B ROUTINE
         STA SCTLEN      ; PUT 1 IN SECTOR LENGTH
         LDA #$20        ; TEST FOR WRITE PROTECT
         BIT FLOPIN
-        BNE *+2+6       ; ($2805) NOT WRITE PROTECT, CONTINUE
+        BNE *+8         ; ($2805) NOT WRITE PROTECT, CONTINUE
         LDA #$04        ; WRITE PROTECT IS ON, ERROR 4
         BNE DSKWRT+8    ; ($27EA) JUMP
         LDA #$01
@@ -1398,10 +1398,10 @@ SETSCT  LDA #$05
         JSR RSACIA      ; WAIT FOR INDEX HOLE
         JSR DKBT9       ; GET FIRST BYTE FROM DISK
         CMP #'C'        ; CHECK FOR TRACK START CODE
-        BNE *+2-5       ; ($28CB) IF NOT 'C' TRY AGAIN
+        BNE *-3         ; ($28CB) IF NOT 'C' TRY AGAIN
         JSR DKBT9       ; GET SECOND BYTE FROM DISK
         CMP #'W'        ; CHECK FOR TRACK START CODE
-        BNE *+2-9       ; ($28CE) IF NOT 'W' THEN CHECK FOR 'C'
+        BNE *-7         ; ($28CE) IF NOT 'W' THEN CHECK FOR 'C'
         JSR DKBT9       ; GET ANOTHER BYTE FROM DISK
         EOR TKNHLD      ; IS THIS THE RIGHT TRACK?
         BEQ SSOK        ; YES, CONTINUE
@@ -1439,7 +1439,7 @@ SSOK    STA SCTBYP      ; SET SECTORS BYPASSED TO 0
         PLA             ; GET BACK SECTORS TO SKIP
         BCC $28E7       ; IF CARRY CLEAR, ERROR A
         CMP SCTBYP      ; HAVE WE SKIPPED ENOUGH?
-        BNE *+2-9       ; ($28F7) NO, CONTINUE
+        BNE *-7         ; ($28F7) NO, CONTINUE
         CMP SCTNUM      ; SECTOR NUMBER JUST SKIPPED
                         ; SET @$29A4
         BNE $28E7       ; IF NOT RIGHT ONE, ERROR A
@@ -1452,10 +1452,10 @@ RDCDSK  PHA             ; SAVE READ/COMPARE FLAG
         JSR SETSCT      ; POSITION HEAD
         JSR DKBT9       ; GET BYTE FROM DISK
         CMP #$76        ; IS IT A SECTOR START CODE?
-        BNE *+2-5       ; ($290B) NO, TRY AGAIN
+        BNE *-3         ; ($290B) NO, TRY AGAIN
         JSR DKBT9       ; GET ANOTHER BYTE
         CMP SECTNM      ; IS THIS THE RIGHT SECTOR?
-        BEQ *+2+5       ; ($291D) YES, CONTINUE
+        BEQ *+7         ; ($291D) YES, CONTINUE
         PLA             ; IF NOT, RETURN WITH CARRY
                         ; CLEAR AS FAULT FLAG
 SETFF   CLC
@@ -1469,10 +1469,10 @@ SETFF   CLC
         ADC #$FE        ; FORCE CARRY FLAG IF COMPARE
 RDCONT  LDA #$01
         BIT ACIA        ; CHECK ACIA READY AND PARITY
-        BEQ *+2-3       ; ($292B) IF NOT, TRY AGAIN
+        BEQ *-1         ; ($292B) IF NOT, TRY AGAIN
         LDA ACIAIO      ; GET BYTE FROM ACIA
         BVS SETFF       ; PARITY ERROR, RETURN
-        BCC *+2+6       ; ($293B) CARRY CLEAR, THIS IS A READ
+        BCC *+8         ; ($293B) CARRY CLEAR, THIS IS A READ
         CMP (MEMLO),Y   ; COMPARE TO BYTE IN MEMORY
         BNE SETFF       ; IF NOT THE SAME, ERROR
         STA (MEMLO),Y   ; STORE BYTE IN MEMORY
@@ -1548,14 +1548,14 @@ BPSECT  JSR DKBTCI      ; GET BYTE FROM DISK
         STA SCTNUM-2,X  ; STORE SECTOR NUMBER IN $FB
                         ; STORE SECTOR LENGTH IN $FA (PAGES)
         DEX
-        BNE *+2-6       ; ($29A1) BACK FOR SECOND BYTE
+        BNE *-4         ; ($29A1) BACK FOR SECOND BYTE
         INC SCTBYP      ; BUMP SECTORS BYPASSED
         TAY             ; SECTOR LENGTH IN PAGES
         JSR DKBTCI      ; GET ANOTHER BYTE FROM DISK
         DEX
-        BNE *+2-4       ; ($29AC) IF NOT END OF PAGE, CONTINUE
+        BNE *-2         ; ($29AC) IF NOT END OF PAGE, CONTINUE
         DEY
-        BNE *+2-7       ; ($29AC) IF MORE PAGES TO GO, CONTINUE
+        BNE *-5         ; ($29AC) IF MORE PAGES TO GO, CONTINUE
         RTS
 ;
 ; DKBTCI : GET BYTE FROM DISK, IF INDEX HOLE SEEN POP STACK AND RETURN
@@ -1631,17 +1631,17 @@ DIRCNT  TAX             ; PUT TRACK NUMBER IN X
         PHA             ; SAVE SECTOR NUMBER
         LDA SCTLEN
         PHA             ; SAVE SECTOR LENGTH
-        BCS *+2-9       ; ($2AIB) IF WE DIDN'T HIT THE INDEX
+        BCS *-7         ; ($2AIB) IF WE DIDN'T HIT THE INDEX
                         ; HOLE, TRY AGAIN
         LDX STKADR      ; GET ORIGINAL STACK ADDRESS
-        BCC *+2+15      ; ($2A37) AND JUMP
+        BCC *+17        ; ($2A37) AND JUMP
         JSR CRLF        ; PRINT CR/LF
         LDA #$20        ; PRINT SPACE AND SECTOR NUMBER
         JSR DCPRNT
         LDA #$2D        ; PRINT - AND SECTOR LENGTH
         JSR DCPRNT
         DEC SCTBYP      ; DROP SECTORS BYPASSED COUNT
-        BPL *+2-15      ; ($2A2A) IF MORE TO DO, CONTINUE
+        BPL *-13        ; ($2A2A) IF MORE TO DO, CONTINUE
         LDX STKADR      ; RESET STACK ADDRESS
         TXS
         JMP UNLDHD      ; UNLOAD HEAD AND RETURN
@@ -1730,10 +1730,10 @@ EXCOM   LDX #$00        ; X=OFFSET INTO DISPATCH TABLE
         CMP #$00D       ; CHECK FOR 'CR'
         BEQ NXTENT-1    ; ($2AB9) IF IT IS, EXECUTE COMMAND
         CMP #$20        ; CHECK FOR A 'SPACE'
-        BNE *+2-9       ; (S2AA4) IF NOT, TRY AGAIN
+        BNE *-7         ; (S2AA4) IF NOT, TRY AGAIN
         JSR BUFBYT      ; GET BYTE FROM BUFFER
         CMP #$20        ; CHECK FOR A 'SPACE'
-        BEQ *+2-5       ; ($2AAF) IF SO, LOOK AGAIN
+        BEQ *-3         ; ($2AAF) IF SO, LOOK AGAIN
         DEC BUFOFS      ; POINT TO FIRST NONSPACE
         RTS             ; JUMP TO ADDRESS FROM TABLE
 NXTENT  INX             ; INCREMENT TO NEXT TABLE ENTRY
@@ -1789,7 +1789,7 @@ LDCMN   JSR SETTK       ; POSITION HEAD TO FIRST TRACK
         DEC TS1
         BMI D9-3        ; ($2820) IF NO MORE TRACKS, DONE
         JSR INCTKN      ; BUMP TRACK NUMBER AND SET HEAD
-        JMP *+2-10      ; ($2804) CONTINUE
+        JMP *-8         ; ($2804) CONTINUE
 ;
 ; CALL : CALL COMMAND, READ SECTOR INTO .MEMORY
 ;
@@ -1874,12 +1874,12 @@ ONLYO   JSR BLDHEX      ; GET OUTPUT FLAG
 LOAD    JSR FNDFL       ; FIND FILE NAME IN DIRECTORY
         JSR SETPGM      ; SET MEMORY ADDRESS & LOAD HEAD
         STX TS1         ; X=0 USED AS # OF TRACKS READ
-        BEQ *+2+5       ; ($2BB4) SKIP NEXT INSTR 1ST TIME
+        BEQ *+7         ; ($2BB4) SKIP NEXT INSTR 1ST TIME
         JSR INCTKN      ; BUMP TRACK NUMBER
         JSR READDK      ; READ TRACK INTO MEMORY
         INC TS1         ; BUMP TRACKS READ
         DEC $317D       ; DROP NUMBER OF TRACKS TO READ
-        BNE *+2-11      ; ($2BB1) IF MORE TRACKS, CONTINUE
+        BNE *-9         ; ($2BB1) IF MORE TRACKS, CONTINUE
         LDA TS1
         STA $317D       ; RESET NUMBER OF TRACKS IN FILE
         JMP UNLDHD      ; UNLOAD HEAD AND RETURN
@@ -1887,7 +1887,7 @@ LOAD    JSR FNDFL       ; FIND FILE NAME IN DIRECTORY
 ; MEM : MEMORY COMMAND
 ;
 MEM     LDX #$00        ; SET OFFSET FOR INPUT ADDRESS
-        JSR *+2+8       ; ($2BD0) GET FROM BUFFER AND SAVE IT
+        JSR *+10        ; ($2BD0) GET FROM BUFFER AND SAVE IT
         JSR CKCOMA      ; CHECK FOR COMMA
         LDX #$07        ; SET OFFSET FOR OUTPUT ADDRESS
         JSR BLDHEX      ; GET HIGH ORDER ADDRESS
@@ -1936,9 +1936,9 @@ PUT     JSR FNDFL       ; FIND FILE NAME IN DIRECTORY
         STA PGCNT       ; SAVE IT
         JSR DSKWRT      ; WRITE TO DISK
         DEC TS1         ; DROP TRACK COUNT
-        BEQ *+2+8       ; ($2BFA) IF NO MORE THEN DONE
+        BEQ *+10        ; ($2BFA) IF NO MORE THEN DONE
         JSR INCTKN      ; BUMP TRACK NUMBER AND STEP HEAD
-        JMP *+2-10      ; ($2BED) LOOP BACK & ,WRITE THIS TRACK
+        JMP *-8         ; ($2BED) LOOP BACK & ,WRITE THIS TRACK
         JMP UNLDHD      ; UNLOAD HEAD AND RETURN
 ;
 ; RET : RESTART COMMAND
@@ -1950,16 +1950,16 @@ PUT     JSR FNDFL       ; FIND FILE NAME IN DIRECTORY
 ;
 RET     JSR BUFBYT      ; GET BYTE FROM BUFFER
         CMP #'A'
-        BNE *+2+5       ; ($2C07) NOT 'A' THEN CONTINUE
+        BNE *+7         ; ($2C07) NOT 'A' THEN CONTINUE
         JMP RTASM       ; REENTER ASSEMBLER (*)
         CMP #'B'
-        BNE *+2+5       ; ($2C0E) NOT 'B' THEN CONTINUE
+        BNE *+7         ; ($2C0E) NOT 'B' THEN CONTINUE
         JMP RTBAS       ; REENTER BASIC (*)
         CMP #'E'
-        BNE *+2+5       ; ($2C15) NOT 'E' THEN CONTINUE
+        BNE *+7         ; ($2C15) NOT 'E' THEN CONTINUE
         JMP STEM        ; ENTER EXTENDED MONITOR (*)
         CMP #'M'
-        BNE *+2+8       ; ($2CIF) NOT 'M ' THEN ERROR #7
+        BNE *+10        ; ($2CIF) NOT 'M ' THEN ERROR #7
         JSR SWAP4       ; SWAP 4 BYTES FOR VIDEO ROUTINE
         JMP ($FEFC)     ; JUMP TO RESET VECTOR
         JMP ERR7        ; DO ERROR #7
@@ -2033,8 +2033,8 @@ INCTKN  LDA TKNUM       ; GET TRACK NUMBER
         ADC #$01        ; ADD 1 IN DECIMAL
         CLD
         CMP HSTTK       ; IS THIS HIGHEST TRACK NUMBER?
-        BEQ *+2+4       ; ($2C91) YES, LET'S CONTINUE
-        BCS *+2+5       ; ($2C94) HIGHER, DO ERROR D
+        BEQ *+6         ; ($2C91) YES, LET'S CONTINUE
+        BCS *+7         ; ($2C94) HIGHER, DO ERROR D
         JMP SETTK       ; SET HEAD AT TRACK AND RETURN
 ERRD    LDA #$0D        ; ERROR D
         BNE ERR6+2      ; ($2C5D) JUMP TO ERROR
@@ -2076,7 +2076,7 @@ OSIOK   CMP #$15        ; CHECK FOR CONTROL U
         BEQ NXTOSN      ; IF SO IGNORE INPUT UP TO NOW
         STA OSBUF,X     ; PUT IN BUFFER
         CMP #$0D        ; CHECK FOR 'CR'
-        BEQ *+2+11      ; ($2CD0) IF SO THEN WE ARE DONE
+        BEQ *+13        ; ($2CD0) IF SO THEN WE ARE DONE
         INX             ; BUMP INDEX
         CPX #$11        ; CHECK FOR MAXIMUM LENGTH
         BNE NXTOSI      ; NOT DONE SO CONTINUE
@@ -2108,9 +2108,9 @@ BUFBYT  LDY #PH         ; GET OFFSET INTO BUFFER
                         ; MORE SELF MODIFYING CODE
         LDA (OSIBAD),Y  ; LOAD BYTE
         CMP #$0D        ; CHECK FOR 'CR'
-        BEQ *+2+9       ; ($2CF3) IF SO WE ARE DONE
+        BEQ *+11        ; ($2CF3) IF SO WE ARE DONE
         CPY #$11        ; CHECK FOR END OF BUFFER
-        BEQ *+2+6       ; ($2CF4) IF SO THEN RETURN
+        BEQ *+8         ; ($2CF4) IF SO THEN RETURN
         INC BUFOFS      ; BUMP THE OFFSET
         RTS
         LDA #$0D        ; LOAD A 'CR'
@@ -2167,10 +2167,10 @@ GETHEX  JSR BUFBYT      ; GET BYTE FROM BUFFER
         SEC
         SBC #$30
         CMP #$0A
-        BCC *+2+10      ; ($2D4F) IF <10 THEN RETURN
+        BCC *+12        ; ($2D4F) IF <10 THEN RETURN
         SBC #$11
         CMP #$06
-        BCS *+2+10      ; ($2055) IF > F THEN ERROR
+        BCS *+12        ; ($2055) IF > F THEN ERROR
         ADC #$0A
         RTS
 ;
@@ -2220,15 +2220,15 @@ STROUT  PLA             ; PULL RETURN ADDRESS OFF STACK
         STA STROAD+1    ; STORE HIGH ADDRESS
         LDY #$01        ; SET TO INDEX THROUGH STRING
         LDA (STROAD),Y  ; GET BYTE FROM STRING
-        BEQ *+2+8       ; ($2D85) IF NULL THEN WE ARE DONE
+        BEQ *+10        ; ($2D85) IF NULL THEN WE ARE DONE
         JSR PRINT       ; PRINT IT IF NOT
         INY             ; GET SET FOR NEXT CHARACTER
-        BNE *+2-8       ; ($2D7B) JUMP AND CONTINUE
+        BNE *-6         ; ($2D7B) JUMP AND CONTINUE
         TYA
         SEC             ; GET SET TO FIND RETURN ADDRESS
         ADC STROAD      ; ADD LENGTH OF STRING TO ADDRESS
         STA STROAD      ; SAVE IT
-        BCC *+2+4       ; ($2D8F) NO CARRY SO UPPER BYTE IS 01
+        BCC *+6         ; ($2D8F) NO CARRY SO UPPER BYTE IS 01
         INC STROAD+1    ; BUMP THE UPPER BYTE
         JMP (STROAD)    ; JUMP PAST PRINTED STRING
 ;
@@ -2272,7 +2272,7 @@ FNDFL   LDA #$76
         JSR BUFBYT      ; GET BYTE FROM BUFFER
         DEC BUFOFS      ; SET POINTER BACK
         CMP #$41
-        BPL *+2+12      ; ($2DBE) IF ALPHA THEN LOOK FOR NAME
+        BPL *+14        ; ($2DBE) IF ALPHA THEN LOOK FOR NAME
         LDX #$00        ; HERE IF TRACK NUMBER ENTERED
         LDA #$76
         STA SCRBUF+1,X
@@ -2289,7 +2289,7 @@ FNDFL   LDA #$76
         LDX #$00
 NXTCHR  JSR BUFBYT      ; GET BYTE FROM BUFFER
         CMP #$0D
-        BNE *+2+4       ; ($2DD9) IF NOT 'CR' THEN CONTINUE
+        BNE *+6         ; ($2DD9) IF NOT 'CR' THEN CONTINUE
         LDA #$20        ; IF 'CR' USE 'SPACE' FOR COMPARE
         CMP SCRBUF,X    ; COMPARE TO DIRECTORY ENTRY
         BNE NXTDE       ; IF NOT = TRY NEXT ENTRY
@@ -2315,7 +2315,7 @@ NXTDS   LDA TS1         ; RESTORE BUFFER OFFSET
 NEWDS   INC SECTNM      ; BUMP SECTOR NUMBER
         LDA SECTNM
         CMP #$03
-        BMI *+2+7       ; ($2E0F) IF < 3 THEN CONTINUE
+        BMI *+9         ; ($2E0F) IF < 3 THEN CONTINUE
 ERRC    LDA #$0C        ; ERROR C, FILE NOT FOUND
         JMP ERRENT
         LDA #$79        ; SET MEMORY ADDRESS TO $2E79
