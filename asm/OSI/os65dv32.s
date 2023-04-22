@@ -1631,7 +1631,7 @@ DIRCNT  TAX             ; PUT TRACK NUMBER IN X
         PHA             ; SAVE SECTOR NUMBER
         LDA SCTLEN
         PHA             ; SAVE SECTOR LENGTH
-        BCS *-7         ; ($2AIB) IF WE DIDN'T HIT THE INDEX
+        BCS *-7         ; ($2A1B) IF WE DIDN'T HIT THE INDEX
                         ; HOLE, TRY AGAIN
         LDX STKADR      ; GET ORIGINAL STACK ADDRESS
         BCC *+17        ; ($2A37) AND JUMP
