@@ -1855,7 +1855,7 @@ FULINT  JSR STROUT      ; PRINT THE MESSAGE
 ; IO : I/O COMMAND (SEE NOTE AT $2339)
 ;
 IO      JSR BUFBYT      ; GET BYTE FROM BUFFER
-        CMP ','         ; IF ',' DO OUTPUT ONLY
+        CMP #','        ; IF ',' DO OUTPUT ONLY
         BEQ ONLYO       ; RESET BUFFER POINTER
         DEC BUFOFS
         JSR BLDHEX      ; GET INPUT FLAG
