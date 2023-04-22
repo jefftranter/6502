@@ -1458,7 +1458,7 @@ READDK  LDA #$03        ; SET RETRY COUNT WHEN HEAD MOVED
         LDA #$07        ; SET RETRY COUNT W/O MOVING HEAD
         STA RDRTYN
 RTYRD   LDA #$00        ; DENOTES READ
-        JSR RDCDSK      ; READ SECTOR INTO MEMORY
+        JSR $2905       ; READ SECTOR INTO MEMORY
         BCC DKRDRY+3    ; ($297A) IF FAULT OCCURRED, RETRY
         RTS
 ;
@@ -1474,45 +1474,39 @@ DKRDRY  DEC MEMHI       ; RESET MEMORY ADDRESS
         JSR TENMS       ; 10ms DELAY
         JSR STEPOT      ; STEP HEAD OUT
         JSR TENMS
-        DEC RDRTYN      ; DROP RETRY COUNT
-        BPL READDK+4    ; ($296B) IF >=0 THEN TRY AGAIN
-ERR1    LDA #$01        ; ALL RETRIES FAILED, ERROR #1
-        JMP ERRENT
-;
-; BPSECT : BYPASS SECTOR
-;
-BPSECT  JSR DKBTCI      ; GET BYTE FROM DISK
-        CMP #$39        ; SECTOR START CODE?
-        BNE BPSECT      ; NO, TRY AGAIN
-        LDX #$02        ; SET TO READ 2 BYTES
-        JSR DKBTCI      ; GET BYTE FROM DISK
-        STA SCTNUM-2,X  ; STORE SECTOR NUMBER IN $FB
-                        ; STORE SECTOR LENGTH IN $FA (PAGES)
-        DEX
-        BNE *-4         ; ($29A1) BACK FOR SECOND BYTE
-        INC SCTBYP      ; BUMP SECTORS BYPASSED
-        TAY             ; SECTOR LENGTH IN PAGES
-        JSR DKBTCI      ; GET ANOTHER BYTE FROM DISK
-        DEX
-        BNE *-2         ; ($29AC) IF NOT END OF PAGE, CONTINUE
-        DEY
-        BNE *-5         ; ($29AC) IF MORE PAGES TO GO, CONTINUE
-        RTS
-;
-; DKBTCI : GET BYTE FROM DISK, IF INDEX HOLE SEEN POP STACK AND RETURN
-;
-DKBTCI  LDA ACIA        ; GET ACIA STATUS
+        DEC $F7         ; DROP RETRY COUNT
+        BPL $296B
+        LDA #$01
+        JMP $2A4B
+        LDA $C000
+        BPL $29C4
+        LDA $C010
         LSR A
-        BCS SETDRV-3    ; ($29C3) ACIA READY, GO AHEAD
-        LDA FLOPIN      ; TEST FOR INDEX HOLE
-        BMI DKBTCI      ; NO, TRY AGAIN
-        PLA             ; PULL LAST KNOWN RETURN ADDRESS
-        PLA             ; OFF OF STACK AND RETURN
-        JMP DKBT9+11    ; ($28BB) LOAD BYTE AND RETURN
+        BCC $2998
+        LDA $C011
+        CMP #$76
+        BNE $2998
+        JSR $27CD
+        STA $FB
+        JSR $27CD
+        STA $FA
+        INC $F9
+        TAY
+        LDX #$00
+        JSR $27CD
+        DEX
+        BNE $29B9
+        DEY
+        BNE $29B9
+        SEC
+        RTS
+        CLC
+        RTS
+BPSECT
 ;
 ; SETDRV : SET FOR DRIVE IN ACCUMULATOR
 ;
-SETDRV  STA TKNUM       ; SET TRACK NUMBER
+SETDRV  STA $265C       ; SET TRACK NUMBER
         ASL A           ; MULTI BY 2 : A=2,B=4,C=6,D=8
         TAX
         AND #$02        ; ISOLATE DRIVE: A=1,B=0,C=1,D=0
@@ -1552,7 +1546,7 @@ DKINIT  .BYTE $40       ; DRIVE A
 ; DIRCNT : DIR COMMAND CONTINUED (FROM $2B2C)
 ;
 DIRCNT  TAX             ; PUT TRACK NUMBER IN X
-        BEQ DKINIT-4    ; ($29E7) 0 II THEN RETURN
+        BEQ DKINIT-39   ; ($29E7) 0 II THEN RETURN
         PHA             ; SAVE TRACK NUMBER
         JSR SETTK       ; MOVE HEAD TO TRACK
         JSR STROUT      ; PRINT THE FOLLOWING MESSAGE
