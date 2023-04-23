@@ -1847,9 +1847,9 @@ MEM     LDX #$00        ; SET OFFSET FOR INPUT ADDRESS
 ;
 PUT     JSR FNDFL       ; FIND FILE NAME IN DIRECTORY
         JSR SETPGM      ; SET MEMORY ADDRESS, LOAD HEAD
-        LDA $317D       ; GET NUMBER OF TRACKS
+        LDA $3A7D       ; GET NUMBER OF TRACKS
         STA TS1         ; SAVE IT
-        LDA #$0B        ; NUMBER OF PAGES
+        LDA #$08        ; NUMBER OF PAGES
 ;
 ; YET ANOTHER EXAMPLE OF AN OSI BLUNDER. EACH TRACK ON THE DISK
 ; IS CAPABLE OF HOLDING 13 SECTORS BUT THE PROGRAMMERS AT OSI
@@ -1868,13 +1868,13 @@ PUT     JSR FNDFL       ; FIND FILE NAME IN DIRECTORY
 ; USED TO PREPARE THIS DOCUMENT, YOU CAN USE 12 SECTORS PER TRACK
 ; WITHOUT ANY PROBLEM.
 ;
-        STA PGCNT       ; SAVE IT
+        JSR $3274       ; SAVE IT
         JSR DSKWRT      ; WRITE TO DISK
         DEC TS1         ; DROP TRACK COUNT
-        BEQ *+10        ; ($2BFA) IF NO MORE THEN DONE
+        BEQ *+8         ; ($2BFA) IF NO MORE THEN DONE
         JSR INCTKN      ; BUMP TRACK NUMBER AND STEP HEAD
-        JMP *-8         ; ($2BED) LOOP BACK & ,WRITE THIS TRACK
-        JMP UNLDHD      ; UNLOAD HEAD AND RETURN
+        JMP $2BED       ; ($2BED) LOOP BACK & ,WRITE THIS TRACK
+        JMP $009C       ; UNLOAD HEAD AND RETURN
 ;
 ; RET : RESTART COMMAND
 ;
@@ -1885,16 +1885,16 @@ PUT     JSR FNDFL       ; FIND FILE NAME IN DIRECTORY
 ;
 RET     JSR BUFBYT      ; GET BYTE FROM BUFFER
         CMP #'A'
-        BNE *+7         ; ($2C07) NOT 'A' THEN CONTINUE
+        BNE *+5         ; ($2C07) NOT 'A' THEN CONTINUE
         JMP RTASM       ; REENTER ASSEMBLER (*)
         CMP #'B'
-        BNE *+7         ; ($2C0E) NOT 'B' THEN CONTINUE
-        JMP RTBAS       ; REENTER BASIC (*)
+        BNE *+5         ; ($2C0E) NOT 'B' THEN CONTINUE
+        JMP $2AC0       ; REENTER BASIC (*)
         CMP #'E'
-        BNE *+7         ; ($2C15) NOT 'E' THEN CONTINUE
+        BNE *+5         ; ($2C15) NOT 'E' THEN CONTINUE
         JMP STEM        ; ENTER EXTENDED MONITOR (*)
         CMP #'M'
-        BNE *+10        ; ($2CIF) NOT 'M ' THEN ERROR #7
+        BNE *+8         ; ($2CIF) NOT 'M ' THEN ERROR #7
         JSR SWAP4       ; SWAP 4 BYTES FOR VIDEO ROUTINE
         JMP ($FEFC)     ; JUMP TO RESET VECTOR
         JMP ERR7        ; DO ERROR #7
@@ -1908,7 +1908,7 @@ RET     JSR BUFBYT      ; GET BYTE FROM BUFFER
 ; DISK I/O ROUTINES IN A STRAIGHTFORWARD FASHION.
 ;
 XQT     JSR LOAD        ; DO LOAD
-        JMP $317E       ; JUMP TO START OF PROGRAM
+        JMP $3A7E       ; JUMP TO START OF PROGRAM
 ;
 ; SAVE : SAVE COMMAND, WRITE SECTOR TO DISK
 ;
@@ -1926,15 +1926,15 @@ SAVE    JSR GETTK       ; GET TRACK# AND POSITION HEAD
 ; SETS PARAMETERS FOR DRIVE AND HOMES HEAD
 ;
 SELECT  JSR BUFBYT      ; GET BYTE FROM BUFFER
-        CMP #'A'        ; CHECK FOR A-D
-        BMI ERR6-3      ; ($2C48) LESS THAN 'A', ERROR #7
-        CMP #'E'
-        BPL ERR6-3      ; ($2C58) >= 'E', ERROR #7
-        AND #$0F        ; KILL UPPER 4 BITS : A=1,D=4
-        JSR SETDRV      ; SET FOR DRIVE
-        BCS ERR6        ; ERROR #6 IF DRIVE NOT READY
-        JMP HOME        ; HOME HEAD AND RETURN
-        JMP ERR7        ; DO ERROR #7
+        SBC #$3F
+        CMP #$05
+        BCS $2C5B
+        STA $FD
+        JSR $29C6
+        JMP $2663
+        JSR $2683
+        INC $FD
+        BNE $2C6F
 ERR6    LDA #$06        ; DO ERROR #6
         JMP ERRENT
 ;
@@ -1952,7 +1952,7 @@ GETTK   JSR BLDHEX      ; GET TRACK NUMBER
 ; SETPGM : SET UP FOR PROGRAM
 ;
 SETPGM  JSR SETTK       ; SET HEAD TO TRACK
-        LDA #$31        ; SET MEMORY ADDRESS TO $3179
+        LDA #$3A        ; SET MEMORY ADDRESS TO $3179
         STA MEMHI
         LDA #$79
         STA MEMLO
@@ -1968,8 +1968,8 @@ INCTKN  LDA TKNUM       ; GET TRACK NUMBER
         ADC #$01        ; ADD 1 IN DECIMAL
         CLD
         CMP HSTTK       ; IS THIS HIGHEST TRACK NUMBER?
-        BEQ *+6         ; ($2C91) YES, LET'S CONTINUE
-        BCS *+7         ; ($2C94) HIGHER, DO ERROR D
+        BEQ *+4         ; ($2C91) YES, LET'S CONTINUE
+        BCS *+5         ; ($2C94) HIGHER, DO ERROR D
         JMP SETTK       ; SET HEAD AT TRACK AND RETURN
 ERRD    LDA #$0D        ; ERROR D
         BNE ERR6+2      ; ($2C5D) JUMP TO ERROR
@@ -2011,7 +2011,7 @@ OSIOK   CMP #$15        ; CHECK FOR CONTROL U
         BEQ NXTOSN      ; IF SO IGNORE INPUT UP TO NOW
         STA OSBUF,X     ; PUT IN BUFFER
         CMP #$0D        ; CHECK FOR 'CR'
-        BEQ *+13        ; ($2CD0) IF SO THEN WE ARE DONE
+        BEQ *+11        ; ($2CD0) IF SO THEN WE ARE DONE
         INX             ; BUMP INDEX
         CPX #$11        ; CHECK FOR MAXIMUM LENGTH
         BNE NXTOSI      ; NOT DONE SO CONTINUE
@@ -2039,13 +2039,13 @@ INPUT   JSR SAVAXY
 ;
 ; BUFBYT : GET BYTE FROM BUFFER
 ;
-BUFBYT  LDY #PH         ; GET OFFSET INTO BUFFER
+BUFBYT  LDY #$0A        ; GET OFFSET INTO BUFFER
                         ; MORE SELF MODIFYING CODE
         LDA (OSIBAD),Y  ; LOAD BYTE
-        CMP #$0D        ; CHECK FOR 'CR'
-        BEQ *+11        ; ($2CF3) IF SO WE ARE DONE
+        JMP $3A6A
+        NOP
         CPY #$11        ; CHECK FOR END OF BUFFER
-        BEQ *+8         ; ($2CF4) IF SO THEN RETURN
+        BEQ *+6         ; ($2CF4) IF SO THEN RETURN
         INC BUFOFS      ; BUMP THE OFFSET
         RTS
         LDA #$0D        ; LOAD A 'CR'
