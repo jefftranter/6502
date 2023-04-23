@@ -2102,10 +2102,10 @@ GETHEX  JSR BUFBYT      ; GET BYTE FROM BUFFER
         SEC
         SBC #$30
         CMP #$0A
-        BCC *+12        ; ($2D4F) IF <10 THEN RETURN
+        BCC *+10        ; ($2D4F) IF <10 THEN RETURN
         SBC #$11
         CMP #$06
-        BCS *+12        ; ($2055) IF > F THEN ERROR
+        BCS *+10        ; ($2055) IF > F THEN ERROR
         ADC #$0A
         RTS
 ;
@@ -2155,15 +2155,15 @@ STROUT  PLA             ; PULL RETURN ADDRESS OFF STACK
         STA STROAD+1    ; STORE HIGH ADDRESS
         LDY #$01        ; SET TO INDEX THROUGH STRING
         LDA (STROAD),Y  ; GET BYTE FROM STRING
-        BEQ *+10        ; ($2D85) IF NULL THEN WE ARE DONE
+        BEQ *+8        ; ($2D85) IF NULL THEN WE ARE DONE
         JSR PRINT       ; PRINT IT IF NOT
         INY             ; GET SET FOR NEXT CHARACTER
-        BNE *-6         ; ($2D7B) JUMP AND CONTINUE
+        BNE *-8         ; ($2D7B) JUMP AND CONTINUE
         TYA
         SEC             ; GET SET TO FIND RETURN ADDRESS
         ADC STROAD      ; ADD LENGTH OF STRING TO ADDRESS
         STA STROAD      ; SAVE IT
-        BCC *+6         ; ($2D8F) NO CARRY SO UPPER BYTE IS 01
+        BCC *+4         ; ($2D8F) NO CARRY SO UPPER BYTE IS 01
         INC STROAD+1    ; BUMP THE UPPER BYTE
         JMP (STROAD)    ; JUMP PAST PRINTED STRING
 ;
@@ -2207,7 +2207,7 @@ FNDFL   LDA #$39
         JSR BUFBYT      ; GET BYTE FROM BUFFER
         DEC BUFOFS      ; SET POINTER BACK
         CMP #$41
-        BPL *+14        ; ($2DBE) IF ALPHA THEN LOOK FOR NAME
+        BPL *+12        ; ($2DBE) IF ALPHA THEN LOOK FOR NAME
         LDX #$00        ; HERE IF TRACK NUMBER ENTERED
         LDA #$39
         STA SCRBUF+1,X
@@ -2217,16 +2217,16 @@ FNDFL   LDA #$39
 ;
         LDA BUFOFS      ; GET POINTER
         STA TS1         ; SAVE IT
-        LDA #$08        ; TRACK NUMBER FOR DIRECTORY
+        LDA #$12        ; TRACK NUMBER FOR DIRECTORY
         JSR SETTK       ; MOVE TO TRACK 8
         STY SECTNM      ; SECTNM=0
         JMP NEWDS       ; JUMP AROUND A LITTLE
         LDX #$00
 NXTCHR  JSR BUFBYT      ; GET BYTE FROM BUFFER
         CMP #$0D
-        BNE *+6         ; ($2DD9) IF NOT 'CR' THEN CONTINUE
+        BNE *+4         ; ($2DD9) IF NOT 'CR' THEN CONTINUE
         LDA #$20        ; IF 'CR' USE 'SPACE' FOR COMPARE
-        CMP SCRBUF,X    ; COMPARE TO DIRECTORY ENTRY
+        JSR $373C       ; COMPARE TO DIRECTORY ENTRY
         BNE NXTDE       ; IF NOT = TRY NEXT ENTRY
         INX             ; BUMP OFFSET
         TXA
@@ -2250,7 +2250,7 @@ NXTDS   LDA TS1         ; RESTORE BUFFER OFFSET
 NEWDS   INC SECTNM      ; BUMP SECTOR NUMBER
         LDA SECTNM
         CMP #$03
-        BMI *+9         ; ($2E0F) IF < 3 THEN CONTINUE
+        BMI *+7         ; ($2E0F) IF < 3 THEN CONTINUE
 ERRC    LDA #$0C        ; ERROR C, FILE NOT FOUND
         JMP ERRENT
         LDA #$79        ; SET MEMORY ADDRESS TO $2E79
@@ -2281,7 +2281,7 @@ DSPTBL  .BYTE "AS"
         .BYTE "CA"
         .WORD CALL-1
         .BYTE "D9"
-        .WORD D9-1
+        .WORD $2AC0-1
         .BYTE "DI"
         .WORD DIR-1
         .BYTE "EM"
