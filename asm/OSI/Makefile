@@ -69,6 +69,6 @@ os65dv33.o: os65dv33.s
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin *.lod
-	$(RM) -rf msbasic/tmp
+	$(RM) -rf msbasic/tmp msbasic/msbasic.lst
 
 distclean: clean
