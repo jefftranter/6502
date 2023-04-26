@@ -90,4 +90,40 @@ ATNENB      35 - 35
 MODEM       37 - 38 
 COMPAR      39 - 39 
  49 Entries free out of 64
+
+*** MIKE'S 8" C1P Disk (from https://osiweb.org/disk_images/C1P-OS65D33-mike.zip) ***
+   -- Directory --
+
+File name   Track range
+-----------------------
+OS65D3      0  - 8 
+BEXEC*      9  - 11 
+COPIER      13 - 14 
+CHANGE      15 - 15 
+CREATE      16 - 17 
+DELETE      18 - 18 
+DIR         19 - 19 
+RANLST      20 - 21 
+RENAME      22 - 22 
+SECDIR      23 - 23 
+SEQLST      24 - 25 
+TRACE       26 - 26 
+ZERO        27 - 28 
+ASAMPL      29 - 29 
+ATNENB      30 - 30 
+COLORS      31 - 31 
+MODEM       32 - 32 
+COMPAR      33 - 33 
+GSOSRT      34 - 35 
+DISASM      36 - 37 
+PROG1       38 - 39 
+DATA1       40 - 41 
+PROG2       42 - 43 
+DATA2       44 - 45 
+PROG3       46 - 48 
+DATA3       49 - 50 
+DATA4       51 - 52 
+
+ 37 Entries free out of 64
+
 ```

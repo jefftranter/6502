@@ -1,0 +1,30 @@
+ 10 PRINTCHR$(27);CHR$(21):REM   run under OS-65D V3.3 only!!!
+ 20 :
+ 30 PRINT"*** ATN  vs. PRINT  extensions ***":PRINT
+ 40 PRINT"Only one may be enabled at a time!":PRINT
+ 50 PRINT"Enter the number of your selection:"
+ 60 PRINT:PRINT
+ 70 PRINT"1> Enable ATN function
+ 80 PRINT"2> Enable PRINT extensions"
+ 90 PRINT:PRINT
+ 490 :
+ 500 INPUT"Your choice  (1 or 2) ";y$
+ 510 IF (y$<>"1") AND (y$<>"2") THEN 500
+ 520 y=VAL(y$):t=8278:f=14974:ctl=PEEK(2073):POKE 2073,96
+ 525 :
+ 530 IF y$="2" THEN FOR i=1 TO 9:READ a:NEXT:f=f+110
+ 540 :
+ 550 FOR i=0 TO 109:a=PEEK(f+i):POKE t+i,a:NEXT i
+ 560 :
+ 570 a=0558:READ b,c  :POKE a,b:POKE a+1,c
+ 575 a=0828:READ b,c,d:POKE a,b:POKE a+1,c:POKE a+2,d
+ 580 a=2642:READ b,c  :POKE a,b:POKE a+1,c
+ 585 a=8643:READ b,c  :POKE a,b:POKE a+1,c
+ 590 :
+ 600 POKE 2073,ctl:a$="ATN function"
+ 610 IFy$="2" THEN a$="PRINT extensions"
+ 620 PRINT:PRINT:PRINTa$" enabled."
+ 630 END
+ 890 :
+ 900 DATA 169,033,065,084,206,236,028,205,012
+ 910 DATA 088,032,010,010,138,127,047,178,032
