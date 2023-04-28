@@ -1,4 +1,4 @@
-all: osirom.lod basicrom.lod cegmon.lod os65dv32.bin os65dv33.bin
+all: osirom.lod basicrom.lod cegmon.lod os65dv32.bin os65dv33.bin basic32.bin basic33.bin compare.bin copier32.bin copier33.bin os65d32.bin os65d33.bin
 
 patch: errormessage.patch garbagecollection.patch
 	patch -p3 <errormessage.patch
@@ -66,6 +66,27 @@ os65dv33.bin: os65dv33.o
 
 os65dv33.o: os65dv33.s
 	ca65 --feature labels_without_colons -g -l os65dv33.lst os65dv33.s
+
+basic32.bin: basic32.asm
+	a65 -L -B basic32.asm
+
+basic33.bin: basic33.asm
+	a65 -L -B basic33.asm
+
+compare.bin: compare.asm
+	a65 -L -B compare.asm
+
+copier32.bin: copier32.asm
+	a65 -L -B copier32.asm
+
+copier33.bin: copier33.asm
+	a65 -L -B copier33.asm
+
+os65d32.bin: os65d32.asm
+	a65 -L -B os65d32.asm
+
+os65d33.bin: os65d33.asm
+	a65 -L -B os65d33.asm
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin *.lod
