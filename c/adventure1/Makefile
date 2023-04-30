@@ -71,8 +71,10 @@ apple2: adventure1.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t apple2enh adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
 
 osi:	adventure1.c
-	CC65_HOME=/usr/local/share/cc65	cl65 -O -t osic1p adventure1.c -L /usr/local/share/cc65/lib
+	CC65_HOME=/usr/local/share/cc65 cl65 -O -t osic1p adventure1.c -L /usr/local/share/cc65/lib
 	srec_cat adventure1 -binary -offset 0x200 -o adventure1.c1p -Ohio_Scientific -execution-start-address=0x200
+	# Below version works as well
+	#CC65_HOME=/usr/local/share/cc65 cl65 -u __BOOT__ -O -t osic1p -o adventure1.c1p adventure1.c -L /usr/local/share/cc65/lib
 
 replica1: adventure1.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t replica1 adventure1.c -o adventure1 -L /usr/local/share/cc65/lib
