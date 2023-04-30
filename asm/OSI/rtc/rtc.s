@@ -19,7 +19,7 @@
 ; be run to show how the clock runs even while Basic is executing. To
 ; ensure that Basic does not wipe out the clock program, from cold
 ; start enter a value of 30000 or less to the MEMORY SIZE? prompt. The
-; Basic program includes themachne language code and is
+; Basic program includes the machine language code and is
 ; self-contained.
 ;
 ; The timer hardware is not exactly 10 ms, so the clock is not
