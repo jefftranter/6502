@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Check out latest cc65 source code, apply patches for osic1p target,
+# build, and install.
+
+set -e
+
+echo "*** Checking out cc65 source code ***"
+git clone https://github.com/cc65/cc65.git
+cd cc65
+
+echo "*** Applying patch ***"
+patch -p1 <../cc65-serial.patch
+
+echo "*** Building ***"
+make -s -j4
+
+echo "*** Installing ***"
+sudo make PREFIX=/usr/local -s install
+
+echo "*** Cleaning ***"
+make -s clean
+cd ..
+rm -rf cc65

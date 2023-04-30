@@ -1,0 +1,170 @@
+diff --git a/libsrc/osic1p/cgetc.s b/libsrc/osic1p/cgetc.s
+index 380353b77..4941f5b88 100644
+--- a/libsrc/osic1p/cgetc.s
++++ b/libsrc/osic1p/cgetc.s
+@@ -13,6 +13,15 @@
+ ; Input routine, show cursor if enabled
+         .code
+ _cgetc:
++.ifdef SERIALIO
++        jsr     SERIN           ; get character from serial port
++        cmp     #$0D            ; CR?
++        bne     ret             ; branch if not
++        lda     #$0A            ; also send LF
++        jsr     SEROUT          ; echo it
++ret:    ldx     #$00            ; high byte of int return value
++        rts                     ; return
++.else
+         ldx     CHARBUF         ; character in buffer available?
+         bne     done
+         lda     cursor          ; show cursor?
+@@ -39,3 +48,4 @@ done:
+         txa                     ; restore saved character from X
+         ldx     #$00            ; high byte of int return value
+         rts
++.endif
+diff --git a/libsrc/osic1p/kbhit.s b/libsrc/osic1p/kbhit.s
+index 8744baf61..9e6c62130 100644
+--- a/libsrc/osic1p/kbhit.s
++++ b/libsrc/osic1p/kbhit.s
+@@ -10,12 +10,15 @@
+ ; in tmp1 and that is set to zero after the first round.
+ ;
+ 
+-        .constructor    initkbhit
+-        .export _kbhit
+         .include "osic1p.inc"
+         .include "extzp.inc"
+         .include "zeropage.inc"
++.ifndef SERIALIO
++        .constructor    initkbhit
++.endif
++        .export _kbhit
+ 
++.ifndef SERIALIO
+ ; Internal state that needs to be preserved across calls.
+ .segment        "EXTZP" : zeropage
+ 
+@@ -36,12 +39,20 @@ initkbhit:
+         sta     CTRLSHIFT
+ 
+         rts
++.endif
+ 
+ ; Routine to get character from keyboard and return it in A.
+ ; Based on the OSI ROM routine at $FD00 but uses different
+ ; storage locations to avoid corrupting CC65 run-time code.
+ 
+-_kbhit: lda     CHARBUF         ; Check for previously saved character
++_kbhit:
++.ifdef SERIALIO
++        lda     $F000           ; Read ACIA status register
++        and     #$01            ; Mask all but RDRF bit
++        ldx     #$00            ; High byte of return is always zero
++        rts                     ; Return with 1 in A if char ready, 0 if not.
++.else
++        lda     CHARBUF         ; Check for previously saved character
+         beq     LFD05
+         ldx     #$00            ; High byte of return is always zero
+         rts                     ; A contains non-zero character code meaning true
+@@ -202,3 +213,4 @@ LFF3B:  .byte   $BD
+         .byte   $00, $00, $0D, $0A, 'O', 'L', '.'
+         .byte   $00, '_', '-', ':', '0', '9', '8'
+         .byte   '7', '6', '5', '4', '3', '2', '1'
++.endif
+diff --git a/libsrc/osic1p/osic1p.inc b/libsrc/osic1p/osic1p.inc
+index 9f8620dcb..3f6da4185 100644
+--- a/libsrc/osic1p/osic1p.inc
++++ b/libsrc/osic1p/osic1p.inc
+@@ -1,3 +1,10 @@
++; Define this to use the cassette serial port for all i/o rather than
++; the screen and keyboard.
++
++SERIALIO        := 1
++
+ ; Addresses
+ RESET           := $FF00        ; Reset address, show boot prompt
+ KBD             := $DF00        ; Polled keyboard register
++SERIN           := $FE80        ; Serial character in
++SEROUT          := $FCB1        ; Serial character out
+diff --git a/libsrc/osic1p/osiscreen.inc b/libsrc/osic1p/osiscreen.inc
+index 509b4cf79..e96d2a98f 100644
+--- a/libsrc/osic1p/osiscreen.inc
++++ b/libsrc/osic1p/osiscreen.inc
+@@ -3,6 +3,7 @@
+ ;
+ 
+         .include        "extzp.inc"
++        .include        "osic1p.inc"
+ 
+ .linecont +
+ 
+@@ -31,6 +32,18 @@
+         .export         _clrscr
+ 
+ .proc   _clrscr
++
++; Clear screen by sending ANSI terminal escape sequence.
++.ifdef SERIALIO
++        ldx     #0
++lp1:    lda     ansi,x
++        beq     done1
++        jsr     SEROUT
++        inx
++        bne     lp1
++done1:  rts
++ansi:   .byte   $1B,"[2J",$1B,"[H",0
++.else
+         lda     #<ScrBase       ; Fill whole video RAM with blanks by calling
+         ldx     #>ScrBase       ; memset appropriately
+         jsr     pushax
+@@ -48,6 +61,7 @@
+         sta     CURS_Y
+ 
+         jmp     plot            ; Set the cursor position
++.endif
+ .endproc
+ 
+ .endmacro
+@@ -78,6 +92,14 @@ _cputcxy:
+ 
+ ; Plot a character - also used as internal function
+ 
++.ifdef SERIALIO
++_cputc: jsr     SEROUT          ; Output it
++        cmp     #$0A            ; NL?
++        bne     ret             ; Branch if not
++        lda     #$0D            ; Also send CR
++        jsr     SEROUT          ; Output it
++ret:    rts                     ; and return
++.else
+ _cputc: cmp     #$0D            ; CR?
+         bne     L1
+         lda     #0
+@@ -86,13 +108,18 @@ _cputc: cmp     #$0D            ; CR?
+ 
+ L1:     cmp     #$0A            ; LF?
+         beq     newline         ; Recalculate pointers
++.endif
+ 
+ cputdirect:
++        jmp     _cputc          ; Call cputc
+         jsr     putchar         ; Write the character to the screen
+ 
+ ; Advance cursor position, register Y contains horizontal position after
+ ; putchar
+ 
++.ifdef SERIALIO
++        jmp     _cputc          ; Call cputc
++.else
+         cpy     #(ScrWidth - 1) ; Check whether line is full
+         bne     L3
+         jsr     newline         ; New line
+@@ -100,6 +127,7 @@ cputdirect:
+ L3:     iny
+         sty     CURS_X
+         rts
++.endif
+ 
+ newline:
+         inc     CURS_Y
