@@ -27,8 +27,6 @@
 ; ROM monitor uses these page zero addresses, so avoid:
 ; $FB,$FC,$FE,$FF
 
-
-
         .org 0
 
 ; Write chars to serial port/UART
@@ -50,6 +48,3 @@ loop:   jsr $FD00
         jsr $BF2D
         jsr $FCB1
         jmp loop
-
-
-

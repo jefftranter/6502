@@ -6,7 +6,7 @@
 ;
 ; Build using:
 ; ca65 -g -l example1.lst example1.s
-; ld65 OSI/rtc/Makefile -vm -o example1.bin example1.o
+; ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -o example1.bin example1.o
 ; ./bintolod -s 0000 -l 0000 example1.bin >example1.lod
 ;
 ; Then upload and run using:
@@ -32,4 +32,4 @@ move:   lda $D147,x       ; Load line(i+1)
         bne move          ; Back until equal
         tya               ; Restore key-in
         sta $D159         ; Store new key
-        jmp repeat        ; Back for more
+        jmp repeat        ; Back for mor
