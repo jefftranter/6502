@@ -337,7 +337,7 @@ char* _fgets(char* buf, size_t size, FILE*)
 /* Clear the screen */
 void clearScreen()
 {
-#if defined(__APPLE2__)
+#if defined(__CC65__) && !defined(__KIM1__)
     clrscr();
 #else
     number i;
