@@ -1,6 +1,6 @@
 ; JMON - 6502 Monitor Program
 ;
-; Copyright (C) 2012-2021 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2023 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -91,6 +91,7 @@
 ; 1.3.6  03-Mar-2021   Add J (S record loading) and W (S record writing) commands.
 ; 1.3.7  26-May-2021   Added P (scope loop) command.
 ; 1.3.8  08-Mar-2023   Move variables to top of RAM on SBC platform (to allow loading code at $0200).
+; 1.3.9  30-Apr-2023   Move variables to top of RAM on all platforms
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -3258,9 +3259,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.8 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.9 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.8 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.9 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
@@ -3474,13 +3475,9 @@ S0String:
   .include "memtest4.s"
   .include "delay.s"
 
-; Non-Page Zero Variables. Note: These must be in RAM. Use a .org
-; below corresponding to RAM if the program is linked into ROM.
-.ifdef SBC
+; Non-Page Zero Variables. Note: These must be in RAM.
+; Put at top of memory on a 32K system.
 .org $7FC0
-.else
-.org $1000
-.endif
 
 T2:       .res 1                ; Temp variable 2
 RETOK:    .res 1                ; Sets whether <Return> key is accepted in some input routines
