@@ -309,13 +309,14 @@ char buffer[80];
 
 #if defined(__OSIC1P__)
 
-/* Have to implement fgets() ourselves as it is not available. */
+/* Have to implement fgets() ourselves as it is not available. TODO:
+   Implement support for backspace/delete. */
 char* _fgets(char* buf, size_t size, FILE*)
 {
     int c;
     char *p;
 
-    /* get max bytes or upto a newline */
+    /* get max bytes or up to a newline */
     for (p = buf, size--; size > 0; size--) {
         if ((c = cgetc()) == EOF)
             break;
