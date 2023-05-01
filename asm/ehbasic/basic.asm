@@ -441,7 +441,8 @@ Ram_top		= $8000	; end of user RAM+1 (set as needed, should be page aligned)
 
 ; This start can be changed to suit your system
 
-	.org	$C000
+;	.org	$5000		; Suitable for RAM
+	.org	$C000		; Suitable for ROM
 
 ; For convenience, put jump here to reset location so it can be
 ; run from the load address.
