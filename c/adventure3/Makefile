@@ -73,6 +73,8 @@ apple2: adventure3.c
 osi:	adventure3.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t osic1p adventure3.c -L /usr/local/share/cc65/lib
 	srec_cat adventure3 -binary -offset 0x200 -o adventure3.c1p -Ohio_Scientific -execution-start-address=0x200
+	# Below version works as well
+	#CC65_HOME=/usr/local/share/cc65 cl65 -u __BOOT__ -O -t osic1p -o adventure3.c1p adventure3.c -L /usr/local/share/cc65/lib
 
 replica1: adventure3.c
 	CC65_HOME=/usr/local/share/cc65	cl65 -O -t replica1 adventure3.c -o adventure3 -L /usr/local/share/cc65/lib
