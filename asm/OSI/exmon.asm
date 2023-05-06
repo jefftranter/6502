@@ -1,7 +1,8 @@
-; Ohio Scientific Assembler Editor
+; Ohio Scientific Extended Monitor
 ;
-; Disassembled from cassette version of Ohio Scientic Extended Monitor.
-; The original has a small loader at the front which is not included.
+; Disassembled from cassette version of Ohio Scientific Extended
+; Monitor. The original has a small loader at the front which is not
+; included.
 ;
 ; For details and usage see the manual "Assembler Editor and Extended
 ; Monitor Reference Manual (C1P, C4P and C8)".

@@ -1,4 +1,4 @@
-all: osirom.lod basicrom.lod cegmon.lod os65dv32.bin os65dv33.bin basic32.bin basic33.bin compare.bin copier32.bin copier33.bin os65d32.bin os65d33.bin exmon.bin
+all: osirom.lod basicrom.lod cegmon.lod os65dv32.bin os65dv33.bin basic32.bin basic33.bin compare.bin copier32.bin copier33.bin os65d32.bin os65d33.bin exmon.bin edasm.bin
 
 patch: errormessage.patch garbagecollection.patch
 	patch -p3 <errormessage.patch
@@ -90,6 +90,9 @@ os65d33.bin: os65d33.asm
 
 exmon.bin: exmon.asm
 	a65 -B -O -L -G0800 exmon.asm
+
+edasm.bin: edasm.asm
+	a65 -B -O -L -G1300 edasm.asm
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin *.lod
