@@ -257,6 +257,49 @@ void Display()
 #endif
 }
 
+// Handle keyboard command
+void keyboardCommand()
+{
+    char c = cgetc();
+
+    switch (c) {
+    case 'H':
+    case '?':
+        clrscr();
+        cprintf("Keyboard Commands:\r\n");
+        cprintf("H or ? - Help\r\n");
+        cprintf("<space> - Pause\r\n");
+        cprintf("Q - Quit\r\n");
+        cprintf("R - Restart (random)\r\n");
+        cprintf("1..4 - Load pattern\r\n");
+        while (!kbhit())
+            ;
+        break;
+    case ' ':
+        while (!kbhit())
+            ;
+        break;
+    case 'Q':
+        exit(0);
+        break;
+    case 'R':
+        FillRandom();
+        break;
+    case '1':
+        loadPattern(pat1);
+        break;
+    case '2':
+        loadPattern(pat2);
+        break;
+    case '3':
+        loadPattern(pat3);
+        break;
+    case '4':
+        loadPattern(pat4);
+        break;
+    }
+}
+
 // Calculate new generation based on data in old.
 void CalculateGeneration()
 {
@@ -315,60 +358,9 @@ int main()
         // Calculate new data
         CalculateGeneration();
 
-        // Check for keyboard command:
-        // H or ? - help
-        // <space> - pause until another key pressed
-        // Q - quit to monitor
-        // R - restart with random data
-        // 1..0 - restart with: 1-block, 2-beehive, 3-loaf, 4-boat, 5-tub, 6-blinker, 7-toad, 8-beacon, 9-pulsar, 0-pentadecathlon
-
 #ifdef __OSIC1P__
         if (kbhit()) {
-            char c = cgetc();
-
-            switch (c) {
-            case 'H':
-            case '?':
-                clrscr();
-                cprintf("Keyboard Commands:\r\n");
-                cprintf("H or ? - Help\r\n");
-                cprintf("<space> - Pause\r\n");
-                cprintf("Q - Quit\r\n");
-                cprintf("R - Restart (random)\r\n");
-                cprintf("1..4 - Load pattern\r\n");
-                while (!kbhit())
-                    ;
-                break;
-
-            case ' ':
-                while (!kbhit())
-                    ;
-                break;
-
-            case 'Q':
-                return 0;
-                break;
-
-            case 'R':
-                FillRandom();
-                break;
-
-            case '1':
-                loadPattern(pat1);
-                break;
-
-            case '2':
-                loadPattern(pat2);
-                break;
-
-            case '3':
-                loadPattern(pat3);
-                break;
-
-            case '4':
-                loadPattern(pat4);
-                break;
-            }
+            keyboardCommand();
         }
 #endif
     }
