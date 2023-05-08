@@ -1,6 +1,6 @@
 /*
 
-Conway's Game of Life in assembler for the Ohio Scientic Challenger 1P.
+Conway's Game of Life in assembler for the Ohio Scientific Challenger 1P.
 
 Summary of rules:
 - Any live cell with two or three live neighbours survives.
@@ -9,15 +9,19 @@ Summary of rules:
 
 See https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
+Jeff Tranter <tranter@pobox.com>
+
 To Do:
-- Optimize speed
-- Add keyboard commands to pause, restart, quit
-- Restart if new pattern is same as old?
-- Print number of generations?
+- Optimize speed - convert some int to char or unsigned int? Multiply to shift?
+- Option to initialize with more interesting/stable patterns.
+- 48x12 mode option?
 */
 
 #include <stdlib.h>
-#ifndef __OSIC1P__
+#include <string.h>
+#ifdef __OSIC1P__
+#include <conio.h>
+#else
 #include <stdio.h>
 #include <time.h>
 #endif
@@ -36,6 +40,7 @@ int IsEmpty()
                 return 0;
         }
     }
+
     return 1;
 }
 
@@ -56,11 +61,8 @@ void FillRandom()
     }
 }
 
-// Return 1 if x and y are valid for array
-int inRange(int x, int y)
-{
-    return x >= 0 && x < 24 && y >= 0 && y < 24;
-}
+// Return if x and y are valid for array
+#define INRANGE(x,y) (x >= 0 && x < 24 && y >= 0 && y < 24)
 
 // Return number of live neighbours for old cell
 int numberOfNeighbours(int x, int y)
@@ -72,37 +74,30 @@ int numberOfNeighbours(int x, int y)
     // [x-1][y]     CELL   [x+1][y]
     // [x-1][y+1] [x][y+1] [x+1][y+1]
 
-    if (inRange(x-1,y-1) && old[x-1][y-1] == 1)
+    if (INRANGE(x-1,y-1) && old[x-1][y-1] == 1)
         n += 1;
-    if (inRange(x,y-1) && old[x][y-1] == 1)
+    if (INRANGE(x,y-1) && old[x][y-1] == 1)
         n += 1;
-    if (inRange(x+1,y-1) && old[x+1][y-1] == 1)
+    if (INRANGE(x+1,y-1) && old[x+1][y-1] == 1)
         n += 1;
-    if (inRange(x-1,y) && old[x-1][y] == 1)
+    if (INRANGE(x-1,y) && old[x-1][y] == 1)
         n += 1;
-    if (inRange(x+1,y) && old[x+1][y] == 1)
+    if (INRANGE(x+1,y) && old[x+1][y] == 1)
         n += 1;
-    if (inRange(x-1,y+1) && old[x-1][y+1] == 1)
+    if (INRANGE(x-1,y+1) && old[x-1][y+1] == 1)
         n += 1;
-    if (inRange(x,y+1) && old[x][y+1] == 1)
+    if (INRANGE(x,y+1) && old[x][y+1] == 1)
         n += 1;
-    if (inRange(x+1,y+1) && old[x+1][y+1] == 1)
+    if (INRANGE(x+1,y+1) && old[x+1][y+1] == 1)
         n += 1;
 
     return n;
 }
 
 // Copy new array to old.
-// TODO: Use memcpy?
 void CopyNewToOld()
 {
-    int i, j;
-
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 24; j++) {
-            old[i][j] = new[i][j];
-        }
-    }
+    memcpy(old, new, sizeof(new));
 }
 
 // Display new values in video memory.
@@ -142,18 +137,19 @@ void Display()
 // Calculate new generation based on data in old.
 void CalculateGeneration()
 {
-    int i, j;
+    int i, j, n;
 
     for (i = 0; i < 24; i++) {
         for (j = 0; j < 24; j++) {
+            n = numberOfNeighbours(i, j);
             if (old[i][j] == 0) { // Dead cell
-                if (numberOfNeighbours(i, j) == 3) {
+                if (n == 3) {
                     new[i][j] = 1;
                 } else {
                     new[i][j] = 0;
                 }
             } else { // Live cell
-                if (numberOfNeighbours(i, j) == 2 || numberOfNeighbours(i, j) == 3) {
+                if (n == 2 || n == 3) {
                     new[i][j] = 1;
                 } else {
                     new[i][j] = 0;
@@ -165,26 +161,77 @@ void CalculateGeneration()
 
 int main()
 {
-#ifndef __OSIC1P__
-    srand(time(0));
+#ifdef __OSIC1P__
+    unsigned int i;
+
+    clrscr();
+    cprintf("\r\nPress a key to start...");
+    while (!kbhit()) {
+        i++;
+    }
+    srand(i); // Seed random number generator
+#else
+    srand(time(0)); // Seed random number generator
 #endif
+
+    FillRandom(); // Initialize with random cells
 
     while (1) {
 
-        // If new cells empty (due to being at start or all cells have
-        // died) we fill it again with random data.
-        if (IsEmpty()) {
-            FillRandom();
-        }
-
         // Display new array on screen.
         Display();
+
+        // Restart if new pattern is same as old
+        if (!memcmp(old, new, sizeof(new))) {
+            FillRandom(); // Initialize with random cells
+        }
 
         // Copy new data to old
         CopyNewToOld();
 
         // Calculate new data
         CalculateGeneration();
+
+        // Check for keyboard command:
+        // H or ? - help
+        // <space> - pause until another key pressed
+        // Q - quit to monitor
+        // R - restart with random data
+        // 1..0 - restart with: 1-block, 2-beehive, 3-loaf, 4-boat, 5-tub, 6-blinker, 7-toad, 8-beacon, 9-pulsar, 0-pentadecathlon
+
+#ifdef __OSIC1P__
+        if (kbhit()) {
+            char c = cgetc();
+
+            switch (c) {
+            case 'H':
+            case '?':
+                clrscr();
+                cprintf("Keyboard Commands:\r\n");
+                cprintf("H or ? - Help\r\n");
+                cprintf("<space> - Pause\r\n");
+                cprintf("Q - Quit\r\n");
+                cprintf("R - Restart (random)\r\n");
+                cprintf("1..0 - Load pattern\r\n");
+                while (!kbhit())
+                    ;
+                break;
+
+            case ' ':
+                while (!kbhit())
+                    ;
+                break;
+
+            case 'Q':
+                return 0;
+                break;
+
+            case 'R':
+                FillRandom();
+                break;
+            }
+        }
+#endif
     }
 
     return 0;
