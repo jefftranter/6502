@@ -11,6 +11,11 @@ See https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
 Jeff Tranter <tranter@pobox.com>
 
+To Do:
+- Poll for keyboard commands more often.
+- Optimization: Write critical code as in-line assembler.
+- Option to wrap around at edges?
+
 */
 
 #include <stdlib.h>
@@ -132,36 +137,28 @@ const char *pat4 =
     "........................"
     "........................";
 
-char old[24][24]; // Old cell data
-char new[24][24]; // New cell data
+// Cell data is 24x24, but we add an extra row and column around the
+// edges so we don't have to handle the special cases of checking for
+// the edges of the screen, which speeds up the calculations.
+// So the valid range of data is elements 1 to 24.
+// Using size of 32 makes array access use shift and not multiply and
+// is a big performance boost.
 
-// Return true if new cell data has no living cells
-int IsEmpty()
-{
-    int i, j;
-
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 24; j++) {
-            if (new[i][j] == 1)
-                return 0;
-        }
-    }
-
-    return 1;
-}
+unsigned char old[32][32]; // Old cell data
+unsigned char new[32][32]; // New cell data
 
 // Fill new cell array with random data
 // Roughly half the cells are set to one.
 void FillRandom()
 {
-    int i, j;
+    unsigned char i, j;
 
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 24; j++) {
+    memset(new, 0, sizeof(new));
+
+    for (i = 1; i <= 24; i++) {
+        for (j = 1; j <= 24; j++) {
             if (rand() & 0x01) {
                 new[i][j] = 1;
-            } else {
-                new[i][j] = 0;
             }
         }
     }
@@ -169,52 +166,18 @@ void FillRandom()
 
 void loadPattern(const char *p)
 {
-    int i, j;
-    char c;
+    unsigned char i, j, c;
 
-    for (i = 0 ; i < 24; i++) {
-        for (j = 0 ; j < 24; j++) {
+    memset(new, 0, sizeof(new));
+
+    for (i = 1 ; i <= 24; i++) {
+        for (j = 1 ; j <= 24; j++) {
             c = p[i + 24 * j];
             if (c == 'X') {
                 new[i][j] = 1;
-            } else {
-                new[i][j] = 0;
             }
         }
     }
-}
-
-// Return if x and y are valid for array
-#define INRANGE(x,y) (x >= 0 && x < 24 && y >= 0 && y < 24)
-
-// Return number of live neighbours for old cell
-int numberOfNeighbours(int x, int y)
-{
-    int n = 0;
-
-    // Check:
-    // [x-1][y-1] [x][y-1] [x+1][y-1]
-    // [x-1][y]     CELL   [x+1][y]
-    // [x-1][y+1] [x][y+1] [x+1][y+1]
-
-    if (INRANGE(x-1,y-1) && old[x-1][y-1] == 1)
-        n += 1;
-    if (INRANGE(x,y-1) && old[x][y-1] == 1)
-        n += 1;
-    if (INRANGE(x+1,y-1) && old[x+1][y-1] == 1)
-        n += 1;
-    if (INRANGE(x-1,y) && old[x-1][y] == 1)
-        n += 1;
-    if (INRANGE(x+1,y) && old[x+1][y] == 1)
-        n += 1;
-    if (INRANGE(x-1,y+1) && old[x-1][y+1] == 1)
-        n += 1;
-    if (INRANGE(x,y+1) && old[x][y+1] == 1)
-        n += 1;
-    if (INRANGE(x+1,y+1) && old[x+1][y+1] == 1)
-        n += 1;
-
-    return n;
 }
 
 // Copy new array to old.
@@ -226,25 +189,23 @@ void CopyNewToOld()
 // Display new values in video memory.
 void Display()
 {
-    int i, j;
+    unsigned char i, j;
 #ifdef __OSIC1P__
-    char c;
     char *v = (char *)0xd085;
+
+    memset(v, 0x20, 0x0400); // Initially clear screen
 
     for (i = 0; i < 24; i++) {
         for (j = 0; j < 24; j++) {
-            if (new[i][j] == 1) {
-                c = 0xa1;
-            } else {
-                c = 0x20;
+            if (new[i+1][j+1] == 1) {
+                v[i + j * 32] = 0xa1; // Block character
             }
-            *(v + i + j * 32) = c;
         }
     }
 #else
     for (i = 0; i < 24; i++) {
         for (j = 0; j < 24; j++) {
-            if (new[i][j] == 1) {
+            if (new[i+1][j+1] == 1) {
                 printf("*");
             } else {
                 printf(".");
@@ -257,6 +218,7 @@ void Display()
 #endif
 }
 
+#ifdef __OSIC1P__
 // Handle keyboard command
 void keyboardCommand()
 {
@@ -299,26 +261,39 @@ void keyboardCommand()
         break;
     }
 }
+#endif
 
 // Calculate new generation based on data in old.
 void CalculateGeneration()
 {
-    int i, j, n;
+    unsigned char i, j;
+    unsigned char n;
 
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 24; j++) {
-            n = numberOfNeighbours(i, j);
+    memset(new, 0, sizeof(new)); // Initially clear
+
+    for (i = 1; i <= 24; i++) {
+        for (j = 1; j <= 24; j++) {
+
+            // Calculate number of live neighbours for old cell
+            // Check:
+            // [i-1][j-1] [i][j-1] [i+1][j-1]
+            // [i-1][j]     CELL   [i+1][j]
+            // [i-1][j+1] [i][j+1] [i+1][j+1]
+
+            // Any performance optimization should focus on speeding up the line below.
+            n = old[i-1][j-1] + old[i][j-1] + old[i+1][j-1] + old[i-1][j] + old[i+1][j] + old[i-1][j+1] + old[i][j+1] + old[i+1][j+1];
+
+            if (n != 2 && n != 3) { // Can skip calculation
+                continue;
+            }
+
             if (old[i][j] == 0) { // Dead cell
                 if (n == 3) {
                     new[i][j] = 1;
-                } else {
-                    new[i][j] = 0;
                 }
             } else { // Live cell
                 if (n == 2 || n == 3) {
                     new[i][j] = 1;
-                } else {
-                    new[i][j] = 0;
                 }
             }
         }
@@ -327,6 +302,7 @@ void CalculateGeneration()
 
 int main()
 {
+    long iterations = 0;
 #ifdef __OSIC1P__
     unsigned int i;
 
@@ -346,6 +322,12 @@ int main()
 
         // Display new array on screen.
         Display();
+
+        // Uncomment lines below to show # iterations on screen.
+        //*(char *)0xd365 = iterations/100 + '0';
+        //*(char *)0xd366 = (iterations % 100) / 10 + '0';
+        //*(char *)0xd367 = (iterations % 10) + '0';
+        //iterations++;
 
         // Restart if new pattern is same as old
         if (!memcmp(old, new, sizeof(new))) {
