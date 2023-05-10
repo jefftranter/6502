@@ -1,5 +1,7 @@
 ; Serial loader program, found on OSI cassettes for Extended Monitor and Editor/Assembler.
 ; This code is followed by the actual program to load in MOS Technology format.
+; Typical input line:
+;180258A8A100D9670230EED96B0230EC10E7413041005B3A4721000923<CR><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL><NUL>
 
 CR       = $0D                  ; Carriage Return
 LF       = $0A                  ; Line Feed
