@@ -22,10 +22,6 @@
 ; Basic program includes the machine language code and is
 ; self-contained.
 ;
-; The timer hardware is not exactly 10 ms, so the clock is not
-; particularly accurate but could be calibrated in software to improve
-; accuracy.
-;
 ; This version count 100ths of seconds, seconds, minutes, and hours.
 ; Once it runs, it returns and is all interrupt driven.
 ;
@@ -74,49 +70,59 @@ INIT:   SEI             ; Mask interrupts
         CLI             ; Enable interrupts
         RTS             ; Done, return
 
+; Note: The frequency of the 100 Hz timer signal is actually 98.304 Hz
+; (+/- depending on crystal) so by counting 98 interrupts as a second
+; it runs a little fast. We compensate for this by periodically
+; dropping counts to get a more accurate time. You can adjust these
+; for the actual clock frequency on your machine. Values used here
+; were determined empirically on my machine.
+
 ;
 ; Interrupt service routine
 ;
 ISR:    PHA             ; save A
         BIT     PORTA   ; Clears interrupt
 
-        LDA     JIFFIES ; Increment jiffies counter
-        CLC
-        ADC     #1
-        STA     JIFFIES
-
-; Note: Frequency of 100 Hz timer signal is actually 98.304 Hz (+/-
-; depending on crystal). Can tweak the number below if your system is
-; slightly different. Could make a fine adjustment, say every minute
-; or every hour, to make timer even more accurate over the long term.
+        INC     JIFFIES ; Increment jiffies counter
+        LDA     JIFFIES ; Get current value
 
         CMP     #98     ; reached 1 second?
         BNE     DONE    ; if not, done for now
 
         LDA     #0      ; reset jiffies
         STA     JIFFIES
-        LDA     SECONDS ; increment seconds
-        CLC
-        ADC     #1
-        STA     SECONDS
+        INC     SECONDS ; increment seconds
+        LDA     SECONDS
         CMP     #60     ; reached 1 minute?
         BNE     DONE    ; if not, done for now
 
         LDA     #0      ; reset seconds
         STA     SECONDS
-        LDA     MINUTES ; increment minutes
-        CLC
-        ADC     #1
-        STA     MINUTES
+        INC     MINUTES ; increment minutes
+
+; Time adjustment: Every minute drop 16 counts.
+
+        LDA     JIFFIES
+        SEC
+        SBC     #16
+        STA     JIFFIES
+
+        LDA     MINUTES
         CMP     #60     ; reached 1 hour?
         BNE     DONE    ; if not, done for now
 
         LDA     #0      ; reset minutes
         STA     MINUTES
-        LDA     HOURS   ; increment hours
-        CLC
-        ADC     #1
-        STA     HOURS
+        INC     HOURS   ; increment hours
+
+; Time adjustment: Every hour drop 9 (TBD) counts.
+
+        LDA     JIFFIES
+        SEC
+        SBC     #00
+        STA     JIFFIES
+
+        LDA     HOURS
         CMP     #24     ; reached 24 hours?
         BNE     DONE    ; if not, done for now
 
