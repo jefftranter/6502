@@ -78,11 +78,11 @@ INIT:   SEI             ; Mask interrupts
         RTS             ; Done, return
 
 ; Note: The frequency of the 100 Hz timer signal is actually 98.304 Hz
-; (+/- depending on crystal) so by counting 98 interrupts as a second
-; it runs a little fast. We compensate for this by periodically
-; dropping counts to get a more accurate time. You can adjust these
-; for the actual clock frequency on your machine. Values used here
-; were determined empirically on my machine.
+; so by counting 98 interrupts as a second it runs a little fast. We
+; compensate for this by periodically dropping counts to get a more
+; accurate time. You can adjust these for the actual clock frequency
+; on your machine. Values used here were determined empirically on my
+; machine and gave me a clock accuracy of within one second per day.
 
 ;
 ; Interrupt service routine
@@ -122,11 +122,11 @@ ISR:    PHA             ; Save A
         STA     MINUTES
         INC     HOURS   ; Increment hours
 
-; Time adjustment: Every hour drop 9 (TBD) counts.
+; Time adjustment: Every hour drop 24 counts.
 
         LDA     JIFFIES
         SEC
-        SBC     #00
+        SBC     #24
         STA     JIFFIES
 
         LDA     HOURS
