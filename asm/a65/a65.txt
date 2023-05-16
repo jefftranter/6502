@@ -1,0 +1,350 @@
+                        A65 User Notes
+                        --------------
+
+A65 is an assembler for the MOS Technology 6502 microprocessor.
+
+Most source files intended for the MOS Technology 6502 assembler
+will assemble correctly under A65.
+
+A65 is a public domain work. It is derived from the "as6502"
+cross-assembler written by J. H. Van Ornum and J. Swank.
+
+Includes support for 65C02 instructions.
+
+
+SOURCE LINE FORMAT
+------------------
+
+<label> <operation> <operand> <comment>
+
+Each field is terminated by one or more spaces, a TAB or a semicolon
+(which begins the comment field immediately).
+
+
+LABEL FIELD
+-----------
+If the first character in a line is a semicolon (;) the entire line
+is a comment.  If it is a space or TAB then the label field is null.
+
+Labels are alphanumeric strings beginning with A - Z and followed
+by any alphanumeric character (A-Z, 0-9) or underscore (_), it can
+optionally be terminated with a ':' which is ignored.
+
+Labels may be any length but are significant to only 16 characters.
+A,X,Y,S,P are reserved characters and may not be used as labels.
+
+Labels are NOT case-sensitive.
+
+
+OPERATION FIELD
+---------------
+The operation field MUST be preceded by at least one space or tab
+character.  Mnemonic names may be either upper or lower case.
+
+6502 Machine operations:
+
+   ADC     BMI     CLD     DEX     JSR     PHA     RTS     STY
+   AND     BNE     CLI     DEY     LDA     PHP     SBC     TAX
+   ASL     BPL     CLV     EOR     LDX     PLA     SEC     TAY
+   BCC     BRK     CMP     INC     LDY     PLP     SED     TSX
+   BCS     BVC     CPX     INX     LSR     ROL     SEI     TXA
+   BEQ     BVS     CPY     INY     NOP     ROR     STA     TXS
+   BIT     CLC     DEC     JMP     ORA     RTI     STX     TYA
+
+65SC02 extensions:
+
+   BRA     INA     PHY     PLY     TRB
+   DEA     PHX     PLX     STZ     TSB
+
+By default A65 recognizes only standard 6502 instructions and
+modes.  Using the -X switch enables the 65C02 extensions.
+
+
+Pseudo operations:
+
+   =      Equate label name to operand field value; a space is
+          not needed before operand
+   *=     Set location counter to operand field value; a space is
+          not needed before operand
+   .ORG   same as above
+   .BYTE  Assign 8 bit value or ASCII string to next location
+   .DBYTE Assign 16 bit value (high/low byte order) of operand
+          field to next two locations
+   .WORD  Assign 16 bit value (low/high byte order) of operand
+          field to next two locations
+   .DWORD Assign 32bit value (low/high byte order) of operand
+          field to next four locations
+   .PAGE  Start a new listing page and optionally specify a title
+          for the page heading; this source line is not listed
+   .END   Signal end of assembly for the current source file
+   .OPT   Set assembly options; this source line is not listed
+   .SKIP  Skip lines (not implemented)
+   .IFN   Conditionally assemble block if expression not zero
+   .IFE   Conditionally assemble block if expression is zero
+   .EXE   * Set the execution (starting) address for MOS & OSI
+          65V/65A output formats.
+   .LIB   Insert source code from another file
+   .FIL   Link source code to another file
+
+.OPT requires one or more parameters separated by a comma:
+
+   ERRORS, NOERRORS      control generation of error file
+   LIST, NOLIST          control generation of listing file
+   SYMBOL, NOSYM         control generation of symbol listing
+   GENERATE, NOGENERATE  control printing of ASCII strings
+   CMOS, NOCMOS          control assembly of 65C02 instructions
+
+
+ERRORS, NOERRORS, NOGENERATE have no effect under A65 but may be
+present.  SKIP also has no effect but will generate a warning.
+
+The default for A65 is:
+
+   .OPT  GENERATE,NOLIST,NOSYM,NOCMOS
+
+Note: Names for the pseudo mnemonics and .OPT parameters may be
+shortened to three characters.
+
+.IFN .IFE conditionally assembles a block of code enclosed by
+delimiters < and >.  Nesting to 8 levels is permitted.
+
+ Syntax:
+
+  .IFN expression <  ; true if expression evaluates to non-zero
+  ...
+  >
+
+  .IFE expression <  ; true if expression evaluates to zero
+  ...
+  >
+
+Note: '<' must appear on the same line as the expression while
+'>' must appear in column 1 on a line by itself.
+
+
+.LIB allows the user to insert source code from another file into
+the assembly. When the assembler encounters this directive, it
+temporarily ceases reading source code from the current file and
+starts reading from the file named in the .LIB. Processing of the
+original source file resumes when end-of-file (EOF) or .END is
+encountered in the library file. The control file containing the
+.LIB can contain other assembler directives to turn the listing
+function on and off. etc.
+
+.FIL can be used to link another file to a current one during
+assembly. A library file called by a .LIB may not contain another
+.LIB. but it may contain a .FIL. A .FIL" terminates assembly of the
+file containing it and transfers source reading to the file named
+on the OPERAND. There are no restrictions on the number of files
+which may be linked by .FIL directives. Caution should be
+exercised when using this directive to ensure that no circular
+linkages are created. An assembler pass can only be terminated by
+(EOF) or .END directive.
+
+OPERAND FIELD
+-------------
+The operand field may include labels, numbers or strings.
+
+Operand field expressions use infix notation and are evaluated
+strictly from left to right with NO embedded spaces.  One level
+of parenthesis using square brackets [] are permitted.
+
+The asterisk (*) is used as the label for the current location
+counter.
+
+Numbers are decimal by default.  Binary, octal or hexadecimal
+numbers may be specified by prefixing them as follows:
+
+   %       binary prefix
+   @       octal prefix
+   $       hexadecimal prefix
+
+ASCII character strings are delimited with an apostrophe (') or double-quote (").
+Where the apostrophe character itself is desired in a string,
+use two apostrophes.  Some examples -
+
+   LDA   #'J
+   LDA   #''
+   LDA   #'''
+   .BYT  'Jim''s bicycle'
+   .BYTE "Jim's bicycle"
+
+Arithmetic operations on single characters are allowed.
+
+   LDA   #'A'+1
+   .BYT  ['A'+$80]
+
+Operand field operations and the corresponding symbols are:
+
+   <       low byte	(also use before label to force zero page address)
+   >       high byte
+   +       addition
+   -       subtraction
+   *       multiplication
+   /       division
+   %       modulo (remainder after integer division)
+   ^       logical XOR
+   ~       NOT (one's complement)
+   &       logical AND
+   |       logical OR
+   !       Force use of absolute addressing
+
+Addressing modes are represented as follows:
+
+   LDA #aa        immediate addressing
+   LDA d          direct addressing
+   LDA aa         page zero addressing
+   ASL A          accumulator addressing (the A is optional)
+   BRK            implied addressing
+   LDA (aa,X)     indirect,X addressing
+   LDA (aa),Y     indirect,Y addressing
+   LDA aa,X       zero page,X addressing
+   LDA d,X        absolute,X addressing
+   LDA d,Y        absolute,Y addressing
+   BCC *-$10      relative addressing
+   JMP (d)        indirect addressing
+   LDX aa,Y       zero page,Y addressing
+   JMP (d,x)      absolute indexed indirect (65C02)
+
+
+INVOKING A65
+------------
+   A65 [options] file1 [file2 file3 ...]
+
+Switch options:
+
+   -B   output binary file
+   -X   output listing to console
+   -L   output listing to file
+   -H   output INTEL hex object file
+   -M   output MOS Tech. checksum object file
+   -O   output OSI 65V .lod object file
+   -A   output OSI 65A monitor load object file
+   -Gx  specify execution address in hex for MOS/OS65V
+        (or use .EXE pseudo opt in source)
+   -Pn  page length (0 = no paging)
+   -Q   quiet (suppress warnings)
+   -R   reformat listing
+   -S   include symbol table in listing
+   -Tn  symbol table size
+   -Wn  page width
+   -C   enable 65C02 instructions
+
+If no switches are specified, the source file will be assembled
+and any errors shown.  Several source files may be assembled
+with a single command.  If the source file name is specified
+without an extension then ".asm" is assumed.
+
+The object output file may be in ascii hex or binary format and
+is invoked using the appropriate switch (-H -M -B).
+
+Listing page width and length may be adjusted with the -W and
+-P switches.  The defaults are 60 and 132 respectively.  If no
+paging is desired, use -P0.
+
+The reformat option (-R) is useful for source code that was
+written with a space character as field delimiter instead of
+tabs.
+
+Typing A65 without parameters will bring up a help screen.
+
+NOTE: As of version 1.07 the listing is sent to disk instead of
+standard output.  The listing, hex and binary files will use
+the first source file for their base name.
+
+
+BINARY FILES
+------------
+A65 can produce binary image files directly using the -B switch.
+There are two limitations.
+
+1. If an attempt is made to insert a byte into the binary image
+   at an address less than the first byte written, then an error
+   message "Invalid binary reposition" will occur and the binary
+   image file will be corrupt.  Note: this can often be avoided
+   by re-organizing the source code or changing the sequence in
+   which source code files are assembled.
+
+2. If gaps are present in the binary image they will be filled
+   with indeterminate characters.
+
+If either is a problem, the user should choose the hex object
+option instead and use a suitable hex-to-binary utility.
+
+
+MESSAGES
+--------
+
+1. Fatal errors
+
+   Create error for file ...
+   Divide by zero
+   High/low byte operator misplaced
+   Invalid addressing mode
+   Invalid binary reposition (below start of code)
+   Invalid branch address
+   Invalid linesize
+   Invalid operand field
+   Invalid operation code
+   Invalid option
+   Invalid pagesize
+   Invalid symbol table size
+   Label multiply defined
+   Missing ] in expression
+   Missing [ in expression
+   Nesting error
+   Open error for file ...
+   Operand field missing
+   Operand field size error
+   Symbol is reserved (A,X,Y,S,P)
+   Symbol table allocation failed - specify smaller size
+   Symbol table full
+   Sync error (location counter changed between passes)
+   Title too long
+   Too many [ in expression
+   Undefined symbol in operand field
+   Unterminated ASCII string
+
+2. Warnings
+
+   Not implemented
+   Value changed (value changed between passes)
+
+
+MOS TECHNOLOGY COMPATIBILITY
+----------------------------
+
+1. Assembling MOS Technology compatible source files:
+
+Most source files intended for the MOS Technology 6502 assembler will
+assemble correctly using A65.  The exceptions are those which contain
+the following pseudo-operations:
+
+   .MAC .MND
+
+Under A65 .SKIP may be present but has no effect.  Similarly, .OPT
+may include ERRORS, NOERRORS or NOGENERATE but will have no effect.
+
+2. Writing MOS Technology compatible source files:
+
+If it is desired to produce MOS Technology compatible source files
+that will assemble on KIM-1, SYM-1, AIM65 etc please note the
+following restrictions.  Note: this list may be incomplete or contain
+errors.
+
+ - Labels are limited to 6 characters.  Only alpha-numeric characters
+   are permitted (A-Z, 0-9); the first character must be alpha.
+
+ - The only operators allowed are addition, subtraction, high and low.
+   Do not enclose expressions in parenthesis.
+
+ - Do not perform arithmetic on quoted operands e.g. LDA #'Z'+1
+
+ - Data in .BYTE statements are limited to 40 characters per line.
+   Total line length should not exceed the maximum for the target
+   system e.g. 64 for AIM-65.
+
+ - Negative numbers should be expressed in unsigned two's complement
+   form e.g. $FFFF in place of -1
+
+ - Use only spaces for field delimiters - not TABs.

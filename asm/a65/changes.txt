@@ -1,0 +1,81 @@
+A65 bug fixes and changes
+
+1.24  Support forcing absolute addressing for zero page addresses using '!'.
+      Fixed some spelling errors in the documentation.
+      Fixed compile warnings with gcc on Linux.
+
+1.23.1 Change OSI 65A loader GO command to set 6502 'I' flag before executing
+
+1.23  Disallow negative seek with invalid reposition & binary output
+
+1.22  Added .LIB and .FIL pseudo opt to link or include additional source files.
+      Modified emission of OSI 65A serial monitor load format to remove unneeded
+      characters. USE 8N2 when transmitting data to avoid bitsync errors.
+
+1.21  Added .DWORD pseudo opt to emit 32bit value in low-high order
+
+1.20  Added ability to emit OSI 65A serial monitor load format via '-A' cmdline
+
+1.19  Added support for labels declared with trailing ':' which is ignored, to 
+      be more compatible with other assembler.
+      Added support for pseudo opt .ORG as an alternative to *= for the same 
+      reasons.
+
+1.18  Added ability to emit OSI 65V monitor load format via '-O' cmdline option. 
+      Added pseudo op .EXE to specify execute address for OSI 65V/65A and MOS 
+      checksum load formats execute address
+
+1.17  Added support for implied Accumulator in immediate mode ASL A or ASL, 
+      ROR A or ROR etc.
+      Added support for string constant prefix " in addition to '
+
+1.16  Bug fix: very long lines truncated to prevent assembly errors.
+
+1.15  Source file names specified without an extension will assume
+      ".asm".
+
+1.14  Renamed command-line switches c,o,x to x,h,c respectively. Fix
+      situation where sync errors could be reported as warnings.
+
+1.13  Add conditional assembly IFN/IFE. Add CMOS/NOCMOS to .OPT
+
+1.12  Bug fix: a bad binary output file (-B switch) could result if the
+      source began at location $0000 and contained multiple origins.
+
+1.11  Improved operand checking for .BYTE .WORD .DBYTE
+
+1.10  65C02 mode (-X). List to console (-C). Source reformatting (-R).
+      Case-sensitive option removed. Fixed: assembly errors could occur
+      if page width set too low.
+
+1.09  Listing goes to a file instead of stdout. Output files are no
+      longer "6502.xxx" but are built from the primary source filename.
+      Equates may contain forward references (this will generate a
+      warning which can be suppressed with the -Q switch). Origin
+      statement "*=" may include white space.  C source ANSI-fied.
+
+1.08/1.07  Withdrawn.
+
+1.06  A bad binary output file could result when location counter was
+      changed. Asm test file fixed!
+
+1.05  More efficient usage of symbol table - line references are collected
+      only when symbol listing is enabled. While the number of lines
+      referenced in the symbol listing is still limited to 255 per symbol,
+      the "Too many references" warning is no longer displayed.
+
+1.04  To improve MOS Technology compatibility, the following restrictions
+      have been made: labels may not begin with an underscore or end with
+      a colon; white space always acts as a field delimiter.
+
+1.03  Location counter changes would not be reflected in binary output
+      file. Comment character ';' could not be placed immediately after
+      some operands. Could not specify symbol table greater than 32767
+      bytes. Improved label parsing and error reporting. Default symbol
+      table size increased to 35000 bytes.
+
+1.02  Error messages and the lines they reference are now directed to
+      standard output to allow piping to a file or to the screen using
+      MORE. Maximum label length reduced to 16. Minor display fixes.
+
+1.0   First release
