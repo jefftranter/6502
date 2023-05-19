@@ -1,7 +1,7 @@
 ;
 ; 6502/65C02/65816 Disassembler
 ;
-; Copyright (C) 2012-2020 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2023 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 ; D65816 = 1
 
 ; Define this if you want 65C02 instructions to be disassembled.
-D65C02 = 1
+; D65C02 = 1
 
 ; Define this if you want the WDC and Rockwell-specific bit instructions
 ; to be disassembled (BBR, BBS, RMB, SMB). This is mutually exclusive
@@ -108,6 +108,7 @@ D65C02 = 1
  OP_TXA = $36
  OP_TXS = $37
  OP_TYA = $38
+ .ifdef D65C02
  OP_BBR = $39 ; [65C02 only]
  OP_BBS = $3A ; [65C02 only]
  OP_BRA = $3B ; [65C02 only]
@@ -120,6 +121,8 @@ D65C02 = 1
  OP_STZ = $42 ; [65C02 only]
  OP_TRB = $43 ; [65C02 only]
  OP_TSB = $44 ; [65C02 only]
+ .endif
+ .if .defined(D65C02) .or .defined(D65816)
  OP_STP = $45 ; [WDC 65C02 and 65816 only]
  OP_WAI = $46 ; [WDC 65C02 and 65816 only]
  OP_BRL = $47 ; [WDC 65816 only]
@@ -148,6 +151,7 @@ D65C02 = 1
  OP_WDM = $5F ; [WDC 65816 only]
  OP_XBA = $60 ; [WDC 65816 only]
  OP_XCE = $61 ; [WDC 65816 only]
+.endif
 
 ; Addressing Modes. OPCODES1/OPCODES2 tables list these for each instruction. LENGTHS lists the instruction length for each addressing mode.
  AM_INVALID = 0                    ; example:
@@ -164,8 +168,11 @@ D65C02 = 1
  AM_INDIRECT = 11                  ; JMP ($1234)
  AM_INDEXED_INDIRECT = 12          ; LDA ($12,X)
  AM_INDIRECT_INDEXED = 13          ; LDA ($12),Y
+.ifdef D65C02
  AM_INDIRECT_ZEROPAGE = 14         ; LDA ($12) [65C02 only]
  AM_ABSOLUTE_INDEXED_INDIRECT = 15 ; JMP ($1234,X) [65C02 only]
+.endif
+.ifdef D65816
  AM_STACK_RELATIVE = 16            ; LDA 3,S [65816 only]
  AM_DIRECT_PAGE_INDIRECT_LONG = 17 ; LDA [$55] [65816 only]
  AM_ABSOLUTE_LONG = 18             ; LDA $02F000 [65816 only]
@@ -175,6 +182,7 @@ D65C02 = 1
  AM_BLOCK_MOVE = 22                ; MVP 0,0 [65816 only]
  AM_PROGRAM_COUNTER_RELATIVE_LONG = 23 ; BRL JMPLABEL [65816 only]
  AM_ABSOLUTE_INDIRECT_LONG = 24    ; JMP [$2000] [65816 only]
+.endif
 
 ; *** CODE ***
 
@@ -212,7 +220,7 @@ AROUND:
 ; 09 29 49 69 89 A9 C9 E9
 ; When X=0 (16-bit index) the following instructions take an extra byte:
 ; A0 A2 C0 E0
-
+.ifdef D65816
   LDA MBIT              ; Is M bit zero?
   BNE TRYX              ; If not, skip adjustment.
   LDA OPCODE            ; See if the opcode is one that needs to be adjusted
@@ -296,6 +304,7 @@ TRYSEP:
   LSR
   LSR
   STA XBIT              ; Store it
+.endif
 
 PRADDR:
   LDX ADDR
@@ -377,6 +386,7 @@ ONE:
 SPC:
   JSR PrintSpaces
   LDA OP                ; get the op code
+.ifdef D65816
   CMP #$55              ; Is it in the first half of the table?
   BMI LOWERM
 
@@ -392,8 +402,8 @@ MNEM2:
   DEY
   BNE MNEM2
   BEQ AMODE
-
 LOWERM:
+.endif
   ASL A                 ; multiply by 2
   CLC
   ADC OP                ; add one more to multiply by 3 since table is three bytes per entry
@@ -408,6 +418,7 @@ MNEM1:
 
 ; Display any operands based on addressing mode
 AMODE:
+.ifdef D65C02
   LDA OP                ; is it RMB or SMB?
   CMP #OP_RMB
   BEQ DOMB
@@ -491,6 +502,7 @@ DOBB:                   ; handle special BBRn and BBSn instructions
   LDA DEZT
   JSR PrintByte         ; display low byte
   JMP DONEOPS
+.endif
 TRYIMP:
   LDA AM
   CMP #AM_IMPLICIT
@@ -665,6 +677,7 @@ TRYINDINDX:
   JSR PrintCommaY
   JMP DONEOPS
 TRYINDZ:
+.ifdef D65C02
   CMP #AM_INDIRECT_ZEROPAGE ; [65C02 only]
   BNE TRYABINDIND
   JSR PrintLParenDollar
@@ -686,9 +699,11 @@ TRYABINDIND:
   JSR PrintCommaX
   JSR PrintRParen
   JMP DONEOPS
+.endif
 
 TRYSTACKREL:
-  CMP #AM_STACK_RELATIVE ; [WDC 65816 only]
+.ifdef D65816
+CMP #AM_STACK_RELATIVE ; [WDC 65816 only]
   BNE TRYDPIL
   LDY #1
   LDA (ADDR),Y          ; get 1st operand byte (address)
@@ -819,6 +834,7 @@ AIL:
   JSR PrintByte         ; display it
   JSR PrintRBrace
   JMP DONEOPS
+.endif
 
 DONEOPS:
   JSR PrintCR           ; print a final CR
@@ -894,6 +910,7 @@ MNEMONICS1:
  .byte "TXA" ; $36
  .byte "TXS" ; $37
  .byte "TYA" ; $38
+.ifdef D65C02
  .byte "BBR" ; $39 [65C02 only]
  .byte "BBS" ; $3A [65C02 only]
  .byte "BRA" ; $3B [65C02 only]
@@ -906,8 +923,12 @@ MNEMONICS1:
  .byte "STZ" ; $42 [65C02 only]
  .byte "TRB" ; $43 [65C02 only]
  .byte "TSB" ; $44 [65C02 only]
+.endif
+.if .defined(D65C02) .or .defined(D65816)
  .byte "STP" ; $45 [WDC 65C02 and 65816 only]
  .byte "WAI" ; $46 [WDC 65C02 and 65816 only]
+.endif
+.ifdef D65816
  .byte "BRL" ; $47 [WDC 65816 only]
  .byte "COP" ; $48 [WDC 65816 only]
  .byte "JMP" ; $49 [WDC 65816 only]
@@ -922,7 +943,9 @@ MNEMONICS1:
  .byte "PHK" ; $52 [WDC 65816 only]
  .byte "PLB" ; $53 [WDC 65816 only]
  .byte "PLD" ; $54 [WDC 65816 only]
+.endif
 MNEMONICS2:
+.ifdef D65816
  .byte "???" ; $55 Unused because index is $FF
  .byte "REP" ; $56 [WDC 65816 only]
  .byte "RTL" ; $57 [WDC 65816 only]
@@ -936,12 +959,19 @@ MNEMONICS2:
  .byte "WDM" ; $5F [WDC 65816 only]
  .byte "XBA" ; $60 [WDC 65816 only]
  .byte "XCE" ; $61 [WDC 65816 only]
+.endif
 MNEMONICSEND: ; address of the end of the table
 
 ; Lengths of instructions given an addressing mode. Matches values of AM_*
 ; Assumes 65816 is in 8-bit mode.
 LENGTHS:
- .byte 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 4, 2, 2, 4, 3, 3, 3
+ .byte 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2
+.ifdef D65C02
+ .byte 2,3
+.endif
+.ifdef D65816
+ .byte 2, 2, 4, 2, 2, 4, 3, 3, 3
+.endif
 
 ; Opcodes. Listed in order. Defines the mnemonic and addressing mode.
 ; 2 bytes per table entry
@@ -1083,10 +1113,17 @@ OPCODES1:
  .byte OP_JSR, AM_ABSOLUTE           ; $20
 
  .byte OP_AND, AM_INDEXED_INDIRECT   ; $21
-
+.ifdef D65816
  .byte OP_JSR, AM_ABSOLUTE_LONG      ; $22
+.else
+ .byte OP_INV, AM_IMPLICIT           ; $22
+.endif
 
+.ifdef D65816
  .byte OP_AND, AM_STACK_RELATIVE     ; $23
+.else
+ .byte OP_INV, AM_IMPLICIT           ; $23
+.endif
 
  .byte OP_BIT, AM_ZEROPAGE           ; $24
 
@@ -1768,10 +1805,10 @@ OPCODES2:
  .byte OP_INV, AM_IMPLICIT           ; $4F
 .endif
 
-.ifdef D65816
- .byte OP_PEI, AM_INDIRECT_ZEROPAGE  ; $D4 [WDC 65816 only]
+.ifdef D65C02
+ .byte OP_PEI, AM_INDIRECT_ZEROPAGE  ; $D4 [65C02 only]
 .else
- .byte OP_INV, AM_IMPLICIT           ; $4F
+ .byte OP_INV, AM_IMPLICIT           ; $D4
 .endif
 
  .byte OP_CMP, AM_ZEROPAGE_X         ; $D5
@@ -1926,8 +1963,8 @@ OPCODES2:
  .byte OP_INV, AM_IMPLICIT           ; $4F
 .endif
 
-.ifdef D65816
- .byte OP_JSR, AM_ABSOLUTE_INDEXED_INDIRECT ; $FC [WDC 65816 only]
+.ifdef D65C02
+ .byte OP_JSR, AM_ABSOLUTE_INDEXED_INDIRECT ; $FC [65C02 only]
 .else
  .byte OP_INV, AM_IMPLICIT           ; $4F
 .endif

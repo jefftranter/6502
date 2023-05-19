@@ -21,9 +21,9 @@
 ; (first revision of this distribution, 20 Oct 2008, Michael Steil www.pagetable.com)
 ;
 ;
-; Name                 Release   MS Version    ROM   9digit  INPUTBUFFER   extensions   
+; Name                 Release   MS Version    ROM   9digit  INPUTBUFFER   extensions
 ;---------------------------------------------------------------------------------------------------
-; OSI BASIC             1977     1.0 REV 3.2    Y      N          ZP            -        
+; OSI BASIC             1977     1.0 REV 3.2    Y      N          ZP            -
 ;
 ; Credits:
 ; * main work by Michael Steil
@@ -384,6 +384,9 @@ TOKEN_NAME_TABLE:
 		.byte "PRIN", $80+'T'
 		.byte "CON", $80+'T'
 		.byte "LIS", $80+'T'
+.ifndef CONFIG_SMALL
+		.byte "GE", $80+'T'
+.endif
 		.byte "CLEA", $80+'R'
 		.byte "NE", $80+'W'
 		.byte "TAB", $80+'('
@@ -466,39 +469,39 @@ ERR_UNDEFFN := <(*-ERROR_MESSAGES)
         .byte "UF"
 .else
 ERR_NOFOR := <(*-ERROR_MESSAGES)
-        .byte "NEXT WITHOUT FOR"
+        .byte "NEXT WITHOUT FO",$80+'R'
 ERR_SYNTAX := <(*-ERROR_MESSAGES)
-        .byte "SYNTAX"
+        .byte "SYNTA",$80+'X'
 ERR_NOGOSUB := <(*-ERROR_MESSAGES)
-        .byte "RETURN WITHOUT GOSUB"
+        .byte "RETURN WITHOUT GOSU",$80+'B'
 ERR_NODATA := <(*-ERROR_MESSAGES)
-        .byte "OUT OF DATA"
+        .byte "OUT OF DAT",$80+'A'
 ERR_ILLQTY := <(*-ERROR_MESSAGES)
-        .byte "ILLEGAL QUANTITY"
+        .byte "ILLEGAL QUANTIT",$80+'Y'
 ERR_OVERFLOW := <(*-ERROR_MESSAGES)
-        .byte "OVERFLOW"
+        .byte "OVERFLO",$80+'W'
 ERR_MEMFULL := <(*-ERROR_MESSAGES)
-        .byte "OUT OF MEMORY"
+        .byte "OUT OF MEMOR",$80+'Y'
 ERR_UNDEFSTAT := <(*-ERROR_MESSAGES)
-        .byte "UNDEF'D STATEMENT"
+        .byte "UNDEF'D STATEMEN",$80+'T'
 ERR_BADSUBS := <(*-ERROR_MESSAGES)
-        .byte "BAD SUBSCRIPT"
+        .byte "BAD SUBSCRIP",$80+'T'
 ERR_REDIMD := <(*-ERROR_MESSAGES)
-        .byte "REDIM'D ARRAY"
+        .byte "REDIM'D ARRA",$80+'Y'
 ERR_ZERODIV := <(*-ERROR_MESSAGES)
-        .byte "DIVISION BY ZERO"
+        .byte "DIVISION BY ZER",$80+'O'
 ERR_ILLDIR := <(*-ERROR_MESSAGES)
-        .byte "ILLEGAL DIRECT"
+        .byte "ILLEGAL DIREC",$80+'T'
 ERR_BADTYPE := <(*-ERROR_MESSAGES)
-        .byte "TYPE MISMATCH"
+        .byte "TYPE MISMATC",$80+'H'
 ERR_STRLONG := <(*-ERROR_MESSAGES)
-        .byte "STRING TOO LONG"
+        .byte "STRING TOO LON",$80+'G'
 ERR_FRMCPX := <(*-ERROR_MESSAGES)
-        .byte "FORMULA TOO COMPLEX"
+        .byte "FORMULA TOO COMPLE",$80+'X'
 ERR_CANTCONT := <(*-ERROR_MESSAGES)
-        .byte "CAN'T CONTINUE"
+        .byte "CAN'T CONTINU",$80+'E'
 ERR_UNDEFFN := <(*-ERROR_MESSAGES)
-        .byte "UNDEF'D FUNCTION"
+        .byte "UNDEF'D FUNCTIO",$80+'N'
 .endif
 
 ; global messages: "error", "in", "ready", "break"
@@ -676,6 +679,7 @@ ERROR:
         lsr     Z14
         jsr     CRDO
         jsr     OUTQUES
+L2329:
         lda     ERROR_MESSAGES,x
 .ifndef CONFIG_SMALL
         pha
@@ -1729,64 +1733,6 @@ LETSTRING:
 ; INSTALL STRING, DESCRIPTOR ADDRESS IS AT FAC+3,4
 ; ----------------------------------------------------------------------------
 PUTSTR:
-.ifdef CONFIG_CBM_ALL
-        ldy     FORPNT+1
-  .ifdef CBM1
-        cpy     #$D0	; TI$
-  .else
-        cpy     #$DE
-  .endif
-        bne     LC92B
-        jsr     FREFAC
-        cmp     #$06
-  .ifdef CBM2
-        bne     IQERR1
-  .else
-        jne     IQERR
-  .endif
-        ldy     #$00
-        sty     FAC
-        sty     FACSIGN
-LC8E8:
-        sty     STRNG2
-        jsr     LC91C
-        jsr     MUL10
-        inc     STRNG2
-        ldy     STRNG2
-        jsr     LC91C
-        jsr     COPY_FAC_TO_ARG_ROUNDED
-        tax
-        beq     LC902
-        inx
-        txa
-        jsr     LD9BF
-LC902:
-        ldy     STRNG2
-        iny
-        cpy     #$06
-        bne     LC8E8
-        jsr     MUL10
-        jsr     QINT
-        ldx     #$02
-        sei
-LC912:
-        lda     FAC+2,x
-        sta     TISTR,x
-        dex
-        bpl     LC912
-        cli
-        rts
-LC91C:
-        lda     (INDEX),y
-        jsr     CHRGOT2
-        bcc     LC926
-IQERR1:
-        jmp     IQERR
-LC926:
-        sbc     #$2F
-        jmp     ADDACC
-LC92B:
-.endif
         ldy     #$02
         lda     (FAC_LAST-1),y
         cmp     FRETOP+1
@@ -1833,22 +1779,6 @@ L2963:
         lda     (DSCPTR),y
         sta     (FORPNT),y
         rts
-.ifdef CONFIG_FILE
-PRINTH:
-        jsr     CMD
-        jmp     LCAD6
-CMD:
-        jsr     GETBYT
-        beq     LC98F
-        lda     #$2C
-        jsr     SYNCHR
-LC98F:
-        php
-        jsr     CHKOUT
-        stx     CURDVC
-        plp
-        jmp     PRINT
-.endif
 PRSTRING:
         jsr     STRPRT
 L297E:
@@ -2022,26 +1952,14 @@ INPUTERR:
 L2A63:
 .endif
 .endif
-.ifdef CONFIG_CBM1_PATCHES
-        jsr     PATCH5
-		nop
-.else
         lda     Z8C
         ldy     Z8C+1
-.endif
 L2A67:
         sta     CURLIN
         sty     CURLIN+1
 SYNERR4:
         jmp     SYNERR
 RESPERR:
-.ifdef CONFIG_FILE
-        lda     CURDVC
-        beq     LCA8F
-        ldx     #ERR_BADDATA
-        jmp     ERROR
-LCA8F:
-.endif
         lda     #<ERRREENTRY
         ldy     #>ERRREENTRY
         jsr     STROUT
@@ -2057,54 +1975,13 @@ RTS20:
 .ifndef CONFIG_SMALL
 GET:
         jsr     ERRDIR
-; CBM: if GET#, then switch input
-.ifdef CONFIG_FILE
-        cmp     #'#'
-        bne     LCAB6
-        jsr     CHRGET
-        jsr     GETBYT
-        lda     #','
-        jsr     SYNCHR
-        jsr     CHKIN
-        stx     CURDVC
-LCAB6:
-.endif
         ldx     #<(INPUTBUFFER+1)
         ldy     #>(INPUTBUFFER+1)
-.ifdef CONFIG_NO_INPUTBUFFER_ZP
-        lda     #$00
-        sta     INPUTBUFFER+1
-.else
         sty     INPUTBUFFER+1
-.endif
         lda     #$40
         jsr     PROCESS_INPUT_LIST
 ; CBM: if GET#, then switch input back
-.ifdef CONFIG_FILE
-        ldx     CURDVC
-        bne     LCAD8
-.endif
         rts
-.endif
-; ----------------------------------------------------------------------------
-; "INPUT#" STATEMENT
-; ----------------------------------------------------------------------------
-.ifdef CONFIG_FILE
-INPUTH:
-        jsr     GETBYT
-        lda     #$2C
-        jsr     SYNCHR
-        jsr     CHKIN
-        stx     CURDVC
-        jsr     L2A9E
-LCAD6:
-        lda     CURDVC
-LCAD8:
-        jsr     CLRCH
-        ldx     #$00
-        stx     CURDVC
-        rts
-LCAE0:
 .endif
 ; ----------------------------------------------------------------------------
 ; "INPUT" STATEMENT
@@ -2124,80 +2001,25 @@ L2A9E:
         lda     #$2C
         sta     INPUTBUFFER-1
 LCAF8:
-.ifdef APPLE
-        jsr     INLINX
-.else
         jsr     NXIN
-.endif
-.ifdef KBD
-        bmi     L2ABE
-.else
-  .ifdef CONFIG_FILE
-        lda     CURDVC
-        beq     LCB0C
-        lda     Z96
-        and     #$02
-        beq     LCB0C
-        jsr     LCAD6
-        jmp     DATA
-LCB0C:
-  .endif
         lda     INPUTBUFFER
         bne     L2ABE
-  .ifdef CONFIG_FILE
-        lda     CURDVC
-        bne     LCAF8
-  .endif
-  .ifdef CONFIG_CBM1_PATCHES
-        jmp     PATCH1
-  .else
         clc
         jmp     CONTROL_C_TYPED
-  .endif
-.endif
-
 NXIN:
-.ifdef KBD
-        jsr     INLIN
-        bmi     RTS20
-        pla
-        jmp     LE86C
-.else
-  .ifdef CONFIG_FILE
-        lda     CURDVC
-        bne     LCB21
-  .endif
         jsr     OUTQUES	; '?'
         jsr     OUTSP
 LCB21:
         jmp     INLIN
-.endif
-; ----------------------------------------------------------------------------
-; "GETC" STATEMENT
-; ----------------------------------------------------------------------------
-.ifdef KBD
-GETC:
-        jsr     CONINT
-        jsr     LF43D
-        jmp     LE664
-.endif
 ; ----------------------------------------------------------------------------
 ; "READ" STATEMENT
 ; ----------------------------------------------------------------------------
 READ:
         ldx     DATPTR
         ldy     DATPTR+1
-.ifdef CONFIG_NO_READ_Y_IS_ZERO_HACK
-; AppleSoft II, too
-        lda     #$98	; READ
-        .byte   $2C
-L2ABE:
-        lda     #$00	; INPUT
-.else
         .byte   $A9	; LDA #$98
 L2ABE:
         tya
-.endif
 ; ----------------------------------------------------------------------------
 ; PROCESS INPUT LIST
 ;
@@ -2227,14 +2049,7 @@ PROCESS_INPUT_ITEM:
         bit     INPUTFLG
 .ifndef CONFIG_SMALL ; GET
         bvc     L2AF0
-  .ifdef MICROTAN
-        jsr     MONRDKEY2
-  .else
         jsr     MONRDKEY
-  .endif
-  .ifdef CONFIG_IO_MSB
-        and     #$7F
-  .endif
         sta     INPUTBUFFER
 ; BUG: The beq/bne L2AF8 below is supposed
 ; to be always taken. For this to happen,
@@ -2249,30 +2064,13 @@ PROCESS_INPUT_ITEM:
 ; Microsoft fixed this somewhere after KIM
 ; and before MICROTAN, by using beq instead
 ; of bne in the ZP case.
-  .ifdef CBM1
-        ldy     #>(INPUTBUFFER-1)
-        ldx     #<(INPUTBUFFER-1)
-  .else
         ldx     #<(INPUTBUFFER-1)
         ldy     #>(INPUTBUFFER-1)
-  .endif
-  .if .def(CONFIG_2) && (!.def(CONFIG_NO_INPUTBUFFER_ZP))
-        beq     L2AF8	; always
-  .else
         bne     L2AF8	; always
-  .endif
 L2AF0:
 .endif
         bmi     FINDATA
-.ifdef CONFIG_FILE
-        lda     CURDVC
-        bne     LCB64
-.endif
-.ifdef KBD
-        jsr     OUTQUESSP
-.else
         jsr     OUTQUES
-.endif
 LCB64:
         jsr     NXIN
 L2AF8:
@@ -2286,17 +2084,11 @@ INSTART:
 .ifndef CONFIG_SMALL ; GET
         bit     INPUTFLG
         bvc     L2B10
-  .ifdef CONFIG_CBM1_PATCHES
-        lda     #$00
-        jsr     PATCH4
-        nop
-  .else
         inx
         stx     TXTPTR
         lda     #$00
         sta     CHARAC
         beq     L2B1C
-  .endif
 L2B10:
 .endif
         sta     CHARAC
@@ -2391,10 +2183,6 @@ L2B94:
         ldy     #$00
         lda     (INPTR),y
         beq     L2BA1
-.ifdef CONFIG_FILE
-        lda     CURDVC
-        bne     L2BA1
-.endif
         lda     #<ERREXTRA
         ldy     #>ERREXTRA
         jmp     STROUT
@@ -2402,27 +2190,11 @@ L2BA1:
         rts
 ; ----------------------------------------------------------------------------
 ERREXTRA:
-.ifdef KBD
-        .byte   "?Extra"
-.else
         .byte   "?EXTRA IGNORED"
-.endif
         .byte   $0D,$0A,$00
 ERRREENTRY:
-.ifdef KBD
-        .byte   "What?"
-.else
         .byte   "?REDO FROM START"
-.endif
         .byte   $0D,$0A,$00
-.ifdef KBD
-LEA30:
-        .byte   "B"
-        .byte   $FD
-        .byte   "GsBASIC"
-        .byte   $00,$1B,$0D,$13
-        .byte   " BASIC"
-.endif
 ; ----------------------------------------------------------------------------
 ; "NEXT" STATEMENT
 ; ----------------------------------------------------------------------------
@@ -2449,14 +2221,6 @@ NEXT3:
         inx
 .endif
         txa
-.ifdef CONFIG_2
-        clc
-        adc     #$04
-        pha
-        adc     #BYTES_FP+1
-        sta     DEST
-        pla
-.else
         inx
         inx
         inx
@@ -2466,7 +2230,6 @@ NEXT3:
         inx
 .endif
         stx     DEST
-.endif
         ldy     #>STACK
         jsr     LOAD_FAC_FROM_YA
         tsx
@@ -2660,12 +2423,6 @@ FRM_STACK2:
 .endif
         pla
         sta     INDEX+1
-.ifdef CONFIG_2B
-        inc     INDEX
-        bne     LEB69
-        inc     INDEX+1
-LEB69:
-.endif
         tya
         pha
 ; ----------------------------------------------------------------------------
@@ -2746,17 +2503,6 @@ L2D36:
 L2D39:
         jsr     ISLETC
         bcs     FRM_VARIABLE
-.ifdef CONFIG_CBM_ALL
-        cmp     #$FF
-        bne     LCDC1
-        lda     #<CON_PI
-        ldy     #>CON_PI
-        jsr     LOAD_FAC_FROM_YA
-        jmp     CHRGET
-CON_PI:
-        .byte   $82,$49,$0f,$DA,$A1
-LCDC1:
-.endif
         cmp     #$2E
         beq     L2D36
         cmp     #TOKEN_MINUS
@@ -2848,46 +2594,8 @@ FRM_VARIABLE:
 FRM_VARIABLE_CALL	= *-1
         sta     FAC_LAST-1
         sty     FAC_LAST
-.ifdef CONFIG_CBM_ALL
-        lda     VARNAM
-        ldy     VARNAM+1
-.endif
         ldx     VALTYP
         beq     L2DB1
-.ifdef CONFIG_CBM_ALL
-  .ifdef CONFIG_CBM1_PATCHES
-        jmp     PATCH2
-        clc
-LCE3B:
-  .else
-        ldx     #$00
-        stx     STRNG1+1
-        bit     FAC+4
-        bpl     LCE53
-        cmp     #$54	; T
-        bne     LCE53
-  .endif
-        cpy     #$C9	; I$
-        bne     LCE53
-        jsr     LCE76
-        sty     EXPON
-        dey
-        sty     STRNG2
-        ldy     #$06
-        sty     INDX
-        ldy     #$24
-        jsr     LDD3A
-        jmp     LD353
-LCE53:
-.endif
-.ifdef CONFIG_2
-  .ifndef CBM2
-; bugfix?
-; fixed on AppleSoft II, not on any CBM
-        ldx     #$00
-        stx     STRNG1+1
-  .endif
-.endif
         rts
 L2DB1:
 .ifndef CONFIG_SMALL
@@ -2903,54 +2611,7 @@ L2DB1:
         jmp     GIVAYF
 L2DC2:
 .endif
-.ifdef CONFIG_CBM1_PATCHES
-        jmp     PATCH3
-        .byte   $19
-.endif
-.ifdef CBM2
-        bit     FAC+4
-        bpl     LCE90
-        cmp     #$54
-        bne     LCE82
-.endif
 .ifndef CONFIG_CBM_ALL
-        jmp     LOAD_FAC_FROM_YA
-.endif
-.ifdef CONFIG_CBM_ALL
-LCE69:
-        cpy     #$49
-.ifdef CBM1
-        bne     LCE82
-.else
-        bne     LCE90
-.endif
-        jsr     LCE76
-        tya
-        ldx     #$A0
-        jmp     LDB21
-LCE76:
-.ifdef CBM1
-        lda     #$FE
-        ldy     #$01
-.else
-        lda     #$8B
-        ldy     #$00
-.endif
-        sei
-        jsr     LOAD_FAC_FROM_YA
-        cli
-        sty     FAC+1
-        rts
-LCE82:
-        cmp     #$53
-        bne     LCE90
-        cpy     #$54
-        bne     LCE90
-        lda     Z96
-        jmp     FLOAT
-LCE90:
-        lda     FAC+3
-        ldy     FAC+4
         jmp     LOAD_FAC_FROM_YA
 .endif
 ; ----------------------------------------------------------------------------
@@ -2988,11 +2649,7 @@ L2DF4:
         sta     JMPADRS+1
         lda     UNFNC+($80-TOKEN_SGN)*2+1,y
         sta     JMPADRS+2
-.ifdef KBD
-        jsr     LF47D
-.else
         jsr     JMPADRS
-.endif
         jmp     CHKNUM
 ; ----------------------------------------------------------------------------
 OR:
@@ -3125,6 +2782,7 @@ PTRGET3:
         jsr     CHRGOT
         jsr     ISLETC
         bcs     NAMOK
+SYNERR3:
         jmp     SYNERR
 NAMOK:
         ldx     #$00
@@ -3314,11 +2972,6 @@ L2FAF:
 ; ----------------------------------------------------------------------------
 NEG32768:
         .byte   $90,$80,$00,$00
-
-.ifdef CONFIG_2C
-		.byte	$00; bugfix: short number
-.endif
-
 ; ----------------------------------------------------------------------------
 ; EVALUATE NUMERIC FORMULA AT TXTPTR
 ; CONVERTING RESULT TO INTEGER 0 <= X <= 32767
@@ -3326,19 +2979,12 @@ NEG32768:
 ; ----------------------------------------------------------------------------
 MAKINT:
         jsr     CHRGET
-.ifdef CONFIG_2
-        jsr     FRMEVL
-.else
         jsr     FRMNUM
-.endif
 ; ----------------------------------------------------------------------------
 ; CONVERT FAC TO INTEGER
 ; MUST BE POSITIVE AND LESS THAN 32768
 ; ----------------------------------------------------------------------------
 MKINT:
-.ifdef CONFIG_2
-        jsr     CHKNUM
-.endif
         lda     FACSIGN
         bmi     MI1
 ; ----------------------------------------------------------------------------
@@ -4630,37 +4276,6 @@ FSUBT:
         lda     FAC
         jmp     FADDT
 ; ----------------------------------------------------------------------------
-; Commodore BASIC V2 Easter Egg
-; ----------------------------------------------------------------------------
-.ifdef CONFIG_EASTER_EGG
-EASTER_EGG:
-        lda     LINNUM
-        cmp     #<6502
-        bne     L3628
-        lda     LINNUM+1
-        sbc     #>6502
-        bne     L3628
-        sta     LINNUM
-        tay
-        lda     #$80
-        sta     LINNUM+1
-LD758:
-        ldx     #$0A
-LD75A:
-        lda     MICROSOFT-1,x
-        and     #$3F
-        sta     (LINNUM),y
-        iny
-        bne     LD766
-        inc     LINNUM+1
-LD766:
-        dex
-        bne     LD75A
-        dec     FORPNT
-        bne     LD758
-        rts
-.endif
-; ----------------------------------------------------------------------------
 ; SHIFT SMALLER ARGUMENT MORE THAN 7 BITS
 ; ----------------------------------------------------------------------------
 FADD1:
@@ -4684,11 +4299,7 @@ L365B:
         lda     ARG
 FADD2:
         tay
-.ifdef KBD
-        beq     RTS4
-.else
         beq     RTS3
-.endif
         sec
         sbc     FAC
         beq     FADD3
@@ -4766,13 +4377,7 @@ L36C7:
 .endif
         sty     FACEXTENSION
         adc     #$08
-.ifdef CONFIG_2B
-; bugfix?
-; fix does not exist on AppleSoft 2
-        cmp     #(MANTISSA_BYTES+1)*8
-.else
         cmp     #MANTISSA_BYTES*8
-.endif
         bne     L36C7
 ; ----------------------------------------------------------------------------
 ; SET FAC = 0
@@ -5163,12 +4768,7 @@ L38C3:
 .ifndef CONFIG_ROR_WORKAROUND
         ror     RESULT
         ror     RESULT+1
-.ifdef APPLE_BAD_BYTE
-; this seems to be a bad byte in the dump
-		.byte	RESULT+2,RESULT+2 ; XXX BUG!
-.else
         ror     RESULT+2
-.endif
 .ifndef CONFIG_SMALL
         ror     RESULT+3
 .endif
@@ -5932,15 +5532,9 @@ CON_BILLION:
 ; PRINT "IN <LINE #>"
 ; ----------------------------------------------------------------------------
 INPRT:
-.ifdef KBD
-        jsr     LFE0B
-        .byte	" in"
-        .byte	0
-.else
         lda     #<QT_IN
         ldy     #>QT_IN
         jsr     GOSTROUT2
-.endif
         lda     CURLIN+1
         ldx     CURLIN
 ; ----------------------------------------------------------------------------
@@ -5993,7 +5587,7 @@ L3C8C:
 .ifdef CONFIG_SMALL
         lda     #<-6 ; exponent adjustment
 .else
-        lda     #-9
+        lda     #<-9
 .endif
 L3C95:
         sta     INDX
@@ -6123,10 +5717,6 @@ L3D3E:
         and     #$80
         tax
         cpy     #DECTBL_END-DECTBL
-.ifdef CONFIG_CBM_ALL
-        beq     LDD96
-        cpy     #$3C ; XXX
-.endif
         bne     L3CF6
 ; ----------------------------------------------------------------------------
 ; NINE DIGITS HAVE BEEN STORED IN STRING.  NOW LOOK
@@ -6211,17 +5801,6 @@ DECTBL:
 		.byte	$FF,$FF,$FF,$FF	; -1
 .endif
 DECTBL_END:
-.ifdef CONFIG_CBM_ALL
-		.byte	$FF,$DF,$0A,$80 ; TI$
-		.byte	$00,$03,$4B,$C0
-		.byte	$FF,$FF,$73,$60
-		.byte	$00,$00,$0E,$10
-		.byte	$FF,$FF,$FD,$A8
-		.byte	$00,$00,$00,$3C
-.endif
-.ifdef CONFIG_2
-C_ZERO = CON_HALF + 2
-.endif
 ; ----------------------------------------------------------------------------
 ; "SQR" FUNCTION
 ; ----------------------------------------------------------------------------
@@ -6841,10 +6420,15 @@ QT_TERMINAL_WIDTH:
 QT_BYTES_FREE:
         .byte   " BYTES FREE"
         .byte   CR,LF,CR,LF
+.ifdef CONFIG_SMALL
         .byte   "OSI 6502 BASIC VERSION 1.0 REV 3.2"
         .byte   CR,LF
         .byte   "COPYRIGHT 1977 BY MICROSOFT CO."
         .byte   CR,LF,0
+.else
+        .byte   "6502 BASIC VERSION 1.0 REV 3.2"
+        .byte   CR,LF,0
+.endif
 
 ; JMON monitor
 .scope jmon
@@ -6898,7 +6482,7 @@ WaitForKeypress:
 	CMP	#'M'		; compare with [M]onitor
 	BNE	Reset
 
-	JMP	$DF00           ; JMON monitor
+	JMP	$E100           ; JMON monitor
 
 WarmStart:
 	JMP	RESTART		; BASIC warm start
@@ -6951,6 +6535,6 @@ SAVE:
 	
 .segment "VECTS"
 .org $FFFA
-	.word	Reset		; NMI 
-	.word	Reset		; RESET 
+	.word	Reset		; NMI
+	.word	Reset		; RESET
 	.word	$0100		; For compatibility with OSI computer

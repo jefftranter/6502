@@ -1448,7 +1448,7 @@ L3C8C:
 .ifdef CONFIG_SMALL
         lda     #<-6 ; exponent adjustment
 .else
-        lda     #-9
+        lda     #<-9
 .endif
 L3C95:
         sta     INDX

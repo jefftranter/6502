@@ -234,7 +234,7 @@
   .org $2000
 .elseif .defined(SBC)
 ; .org $2000                    ; For running out of RAM
-  .org $DF00                    ; For running from ROM
+  .org $E100                    ; For running from ROM
 .endif
 
 ; JMON Entry point
