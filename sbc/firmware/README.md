@@ -11,20 +11,25 @@ provides more accuracy at the expense of speed.
 
 9-digit example output:
 
+```
 ?SQR(2)
  1.41421356 
 XX
 ?SYNTAX ERROR
+```
 
 6-digit example output:
 
+```
 ?SQR(2)
  1.41421 
 XX
 ?SN ERROR
+```
 
 Speed comparison, using the David Ahl Basic benchmark (2 MHz clock):
 
+```
  10 REM Ahl's Simple Benchmark
  20 FOR N=1 TO 100: A=N
  30 FOR I=1 TO 10
@@ -36,8 +41,10 @@ Speed comparison, using the David Ahl Basic benchmark (2 MHz clock):
  90 S=S+A: NEXT N
  100 PRINT ABS(1010-S/5)
  110 PRINT ABS(1000-R)
+```
 
 9-digit version: 58 seconds
+
 6-digit version: 40 seconds
 
 Fun fact: OSI promoted their version of Basic as being faster than
