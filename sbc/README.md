@@ -19,10 +19,12 @@ modified version and designed a PCB layout. Changes include:
 
 Memory Map:
 
+```
 $0000 - $7FFF  RAM (32K)
 $8000 - $9FFF  6522 VIA
 $A000 - $BFFF  6850 ACIA
 $C000 - $FFFF  ROM (16K)
+```
 
 It supports my JMON machine language monitor. It can run a version of
 Microsoft BASIC ported by Grant Searle, included here. It can also run
