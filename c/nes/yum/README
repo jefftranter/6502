@@ -1,0 +1,6 @@
+A port of my Yum (Yahtzee) game to the Nintendo NES.
+
+Uses the 8bitworkshop IDE at https://8bitworkshop.com/
+
+Will run on an NES emulator or on a real console if loaded into a
+cartridge.
