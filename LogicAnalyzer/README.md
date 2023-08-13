@@ -141,6 +141,6 @@ The code is specific to the Teensy 4.1 and will not work with other
 microcontrollers without changes as it uses direct access to the GPIO
 registers. It uses the Teensyduino add-on to the Arduino IDE.
 
-On processors other than the 6502/65C02, disassembly is incomplete as
-there is no easy way to distinguish an instruction fetch from any
-other read cycle.
+On processors other than the 6502/65C02 and Z80, disassembly is
+incomplete as there is no easy way to distinguish an instruction fetch
+from any other read cycle.
