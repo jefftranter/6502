@@ -1,0 +1,17 @@
+# 0 - NOP generator
+0,../bin/nop.bin,0x0000
+
+# 1 - Pass through
+
+# 2 - My 6502 Single Board Computer
+2,sbc.bin,0xc000
+
+# 3 - Apple 1/Briel Replica 1
+3,replica1.bin,0xe000
+
+# 4 - Ohio Scientific SuperBoard II / Challenger 1P / Model 600 / Briel SuperBoard III
+4,superboard-basic.bin,0xa000
+4,superboard-boot.bin,0xf800
+
+# 5 - Apple IIc
+5,appleiic.bin,0xc100
