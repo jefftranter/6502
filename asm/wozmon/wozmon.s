@@ -31,7 +31,7 @@ RESET:          CLD             ; Clear decimal arithmetic mode.
                 STY DSP         ; Set it up.
                 LDA #$A7        ; KBD and DSP control register mask.
                 STA KBDCR       ; Enable interrupts, set CA1, CB1, for
-                STA DSPCR       ; positive edge sense/output mode.
+                STA DSPCR       ;  positive edge sense/output mode.
 NOTCR:          CMP #'_'+$80    ; "_"?
                 BEQ BACKSPACE   ; Yes.
                 CMP #$9B        ; ESC?
@@ -56,20 +56,20 @@ NEXTCHAR:       LDA KBDCR       ; Key ready?
                 LDA #$00        ; For XAM mode.
                 TAX             ; 0->X.
 SETSTOR:        ASL             ; Leaves $7B if setting STOR mode.
-SETMODE:        STA MODE        ; $00=XAM $7B=STOR $AE=BLOK XAM
+SETMODE:        STA MODE        ; $00=XAM, $7B=STOR, $AE=BLOCK XAM.
 BLSKIP:         INY             ; Advance text index.
 NEXTITEM:       LDA IN,Y        ; Get character.
                 CMP #$8D        ; CR?
                 BEQ GETLINE     ; Yes, done this line.
                 CMP #'.'+$80    ; "."?
                 BCC BLSKIP      ; Skip delimiter.
-                BEQ SETMODE     ; Yes. Set STOR mode.
+                BEQ SETMODE     ; Set BLOCK XAM mode.
                 CMP #':'+$80    ; ":"?
                 BEQ SETSTOR     ; Yes. Set STOR mode.
                 CMP #'R'+$80    ; "R"?
                 BEQ RUN         ; Yes. Run user program.
-                STX L           ; $00-> L.
-                STX H           ; and H.
+                STX L           ; $00->L.
+                STX H           ;  and H.
                 STY YSAV        ; Save Y for comparison.
 NEXTHEX:        LDA IN,Y        ; Get character for hex test.
                 EOR #$B0        ; Map digits to $0-9.
@@ -85,15 +85,15 @@ DIG:            ASL
                 LDX #$04        ; Shift count.
 HEXSHIFT:       ASL             ; Hex digit left, MSB to carry.
                 ROL L           ; Rotate into LSD.
-                ROL H           ;  Rotate into MSD’s.
+                ROL H           ; Rotate into MSD’s.
                 DEX             ; Done 4 shifts?
                 BNE HEXSHIFT    ; No, loop.
                 INY             ; Advance text index.
-                BNE NEXTHEX     ; Always taken. Check next char for hex.
+                BNE NEXTHEX     ; Always taken. Check next character for hex.
 NOTHEX:         CPY YSAV        ; Check if L, H empty (no hex digits).
                 BEQ ESCAPE      ; Yes, generate ESC sequence.
                 BIT MODE        ; Test MODE byte.
-                BVC NOTSTOR     ;  B6=0 STOR 1 for XAM & BLOCK XAM
+                BVC NOTSTOR     ; B6=0 STOR, 1 for XAM and BLOCK XAM
                 LDA L           ; LSD’s of hex data.
                 STA (STL,X)     ; Store at current ‘store index’.
                 INC STL         ; Increment store index.
@@ -104,7 +104,7 @@ RUN:            JMP (XAML)      ; Run at current XAM index.
 NOTSTOR:        BMI XAMNEXT     ; B7=0 for XAM, 1 for BLOCK XAM.
                 LDX #$02        ; Byte count.
 SETADR:         LDA L-1,X       ; Copy hex data to
-                STA STL-1,X     ; ‘store index’.
+                STA STL-1,X     ;  ‘store index’.
                 STA XAML-1,X    ; And to ‘XAM index’.
                 DEX             ; Next of 2 bytes.
                 BNE SETADR      ; Loop unless X=0.
@@ -131,7 +131,7 @@ XAMNEXT:        STX MODE        ; 0->MODE (XAM mode).
                 BNE MOD8CHK     ; Increment ‘examine index’.
                 INC XAMH
 MOD8CHK:        LDA XAML        ; Check low-order ‘examine index’ byte
-                AND #$07        ; For MOD 8=0
+                AND #$07        ;  For MOD 8=0
                 BPL NXTPRNT     ; Always taken.
 PRBYTE:         PHA             ; Save A for LSD.
                 LSR
@@ -145,7 +145,7 @@ PRHEX:          AND #$0F        ; Mask LSD for hex print.
                 CMP #$BA        ; Digit?
                 BCC ECHO        ; Yes, output it.
                 ADC #$06        ; Add offset for letter.
-ECHO:           BIT DSP         ; bit (B7) cleared yet?
+ECHO:           BIT DSP         ; DA bit (B7) cleared yet?
                 BMI ECHO        ; No, wait for display.
                 STA DSP         ; Output character. Sets DA.
                 RTS             ; Return.
