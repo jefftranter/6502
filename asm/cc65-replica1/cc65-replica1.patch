@@ -71,18 +71,6 @@ index 000000000..bea70ecac
 +    DATA:     load = RAM, type = rw,  define = yes;
 +    BSS:      load = RAM, type = bss, define = yes;
 +}
-diff --git a/libsrc/Makefile b/libsrc/Makefile
-index 627897d9b..42e12f991 100644
---- a/libsrc/Makefile
-+++ b/libsrc/Makefile
-@@ -33,6 +33,7 @@ TARGETS = apple2       \
-           none         \
-           osic1p       \
-           pce          \
-+          replica1     \
-           sim6502      \
-           sim65c02     \
-           supervision  \
 diff --git a/libsrc/replica1/clrscr.s b/libsrc/replica1/clrscr.s
 new file mode 100644
 index 000000000..d05c6b06b
@@ -296,7 +284,7 @@ index 000000000..21ff11463
 +
 +.endproc
 diff --git a/src/ca65/main.c b/src/ca65/main.c
-index 7183ff046..0aeb1003c 100644
+index 3ec6c84ee..41b3f6d36 100644
 --- a/src/ca65/main.c
 +++ b/src/ca65/main.c
 @@ -346,6 +346,10 @@ static void SetSys (const char* Sys)
@@ -307,11 +295,11 @@ index 7183ff046..0aeb1003c 100644
 +            NewSymbol ("__REPLICA1__", 1);
 +            break;
 +
-         default:
-             AbEnd ("Invalid target name: '%s'", Sys);
- 
+         case TGT_RP6502:
+             NewSymbol ("__RP6502__", 1);
+             break;
 diff --git a/src/cc65/main.c b/src/cc65/main.c
-index f800ac43e..4e42737b8 100644
+index bef646cdd..3e163cffa 100644
 --- a/src/cc65/main.c
 +++ b/src/cc65/main.c
 @@ -303,6 +303,10 @@ static void SetSys (const char* Sys)
@@ -322,11 +310,11 @@ index f800ac43e..4e42737b8 100644
 +            DefineNumericMacro ("__REPLICA1__", 1);
 +            break;
 +
-         default:
-             AbEnd ("Unknown target system '%s'", Sys);
-     }
+         case TGT_RP6502:
+             DefineNumericMacro ("__RP6502__", 1);
+             break;
 diff --git a/src/common/target.c b/src/common/target.c
-index ad62990bd..1ddce9394 100644
+index b50478e16..fa5d28db8 100644
 --- a/src/common/target.c
 +++ b/src/common/target.c
 @@ -173,6 +173,7 @@ static const TargetEntry TargetMap[] = {
@@ -334,19 +322,19 @@ index ad62990bd..1ddce9394 100644
      {   "pet",          TGT_PET          },
      {   "plus4",        TGT_PLUS4        },
 +    {   "replica1",     TGT_REPLICA1     },
+     {   "rp6502",       TGT_RP6502       },
      {   "sim6502",      TGT_SIM6502      },
      {   "sim65c02",     TGT_SIM65C02     },
-     {   "supervision",  TGT_SUPERVISION  },
-@@ -221,6 +222,7 @@ static const TargetProperties PropertyTable[TGT_COUNT] = {
+@@ -222,6 +223,7 @@ static const TargetProperties PropertyTable[TGT_COUNT] = {
      { "cx16",           CPU_65C02,      BINFMT_BINARY,      CTPET   },
      { "sym1",           CPU_6502,       BINFMT_BINARY,      CTNone  },
      { "kim1",           CPU_6502,       BINFMT_BINARY,      CTNone  },
 +    { "replica1",       CPU_6502,       BINFMT_BINARY,      CTNone  },
+     { "rp6502",         CPU_65C02,      BINFMT_BINARY,      CTNone  },
  };
  
- /* Target system */
 diff --git a/src/common/target.h b/src/common/target.h
-index 0cec74b6e..62be13cdf 100644
+index 730b8211e..acd216695 100644
 --- a/src/common/target.h
 +++ b/src/common/target.h
 @@ -88,6 +88,7 @@ typedef enum {
@@ -354,9 +342,9 @@ index 0cec74b6e..62be13cdf 100644
      TGT_SYM1,
      TGT_KIM1,
 +    TGT_REPLICA1,
+     TGT_RP6502,
      TGT_COUNT                   /* Number of target systems */
  } target_t;
- 
 diff --git a/targettest/Makefile b/targettest/Makefile
 index 4d989d0df..0c786ffed 100644
 --- a/targettest/Makefile
