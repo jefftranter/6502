@@ -1,8 +1,8 @@
-This is 6502/65C02/6800/6809/Z80 logic analyzer design using a Teensy
+This is a 6502/65C02/6800/6809/Z80 logic analyzer design using a Teensy
 4.1 microcontroller.
 
-It clips on to a 6502, 65C02, 6800, 6809, or Z80 chip and monitors the
-address, data, and control lines in real time.
+It clips onto a 6502, 65C02, 6800, 6809, or Z80 chip and monitors the
+address, data, and control lines in real-time.
 
 There is a simple command line interface over the microcontroller's
 USB serial interface that allows you to set parameters, such as the
@@ -13,9 +13,9 @@ single board computers running at up to 2 MHz.
 
 It should work with other 6502 and Z80 compatible CPUs and the 6809E,
 but would need some wiring changes to work with a 6802.
-
-Included here are the Arduino sketch and circuit schematic diagram.
 The CPU can be selected at run time.
+
+Included are an Arduino sketch and circuit schematic diagram.
 
 Parts List:
 
