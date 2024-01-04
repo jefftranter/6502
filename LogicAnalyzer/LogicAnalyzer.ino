@@ -5,7 +5,7 @@
 
   See https://github.com/jefftranter/6502/tree/master/LogicAnalyzer
 
-  Copyright (c) 2021-2022 by Jeff Tranter <tranter@pobox.com>
+  Copyright (c) 2021-2024 by Jeff Tranter <tranter@pobox.com>
 
   To Do:
   - Add support for Z80 control line triggers.
@@ -49,7 +49,7 @@
 #define VMA 3
 #define WR 33
 
-const char *versionString = "Logic Analyzer version 0.30 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "Logic Analyzer version 0.31 by Jeff Tranter <tranter@pobox.com>";
 
 // Macros
 #define WAIT_PHI2_LOW while (digitalReadFast(PHI2) == HIGH) ;
@@ -467,17 +467,17 @@ void list(Stream &stream, int start, int end)
           String s = opcode;
           // Fill in operands
           if (s.indexOf("nnnn") != -1) { // absolute
-            char op[5];
+            char op[6];
             sprintf(op, "$%04lX", data[i + 1] + 256 * data[i + 2]);
             s.replace("nnnn", op);
           }
           if (s.indexOf("nn") != -1) { // page zero
-            char op[3];
+            char op[4];
             sprintf(op, "$%02lX", data[i + 1]);
             s.replace("nn", op);
           }
           if (s.indexOf("rr") != -1) { // relative branch
-            char op[3];
+            char op[6];
             if (data[i + 1] < 0x80) {
               sprintf(op, "$%04lX", address[i] + 2 + data[i + 1]);
             } else {
@@ -852,7 +852,7 @@ void go()
     dTriggerBits = 0;
     dTriggerMask = 0;
 
-    // Check for r/w qualifer
+    // Check for r/w qualifier
     if (triggerCycle == tr_read) {
       cTriggerBits = 0b00000000000000000000000001000000;
       cTriggerMask = 0b00000000000000000000000001000000;
@@ -970,7 +970,7 @@ void go()
       WAIT_Q_HIGH;
     }
     if (cpu == cpu_z80) {
-      // Wait CLK to go from high to low
+      // Wait for CLK to go from high to low
       WAIT_CLK_HIGH;
       WAIT_CLK_LOW;
     }
@@ -990,7 +990,7 @@ void go()
       WAIT_E_LOW;
     }
     if (cpu == cpu_z80) {
-      // Wait CLK to go from low to high
+      // Wait for CLK to go from low to high
       WAIT_CLK_LOW;
       WAIT_CLK_HIGH;
     }
