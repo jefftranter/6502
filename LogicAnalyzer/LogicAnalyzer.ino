@@ -7,10 +7,6 @@
 
   Copyright (c) 2021-2024 by Jeff Tranter <tranter@pobox.com>
 
-  To Do:
-  - Add support for Z80 control line triggers.
-  - Add support for Z80 I/O read or write trigger.
-
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -49,7 +45,7 @@
 #define VMA 3
 #define WR 33
 
-const char *versionString = "Logic Analyzer version 0.31 by Jeff Tranter <tranter@pobox.com>";
+const char *versionString = "Logic Analyzer version 0.32 by Jeff Tranter <tranter@pobox.com>";
 
 // Macros
 #define WAIT_PHI2_LOW while (digitalReadFast(PHI2) == HIGH) ;
@@ -697,17 +693,14 @@ void exportCSV(Stream &stream)
     char output[50]; // Holds output string
     if ((cpu == cpu_65c02) || (cpu == cpu_6502)) {
       sync = control[i] & 0x10;
-    }
-    if ((cpu == cpu_65c02) || (cpu == cpu_6502) || (cpu == cpu_6800) || (cpu == cpu_6809)) {
+    } else if ((cpu == cpu_65c02) || (cpu == cpu_6502) || (cpu == cpu_6800) || (cpu == cpu_6809)) {
       rw = control[i] & 0x08;
       reset = control[i] & 0x04;
       irq = control[i] & 0x02;
       nmi = control[i] & 0x01;
-    }
-    if (cpu == cpu_6800) {
+    } else if (cpu == cpu_6800) {
       vma = control[i] & 0x10;
-    }
-    if (cpu == cpu_z80) {
+    } else if (cpu == cpu_z80) {
       wr = control[i] & 0x01;
       rd = control[i] & 0x02;
       iorq = control[i] & 0x04;
@@ -728,8 +721,7 @@ void exportCSV(Stream &stream)
               address[i],
               data[i]
              );
-    }
-    if (cpu == cpu_6800) {
+    } else  if (cpu == cpu_6800) {
       sprintf(output, "%d,%c,%c,%c,%c,%c,%04lX,%02lX",
               j,
               vma ? '1' : '0',
@@ -740,8 +732,7 @@ void exportCSV(Stream &stream)
               address[i],
               data[i]
              );
-    }
-    if (cpu == cpu_6809) {
+    } else if (cpu == cpu_6809) {
       sprintf(output, "%d,%c,%c,%c,%c,%04lX,%02lX",
               j,
               rw ? '1' : '0',
@@ -751,8 +742,7 @@ void exportCSV(Stream &stream)
               address[i],
               data[i]
              );
-    }
-    if (cpu == cpu_z80) {
+    } else if (cpu == cpu_z80) {
       sprintf(output, "%d,%c,%c,%c,%c,%c,%c,%c,%04lX,%02lX",
               j,
               m1 ? '1' : '0',
@@ -853,12 +843,18 @@ void go()
     dTriggerMask = 0;
 
     // Check for r/w qualifier
-    if (triggerCycle == tr_read) {
+    if ((triggerCycle == tr_read) && cpu != cpu_z80) {
       cTriggerBits = 0b00000000000000000000000001000000;
       cTriggerMask = 0b00000000000000000000000001000000;
-    } else if (triggerCycle == tr_write) {
+    } else if ((triggerCycle == tr_write) && cpu != cpu_z80) {
       cTriggerBits = 0b00000000000000000000000000000000;
       cTriggerMask = 0b00000000000000000000000001000000;
+    } else if ((triggerCycle == tr_read) && cpu == cpu_z80) {
+      cTriggerBits = 0b00000000000000000000000000000000;
+      cTriggerMask = 0b10000000000000000000000000000000;
+    } else if ((triggerCycle == tr_write) && cpu == cpu_z80) {
+      cTriggerBits = 0b00000000000000000000000000000000;
+      cTriggerMask = 0b00000000000000000000000010000000;
     } else {
       cTriggerBits = 0;
       cTriggerMask = 0;
@@ -880,23 +876,52 @@ void go()
     aTriggerBits = 0;
     aTriggerMask = 0;
 
-    // TODO: Add support for Z80 I/O read or write trigger.
-
     // Check for r/w qualifier
-    if (triggerCycle == tr_read) {
+    if ((triggerCycle == tr_read) && cpu != cpu_z80) {
       cTriggerBits = 0b00000000000000000000000001000000;
       cTriggerMask = 0b00000000000000000000000001000000;
-    } else if (triggerCycle == tr_write) {
+    } else if ((triggerCycle == tr_write) && cpu != cpu_z80) {
       cTriggerBits = 0b00000000000000000000000000000000;
       cTriggerMask = 0b00000000000000000000000001000000;
+    } else if ((triggerCycle == tr_read) && cpu == cpu_z80) {
+      cTriggerBits = 0b00000000000000000000000000000000;
+      cTriggerMask = 0b10000000000000000000000000000000;
+    } else if ((triggerCycle == tr_write) && cpu == cpu_z80) {
+      cTriggerBits = 0b00000000000000000000000000000000;
+      cTriggerMask = 0b00000000000000000000000010000000;
     } else {
       cTriggerBits = 0;
       cTriggerMask = 0;
     }
 
-    // TODO: Add support for Z80 I/O control line triggers.
+  } else if (triggerMode == tr_io) { // Only used for Z80
+    switch (triggerCycle) {
+      case tr_read:
+        cTriggerBits = 0b10000000000000000000000100100000; // M1=1 IORQ=0 and RD=0
+        cTriggerMask = 0b00000000000000000000000000100000;
+        break;
+      case tr_write:
+        cTriggerBits = 0b00000000000000000000000110100000; // M1=1 IORQ=0 and WR=0
+        cTriggerMask = 0b00000000000000000000000000100000;
+        break;
+      case tr_either:
+        cTriggerBits = 0b00000000000000000000000100100000; // M1=1 IORQ=0
+        cTriggerMask = 0b00000000000000000000000000100000;
+        break;
+    }
+    aTriggerBits = ((triggerAddress & 0x0001) << (3 - 0)) // A0
+      + ((triggerAddress & 0x0002) << (2 - 1)) // A1
+      + ((triggerAddress & 0x0004) << (18 - 2)) // A2
+      + ((triggerAddress & 0x0008) << (19 - 3)) // A3
+      + ((triggerAddress & 0x0010) << (23 - 4)) // A4
+      + ((triggerAddress & 0x0020) << (22 - 5)) // A5
+      + ((triggerAddress & 0x0040) << (17 - 6)) // A6
+      + ((triggerAddress & 0x0080) << (16 - 7)); // A7
+    aTriggerMask = 0b00000000110011110000000000001100;
+    dTriggerBits = 0;
+    dTriggerMask = 0;
 
-  } else if (triggerMode == tr_reset) {
+  } else if ((triggerMode == tr_reset) && (cpu != cpu_z80)) {
     // GPIO port 9 pins:
     // GPIO:   31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  09  08  07  06  05  04  03  02  01  00
     // 6502:  IRQ XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX RST NMI R/W SYN PHI2 XXX XXX XXX XXX
@@ -910,7 +935,7 @@ void go()
     aTriggerMask = 0;
     dTriggerBits = 0;
     dTriggerMask = 0;
-  } else if (triggerMode == tr_irq) {
+  } else if ((triggerMode == tr_irq) && (cpu != cpu_z80)) {
     cTriggerBits = triggerLevel ? 0b10000000000000000000000000000000 : 0;
     cTriggerMask = 0b10000000000000000000000000000000;
     aTriggerBits = 0;
@@ -924,21 +949,28 @@ void go()
     aTriggerMask = 0;
     dTriggerBits = 0;
     dTriggerMask = 0;
-  } else if (triggerMode == tr_spare1) {
+  } else if ((triggerMode == tr_spare1) || ((cpu == cpu_z80) && (triggerMode == tr_reset))) {
     aTriggerBits = triggerLevel ? 0b00010000000000000000000000000000 : 0;
     aTriggerMask = 0b00010000000000000000000000000000;
     cTriggerBits = 0;
     cTriggerMask = 0;
     dTriggerBits = 0;
     dTriggerMask = 0;
-  } else if (triggerMode == tr_spare2) {
-    dTriggerBits = triggerLevel ? 0b00000000000000000000001000000000 : 0;
-    dTriggerMask = 0b00000000000000000000001000000000;
+  } else if ((triggerMode == tr_spare2) || ((cpu == cpu_z80) && (triggerMode == tr_irq))) {
+    dTriggerBits = triggerLevel ? 0b00100000000000000000000000000000 : 0;
+    dTriggerMask = 0b00100000000000000000000000000000;
+    aTriggerBits = 0;
+    aTriggerMask = 0;
+    cTriggerBits = 0;
+    cTriggerMask = 0;
+  } else if (triggerMode == tr_none) {
     aTriggerBits = 0;
     aTriggerMask = 0;
     dTriggerBits = 0;
     dTriggerMask = 0;
-  } else if (triggerMode == tr_none) {
+    cTriggerBits = 0;
+    cTriggerMask = 0;
+  } else {
     aTriggerBits = 0;
     aTriggerMask = 0;
     dTriggerBits = 0;
@@ -963,13 +995,11 @@ void go()
       // Wait for PHI2 to go from low to high
       WAIT_PHI2_LOW;
       WAIT_PHI2_HIGH;
-    }
-    if (cpu == cpu_6809) {
+    } else if (cpu == cpu_6809) {
       // Wait for Q to go from low to high
       WAIT_Q_LOW;
       WAIT_Q_HIGH;
-    }
-    if (cpu == cpu_z80) {
+    } else if (cpu == cpu_z80) {
       // Wait for CLK to go from high to low
       WAIT_CLK_HIGH;
       WAIT_CLK_LOW;
@@ -983,13 +1013,11 @@ void go()
       // Wait for PHI2 to go from high to low
       WAIT_PHI2_HIGH;
       WAIT_PHI2_LOW;
-    }
-    if (cpu == cpu_6809) {
+    } else if (cpu == cpu_6809) {
       // Wait for E to go from high to low
       WAIT_E_HIGH;
       WAIT_E_LOW;
-    }
-    if (cpu == cpu_z80) {
+    } else if (cpu == cpu_z80) {
       // Wait for CLK to go from low to high
       WAIT_CLK_LOW;
       WAIT_CLK_HIGH;

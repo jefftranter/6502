@@ -31,7 +31,7 @@ Port Bit Pin  Signal Pin  Signal Pin  Signal Pin  Signal Pin
  7     1  12   D6     27   D6     25   D6     10   D6     27
  7     3  13   (LED)
  7    12  32   D7     26   D7     24   D7     13   D7     26
- 7     9  34   (SPARE2)    (SPARE2)    /INT   16   (SPARE2)
+ 7    29  34   (SPARE2)    (SPARE2)    /INT   16   (SPARE2)
  7    28  35
  7    18  36
  7    19  37
