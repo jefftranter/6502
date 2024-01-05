@@ -85,7 +85,7 @@ cont:
         jmp     L8000           ; Basic entry point
 
 StartMsg:
-        .byte   "BBC BASIC v2 for 6502 SBC 09-Jun-2022",CR,LF,0
+        .byte   "BBC BASIC v2 for 6502 SBC 05-Jan-2024",CR,LF,0
 
 ; NMI routine
 _NMI:
@@ -219,10 +219,12 @@ loop:   jsr     OSRDCH          ; Get character
         beq     done
         cmp     #ESC            ; ESC?
         beq     edone
-; TODO: Check for acceptable ASCII values.
-; TODO: Check for maximum line length.
+        cmp     #$20            ; Check for acceptable ASCII. Less than $20?
+        bcc     loop            ; If so, ignore it
         iny                     ; Increment character count
-        jmp     loop            ; Go back and read more characters
+        cpy     #$EE            ; Check for maximum line length
+        beq     done            ; Branch if max reached
+        jmp     loop            ; Else go back and read more characters
 done:   clc                     ; Normal return, clear carry
         rts
 edone:  sec                     ; Esc pressed, set carry
@@ -242,7 +244,8 @@ delete:
 ; OSWRCH #FFF4 Write character
 ; On entry:  A=character to write
 ; On exit:   all preserved
-; TODO: Implement support for some VDU sequences.
+; TODO: Implement support for some VDU sequences. Note that some are
+; standard ASCII characters and will work on a serial terminal.
 
 _OSWRCH:
         pha
