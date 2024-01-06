@@ -86,6 +86,8 @@ cont:
 
 StartMsg:
         .byte   "BBC BASIC v2 for 6502 SBC 05-Jan-2024",CR,LF,0
+ClearMsg:
+        .byte   ESC,"[2J",ESC,"[H",0
 
 ; NMI routine
 _NMI:
@@ -244,11 +246,14 @@ delete:
 ; OSWRCH #FFF4 Write character
 ; On entry:  A=character to write
 ; On exit:   all preserved
-; TODO: Implement support for some VDU sequences. Note that some are
-; standard ASCII characters and will work on a serial terminal.
+; TODO: Implement support for more VDU sequences (but only a few bytes
+; left in the ROM). Note that some are ; standard ASCII characters and
+; will work as is on a serial terminal.
 
 _OSWRCH:
         pha
+        cmp     #12             ; VDU code 12?
+        beq     Clear
 SerialOutWait:
         lda     ACIAStatus
         and     #2
@@ -256,6 +261,23 @@ SerialOutWait:
         bne     SerialOutWait
         pla
         sta     ACIAData
+        rts
+
+; VDU 12: Clear screen and move move cursor to home (top left corner).
+; Implement by sending ANSI escape sequence "<ESC>[2J<ESC>[H".
+
+Clear:  tya                     ; Save Y
+        pha
+        ldy #0
+ShowClearMsg:
+        lda     ClearMsg,Y
+        beq     ret
+        jsr     _OSWRCH
+        iny
+        bne     ShowClearMsg
+ret:    pla                     ; Restore Y
+        tay
+        pla                     ; Restore A
         rts
 
 ; OSRDCH
