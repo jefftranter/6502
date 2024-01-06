@@ -7,13 +7,13 @@ To Do:
 
 - Save/restore settings to persistent files
 - Handle decimal mode
-- Simulate keyvboard more closely
+- Simulate keyboard more closely
 - Simulate graphics on video screen
 - Simulate Sound/Bank/Color/Video register
 - Option for Rockwell instructions
 - Option for 65C02 instructions
 - Option for 65816 instructions
 - Support loading RAM or ROM from other file formats (S record file, Intel hex, etc.)
-- Simulate 610 board: additional RAM, Second 6550 UART, 6820 PIA, floppy disk
+- Simulate 610 board: additional RAM, second 6550 UART, 6820 PIA, floppy disk
 - Optimize performance
 - GUI
