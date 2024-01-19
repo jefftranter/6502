@@ -1,6 +1,6 @@
 ; JMON - 6502 Monitor Program
 ;
-; Copyright (C) 2012-2023 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2024 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -209,7 +209,7 @@
   BRKVECTOR = $17FE             ; Break/interrupt vector (2 bytes)
 ; Note: ECHO not defined because KIM-1 always echoes characters back.
 .elseif .defined(SBC)
-  BASIC   = $DD05               ; BASIC Cold Start
+  BASIC   = $DD09               ; BASIC Cold Start
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
   MONCOUT = $FF3B               ; Console out routine
