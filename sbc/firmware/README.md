@@ -4,6 +4,9 @@ This builds firmware that contains:
 3. A program that prompts on boot whether to load JMON or Basic (based
    on Grant Searle's code).
 
+Another option is wozmon.bin which only contains a port of the Woz
+Monitor from the Apple 1. It does not include Basic.
+
 By default Basic is the 6 digit OSI version. If you comment out the
 line with "CONFIG_SMALL := 1" in osi_basic.s, it will build Basic with
 9 digits of floating point precision (and longer error messages). This
