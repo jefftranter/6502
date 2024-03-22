@@ -1,7 +1,7 @@
          GETCH    = $1E5A           ; KIM-1 character input routine
          OUTCH    = $1EA0           ; KIM-1 character output routine
          KTTY     = $1740           ; KIM-1 TTY port
-         FREERAM   = $2000          ; Start of free RAM for program storage
+         FREERAM  = $2000           ; Start of free RAM for program storage
 
          .org     $0100
 
@@ -26,7 +26,7 @@ START
 
 CV       JMP      COLD_S            ; Cold start vector
 WV       JMP      WARM_S            ; Warm start vector
-IN_V     JMP      GETCH             ; Input routine address. 
+IN_V     JMP      GETCH             ; Input routine address.
 OUT_V    JMP      OUTCH             ; Output routine address.
 BV       JMP      KIMBT             ; Begin break routine
 
@@ -60,7 +60,7 @@ SRVT     .word  IL_BBR               ; ($40-$5F) Backward Branch Relative
          .word  IL__BV               ; ($A0-$BF) Branch if not Variable
          .word  IL__BN               ; ($C0-$DF) Branch if not a Number
          .word  IL__BE               ; ($E0-$FF) Branch if not End of line
-         .word  IL__NO               ; ($08) No Opertion
+         .word  IL__NO               ; ($08) No Operation
          .word  IL__LB               ; ($09) Push Literal Byte onto Stack
          .word  IL__LN               ; ($0A) Push Literal Number
          .word  IL__DS               ; ($0B) Duplicate Top two bytes on Stack
@@ -115,9 +115,9 @@ LBL002   .word  ILTBL                ; Address of IL program table
 COLD_S   lda #<FREERAM              ; Load accumulator with $00
          sta $20                    ; Store $00 in $20
          sta $22                    ; Store $00 in $22
-         lda #>FREERAM              ; Load accumulator with $02
-         sta $21                    ; Store $02 in $21
-         sta $23                    ; Store $02 in $23
+         lda #>FREERAM              ; Load accumulator with $20
+         sta $21                    ; Store $20 in $21
+         sta $23                    ; Store $20 in $23
 ;
 ;
 ; Begin test for free ram
@@ -126,7 +126,7 @@ COLD_S   lda #<FREERAM              ; Load accumulator with $00
          ldy #$01                   ; Load register Y with $01
 MEM_T    lda ($22),Y                ; Load accumulator With the contents of a byte of memory
          tax                        ; Save it to X
-         eor #$FF                   ; Next 4 instuctions test to see if this memory location
+         eor #$FF                   ; Next 4 instructions test to see if this memory location
          sta ($22),Y                ; is ram by trying to write something new to it - new value
          cmp ($22),Y                ; gets created by XORing the old value with $FF - store the
          php                        ; result of the test on the stack to look at later
@@ -141,7 +141,7 @@ SKP_PI   lda $23                    ; Get high byte of memory address
          lda $22                    ; Get low byte of memory address
          cmp #<START                ; Did we reach start address of Tiny Basic?
          beq TOP                    ; If so, stop memory test so we don't overwrite ourselves
-PULL  
+PULL
          plp                        ; Now look at the result of the memory test
          beq MEM_T                  ; Go test the next memory location if the last one was ram
 TOP
@@ -168,7 +168,7 @@ WARM_S   lda $22
          sta $C7
          sta $27
          jsr P_NWLN                 ; Go print CR, LF and pad characters
-LBL014   lda LBL002                 ; Load up the start of the IL Table 
+LBL014   lda LBL002                 ; Load up the start of the IL Table
          sta $2A                    ;
          lda LBL002+$01             ;
          sta $2B
@@ -185,7 +185,7 @@ LBL014   lda LBL002                 ; Load up the start of the IL Table
 ;
 ; IL execution loop
 ;
-LBL006   cld                        ; Make sure we're in binary mode 
+LBL006   cld                        ; Make sure we're in binary mode
          jsr LBL004                 ; Go read a byte from the IL program table
          jsr LBL005                 ; Go decide what to do with it
          jmp LBL006                 ; Repeat
@@ -200,9 +200,9 @@ LBL006   cld                        ; Make sure we're in binary mode
 ;
 LBL005   cmp #$30                   ;
          bcs LBL011                 ; If it's $30 or higher, it's a Branch or Jump - go handle it
-         cmp #$08                   ; 
+         cmp #$08                   ;
          bcc LBL007                 ; If it's less than $08 it's a stack exchange - go handle it
-         asl                        ; Multiply the OP code by 2 
+         asl                        ; Multiply the OP code by 2
          tax                        ; Transfer it to X
 LBL022   lda SRVT-$03,X             ; Get the hi byte of the OP Code handling routine
          pha                        ; and save it on the stack
@@ -212,7 +212,7 @@ LBL022   lda SRVT-$03,X             ; Get the hi byte of the OP Code handling ro
          rti                        ; now go execute the OP Code handling routine
 ;
 ;
-; Routine to handle the stack exchange 
+; Routine to handle the stack exchange
 ;
 LBL007   adc $C1
          tax
@@ -229,7 +229,7 @@ LBL007   adc $C1
 LBL015   jsr P_NWLN                 ; Go print CR, LF and pad characters
          lda #$21                   ; '!' character
          jsr OUT_V                  ; Go print it
-         lda $2A                    ; Load the current TBIL pointer (lo) 
+         lda $2A                    ; Load the current TBIL pointer (lo)
          sec                        ; Set the carry flag
          sbc LBL002                 ; Subtract the TBIL table origin (lo)
          tax                        ; Move the difference to X
@@ -507,7 +507,7 @@ LBL004   ldy #$00                   ; Read a byte from the TBIL Table
          inc $2A                    ; Increment TBIL Table pointer as required
          bne LBL051                 ;
          inc $2B                    ;
-LBL051   ora #$00                   ; Check for $00 and set the 'Z' flag acordingly
+LBL051   ora #$00                   ; Check for $00 and set the 'Z' flag accordingly
 LBL050   rts                        ; Return
 ;
 ;
@@ -722,12 +722,12 @@ IL__NL   lda $BF                    ; Entry point for TBIL NL
 ;
 ;
 ; Routine to print a new line.  It handles CR, LF
-; and adds pad characters to the ouput
+; and adds pad characters to the output
 ;
 P_NWLN   lda #$0D                   ; Load up a CR
          jsr OUT_V                  ; Go print it
          lda PCC                    ; Load the pad character code
-         and #$7F                   ; Test to see - 
+         and #$7F                   ; Test to see -
          sta $BF                    ; how many pad characters to print
          beq LBL086                 ; Skip if 0
 LBL088   jsr LBL087                 ; Go print pad character
@@ -741,7 +741,7 @@ LBL086   lda #$0A                   ; Load up a LF
 LBL092   ldy TMC
 LBL091   sty $BF
          bcs LBL090
-IL__GL   lda #$30                   ; Entry pont for TBIL GL
+IL__GL   lda #$30                   ; Entry point for TBIL GL
          sta $2C
          sta $C0
          sty $2D
@@ -1034,7 +1034,7 @@ IL__RT   jsr LBL063
 ;
 ;
 ;
-IL__SB   ldx #$2C                   ; Entry point for TBIL SB 
+IL__SB   ldx #$2C                   ; Entry point for TBIL SB
          bne LBL125
 IL__RB   ldx #$2E                   ; Entry point for TBIL RB
 LBL125   lda $00,X

@@ -659,7 +659,7 @@ SCAN    CMP   #$20      ; OPEN CELL
         BEQ   STV
         CMP   #$0D      ; NEXT CELL
         BEQ   RTRN
-        CMP   #$0A      ;PREV CELL
+        CMP   #$0A      ; PREV CELL
         BEQ   FEED
         CMP   #'.'      ; MODIFY CELL
         BEQ   MODIFY
