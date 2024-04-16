@@ -36,4 +36,4 @@ times more.  Can you imagine reading 1K in four seconds?
 For the moment, however, HYPERTAPE! is plenty fast for me.
 
 Thanks go to Julien Dubé for his help in staging early 
-versions off HYPERTAPE.
+versions of HYPERTAPE!
