@@ -275,7 +275,6 @@ void Sim6502::setPC(uint16_t val)
 void Sim6502::write(uint16_t address, uint8_t byte)
 {
     assert(address >= 0);
-    assert(address <= 0xffff);
 
     if (!m_writeWatchpoints.empty()) {
         if (std::find(m_writeWatchpoints.begin(), m_writeWatchpoints.end(), address) != m_writeWatchpoints.end()) {
@@ -417,7 +416,6 @@ void Sim6502::writeKeyboard(uint16_t address, uint8_t byte)
 uint8_t Sim6502::read(uint16_t address)
 {
     assert(address >= 0);
-    assert(address <= 0xffff);
 
     if (!m_readWatchpoints.empty()) {
         if (std::find(m_readWatchpoints.begin(), m_readWatchpoints.end(), address) != m_readWatchpoints.end()) {
@@ -1360,7 +1358,6 @@ void Sim6502::step(bool over)
 
     case 0x31: // and (xx),y
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
-        assert(tmp1 <= 0xffff);
         m_regA &= tmp1;
         (m_regA & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
@@ -1564,7 +1561,6 @@ void Sim6502::step(bool over)
 
     case 0x51: // eor (xx),y
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
-        assert(tmp1 <= 0xffff);
         m_regA ^= tmp1;
         (m_regA & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
@@ -1806,7 +1802,6 @@ void Sim6502::step(bool over)
 
     case 0x71: // adc (xx),y
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
-        assert(tmp1 <= 0xffff);
         if (m_regP & D_BIT) {
             if (m_logWarnings) {
                 cout << "Warning: Decimal mode not implemented." << endl;
@@ -2015,7 +2010,6 @@ void Sim6502::step(bool over)
 
     case 0x91: // sta (xx),y
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
-        assert(tmp1 <= 0xffff);
         write(read(operand1) + 256 * read(operand1 + 1) + m_regY, m_regA);
         if (m_logInstructions) {
             cout << "sta ($" << setw(2) << (int)operand1 << "),y" << endl;
@@ -2218,7 +2212,6 @@ void Sim6502::step(bool over)
 
     case 0xb1: // lda (xx),y
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
-        assert(tmp1 <= 0xffff);
         m_regA = tmp1;
         (m_regA & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA == 0) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
@@ -2452,7 +2445,6 @@ void Sim6502::step(bool over)
 
     case 0xd1: // cmp (xx),y
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
-        assert(tmp1 <= 0xffff);
         (m_regA == tmp1) ? m_regP |= Z_BIT : m_regP &= ~Z_BIT; // Set Z flag
         ((m_regA < tmp1) & 0x80) ? m_regP |= S_BIT : m_regP &= ~S_BIT; // Set S flag
         (m_regA >= tmp1) ? m_regP |= C_BIT : m_regP &= ~C_BIT; // Set C flag
@@ -2692,7 +2684,6 @@ void Sim6502::step(bool over)
 
     case 0xf1: // sbc (xx),y
         tmp1 = read(read(operand1) + 256 * read(operand1 + 1) + m_regY);
-        assert(tmp1 <= 0xffff);
         if (m_regP & D_BIT) {
                 if (m_logWarnings) {
                     cout << "Warning: Decimal mode not implemented." << endl;
