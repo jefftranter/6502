@@ -68,8 +68,8 @@ UOUT:   .res 2		;USER OUTPUT HANDLER (VECTOR)
 
 ;UNUSED KEYS TO GO TO USER ROUTINE
 KEYF1:  .res 3		;USER PUTS A JMP INSTRUCTION TO...
-KEYF2:  .res 3		;GO TO HIS TOURINE ON EITHER KEY..
-KEYF3:  .res 3		;ENTRY
+KEYF2:  .res 3		;GO TO HIS ROUTINE ON EITHER KEY..
+KEYF3:  .res 3		;ENTRY		
 
 ;EQUATES FRO DISASSEMBLER (PAG 1)
         .org $0116	;SAME AS TAPE BUFFER I/O (TARBUFF)
@@ -2362,9 +2362,24 @@ OUTDD3: STA STIY+1	;SAVE CS TEMPORARILY
         PLA		;RETURN DATA
         RTS
 
-        .res 71      ;.org $EFF9 (71 bytes to fill)
+	.org $EFB2 ;Garbage bytes from original monitor ROM
+	.byt $4e, $20, $49, $54, $20, $49, $4e, $20
+	.byt $53, $49, $47, $4e, $20, $4f, $46, $20
+	.byt $41, $20, $28, $4d, $53, $42, $29, $0d
+	.byt $52, $44, $42, $49, $54, $20, $4c, $44
+	.byt $41, $20, $54, $53, $50, $45, $45, $44
+	.byt $20, $3b, $41, $52, $45, $20, $57, $45
+	.byt $20, $49, $4e, $20, $30, $20, $4f, $52
+	.byt $20, $31, $2d, $36, $20, $53, $50, $45
+	.byt $45, $44, $53, $0d, $42, $4d, $49
+
+        .org $EFF9
         .BYT $EA
-        .res 6       ;.org $F000 (6 bytes to fill)
+
+	.org $EFFA ;Garbage bytes from original monitor ROM
+	.byt $52, $44, $42, $49, $54, $34
+
+        .org $F000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;OUTPUT ACC TO PRINTER SUBROUTINE
 ;PRINTS ON 21RST CHAR OR WHEN (CR)
@@ -3651,7 +3666,7 @@ TYPTB:  .BYT 13,13,12,13,14,13,12,13
         .BYT 1,1,1,1,2,1,1,1
 
 ;PROGRAM STARTS HERE
-MNEENT: LDA SAVPC	;TRANSF PC TO ADDDR
+MNEENT: LDA SAVPC       ;TRANSF PC TO ADDDR
         STA ADDR
         LDA SAVPC+1
         STA ADDR+1       
@@ -3659,17 +3674,17 @@ STARTM: JSR CRCK	;(CR) IF PRI PTR DIFF FROM 0
         LDA #0
         STA CODFLG
         JSR BLANK
-        JSR WRITAZ	;WRITE ADDRESS
+        JSR WRITAZ      ;WRITE ADDRESS
         JSR BLANK2
         JSR BLANK2
-        JMP MNEM	;JUMP TO INPUT MNEMONIC OPCODE
-MODEM:  LDA #00		;SET UP TO FORM MODE MATCH
+        JMP MNEM        ;JUMP TO INPUT MNEMONIC OPCODE
+MODEM:  LDA #00         ;SET UP TO FORM MODE MATCH
         STA TMASK1
         STA TMASK2
         JSR BLANK
         LDY TYPE
         SEC
-PNTLUP: ROR TMASK1	;SHIFT POINTER TO INSTRUCTION TYPE
+PNTLUP: ROR TMASK1      ;SHIFT POINTER TO INSTRUCTION TYPE
         ROR TMASK2
         DEY
         BNE PNTLUP
@@ -3682,41 +3697,41 @@ PNTLUP: ROR TMASK1	;SHIFT POINTER TO INSTRUCTION TYPE
         JMP OPCOMP
 
 ;INPUT ADDRESS FIELD
-RDADDR: LDY #06		;CLEAR ADDRESS FIELD (NON HEX)
+RDADDR: LDY #06         ;CLEAR ADDRESS FIELD (NON HEX)
         LDA #'Q'
 CLRLUP: STA ADFLD-1,Y
         DEY
-        BNE CLRLUP	;(LEAVES Y = 0 FOR NEXT PHASE)
-        JSR RDRUB	;WITHOUT RUBOUT
-        CMP #$20	;IGNORE SPACE CHARCATERS
+        BNE CLRLUP      ;(LEAVES Y = 0 FOR NEXT PHASE)
+        JSR RDRUB       ;WITHOUT RUBOUT
+        CMP #$20        ;IGNORE SPACE CHARCATERS
         BEQ RDADDR
-STORCH: STA ADFLD,Y	;STROE ADDRESS CHARACTER
+STORCH: STA ADFLD,Y     ;STROE ADDRESS CHARACTER
         INY
         CPY #07
         BCS TRY56
-        JSR RDRUB	;READ REMAINDER OF ADDRESS CHARS
-        CMP #$20	;THRU WHEN (SPACE) OR (CR)
+        JSR RDRUB       ;READ REMAINDER OF ADDRESS CHARS
+        CMP #$20        ;THRU WHEN (SPACE) OR (CR)
         BNE STOR1
-        INC CODFLG	;SET CODE FLG
+        INC CODFLG      ;SET CODE FLG
         BNE EVAL
-STOR1:  CMP #$0D	;CHECK FOR (CR)
+STOR1:  CMP #$0D        ;CHECK FOR (CR)
         BNE STORCH
 
 ;SEPARATE ADDRESSING MODE FROM ADDRESSING FIELD
-EVAL:   STY TEMPX	;TEMPX NOW HAS NUMBER OF CHAR
-        LDA ADFLD	;CHECK FRIST CHAR FOR # OR (
+EVAL:   STY TEMPX       ;TEMPX NOW HAS NUMBER OF CHAR
+        LDA ADFLD       ;CHECK FRIST CHAR FOR # OR (
         CMP #'#'
         BEQ HATCJ
         CMP #'('
         BEQ PAREN
-        LDA TEMPX	;CHECK FOR ACCUMULATOR MODE
+        LDA TEMPX       ;CHECK FOR ACCUMULATOR MODE
         CMP #01
         BNE TRYZP
 ACCUM:  LDX #01
         JMP OPCOMP
-TRYZP:  CMP #$02	;CHECK FOR ZERO PAGE MODE
+TRYZP:  CMP #$02        ;CHECK FOR ZERO PAGE MODE
         BNE TRY34
-        LDA TYPE	;CHCK FOR BARANCH WITH RELATIVE ADDR
+        LDA TYPE        ;CHCK FOR BARANCH WITH RELATIVE ADDR
         CMP #$0C
         BNE ZPAGE
         LDX #02
@@ -3724,19 +3739,19 @@ TRYZP:  CMP #$02	;CHECK FOR ZERO PAGE MODE
 ZPAGE:  LDX #05
         JMP OPCOMP
 HATCJ:  JMP HATCH
-TRY34:  LDA #04		;CHECK FOR ABSOLUTE OR ZP,X ORZP,
+TRY34:  LDA #04         ;CHECK FOR ABSOLUTE OR ZP,X ORZP,
         CMP TEMPX
         BCC ABSIND
         LDX #02
-        JSR XORYZ	;CC = X, CS = Y NE = ABSOLUTE
+        JSR XORYZ       ;CC = X, CS = Y NE = ABSOLUTE
         BNE ABSOL
         BCC ZPX
-ZPY:    LDX #03		;CARRY SET SO ZP,Y MODE
+ZPY:    LDX #03         ;CARRY SET SO ZP,Y MODE
         JMP OPCOMP
-ZPX:    LDX #04		;CARRY CLEAR SO ZP,X MODE
+ZPX:    LDX #04         ;CARRY CLEAR SO ZP,X MODE
         JMP OPCOMP
 TRY56:  BCS ERRORM
-ABSIND: JSR XORY	;CC=ABS,X   CS=ABS,Y   NE=ERROR
+ABSIND: JSR XORY        ;CC=ABS,X   CS=ABS,Y   NE=ERROR
         BNE ERRORM
         BCC ABSX
 ABSY:   LDA #09
@@ -3746,7 +3761,7 @@ ABSY:   LDA #09
         BNE OPCOMP
 ABSY1:  LDX #$08
         BNE OPCOMP
-ABSX:   LDX #$09	;CARRY CLEAR SO ABS,X MODE
+ABSX:   LDX #$09        ;CARRY CLEAR SO ABS,X MODE
         BNE OPCOMP
 PAREN:  LDA ADFLD+3	;SEE IF (HH,X),(HH)Y OR (HHHH)
         CMP #','	;(HHX) (HH),Y ARE OK TOO
@@ -4168,7 +4183,7 @@ PAT23A: LDA RINT        ;TIME OUT?
         AND #MPRST
         BEQ PAT23A      ;NO
         RTS             ;YES
-PAT23B: LDA #0		;TIME OUT RETURN
+PAT23B: LDA #0          ;TIME OUT RETURN
         RTS
 
 PATC24: JSR CKFREQ	;READ BIT FROM FOURTH HALF PULSE
@@ -4176,13 +4191,40 @@ PATC24: JSR CKFREQ	;READ BIT FROM FOURTH HALF PULSE
         AND #$80
         RTS
 
-PATC25: BIT IFR		;WAIT TILL TIMES OUT
+PATC25: BIT IFR         ;WAIT TILL TIMES OUT
         BVC PATC25
-        LDA T1L		;CLR INTERRUPT FLG
+        LDA T1L         ;CLR INTERRUPT FLG
         RTS
 
-        .res 52         ;.org $FFF9 (52 bytes to fill)
-;INTERRUPT VECTORS
+; Fill
+;        .res 52        ; (52 bytes to fill at $FFC5)
+
+	.org $FFC5	;Garbage bytes from original monitor ROM
+	.byt $3b, $3b, $3b, $3b, $3b, $3b, $3b, $3b
+	.byt $3b, $3b, $3b, $3b, $3b, $3b, $3b, $3b
+	.byt $3b, $3b, $0d, $3b, $4f, $55, $54, $50
+	.byt $55, $54, $20, $43, $48, $41, $52, $20
+	.byt $49, $4e, $20, $41, $20, $54, $4f, $20
+	.byt $50, $52, $49, $4e, $54, $45, $52, $0d
+	.byt $4f, $55, $54, $50
+
+        .org $FFF9
         .BYT $FA
-        .WORD NMIV1,RSET,IRQV1	;SET UP VECTORS
-        .END A0/1
+;INTERRUPT VECTORS
+        .segment "VECTORS"
+        .org $FFFA
+VECTS:  .WORD NMIV1,RSET,IRQV1	;SET UP VECTORS
+;	.include  "aim65monitor-garbage.s"
+
+        .EXPORT BLANK, BLANK2, CLR, CRCK, CRLF, CRLOW, CUREAD, DUMPTA
+        .EXPORT DU11, DISASM, EQUAL, FROM, GETTAP, HEX, INALL, INLOW, LOADTA
+        .EXPORT LL, NOUT, NUMA, OUTLOW, OUTALL
+        .EXPORT OUTDIS, OUTDP, OUTPRI, OUTPUT
+        .EXPORT OUTTAP, PACK, PHXY, PLXY, PSL1, QM, RBYTE
+        .EXPORT RCHEK, RDRUB, READ, RED1, REDOUT, SEMI, TAISET
+        .EXPORT TAOSET, TIBYTE, TIBY1, TOBYTE, TO
+        .EXPORT WHEREI, WHEREO
+        .EXPORT COMIN, OUTCK1, OUTDP1, TOGTA1, TOGTA2, TOPNO, WRAX ; Used by assembler ROM
+        .EXPORT NAME
+        .EXPORT VECTS
+        .END    A0/1
