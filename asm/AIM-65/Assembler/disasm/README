@@ -1,0 +1,11 @@
+Small project to disassemble the AIM-65 Assembler ROM
+
+Required tools:
+ - wget to download original ROMs to disassemble
+ - dxa disassembler (https://www.floodgap.com/retrotech/xa)
+
+Description
+ - Defined all monitor symbols from monitor listing (aimmon.sym)
+ - Defined all assembler known symbols from "AIM Memory Map" article (assembler-dxa.sym)
+ - Defined all data areas (datablocks.dxa)
+then I was able to successfully disassemble the assembler ROM

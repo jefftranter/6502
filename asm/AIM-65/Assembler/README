@@ -1,0 +1,12 @@
+This is the Rockwell AIM-65 assembler source to be compiled with the ca65 cross assembler.
+
+This work was inspired by the article "AIM Memory Map" published on "MICRO - The 6502/6809 Journal, No. 38 - July 1981".
+Many thanks to Greg Paris, the author.
+
+Requires:
+ - cc65 cross compiler
+ - wget to download original ROMs to compare with
+ - enscript and ps2pdf for a nice pdf listing
+
+Description
+First I disassembled the assembler ROM with dxa (see disasm directory), then I assigned the remaining labels suggested reading the cited article.
