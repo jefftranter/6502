@@ -1,0 +1,2853 @@
+ASSEM, 0xd000, 0, 0x0000
+    aim65assembler.s 1653
+PRCRLF, 0xde6f, 0, 0x0000
+    aim65assembler.s 5 8 56 67 75 85 95 99 103 624 632 1091 1102 1819 1964 1987 2010
+ldfe1, 0xde64, 0, 0x0000
+    aim65assembler.s 7 58 69 77 87 97 620 631 1652 1790 2007
+ld013, 0xd013, 0, 0x0000
+    aim65assembler.s 15
+FROM, 0xe5c0, 0, 0x0000
+    aim65assembler.s 5828 14 3124
+ld02a, 0xd02a, 0, 0x0000
+    aim65assembler.s 17
+ld01d, 0xd01d, 0, 0x0000
+ld031, 0xd031, 0, 0x0000
+    aim65assembler.s 23
+WRAX, 0xe85f, 0, 0x0000
+    aim65assembler.s 5682 5686 27 44 623 1793 2930 3410
+PRSPACE, 0xde7b, 0, 0x0000
+    aim65assembler.s 29 1797 1955 1977 2499
+ld034, 0xd034, 0, 0x0000
+    aim65assembler.s 32
+TO, 0xe5c4, 0, 0x0000
+    aim65assembler.s 5847 31 3130
+ld04b, 0xd04b, 0, 0x0000
+    aim65assembler.s 34
+ld03e, 0xd03e, 0, 0x0000
+ld052, 0xd052, 0, 0x0000
+    aim65assembler.s 40
+PRSPCRLF, 0xde6c, 0, 0x0000
+    aim65assembler.s 48 1752
+WHEREI, 0xe665, 0, 0x0000
+    aim65assembler.s 6054 49 2932 3444
+ld05e, 0xd05e, 0, 0x0000
+    aim65assembler.s 55
+REDOUT, 0xe790, 0, 0x0000
+    aim65assembler.s 4062 4078 59 78 644 3378
+ld07b, 0xd07b, 0, 0x0000
+    aim65assembler.s 61
+ld075, 0xd075, 0, 0x0000
+WHEREO, 0xe68e, 0, 0x0000
+    aim65assembler.s 6068 70 88 3137
+ld0b7, 0xd0b7, 0, 0x0000
+    aim65assembler.s 80
+ld09e, 0xd09e, 0, 0x0000
+OBJCRLF, 0xdcfd, 0, 0x0000
+    aim65assembler.s 2229 91 2201
+ld0c3, 0xd0c3, 0, 0x0000
+    aim65assembler.s 640 665 677
+ld0c8, 0xd0c8, 0, 0x0000
+    aim65assembler.s 6584
+TOPNO, 0xf592, 0, 0x0000
+    aim65assembler.s 102 5850 5878 5911
+ld0d0, 0xd0d0, 0, 0x0000
+    aim65assembler.s 113
+OBJCLRCHK, 0xdcb3, 0, 0x0000
+    aim65assembler.s 114 2123
+LINELOOP, 0xd0e0, 0, 0x0000
+    aim65assembler.s 119
+LINENEXT, 0xd0e9, 0, 0x0000
+    aim65assembler.s 118
+LINEGET, 0xd104, 0, 0x0000
+    aim65assembler.s 139 141 156
+INALL, 0xe7b0, 0, 0x0000
+    aim65assembler.s 6010 7183 7215 136 2934 2969 3088 3090 3092 3445 3449 3453 3458 3462
+OUTDP1, 0xed1f, 0, 0x0000
+    aim65assembler.s 137 671 2460 2473 3655 3911 4036
+LABELGET, 0xd128, 0, 0x0000
+    aim65assembler.s 143
+ld116, 0xd116, 0, 0x0000
+ld11d, 0xd11d, 0, 0x0000
+    aim65assembler.s 146
+ld11a, 0xd11a, 0, 0x0000
+DIREND, 0xd3de, 0, 0x0000
+    aim65assembler.s 2247 148
+ld124, 0xd124, 0, 0x0000
+    aim65assembler.s 151
+ld121, 0xd121, 0, 0x0000
+OBJOUTCLRBUF, 0xdca4, 0, 0x0000
+    aim65assembler.s 159 2133
+RCHEK, 0xe724, 0, 0x0000
+    aim65assembler.s 6071 160 2611 2870 3154 3531
+ld130, 0xd130, 0, 0x0000
+    aim65assembler.s 274
+LINENXTCHR, 0xd6d0, 0, 0x0000
+    aim65assembler.s 162 287 412 504 572 609 661 1069 1092
+ld16f, 0xd16f, 0, 0x0000
+    aim65assembler.s 272 163 166
+ld135, 0xd135, 0, 0x0000
+ld139, 0xd139, 0, 0x0000
+STRGETLASTCHR, 0xd6e8, 0, 0x0000
+    aim65assembler.s 168
+ld176, 0xd176, 0, 0x0000
+    aim65assembler.s 169
+ld13e, 0xd13e, 0, 0x0000
+ld149, 0xd149, 0, 0x0000
+    aim65assembler.s 174
+ld146, 0xd146, 0, 0x0000
+SELDIR, 0xd259, 0, 0x0000
+    aim65assembler.s 176
+ld150, 0xd150, 0, 0x0000
+    aim65assembler.s 179
+ld14d, 0xd14d, 0, 0x0000
+PCSET, 0xd1db, 0, 0x0000
+    aim65assembler.s 181
+ld187, 0xd187, 0, 0x0000
+    aim65assembler.s 221 186 191 208
+ld158, 0xd158, 0, 0x0000
+ld778, 0xd778, 0, 0x0000
+    aim65assembler.s 189
+ld161, 0xd161, 0, 0x0000
+ld172, 0xd172, 0, 0x0000
+    aim65assembler.s 195 198
+ld167, 0xd167, 0, 0x0000
+OPCDATAGET, 0xd9cf, 0, 0x0000
+    aim65assembler.s 197
+ld16c, 0xd16c, 0, 0x0000
+INSTENC, 0xd454, 0, 0x0000
+    aim65assembler.s 200
+ld68a, 0xd68a, 0, 0x0000
+    aim65assembler.s 202 355 607
+ld17a, 0xd17a, 0, 0x0000
+    aim65assembler.s 205
+IFALPHA, 0xd75c, 0, 0x0000
+    aim65assembler.s 1250 1321 1334 1514 213
+ld18e, 0xd18e, 0, 0x0000
+    aim65assembler.s 214
+ld185, 0xd185, 0, 0x0000
+ld67a, 0xd67a, 0, 0x0000
+    aim65assembler.s 218 304 733 785 823
+ld18a, 0xd18a, 0, 0x0000
+    aim65assembler.s 231
+ld1a0, 0xd1a0, 0, 0x0000
+    aim65assembler.s 225
+ld194, 0xd194, 0, 0x0000
+ld198, 0xd198, 0, 0x0000
+    aim65assembler.s 234
+ldfa3, 0xde29, 0, 0x0000
+    aim65assembler.s 230
+ld19d, 0xd19d, 0, 0x0000
+ld1a2, 0xd1a2, 0, 0x0000
+    aim65assembler.s 242
+ld1aa, 0xd1aa, 0, 0x0000
+LINEPTRBEGIN, 0xd6ca, 0, 0x0000
+    aim65assembler.s 246 701
+ld1b6, 0xd1b6, 0, 0x0000
+    aim65assembler.s 247
+ld1b2, 0xd1b2, 0, 0x0000
+OPEQ, 0xd1e8, 0, 0x0000
+    aim65assembler.s 250
+SYMTBLSEARCH, 0xd959, 0, 0x0000
+    aim65assembler.s 252 337 1349
+ld1cb, 0xd1cb, 0, 0x0000
+    aim65assembler.s 253
+ld1bb, 0xd1bb, 0, 0x0000
+ld1c7, 0xd1c7, 0, 0x0000
+    aim65assembler.s 257
+ld1c1, 0xd1c1, 0, 0x0000
+ld1d2, 0xd1d2, 0, 0x0000
+    aim65assembler.s 261
+ld208, 0xd208, 0, 0x0000
+    aim65assembler.s 264 300
+SYMTBLSTORE, 0xd99d, 0, 0x0000
+    aim65assembler.s 268 353
+ld1d8, 0xd1d8, 0, 0x0000
+LINEPTRINC, 0xd6ce, 0, 0x0000
+    aim65assembler.s 278
+ld1f9, 0xd1f9, 0, 0x0000
+    aim65assembler.s 279 282
+ld1e4, 0xd1e4, 0, 0x0000
+ld670, 0xd670, 0, 0x0000
+    aim65assembler.s 286
+ld1fc, 0xd1fc, 0, 0x0000
+    aim65assembler.s 288
+ld1f4, 0xd1f4, 0, 0x0000
+ld3d9, 0xd3d9, 0, 0x0000
+    aim65assembler.s 1075 291 349
+ld674, 0xd674, 0, 0x0000
+    aim65assembler.s 293 509 706
+EXPEVAL, 0xd797, 0, 0x0000
+    aim65assembler.s 295 420 750
+ld20b, 0xd20b, 0, 0x0000
+    aim65assembler.s 298
+ld204, 0xd204, 0, 0x0000
+ld206, 0xd206, 0, 0x0000
+ld22e, 0xd22e, 0, 0x0000
+    aim65assembler.s 307
+ld20f, 0xd20f, 0, 0x0000
+ld220, 0xd220, 0, 0x0000
+    aim65assembler.s 311
+ld214, 0xd214, 0, 0x0000
+ERRDECODE, 0xda0a, 0, 0x0000
+    aim65assembler.s 315 439 489 1058
+ld227, 0xd227, 0, 0x0000
+    aim65assembler.s 318
+ERRNONE, 0xda07, 0, 0x0000
+    aim65assembler.s 320 615
+ld686, 0xd686, 0, 0x0000
+    aim65assembler.s 326 494
+ld233, 0xd233, 0, 0x0000
+    aim65assembler.s 335
+ld239, 0xd239, 0, 0x0000
+ld24f, 0xd24f, 0, 0x0000
+    aim65assembler.s 338
+ld23e, 0xd23e, 0, 0x0000
+ld24a, 0xd24a, 0, 0x0000
+    aim65assembler.s 342
+ld244, 0xd244, 0, 0x0000
+ld256, 0xd256, 0, 0x0000
+    aim65assembler.s 346
+SETNCH3, 0xd774, 0, 0x0000
+    aim65assembler.s 361 575
+ld263, 0xd263, 0, 0x0000
+    aim65assembler.s 371
+ld271, 0xd271, 0, 0x0000
+    aim65assembler.s 364 368
+ld267, 0xd267, 0, 0x0000
+ld26d, 0xd26d, 0, 0x0000
+ld27c, 0xd27c, 0, 0x0000
+    aim65assembler.s 376
+ld279, 0xd279, 0, 0x0000
+    aim65assembler.s 385
+ld678, 0xd678, 0, 0x0000
+    aim65assembler.s 378 578 762 1009
+ld282, 0xd282, 0, 0x0000
+    aim65assembler.s 583
+MNEMONICFIND, 0xd9e5, 0, 0x0000
+    aim65assembler.s 384 1658
+ld287, 0xd287, 0, 0x0000
+DIRADDR, 0xdd46, 0, 0x0000
+    aim65assembler.s 390
+ldd4c, 0xdd47, 0, 0x0000
+    aim65assembler.s 392
+DIRBYT, 0xd299, 0, 0x0000
+    aim65assembler.s 2242
+ld2a3, 0xd2a3, 0, 0x0000
+    aim65assembler.s 398 401
+DIRDBY, 0xd29d, 0, 0x0000
+    aim65assembler.s 2244
+DIRWOR, 0xd2a1, 0, 0x0000
+    aim65assembler.s 2243
+ld2ab, 0xd2ab, 0, 0x0000
+    aim65assembler.s 408
+ld2aa, 0xd2aa, 0, 0x0000
+ld2b3, 0xd2b3, 0, 0x0000
+    aim65assembler.s 413
+ld2b0, 0xd2b0, 0, 0x0000
+ld391, 0xd391, 0, 0x0000
+    aim65assembler.s 415
+ld2b5, 0xd2b5, 0, 0x0000
+    aim65assembler.s 507
+ld2df, 0xd2df, 0, 0x0000
+    aim65assembler.s 422
+ld2bd, 0xd2bd, 0, 0x0000
+ld2c2, 0xd2c2, 0, 0x0000
+    aim65assembler.s 424
+ld2bf, 0xd2bf, 0, 0x0000
+ld346, 0xd346, 0, 0x0000
+    aim65assembler.s 426
+ld2c6, 0xd2c6, 0, 0x0000
+    aim65assembler.s 478 484
+ld2ce, 0xd2ce, 0, 0x0000
+    aim65assembler.s 432
+ld2ca, 0xd2ca, 0, 0x0000
+ld326, 0xd326, 0, 0x0000
+    aim65assembler.s 500 442 445
+ld2db, 0xd2db, 0, 0x0000
+PCADD0, 0xdbf3, 0, 0x0000
+    aim65assembler.s 447 683 1773 2027
+ld2f6, 0xd2f6, 0, 0x0000
+    aim65assembler.s 452
+ld2ec, 0xd2ec, 0, 0x0000
+OBJOUTA, 0xdc29, 0, 0x0000
+    aim65assembler.s 455 460 474 553 685 994 1002
+PCSTOPTR, 0xdbf5, 0, 0x0000
+    aim65assembler.s 457 469 534 992 996
+ld303, 0xd303, 0, 0x0000
+    aim65assembler.s 462
+ld2ff, 0xd2ff, 0, 0x0000
+ld305, 0xd305, 0, 0x0000
+    aim65assembler.s 465
+ld311, 0xd311, 0, 0x0000
+    aim65assembler.s 471
+ld30c, 0xd30c, 0, 0x0000
+ld317, 0xd317, 0, 0x0000
+ld31f, 0xd31f, 0, 0x0000
+    aim65assembler.s 481
+ld31b, 0xd31b, 0, 0x0000
+ld323, 0xd323, 0, 0x0000
+    aim65assembler.s 517 560
+ld722, 0xd722, 0, 0x0000
+    aim65assembler.s 491 604 791
+ld32e, 0xd32e, 0, 0x0000
+    aim65assembler.s 492
+ld32b, 0xd32b, 0, 0x0000
+ld336, 0xd336, 0, 0x0000
+    aim65assembler.s 497
+ld332, 0xd332, 0, 0x0000
+LINELIST, 0xd66f, 0, 0x0000
+    aim65assembler.s 502 748 770 803 813
+ld343, 0xd343, 0, 0x0000
+    aim65assembler.s 505
+ld340, 0xd340, 0, 0x0000
+ld352, 0xd352, 0, 0x0000
+    aim65assembler.s 514
+ld34e, 0xd34e, 0, 0x0000
+    aim65assembler.s 525 528
+ld353, 0xd353, 0, 0x0000
+ld354, 0xd354, 0, 0x0000
+ld355, 0xd355, 0, 0x0000
+ld356, 0xd356, 0, 0x0000
+ld35a, 0xd35a, 0, 0x0000
+ld360, 0xd360, 0, 0x0000
+    aim65assembler.s 556
+ld38f, 0xd38f, 0, 0x0000
+    aim65assembler.s 538
+ld36b, 0xd36b, 0, 0x0000
+ld37f, 0xd37f, 0, 0x0000
+    aim65assembler.s 542
+ld371, 0xd371, 0, 0x0000
+ld389, 0xd389, 0, 0x0000
+    aim65assembler.s 547 551
+ld379, 0xd379, 0, 0x0000
+ld683, 0xd683, 0, 0x0000
+    aim65assembler.s 1067 565 613 1036 1050
+DIROPT, 0xd396, 0, 0x0000
+    aim65assembler.s 605
+ld3d1, 0xd3d1, 0, 0x0000
+    aim65assembler.s 568 573
+ld39a, 0xd39a, 0, 0x0000
+ld3a2, 0xd3a2, 0, 0x0000
+ld3aa, 0xd3aa, 0, 0x0000
+    aim65assembler.s 576
+ld3a7, 0xd3a7, 0, 0x0000
+DIRGEN, 0xd3b3, 0, 0x0000
+    aim65assembler.s 2250
+ld3ca, 0xd3ca, 0, 0x0000
+    aim65assembler.s 586 589 592 595 598
+DIRNOG, 0xd3b7, 0, 0x0000
+    aim65assembler.s 2251
+DIRNOL, 0xd3bb, 0, 0x0000
+    aim65assembler.s 2257 2262
+DIRLIS, 0xd3bf, 0, 0x0000
+    aim65assembler.s 2258 2261
+DIRNOM, 0xd3c4, 0, 0x0000
+    aim65assembler.s 2260
+DIRMEM, 0xd3c8, 0, 0x0000
+    aim65assembler.s 2259
+DIRCOU, 0xd3cc, 0, 0x0000
+    aim65assembler.s 2252 2253 2254 2255 2256
+DIRSKI, 0xd3d4, 0, 0x0000
+    aim65assembler.s 1104 2245
+ld3fc, 0xd3fc, 0, 0x0000
+    aim65assembler.s 617
+ld3e5, 0xd3e5, 0, 0x0000
+BUFMOVOBJOUT, 0xdc49, 0, 0x0000
+    aim65assembler.s 626 1767 1999
+COMIN, 0xdfe4, 0, 0x0000
+    aim65assembler.s 3017 3880 4213 4594 4999 6148 627
+ld433, 0xd433, 0, 0x0000
+    aim65assembler.s 635
+ld40d, 0xd40d, 0, 0x0000
+ld417, 0xd417, 0, 0x0000
+    aim65assembler.s 652 655 638
+ld411, 0xd411, 0, 0x0000
+    aim65assembler.s 659
+TAPTOGL, 0xd414, 0, 0x0000
+    aim65assembler.s 646
+TOGTA1, 0xe4f0, 0, 0x0000
+    aim65assembler.s 642
+ld41e, 0xd41e, 0, 0x0000
+ld428, 0xd428, 0, 0x0000
+    aim65assembler.s 649
+ld422, 0xd422, 0, 0x0000
+TOGTA2, 0xe4fe, 0, 0x0000
+    aim65assembler.s 651
+ld42c, 0xd42c, 0, 0x0000
+FNAMESET, 0xd43e, 0, 0x0000
+    aim65assembler.s 662
+ld438, 0xd438, 0, 0x0000
+GETFILE, 0xde2b, 0, 0x0000
+    aim65assembler.s 664 1072
+ld440, 0xd440, 0, 0x0000
+    aim65assembler.s 674
+ld44e, 0xd44e, 0, 0x0000
+GETFILEIFTORU, 0xde4f, 0, 0x0000
+    aim65assembler.s 676
+ld46f, 0xd46f, 0, 0x0000
+    aim65assembler.s 688
+ld46a, 0xd46a, 0, 0x0000
+    aim65assembler.s 730
+ld68c, 0xd68c, 0, 0x0000
+    aim65assembler.s 691
+ld47b, 0xd47b, 0, 0x0000
+    aim65assembler.s 694
+ld473, 0xd473, 0, 0x0000
+ld487, 0xd487, 0, 0x0000
+    aim65assembler.s 702
+ld480, 0xd480, 0, 0x0000
+ld4d6, 0xd4d6, 0, 0x0000
+    aim65assembler.s 766 709
+ld48b, 0xd48b, 0, 0x0000
+ld4af, 0xd4af, 0, 0x0000
+    aim65assembler.s 712 721
+ld48f, 0xd48f, 0, 0x0000
+ld49b, 0xd49b, 0, 0x0000
+    aim65assembler.s 717
+ld495, 0xd495, 0, 0x0000
+OPADDGET, 0xd8db, 0, 0x0000
+    aim65assembler.s 726 955
+ld4aa, 0xd4aa, 0, 0x0000
+    aim65assembler.s 727
+ld4a4, 0xd4a4, 0, 0x0000
+OBJADDA, 0xdc24, 0, 0x0000
+    aim65assembler.s 729 987
+ld4b7, 0xd4b7, 0, 0x0000
+    aim65assembler.s 736
+ld4b3, 0xd4b3, 0, 0x0000
+ld4bd, 0xd4bd, 0, 0x0000
+    aim65assembler.s 739
+ld4c4, 0xd4c4, 0, 0x0000
+    aim65assembler.s 742
+ld4bb, 0xd4bb, 0, 0x0000
+ld502, 0xd502, 0, 0x0000
+    aim65assembler.s 754 775 779 782
+ld4ce, 0xd4ce, 0, 0x0000
+ld4fc, 0xd4fc, 0, 0x0000
+    aim65assembler.s 756
+ld4d0, 0xd4d0, 0, 0x0000
+ld4d9, 0xd4d9, 0, 0x0000
+    aim65assembler.s 760
+ld4df, 0xd4df, 0, 0x0000
+ld4ed, 0xd4ed, 0, 0x0000
+ld4f3, 0xd4f3, 0, 0x0000
+ld4f7, 0xd4f7, 0, 0x0000
+ld536, 0xd536, 0, 0x0000
+    aim65assembler.s 792
+ld507, 0xd507, 0, 0x0000
+ld518, 0xd518, 0, 0x0000
+    aim65assembler.s 795
+ld50b, 0xd50b, 0, 0x0000
+ld53c, 0xd53c, 0, 0x0000
+    aim65assembler.s 801
+ld515, 0xd515, 0, 0x0000
+ld527, 0xd527, 0, 0x0000
+    aim65assembler.s 807
+ld51e, 0xd51e, 0, 0x0000
+ld544, 0xd544, 0, 0x0000
+    aim65assembler.s 844 811
+ld524, 0xd524, 0, 0x0000
+ld563, 0xd563, 0, 0x0000
+    aim65assembler.s 817
+ld52d, 0xd52d, 0, 0x0000
+ld561, 0xd561, 0, 0x0000
+    aim65assembler.s 820
+ld531, 0xd531, 0, 0x0000
+ld565, 0xd565, 0, 0x0000
+    aim65assembler.s 827
+ld554, 0xd554, 0, 0x0000
+    aim65assembler.s 830 840
+ld540, 0xd540, 0, 0x0000
+ld549, 0xd549, 0, 0x0000
+    aim65assembler.s 833
+ld676, 0xd676, 0, 0x0000
+    aim65assembler.s 836 967
+ld54e, 0xd54e, 0, 0x0000
+ld55a, 0xd55a, 0, 0x0000
+    aim65assembler.s 847
+ld558, 0xd558, 0, 0x0000
+ld61e, 0xd61e, 0, 0x0000
+    aim65assembler.s 853 956
+ld5db, 0xd5db, 0, 0x0000
+    aim65assembler.s 860 927
+ld569, 0xd569, 0, 0x0000
+ld5a4, 0xd5a4, 0, 0x0000
+    aim65assembler.s 864
+ld56f, 0xd56f, 0, 0x0000
+ld591, 0xd591, 0, 0x0000
+    aim65assembler.s 881
+ld58c, 0xd58c, 0, 0x0000
+ld598, 0xd598, 0, 0x0000
+    aim65assembler.s 884 889
+ld58f, 0xd58f, 0, 0x0000
+ld594, 0xd594, 0, 0x0000
+    aim65assembler.s 886
+ld5c0, 0xd5c0, 0, 0x0000
+    aim65assembler.s 895 905 908 915
+ld59c, 0xd59c, 0, 0x0000
+ld5bc, 0xd5bc, 0, 0x0000
+    aim65assembler.s 898
+ld5a0, 0xd5a0, 0, 0x0000
+ld5ba, 0xd5ba, 0, 0x0000
+    aim65assembler.s 901
+ld5aa, 0xd5aa, 0, 0x0000
+ld5ae, 0xd5ae, 0, 0x0000
+ld5b8, 0xd5b8, 0, 0x0000
+    aim65assembler.s 911
+ld5b2, 0xd5b2, 0, 0x0000
+ld5c8, 0xd5c8, 0, 0x0000
+ld5d1, 0xd5d1, 0, 0x0000
+    aim65assembler.s 974
+ld5e6, 0xd5e6, 0, 0x0000
+    aim65assembler.s 937
+ld5d7, 0xd5d7, 0, 0x0000
+ld5ff, 0xd5ff, 0, 0x0000
+    aim65assembler.s 981 940
+ld5dd, 0xd5dd, 0, 0x0000
+    aim65assembler.s 985
+ld5f3, 0xd5f3, 0, 0x0000
+    aim65assembler.s 948
+lde66, 0xddc0, 0, 0x0000
+    aim65assembler.s 952
+ld60e, 0xd60e, 0, 0x0000
+    aim65assembler.s 959
+ld5f7, 0xd5f7, 0, 0x0000
+ld602, 0xd602, 0, 0x0000
+    aim65assembler.s 963
+ld5fd, 0xd5fd, 0, 0x0000
+ld618, 0xd618, 0, 0x0000
+    aim65assembler.s 978
+ld614, 0xd614, 0, 0x0000
+ld65d, 0xd65d, 0, 0x0000
+    aim65assembler.s 989
+ld625, 0xd625, 0, 0x0000
+ld63f, 0xd63f, 0, 0x0000
+    aim65assembler.s 999
+ld63a, 0xd63a, 0, 0x0000
+ld66b, 0xd66b, 0, 0x0000
+    aim65assembler.s 1006
+ld645, 0xd645, 0, 0x0000
+ld649, 0xd649, 0, 0x0000
+ld67e, 0xd67e, 0, 0x0000
+    aim65assembler.s 1013 1020
+ld64f, 0xd64f, 0, 0x0000
+ld659, 0xd659, 0, 0x0000
+    aim65assembler.s 1017
+ld655, 0xd655, 0, 0x0000
+ld680, 0xd680, 0, 0x0000
+    aim65assembler.s 1023
+ld667, 0xd667, 0, 0x0000
+    aim65assembler.s 1028
+ld665, 0xd665, 0, 0x0000
+ld682, 0xd682, 0, 0x0000
+    aim65assembler.s 1033
+DIRFIL, 0xd690, 0, 0x0000
+    aim65assembler.s 2249
+ld698, 0xd698, 0, 0x0000
+    aim65assembler.s 1070
+ld695, 0xd695, 0, 0x0000
+DIRPAG, 0xd69d, 0, 0x0000
+    aim65assembler.s 2246
+ld6c7, 0xd6c7, 0, 0x0000
+    aim65assembler.s 1078 1082 1093 1097 1100
+ld6a1, 0xd6a1, 0, 0x0000
+ld6a7, 0xd6a7, 0, 0x0000
+ld6a9, 0xd6a9, 0, 0x0000
+    aim65assembler.s 1089
+OUTALL, 0xe7d9, 0, 0x0000
+    aim65assembler.s 3990 4005 4007 4060 5625 5663 5667 5689 5971 1087 1214 1810 1889 1959 1971 1980 2061 2490 2513
+ld6b1, 0xd6b1, 0, 0x0000
+ld6b9, 0xd6b9, 0, 0x0000
+ld6bf, 0xd6bf, 0, 0x0000
+BUFOUT, 0xd74b, 0, 0x0000
+    aim65assembler.s 1215 1981 1099
+ld6c4, 0xd6c4, 0, 0x0000
+ld70d, 0xd70d, 0, 0x0000
+    aim65assembler.s 1112 1119
+ld6d4, 0xd6d4, 0, 0x0000
+ld6d6, 0xd6d6, 0, 0x0000
+    aim65assembler.s 1123
+ld6de, 0xd6de, 0, 0x0000
+ld6e4, 0xd6e4, 0, 0x0000
+ld6ee, 0xd6ee, 0, 0x0000
+    aim65assembler.s 1171
+ld709, 0xd709, 0, 0x0000
+    aim65assembler.s 1134
+ld6f2, 0xd6f2, 0, 0x0000
+ld700, 0xd700, 0, 0x0000
+    aim65assembler.s 1138 1141
+ld6f8, 0xd6f8, 0, 0x0000
+ld6fc, 0xd6fc, 0, 0x0000
+ld70f, 0xd70f, 0, 0x0000
+    aim65assembler.s 1144
+ld71a, 0xd71a, 0, 0x0000
+    aim65assembler.s 1147 1161 1165
+ld704, 0xd704, 0, 0x0000
+    aim65assembler.s 1155
+ld713, 0xd713, 0, 0x0000
+ld718, 0xd718, 0, 0x0000
+SEPFIND, 0xd720, 0, 0x0000
+    aim65assembler.s 1192 1201
+ld766, 0xd766, 0, 0x0000
+    aim65assembler.s 1229 1254 1177 1186 1195 1212 1219
+ld728, 0xd728, 0, 0x0000
+ld73d, 0xd73d, 0, 0x0000
+    aim65assembler.s 1181
+ld72e, 0xd72e, 0, 0x0000
+    aim65assembler.s 1190
+ld735, 0xd735, 0, 0x0000
+ld73b, 0xd73b, 0, 0x0000
+ld741, 0xd741, 0, 0x0000
+ld749, 0xd749, 0, 0x0000
+    aim65assembler.s 1222 1232 1244 1198
+ld745, 0xd745, 0, 0x0000
+ld750, 0xd750, 0, 0x0000
+ld756, 0xd756, 0, 0x0000
+ld762, 0xd762, 0, 0x0000
+IFNUM, 0xd768, 0, 0x0000
+    aim65assembler.s 1253 1301 1331 1508
+ld76e, 0xd76e, 0, 0x0000
+ld772, 0xd772, 0, 0x0000
+CHRTRANSFER, 0xd776, 0, 0x0000
+    aim65assembler.s 1345
+ld77a, 0xd77a, 0, 0x0000
+    aim65assembler.s 1261
+ld77e, 0xd77e, 0, 0x0000
+ld791, 0xd791, 0, 0x0000
+    aim65assembler.s 1248
+ld784, 0xd784, 0, 0x0000
+ld78e, 0xd78e, 0, 0x0000
+    aim65assembler.s 1251
+ld789, 0xd789, 0, 0x0000
+CHRGETX, 0xd8c3, 0, 0x0000
+    aim65assembler.s 1268 1281 1449
+ld7cc, 0xd7cc, 0, 0x0000
+    aim65assembler.s 1342 1346 1358 1269 1282
+ld7a6, 0xd7a6, 0, 0x0000
+ld7ae, 0xd7ae, 0, 0x0000
+    aim65assembler.s 1273
+ld7ac, 0xd7ac, 0, 0x0000
+    aim65assembler.s 1453
+EXPLOW, 0xd7b9, 0, 0x0000
+EXPHI, 0xd7c1, 0, 0x0000
+    aim65assembler.s 1285
+ld7bd, 0xd7bd, 0, 0x0000
+ld7c7, 0xd7c7, 0, 0x0000
+    aim65assembler.s 1288
+ld7cf, 0xd7cf, 0, 0x0000
+    aim65assembler.s 1291 1297
+ld7c5, 0xd7c5, 0, 0x0000
+ld832, 0xd832, 0, 0x0000
+    aim65assembler.s 1379 1427 1299
+EXPDEC, 0xd7d4, 0, 0x0000
+ld835, 0xd835, 0, 0x0000
+    aim65assembler.s 1304 1369
+ld7d6, 0xd7d6, 0, 0x0000
+EXPHEX, 0xd7da, 0, 0x0000
+ld82d, 0xd82d, 0, 0x0000
+    aim65assembler.s 1309 1314 1319
+ld7dc, 0xd7dc, 0, 0x0000
+EXPOCT, 0xd7e0, 0, 0x0000
+ld7e2, 0xd7e2, 0, 0x0000
+EXPBIN, 0xd7e6, 0, 0x0000
+SYMSEARCHGET, 0xd7e8, 0, 0x0000
+CURPCEVAL, 0xd81d, 0, 0x0000
+    aim65assembler.s 1322
+ld7ed, 0xd7ed, 0, 0x0000
+ld7ef, 0xd7ef, 0, 0x0000
+    aim65assembler.s 1332 1335
+ld7fe, 0xd7fe, 0, 0x0000
+    aim65assembler.s 1329
+ld7f4, 0xd7f4, 0, 0x0000
+ld7f9, 0xd7f9, 0, 0x0000
+ld808, 0xd808, 0, 0x0000
+ld80f, 0xd80f, 0, 0x0000
+ld844, 0xd844, 0, 0x0000
+    aim65assembler.s 1351 1365
+ld818, 0xd818, 0, 0x0000
+ld821, 0xd821, 0, 0x0000
+TABCONVERT, 0xd956, 0, 0x0000
+    aim65assembler.s 1374
+ld957, 0xd957, 0, 0x0000
+    aim65assembler.s 1376
+BASECONV, 0xd8ed, 0, 0x0000
+    aim65assembler.s 1378
+ld852, 0xd852, 0, 0x0000
+    aim65assembler.s 1382
+ld848, 0xd848, 0, 0x0000
+ld84e, 0xd84e, 0, 0x0000
+    aim65assembler.s 1384
+ld84a, 0xd84a, 0, 0x0000
+ld882, 0xd882, 0, 0x0000
+    aim65assembler.s 1394
+INTADD, 0xd858, 0, 0x0000
+FLGEVALTEST, 0xd8af, 0, 0x0000
+    aim65assembler.s 1402 1435
+ld86f, 0xd86f, 0, 0x0000
+    aim65assembler.s 1403
+ld868, 0xd868, 0, 0x0000
+ld87f, 0xd87f, 0, 0x0000
+    aim65assembler.s 1406
+ld86b, 0xd86b, 0, 0x0000
+    aim65assembler.s 1447
+ld87b, 0xd87b, 0, 0x0000
+    aim65assembler.s 1572 1409
+ld879, 0xd879, 0, 0x0000
+    aim65assembler.s 1441 1412
+ld872, 0xd872, 0, 0x0000
+    aim65assembler.s 1439
+ld87d, 0xd87d, 0, 0x0000
+    aim65assembler.s 1416
+ld8a5, 0xd8a5, 0, 0x0000
+    aim65assembler.s 1424
+INTSUB, 0xd886, 0, 0x0000
+ld89b, 0xd89b, 0, 0x0000
+    aim65assembler.s 1436
+ld896, 0xd896, 0, 0x0000
+ld899, 0xd899, 0, 0x0000
+ld8c2, 0xd8c2, 0, 0x0000
+    aim65assembler.s 1451
+ld8ac, 0xd8ac, 0, 0x0000
+ld8da, 0xd8da, 0, 0x0000
+    aim65assembler.s 1470 1474 1477 1480 1483
+ld8c7, 0xd8c7, 0, 0x0000
+ld8cd, 0xd8cd, 0, 0x0000
+ld8d1, 0xd8d1, 0, 0x0000
+ld8d5, 0xd8d5, 0, 0x0000
+ld8d9, 0xd8d9, 0, 0x0000
+lde75, 0xddc5, 0, 0x0000
+    aim65assembler.s 1491
+ld8e2, 0xd8e2, 0, 0x0000
+lde5c, 0xddbc, 0, 0x0000
+    aim65assembler.s 1500
+ld8f5, 0xd8f5, 0, 0x0000
+    aim65assembler.s 1563
+ld8ff, 0xd8ff, 0, 0x0000
+    aim65assembler.s 1509
+ld8fa, 0xd8fa, 0, 0x0000
+ld906, 0xd906, 0, 0x0000
+    aim65assembler.s 1512
+ld94a, 0xd94a, 0, 0x0000
+    aim65assembler.s 1515 1520
+ld904, 0xd904, 0, 0x0000
+ld90a, 0xd90a, 0, 0x0000
+ld91d, 0xd91d, 0, 0x0000
+    aim65assembler.s 1539 1525
+ld911, 0xd911, 0, 0x0000
+CARRYTEST, 0xd94f, 0, 0x0000
+    aim65assembler.s 1537 1551
+ld927, 0xd927, 0, 0x0000
+ld93b, 0xd93b, 0, 0x0000
+    aim65assembler.s 1542
+ld92b, 0xd92b, 0, 0x0000
+ld945, 0xd945, 0, 0x0000
+    aim65assembler.s 1557
+ld943, 0xd943, 0, 0x0000
+ld951, 0xd951, 0, 0x0000
+ld96c, 0xd967, 0, 0x0000
+    aim65assembler.s 1618 1621
+ld970, 0xd96b, 0, 0x0000
+ld993, 0xd98e, 0, 0x0000
+    aim65assembler.s 1594
+ld97c, 0xd977, 0, 0x0000
+ld97e, 0xd979, 0, 0x0000
+    aim65assembler.s 1603
+ld994, 0xd98f, 0, 0x0000
+    aim65assembler.s 1600
+ld985, 0xd980, 0, 0x0000
+ld988, 0xd983, 0, 0x0000
+ld99d, 0xd998, 0, 0x0000
+ld9cc, 0xd9c7, 0, 0x0000
+    aim65assembler.s 1629
+ld9b0, 0xd9ab, 0, 0x0000
+ld9b2, 0xd9ad, 0, 0x0000
+    aim65assembler.s 1636
+ld9ba, 0xd9b5, 0, 0x0000
+ld9cb, 0xd9c6, 0, 0x0000
+    aim65assembler.s 1645
+ld9c9, 0xd9c4, 0, 0x0000
+ld9e9, 0xd9e4, 0, 0x0000
+    aim65assembler.s 1659
+ld9df, 0xd9da, 0, 0x0000
+ldede, 0xdde8, 0, 0x0000
+    aim65assembler.s 1661
+ldf16, 0xddfa, 0, 0x0000
+    aim65assembler.s 1663
+ld9ee, 0xd9e9, 0, 0x0000
+    aim65assembler.s 1692
+ld9f0, 0xd9eb, 0, 0x0000
+    aim65assembler.s 1678
+ld9fc, 0xd9f7, 0, 0x0000
+    aim65assembler.s 1675
+ld9f7, 0xd9f2, 0, 0x0000
+ld9fa, 0xd9f5, 0, 0x0000
+lda07, 0xda02, 0, 0x0000
+    aim65assembler.s 1687
+lda05, 0xda00, 0, 0x0000
+lda0a, 0xda05, 0, 0x0000
+lda0b, 0xda06, 0, 0x0000
+    aim65assembler.s 1740 1750
+lda1f, 0xda1a, 0, 0x0000
+lda2a, 0xda25, 0, 0x0000
+    aim65assembler.s 1712 1715
+lda24, 0xda1f, 0, 0x0000
+lda28, 0xda23, 0, 0x0000
+    aim65assembler.s 1723
+lda32, 0xda2d, 0, 0x0000
+    aim65assembler.s 1720
+lda2e, 0xda29, 0, 0x0000
+lda39, 0xda34, 0, 0x0000
+    aim65assembler.s 1727
+lda37, 0xda32, 0, 0x0000
+lda44, 0xda3f, 0, 0x0000
+    aim65assembler.s 1735
+lda42, 0xda3d, 0, 0x0000
+lda48, 0xda43, 0, 0x0000
+LINEANDOBJANDOUT, 0xda59, 0, 0x0000
+    aim65assembler.s 2001 1743
+lda4c, 0xda47, 0, 0x0000
+lda59, 0xda54, 0, 0x0000
+    aim65assembler.s 1746
+lda50, 0xda4b, 0, 0x0000
+lda56, 0xda51, 0, 0x0000
+ERROROUT, 0xdbc2, 0, 0x0000
+    aim65assembler.s 1755
+lda6f, 0xda6a, 0, 0x0000
+    aim65assembler.s 1759 1765
+lda64, 0xda5f, 0, 0x0000
+lda6c, 0xda67, 0, 0x0000
+    aim65assembler.s 1762
+lda68, 0xda63, 0, 0x0000
+LINEIFPCOUT, 0xda79, 0, 0x0000
+LINEPCOUT, 0xda8b, 0, 0x0000
+    aim65assembler.s 1778 1781
+lda82, 0xda7d, 0, 0x0000
+lda86, 0xda81, 0, 0x0000
+LINEOPOUT, 0xdacb, 0, 0x0000
+    aim65assembler.s 1787
+ldac0, 0xdabb, 0, 0x0000
+    aim65assembler.s 1795 1806
+LINELABELOUT, 0xda9b, 0, 0x0000
+ldaa5, 0xdaa0, 0, 0x0000
+    aim65assembler.s 1808
+ldab2, 0xdaad, 0, 0x0000
+    aim65assembler.s 1817 1803
+ldaac, 0xdaa7, 0, 0x0000
+ldab0, 0xdaab, 0, 0x0000
+LINEPCRECALC, 0xdabe, 0, 0x0000
+    aim65assembler.s 1812
+ldab9, 0xdab4, 0, 0x0000
+ldad2, 0xdacd, 0, 0x0000
+    aim65assembler.s 1995
+ldae2, 0xdadd, 0, 0x0000
+    aim65assembler.s 1837
+ldadf, 0xdada, 0, 0x0000
+ldb90, 0xdb8b, 0, 0x0000
+    aim65assembler.s 1972 1839
+ldaf4, 0xdaef, 0, 0x0000
+    aim65assembler.s 1844 1847
+ldae8, 0xdae3, 0, 0x0000
+ldaec, 0xdae7, 0, 0x0000
+ldaf6, 0xdaf1, 0, 0x0000
+    aim65assembler.s 1852
+ldaf7, 0xdaf2, 0, 0x0000
+    aim65assembler.s 1876
+LINEOUT, 0xdb14, 0, 0x0000
+    aim65assembler.s 1859
+ldafa, 0xdaf5, 0, 0x0000
+ldb05, 0xdb00, 0, 0x0000
+    aim65assembler.s 1863
+ldb00, 0xdafb, 0, 0x0000
+ldb0c, 0xdb07, 0, 0x0000
+    aim65assembler.s 1866
+NUMA, 0xe863, 0, 0x0000
+    aim65assembler.s 4609 5605 5655 6910 1874 2009 2852 3260 3325 3327 3425 3427 4041
+PCADD1, 0xdbe8, 0, 0x0000
+    aim65assembler.s 1875
+ldb20, 0xdb1b, 0, 0x0000
+    aim65assembler.s 1879
+ldb1d, 0xdb18, 0, 0x0000
+LINEFINISH, 0xdbad, 0, 0x0000
+    aim65assembler.s 1881 1909 1915 1928 1935 1967 1982
+ldb24, 0xdb1f, 0, 0x0000
+    aim65assembler.s 1891
+ldb2e, 0xdb29, 0, 0x0000
+    aim65assembler.s 1887
+ldb28, 0xdb23, 0, 0x0000
+LINESTRFMT, 0xdb5d, 0, 0x0000
+    aim65assembler.s 1895 1924
+ldb34, 0xdb2f, 0, 0x0000
+ldb55, 0xdb50, 0, 0x0000
+    aim65assembler.s 1930 1899
+ldb3a, 0xdb35, 0, 0x0000
+ldb3c, 0xdb37, 0, 0x0000
+    aim65assembler.s 1911
+ldb49, 0xdb44, 0, 0x0000
+    aim65assembler.s 1920 1906
+ldb43, 0xdb3e, 0, 0x0000
+ldb47, 0xdb42, 0, 0x0000
+ldb4e, 0xdb49, 0, 0x0000
+ldb5b, 0xdb56, 0, 0x0000
+ldb60, 0xdb5b, 0, 0x0000
+ldb64, 0xdb5f, 0, 0x0000
+    aim65assembler.s 1962
+ldb68, 0xdb63, 0, 0x0000
+ldb8d, 0xdb88, 0, 0x0000
+    aim65assembler.s 1939
+ldb6e, 0xdb69, 0, 0x0000
+ldb9d, 0xdb98, 0, 0x0000
+    aim65assembler.s 1942
+ldb72, 0xdb6d, 0, 0x0000
+ldb7b, 0xdb76, 0, 0x0000
+    aim65assembler.s 1945
+ldb76, 0xdb71, 0, 0x0000
+ldb89, 0xdb84, 0, 0x0000
+    aim65assembler.s 1949
+ldb84, 0xdb7f, 0, 0x0000
+    aim65assembler.s 1952
+ldb7f, 0xdb7a, 0, 0x0000
+ldb86, 0xdb81, 0, 0x0000
+    aim65assembler.s 1985
+ldb94, 0xdb8f, 0, 0x0000
+ldba4, 0xdb9f, 0, 0x0000
+    aim65assembler.s 1975
+ldba1, 0xdb9c, 0, 0x0000
+ldbae, 0xdba9, 0, 0x0000
+ldbc4, 0xdbbf, 0, 0x0000
+    aim65assembler.s 1990
+ldbba, 0xdbb5, 0, 0x0000
+ldbc1, 0xdbbc, 0, 0x0000
+    aim65assembler.s 1993
+ldbbe, 0xdbb9, 0, 0x0000
+PCADDA, 0xdbea, 0, 0x0000
+    aim65assembler.s 1997
+ldbd0, 0xdbcb, 0, 0x0000
+ldbf6, 0xdbf1, 0, 0x0000
+OBJBYTE, 0xdc01, 0, 0x0000
+    aim65assembler.s 2187 2206 2208 2217
+OBJHEX, 0xdc04, 0, 0x0000
+    aim65assembler.s 2191 2197 2199 2219 2223 2225
+ldc23, 0xdc1e, 0, 0x0000
+    aim65assembler.s 2051
+ldc18, 0xdc13, 0, 0x0000
+OUTCK1, 0xe36e, 0, 0x0000
+    aim65assembler.s 3307 2053 3194 3196 3213 3216 3218
+ldc1b, 0xdc16, 0, 0x0000
+    aim65assembler.s 2062
+ldc33, 0xdc2e, 0, 0x0000
+ldc3f, 0xdc3a, 0, 0x0000
+    aim65assembler.s 2074
+ldc39, 0xdc34, 0, 0x0000
+ldc4b, 0xdc46, 0, 0x0000
+    aim65assembler.s 2086
+ldc4a, 0xdc45, 0, 0x0000
+ldc54, 0xdc4f, 0, 0x0000
+ldc5d, 0xdc58, 0, 0x0000
+    aim65assembler.s 2099
+ldc5a, 0xdc55, 0, 0x0000
+OBJCLOSE, 0xdd08, 0, 0x0000
+    aim65assembler.s 2101
+ldc6f, 0xdc6a, 0, 0x0000
+    aim65assembler.s 2129 2110
+ldc6b, 0xdc66, 0, 0x0000
+ldc82, 0xdc7d, 0, 0x0000
+    aim65assembler.s 2113
+OBJRECOUT, 0xdccd, 0, 0x0000
+    aim65assembler.s 2211 2115
+ldc8b, 0xdc86, 0, 0x0000
+ldc91, 0xdc8c, 0, 0x0000
+ldc93, 0xdc8e, 0, 0x0000
+    aim65assembler.s 2149
+ldc99, 0xdc94, 0, 0x0000
+    aim65assembler.s 2138
+ldc97, 0xdc92, 0, 0x0000
+OBJUPDCHK, 0xdcc3, 0, 0x0000
+    aim65assembler.s 2181 2144
+ldcb1, 0xdcac, 0, 0x0000
+    aim65assembler.s 2158
+ldccf, 0xdcca, 0, 0x0000
+ldcd6, 0xdcd1, 0, 0x0000
+ldce7, 0xdce2, 0, 0x0000
+    aim65assembler.s 2194
+ldcf2, 0xdced, 0, 0x0000
+ldd00, 0xdcfb, 0, 0x0000
+ldd14, 0xdd0f, 0, 0x0000
+ldd22, 0xdd1d, 0, 0x0000
+    aim65assembler.s 2227
+ldd2f, 0xdd2a, 0, 0x0000
+DU11, 0xe33d, 0, 0x0000
+    aim65assembler.s 7163 2234
+TABDIRECTIVES, 0xdd6f, 0, 0x0000
+MESSAGES, 0xde0e, 0, 0x0000
+    aim65assembler.s 2493
+ldfac, 0xde2f, 0, 0x0000
+    aim65assembler.s 2462
+ldfb8, 0xde3b, 0, 0x0000
+    aim65assembler.s 2477
+ldfc0, 0xde43, 0, 0x0000
+    aim65assembler.s 2468
+ldfbe, 0xde41, 0, 0x0000
+ldfda, 0xde5d, 0, 0x0000
+    aim65assembler.s 2481
+ldfd3, 0xde56, 0, 0x0000
+ldfe8, 0xde6b, 0, 0x0000
+    aim65assembler.s 2484
+ldfd7, 0xde5a, 0, 0x0000
+LOADTA, 0xe162, 0, 0x0000
+    aim65assembler.s 2978 3000 3718 2486
+PRSTRX, 0xde60, 0, 0x0000
+    aim65assembler.s 2495
+CRLF, 0xe80d, 0, 0x0000
+    aim65assembler.s 4013 5983 7136 7165 7232 7233 2504 2861 3153 3222
+M1, 0xde81, 0, 0x0000
+    aim65assembler.s 3024 3615
+M3, 0xde82, 0, 0x0000
+M4, 0xde83, 0, 0x0000
+le00e, 0xde85, 0, 0x0000
+le063, 0xdeb0, 0, 0x0000
+    aim65assembler.s 2521
+M5, 0xde8b, 0, 0x0000
+M6, 0xde8e, 0, 0x0000
+M7, 0xde8f, 0, 0x0000
+M8, 0xde90, 0, 0x0000
+M9, 0xde91, 0, 0x0000
+le02b, 0xde90, 0, 0x0000
+M10, 0xde92, 0, 0x0000
+M11, 0xde96, 0, 0x0000
+M12, 0xdea0, 0, 0x0000
+le090, 0xded3, 0, 0x0000
+    aim65assembler.s 2546
+TMSG0, 0xdea7, 0, 0x0000
+TMSG1, 0xdea8, 0, 0x0000
+TMSG2, 0xdea9, 0, 0x0000
+TMSG3, 0xdeab, 0, 0x0000
+TMSG5, 0xdeae, 0, 0x0000
+TMSG6, 0xdeb0, 0, 0x0000
+le062, 0xdeaf, 0, 0x0000
+TMSG7, 0xdeb3, 0, 0x0000
+EMSG1, 0xdeb5, 0, 0x0000
+EMSG2, 0xdeb7, 0, 0x0000
+NMIV1, 0xdeb8, 0, 0x0000
+    aim65assembler.s 7292
+IRQV1, 0xdebb, 0, 0x0000
+    aim65assembler.s 7294
+NMIV3, 0xdebe, 0, 0x0000
+    aim65assembler.s 3556
+le091, 0xded4, 0, 0x0000
+NHIS, 0xe4bb, 0, 0x0000
+    aim65assembler.s 2599 3428
+NMI5, 0xdef7, 0, 0x0000
+    aim65assembler.s 2601 2604
+le0ac, 0xdeef, 0, 0x0000
+CKB, 0xe588, 0, 0x0000
+    aim65assembler.s 2603
+NMI4, 0xdef4, 0, 0x0000
+    aim65assembler.s 2609
+IRQ2, 0xdfc2, 0, 0x0000
+    aim65assembler.s 2606
+DONE, 0xe5ad, 0, 0x0000
+    aim65assembler.s 6072 2608 3532
+le0b9, 0xdefc, 0, 0x0000
+GOBK, 0xe0a0, 0, 0x0000
+    aim65assembler.s 2612
+RSET, 0xdf02, 0, 0x0000
+    aim65assembler.s 7293
+RS1, 0xdf0c, 0, 0x0000
+    aim65assembler.s 2624
+INTAB1, 0xe576, 0, 0x0000
+    aim65assembler.s 2621
+le0d2, 0xdf15, 0, 0x0000
+RS2, 0xdf17, 0, 0x0000
+    aim65assembler.s 2631
+INTAB2, 0xe57b, 0, 0x0000
+    aim65assembler.s 2628
+le0dd, 0xdf20, 0, 0x0000
+INTAB3, 0xe57d, 0, 0x0000
+    aim65assembler.s 2633 2646
+RS3A, 0xdf34, 0, 0x0000
+    aim65assembler.s 2635 2639
+le0e5, 0xdf28, 0, 0x0000
+le757, 0xe57e, 0, 0x0000
+    aim65assembler.s 2637
+le0ed, 0xdf30, 0, 0x0000
+RS3, 0xdf36, 0, 0x0000
+    aim65assembler.s 2650 2642
+le0fe, 0xdf41, 0, 0x0000
+SETREG, 0xdf56, 0, 0x0000
+    aim65assembler.s 2654 2657 2660
+RS3B, 0xdf5d, 0, 0x0000
+    aim65assembler.s 2661
+RS4, 0xdf60, 0, 0x0000
+    aim65assembler.s 2673
+RS7, 0xdf87, 0, 0x0000
+    aim65assembler.s 2671
+le122, 0xdf65, 0, 0x0000
+le124, 0xdf67, 0, 0x0000
+RS5, 0xdf6c, 0, 0x0000
+    aim65assembler.s 2679
+le12e, 0xdf71, 0, 0x0000
+PATCH1, 0xfaf6, 0, 0x0000
+    aim65assembler.s 2686
+RS6, 0xdf81, 0, 0x0000
+    aim65assembler.s 2702
+CRLOW, 0xe830, 0, 0x0000
+    aim65assembler.s 4027 5823 5826 5881 6059 6067 6147 6463 2688 2875 3133 3236 3336 3405 3422 3763
+PAT21, 0xfbec, 0, 0x0000
+    aim65assembler.s 2689
+RS8, 0xdf89, 0, 0x0000
+    aim65assembler.s 2700
+OUTDD1, 0xed98, 0, 0x0000
+    aim65assembler.s 7081 7095 2696 4816 4826 4838
+le152, 0xdf95, 0, 0x0000
+IRQV3, 0xdf97, 0, 0x0000
+    aim65assembler.s 3557
+IRQ1, 0xdfa6, 0, 0x0000
+    aim65assembler.s 2708
+le15d, 0xdfa0, 0, 0x0000
+REGQ, 0xf1a7, 0, 0x0000
+    aim65assembler.s 2728
+START, 0xdfc5, 0, 0x0000
+    aim65assembler.s 2753 2763 7234
+PAT19, 0xfbd3, 0, 0x0000
+    aim65assembler.s 2730
+STA1, 0xdfc8, 0, 0x0000
+    aim65assembler.s 7137 7207
+OUTPUT, 0xe797, 0, 0x0000
+    aim65assembler.s 7060 7111 7117 7120 7228 2733 2737 2986 3028 3521 3618 3634
+RED1, 0xfb10, 0, 0x0000
+    aim65assembler.s 2734
+MCM2, 0xdfd9, 0, 0x0000
+    aim65assembler.s 2745
+COMB, 0xe007, 0, 0x0000
+    aim65assembler.s 2741
+MCM3, 0xdfef, 0, 0x0000
+    aim65assembler.s 2742
+le19b, 0xdfde, 0, 0x0000
+le19e, 0xdfe1, 0, 0x0000
+QM, 0xe5f1, 0, 0x0000
+    aim65assembler.s 3782 6469 6490 2747 3365 3386
+LL, 0xe71b, 0, 0x0000
+    aim65assembler.s 6467 6474 7197 2750 3019 3243
+MONCOM, 0xe018, 0, 0x0000
+    aim65assembler.s 2758
+le1e6, 0xe019, 0, 0x0000
+    aim65assembler.s 2760
+JMPR, 0xe004, 0, 0x0000
+    aim65assembler.s 2762
+le1c7, 0xe008, 0, 0x0000
+le1cc, 0xe00d, 0, 0x0000
+    aim65assembler.s 2793
+le1d1, 0xe010, 0, 0x0000
+le226, 0xe059, 0, 0x0000
+    aim65assembler.s 2775
+EDIT, 0xf30f, 0, 0x0000
+    aim65assembler.s 2783
+REENTR, 0xf3a5, 0, 0x0000
+    aim65assembler.s 2784
+REG, 0xe05a, 0, 0x0000
+    aim65assembler.s 2785
+MEM, 0xe07b, 0, 0x0000
+    aim65assembler.s 2786
+GO, 0xe094, 0, 0x0000
+    aim65assembler.s 2787
+CHNGG, 0xe0d3, 0, 0x0000
+    aim65assembler.s 2788
+LOAD, 0xe119, 0, 0x0000
+    aim65assembler.s 2789
+le1f4, 0xe027, 0, 0x0000
+CGA, 0xe421, 0, 0x0000
+    aim65assembler.s 2795
+CGX, 0xe425, 0, 0x0000
+    aim65assembler.s 2796
+CGY, 0xe429, 0, 0x0000
+    aim65assembler.s 2797
+CGPS, 0xe41d, 0, 0x0000
+    aim65assembler.s 2798
+CGS, 0xe42d, 0, 0x0000
+    aim65assembler.s 2799
+NXT5, 0xe440, 0, 0x0000
+    aim65assembler.s 2800
+BRKA, 0xe44e, 0, 0x0000
+    aim65assembler.s 2801
+SHOW, 0xe480, 0, 0x0000
+    aim65assembler.s 2802
+CLRBK, 0xe531, 0, 0x0000
+    aim65assembler.s 2803
+SHIS, 0xe498, 0, 0x0000
+    aim65assembler.s 2804
+REGT, 0xe50c, 0, 0x0000
+    aim65assembler.s 2805
+TRACE, 0xe510, 0, 0x0000
+    aim65assembler.s 2806
+MNEENT, 0xf818, 0, 0x0000
+    aim65assembler.s 2807
+KDISA, 0xe53d, 0, 0x0000
+    aim65assembler.s 3523 2808
+le215, 0xe048, 0, 0x0000
+le223, 0xe056, 0, 0x0000
+    aim65assembler.s 2814
+le220, 0xe053, 0, 0x0000
+le22e, 0xe061, 0, 0x0000
+    aim65assembler.s 2816
+le222, 0xe055, 0, 0x0000
+le229, 0xe05c, 0, 0x0000
+KEP, 0xe5cc, 0, 0x0000
+    aim65assembler.s 3621 3792 3897 4211 4998 5825 5939 6168 6458 2829 2983 2993 3375 3503 3612
+CRCK, 0xe841, 0, 0x0000
+    aim65assembler.s 4204 4208 5539 5909 5985 6043 6052 6117 6491 6639 6898 7206 2830 2868 3020 3122 3528 3544 3788
+REG1, 0xe065, 0, 0x0000
+    aim65assembler.s 2867 5538
+BLANK, 0xe65b, 0, 0x0000
+    aim65assembler.s 3816 6642 6651 6902 6911 7200 2832 2849 2890 2893 2900 2991 3127 3368 3407 3423 3701
+WRITAD, 0xe110, 0, 0x0000
+    aim65assembler.s 2834
+MEM1, 0xe082, 0, 0x0000
+    aim65assembler.s 2840
+ADDIN, 0xe8cb, 0, 0x0000
+    aim65assembler.s 7062 2842 3333 3391 3522
+MEM3, 0xe093, 0, 0x0000
+    aim65assembler.s 2843
+MEIN, 0xe080, 0, 0x0000
+    aim65assembler.s 3372
+MEM2, 0xe084, 0, 0x0000
+    aim65assembler.s 2855
+LDAY, 0xe975, 0, 0x0000
+    aim65assembler.s 5050 6329 6421 6909 7105 2851 3247
+PSL1, 0xe654, 0, 0x0000
+    aim65assembler.s 6065 2859 3377 3526 3646
+GCNT, 0xe5a2, 0, 0x0000
+    aim65assembler.s 6066 2860 3527
+GOBK1, 0xe0b9, 0, 0x0000
+    aim65assembler.s 2862 2872
+GOBK0, 0xe0ab, 0, 0x0000
+    aim65assembler.s 2865
+le272, 0xe0a5, 0, 0x0000
+le280, 0xe0b3, 0, 0x0000
+DISASM, 0xf1b2, 0, 0x0000
+    aim65assembler.s 6897 2874 3535 5536
+WRITAZ, 0xe10e, 0, 0x0000
+    aim65assembler.s 3016 3371 4212 5834 5861 6643 2891
+CHNG1, 0xe0d9, 0, 0x0000
+    aim65assembler.s 2910
+RD2, 0xe87a, 0, 0x0000
+    aim65assembler.s 2894 3359 3585
+CH2, 0xe0eb, 0, 0x0000
+    aim65assembler.s 2895
+le2ae, 0xe0e1, 0, 0x0000
+CH3, 0xe0f8, 0, 0x0000
+    aim65assembler.s 2898
+le2b2, 0xe0e5, 0, 0x0000
+CH4, 0xe0f3, 0, 0x0000
+    aim65assembler.s 2901 2904
+SADDR, 0xe995, 0, 0x0000
+    aim65assembler.s 5896 5900 6876 2903 3097
+le2bd, 0xe0f0, 0, 0x0000
+MEMERR, 0xe950, 0, 0x0000
+    aim65assembler.s 5890 6452 2906 3100
+NXTADD, 0xe100, 0, 0x0000
+    aim65assembler.s 3103 3151 3370 4209 6917 2912
+PATC10, 0xfb63, 0, 0x0000
+    aim65assembler.s 2914
+NXTA1, 0xe10d, 0, 0x0000
+    aim65assembler.s 2920
+le2d7, 0xe10a, 0, 0x0000
+LOAD1, 0xe11c, 0, 0x0000
+    aim65assembler.s 2936 2961
+le2f0, 0xe123, 0, 0x0000
+CLRCK, 0xe96a, 0, 0x0000
+    aim65assembler.s 2938 3034 3155 3308
+CHEKAR, 0xe37e, 0, 0x0000
+    aim65assembler.s 2939 2941 2943 3049 3051
+LOAD4, 0xe154, 0, 0x0000
+    aim65assembler.s 2946
+LOAD2, 0xe139, 0, 0x0000
+    aim65assembler.s 2951
+RBYTE, 0xe230, 0, 0x0000
+    aim65assembler.s 3262 2948 2953 2957 2965 3047 3072 3076
+STBYTE, 0xe246, 0, 0x0000
+    aim65assembler.s 2949 3069
+le30f, 0xe142, 0, 0x0000
+CKERR, 0xe1b8, 0, 0x0000
+    aim65assembler.s 3064 3074 3078 2955 2959
+le317, 0xe14a, 0, 0x0000
+le31f, 0xe152, 0, 0x0000
+LOAD5, 0xe156, 0, 0x0000
+    aim65assembler.s 2967
+le329, 0xe15c, 0, 0x0000
+DU13, 0xe353, 0, 0x0000
+    aim65assembler.s 3331 3466 7221 2970 3082 3226 3230
+TIBY1, 0xeb70, 0, 0x0000
+    aim65assembler.s 4542 2974 4527
+le340, 0xe173, 0, 0x0000
+LOAD1A, 0xe17c, 0, 0x0000
+    aim65assembler.s 2989
+le354, 0xe187, 0, 0x0000
+ADDBK1, 0xebda, 0, 0x0000
+    aim65assembler.s 7247 2995 4558
+LOADT2, 0xe197, 0, 0x0000
+    aim65assembler.s 3004
+le36c, 0xe19f, 0, 0x0000
+le371, 0xe1a4, 0, 0x0000
+CKER1, 0xe1c9, 0, 0x0000
+    aim65assembler.s 3030 3011
+CKERO, 0xe1c1, 0, 0x0000
+    aim65assembler.s 4593 3015
+CKERO0, 0xe1c7, 0, 0x0000
+    aim65assembler.s 4203 6811
+CKER2, 0xe1d6, 0, 0x0000
+    aim65assembler.s 3026
+le39d, 0xe1d0, 0, 0x0000
+LOADKI, 0xe1d7, 0, 0x0000
+    aim65assembler.s 3055 3725
+LOADK1, 0xe1da, 0, 0x0000
+    aim65assembler.s 3043
+TAISET, 0xec07, 0, 0x0000
+    aim65assembler.s 3036 4535
+LOADK2, 0xe1dd, 0, 0x0000
+    aim65assembler.s 3045
+GETTAP, 0xec46, 0, 0x0000
+    aim65assembler.s 3038 3059 3931 4537 4548 4636
+LOADK3, 0xe1ea, 0, 0x0000
+    aim65assembler.s 3040
+le3b1, 0xe1e4, 0, 0x0000
+le3b5, 0xe1e8, 0, 0x0000
+GETID, 0xe258, 0, 0x0000
+    aim65assembler.s 3306 3053
+LOADK5, 0xe204, 0, 0x0000
+    aim65assembler.s 3070
+LOADK6, 0xe206, 0, 0x0000
+    aim65assembler.s 3067
+LOADK7, 0xe21b, 0, 0x0000
+    aim65assembler.s 3061
+le3da, 0xe20d, 0, 0x0000
+PACK, 0xe8a1, 0, 0x0000
+    aim65assembler.s 4191 6861 3063 3091 3093 3113 3115 4075 4079
+le3df, 0xe212, 0, 0x0000
+le3e2, 0xe215, 0, 0x0000
+le3f0, 0xe223, 0, 0x0000
+le3f8, 0xe22b, 0, 0x0000
+RBYT1, 0xe23a, 0, 0x0000
+    aim65assembler.s 3086
+le404, 0xe237, 0, 0x0000
+CHEKA, 0xe381, 0, 0x0000
+    aim65assembler.s 3095 3249
+le420, 0xe253, 0, 0x0000
+    aim65assembler.s 3098
+le41d, 0xe250, 0, 0x0000
+GID1, 0xe25a, 0, 0x0000
+    aim65assembler.s 3110
+le42f, 0xe262, 0, 0x0000
+DUMP, 0xe26e, 0, 0x0000
+DU1, 0xe277, 0, 0x0000
+    aim65assembler.s 3205
+DU0, 0xe27a, 0, 0x0000
+    aim65assembler.s 3125
+le44c, 0xe27f, 0, 0x0000
+ADDRS1, 0xf5e6, 0, 0x0000
+    aim65assembler.s 6308 3128
+DU1B, 0xe285, 0, 0x0000
+    aim65assembler.s 3131
+le457, 0xe28a, 0, 0x0000
+DV1A, 0xe2a0, 0, 0x0000
+    aim65assembler.s 3135
+le45f, 0xe292, 0, 0x0000
+le478, 0xe2ab, 0, 0x0000
+    aim65assembler.s 3145
+le474, 0xe2a7, 0, 0x0000
+DUMPKI, 0xe3ba, 0, 0x0000
+    aim65assembler.s 3148
+DU2, 0xe2b0, 0, 0x0000
+    aim65assembler.s 3198
+DU6, 0xe2d2, 0, 0x0000
+    aim65assembler.s 3162
+le496, 0xe2c9, 0, 0x0000
+DU10, 0xe30e, 0, 0x0000
+    aim65assembler.s 3165
+le499, 0xe2cc, 0, 0x0000
+DU8, 0xe2d5, 0, 0x0000
+    aim65assembler.s 3168
+le49d, 0xe2d0, 0, 0x0000
+DU7, 0xe2d3, 0, 0x0000
+    aim65assembler.s 3170
+SEMI, 0xe7d7, 0, 0x0000
+    aim65assembler.s 3177 3210
+OUTCK, 0xe36b, 0, 0x0000
+    aim65assembler.s 3310 3312 3180 3182 3184
+DU9, 0xe2ec, 0, 0x0000
+    aim65assembler.s 3191
+OUTCKS, 0xe364, 0, 0x0000
+    aim65assembler.s 3314 3186
+ADDS1, 0xe390, 0, 0x0000
+    aim65assembler.s 3315 3189
+le4c9, 0xe2fc, 0, 0x0000
+INCS2, 0xe399, 0, 0x0000
+    aim65assembler.s 3197 3209
+KEPR, 0xe78d, 0, 0x0000
+    aim65assembler.s 3201 3711 3736 3769
+le4e7, 0xe31a, 0, 0x0000
+    aim65assembler.s 3203
+le4e4, 0xe317, 0, 0x0000
+DU10A, 0xe32b, 0, 0x0000
+    aim65assembler.s 3220
+le507, 0xe33a, 0, 0x0000
+DU12, 0xe344, 0, 0x0000
+    aim65assembler.s 3234
+le518, 0xe34b, 0, 0x0000
+TOBYTE, 0xef74, 0, 0x0000
+    aim65assembler.s 5161 3233 3257 3293 3296 3957
+DU14, 0xe35c, 0, 0x0000
+    aim65assembler.s 7157
+OUTCK2, 0xe37a, 0, 0x0000
+    aim65assembler.s 3254
+le543, 0xe376, 0, 0x0000
+le55b, 0xe38e, 0, 0x0000
+    aim65assembler.s 3268
+le558, 0xe38b, 0, 0x0000
+ADD1, 0xe398, 0, 0x0000
+    aim65assembler.s 3276
+le562, 0xe395, 0, 0x0000
+le56e, 0xe3a1, 0, 0x0000
+    aim65assembler.s 3283
+le56b, 0xe39e, 0, 0x0000
+DUMPTA, 0xe3a2, 0, 0x0000
+    aim65assembler.s 3743
+DUMPT1, 0xe3ae, 0, 0x0000
+    aim65assembler.s 3299
+le586, 0xe3b9, 0, 0x0000
+TAOSET, 0xf006, 0, 0x0000
+    aim65assembler.s 3303 5141
+OUTTAP, 0xf033, 0, 0x0000
+    aim65assembler.s 3305 3323 3329 3330 3963 5143 5146 5226 5227 5228 5229
+DUK2, 0xe3d7, 0, 0x0000
+    aim65assembler.s 3320
+le5b8, 0xe3eb, 0, 0x0000
+CGPC, 0xe407, 0, 0x0000
+CGPC0, 0xe40a, 0, 0x0000
+    aim65assembler.s 3525
+CGPC1, 0xe410, 0, 0x0000
+    aim65assembler.s 6889 7173 3335
+CGALL, 0xe42f, 0, 0x0000
+    aim65assembler.s 3366 3345 3348 3351 3354
+EQUAL, 0xe5f5, 0, 0x0000
+    aim65assembler.s 4120 7109 3358
+GOERR, 0xe43b, 0, 0x0000
+    aim65assembler.s 3360
+le604, 0xe437, 0, 0x0000
+BRK1, 0xe453, 0, 0x0000
+    aim65assembler.s 3387
+BKERR, 0xe462, 0, 0x0000
+    aim65assembler.s 3381
+le62b, 0xe45e, 0, 0x0000
+BKOK, 0xe467, 0, 0x0000
+    aim65assembler.s 3384
+BK02, 0xe47f, 0, 0x0000
+    aim65assembler.s 3393
+le63c, 0xe46f, 0, 0x0000
+PATC18, 0xfbb7, 0, 0x0000
+    aim65assembler.s 3395 3879
+SH1, 0xe485, 0, 0x0000
+    aim65assembler.s 3414
+le664, 0xe497, 0, 0x0000
+SHI1, 0xe49d, 0, 0x0000
+    aim65assembler.s 3430
+le687, 0xe4ba, 0, 0x0000
+NH1, 0xe4c3, 0, 0x0000
+    aim65assembler.s 3437
+le68e, 0xe4c1, 0, 0x0000
+VECKSM, 0xe4c7, 0, 0x0000
+VECK2, 0xe4df, 0, 0x0000
+    aim65assembler.s 3460 3464 3447
+VECK1, 0xe4d1, 0, 0x0000
+    aim65assembler.s 3451 7219
+le6a5, 0xe4d8, 0, 0x0000
+PAT20, 0xfbda, 0, 0x0000
+    aim65assembler.s 3454
+le6ab, 0xe4de, 0, 0x0000
+le6b3, 0xe4e6, 0, 0x0000
+le6ba, 0xe4ed, 0, 0x0000
+BRK3, 0xe524, 0, 0x0000
+    aim65assembler.s 3518 3472 3480
+le6c9, 0xe4fc, 0, 0x0000
+BRK4, 0xe52d, 0, 0x0000
+    aim65assembler.s 3474 3482
+le6d7, 0xe50a, 0, 0x0000
+TOGL, 0xe51a, 0, 0x0000
+    aim65assembler.s 3485 3488 3491
+PRITR, 0xe514, 0, 0x0000
+    aim65assembler.s 4453
+BRKK, 0xe518, 0, 0x0000
+TOGL1, 0xe529, 0, 0x0000
+    aim65assembler.s 3496
+le6ec, 0xe51f, 0, 0x0000
+BRK2, 0xe526, 0, 0x0000
+    aim65assembler.s 3509
+RS20, 0xe535, 0, 0x0000
+    aim65assembler.s 3516
+le708, 0xe53b, 0, 0x0000
+le714, 0xe547, 0, 0x0000
+JD2, 0xe55e, 0, 0x0000
+    aim65assembler.s 3529
+JD1, 0xe556, 0, 0x0000
+    aim65assembler.s 3545
+JD4, 0xe575, 0, 0x0000
+    aim65assembler.s 3533
+JD3, 0xe56f, 0, 0x0000
+    aim65assembler.s 3540
+le739, 0xe56c, 0, 0x0000
+OUTDIS, 0xed22, 0, 0x0000
+    aim65assembler.s 3558 3637 4772
+CKB2, 0xe58a, 0, 0x0000
+    aim65assembler.s 3580
+CKB1, 0xe59d, 0, 0x0000
+    aim65assembler.s 3570 3574
+le776, 0xe593, 0, 0x0000
+le77e, 0xe59b, 0, 0x0000
+le783, 0xe5a0, 0, 0x0000
+GCN1, 0xe5a9, 0, 0x0000
+    aim65assembler.s 3586
+le78a, 0xe5a7, 0, 0x0000
+DON1, 0xe5bd, 0, 0x0000
+    aim65assembler.s 3595
+le797, 0xe5b4, 0, 0x0000
+TO1, 0xe5c6, 0, 0x0000
+    aim65assembler.s 3608
+ADDNE, 0xe8ce, 0, 0x0000
+    aim65assembler.s 3613
+le7bc, 0xe5d9, 0, 0x0000
+PROMPT, 0xe5da, 0, 0x0000
+    aim65assembler.s 6007 6095
+PATC11, 0xfb69, 0, 0x0000
+    aim65assembler.s 3627
+PROMP1, 0xe5e2, 0, 0x0000
+    aim65assembler.s 7144
+TTYTST, 0xe65f, 0, 0x0000
+    aim65assembler.s 3829 3866 3913 3991 4026 6460 6890 7191 3629 3645
+PR2, 0xe5ec, 0, 0x0000
+    aim65assembler.s 3630
+le7ca, 0xe5e7, 0, 0x0000
+PR1, 0xe5e9, 0, 0x0000
+    aim65assembler.s 3640 3643 3699 3704
+PSLS, 0xe5f9, 0, 0x0000
+    aim65assembler.s 3882
+le7e1, 0xe5fe, 0, 0x0000
+PHXY, 0xe9bb, 0, 0x0000
+    aim65assembler.s 4522 4736 4784 4921 5132 3648 3765 3865
+PSL0, 0xe618, 0, 0x0000
+    aim65assembler.s 3652
+le7ee, 0xe60b, 0, 0x0000
+PSLO0, 0xe61f, 0, 0x0000
+    aim65assembler.s 3657
+le7f9, 0xe616, 0, 0x0000
+PATC12, 0xfb72, 0, 0x0000
+    aim65assembler.s 7189 3662 6011
+OUTD2A, 0xed4c, 0, 0x0000
+    aim65assembler.s 3664 4806
+PSLOB, 0xe639, 0, 0x0000
+    aim65assembler.s 3668
+le809, 0xe626, 0, 0x0000
+PSLOA, 0xe631, 0, 0x0000
+    aim65assembler.s 3671
+le80d, 0xe62a, 0, 0x0000
+PSLOC, 0xe63b, 0, 0x0000
+    aim65assembler.s 3675 3680
+PSLOD, 0xe640, 0, 0x0000
+    aim65assembler.s 3692
+le830, 0xe64d, 0, 0x0000
+OUTPR, 0xee21, 0, 0x0000
+    aim65assembler.s 3694 4933 4946
+PLXY, 0xe9c9, 0, 0x0000
+    aim65assembler.s 4532 4764 4797 4855 4948 5163 3695 3785 3874
+BLANK2, 0xe658, 0, 0x0000
+    aim65assembler.s 5845 6644 6645 6893 6894
+WHE1, 0xe679, 0, 0x0000
+    aim65assembler.s 3714
+le854, 0xe671, 0, 0x0000
+FNAM, 0xe6bf, 0, 0x0000
+    aim65assembler.s 3717 3724 3742 3749
+WHE2, 0xe685, 0, 0x0000
+    aim65assembler.s 3721
+le860, 0xe67d, 0, 0x0000
+WHE3, 0xe68d, 0, 0x0000
+    aim65assembler.s 3728
+le86c, 0xe689, 0, 0x0000
+WHRO1, 0xe6a2, 0, 0x0000
+    aim65assembler.s 3739
+le87d, 0xe69a, 0, 0x0000
+WHRO2, 0xe6ab, 0, 0x0000
+    aim65assembler.s 3746
+le889, 0xe6a6, 0, 0x0000
+WHRO3, 0xe6b4, 0, 0x0000
+    aim65assembler.s 3752
+le892, 0xe6af, 0, 0x0000
+OUTPRI, 0xede9, 0, 0x0000
+    aim65assembler.s 3755 3972 4033 4776
+WHRO4, 0xe6bc, 0, 0x0000
+    aim65assembler.s 3758
+le89b, 0xe6b8, 0, 0x0000
+NAMO, 0xe6ec, 0, 0x0000
+    aim65assembler.s 3766
+WHICHT, 0xe6c5, 0, 0x0000
+    aim65assembler.s 3783
+TAP1, 0xe6d0, 0, 0x0000
+    aim65assembler.s 3771
+le8b1, 0xe6ce, 0, 0x0000
+TAP2, 0xe6d9, 0, 0x0000
+    aim65assembler.s 3777
+le8b8, 0xe6d5, 0, 0x0000
+TAP3, 0xe6df, 0, 0x0000
+    aim65assembler.s 3780
+CUREAD, 0xfafd, 0, 0x0000
+    aim65assembler.s 3787 3884 3899
+NAMO1, 0xe6f3, 0, 0x0000
+    aim65assembler.s 3805
+RDRUB, 0xe77c, 0, 0x0000
+    aim65assembler.s 3895 3945 4126 6097 6674 6683 7002 3795
+NAMO2, 0xe706, 0, 0x0000
+    aim65assembler.s 3797 3800
+le8dd, 0xe6fa, 0, 0x0000
+le8e1, 0xe6fe, 0, 0x0000
+NAMO3, 0xe708, 0, 0x0000
+    aim65assembler.s 3814
+NAMO4, 0xe712, 0, 0x0000
+    aim65assembler.s 3810
+le8ef, 0xe70c, 0, 0x0000
+INLOW, 0xe715, 0, 0x0000
+    aim65assembler.s 3822
+OUTLOW, 0xe71e, 0, 0x0000
+    aim65assembler.s 4012
+OUTL1, 0xe723, 0, 0x0000
+RCHTTY, 0xe743, 0, 0x0000
+    aim65assembler.s 3830
+le90c, 0xe729, 0, 0x0000
+ROONEK, 0xeb0c, 0, 0x0000
+    aim65assembler.s 4481 3832 3844 4349
+RCH3, 0xe742, 0, 0x0000
+    aim65assembler.s 3834 3842
+le912, 0xe72f, 0, 0x0000
+GETK2, 0xea9f, 0, 0x0000
+    aim65assembler.s 3837 4387
+REA1, 0xe773, 0, 0x0000
+    aim65assembler.s 3839 3858
+le91b, 0xe738, 0, 0x0000
+RCH2, 0xe73c, 0, 0x0000
+    aim65assembler.s 3846
+RCHT1, 0xe758, 0, 0x0000
+    aim65assembler.s 3877 3902 3850
+RCHT2, 0xe745, 0, 0x0000
+    aim65assembler.s 3853 3861
+le92d, 0xe74a, 0, 0x0000
+DELAY, 0xea2c, 0, 0x0000
+    aim65assembler.s 4738 4743 4755 4763 3855 4303 4311 4315
+GETTTY, 0xe9f8, 0, 0x0000
+    aim65assembler.s 3856 3869 3947
+le937, 0xe754, 0, 0x0000
+READ, 0xe759, 0, 0x0000
+    aim65assembler.s 6153 7085 7087 7107
+READ1, 0xe767, 0, 0x0000
+    aim65assembler.s 3867
+le944, 0xe761, 0, 0x0000
+READ2, 0xe76a, 0, 0x0000
+    aim65assembler.s 3870
+GETKEY, 0xea5d, 0, 0x0000
+    aim65assembler.s 4463 4469 3872
+RB2, 0xe779, 0, 0x0000
+    aim65assembler.s 3892
+RDR1, 0xe787, 0, 0x0000
+    aim65assembler.s 3886
+le966, 0xe783, 0, 0x0000
+RED2, 0xe793, 0, 0x0000
+    aim65assembler.s 7088 3889
+le96d, 0xe78a, 0, 0x0000
+OUT1, 0xe798, 0, 0x0000
+    aim65assembler.s 3984
+OUT1A, 0xe7a3, 0, 0x0000
+    aim65assembler.s 3908
+le982, 0xe79f, 0, 0x0000
+OUT2, 0xe7ac, 0, 0x0000
+    aim65assembler.s 3914
+le98b, 0xe7a8, 0, 0x0000
+OUTTTY, 0xecc5, 0, 0x0000
+    aim65assembler.s 3917
+OUTDP, 0xed19, 0, 0x0000
+    aim65assembler.s 3920
+le99d, 0xe7ba, 0, 0x0000
+    aim65assembler.s 3924
+le99a, 0xe7b7, 0, 0x0000
+TIBYTE, 0xeb58, 0, 0x0000
+    aim65assembler.s 3926
+le9a4, 0xe7c1, 0, 0x0000
+    aim65assembler.s 3929
+le9a1, 0xe7be, 0, 0x0000
+le9ab, 0xe7c8, 0, 0x0000
+    aim65assembler.s 3934
+le9a8, 0xe7c5, 0, 0x0000
+MREAD, 0xf7a6, 0, 0x0000
+    aim65assembler.s 3936
+le9b3, 0xe7d0, 0, 0x0000
+    aim65assembler.s 3939
+le9af, 0xe7cc, 0, 0x0000
+le9b7, 0xe7d4, 0, 0x0000
+OUTA1, 0xe7e5, 0, 0x0000
+    aim65assembler.s 3954
+le9c4, 0xe7e1, 0, 0x0000
+OUTA2, 0xe7ed, 0, 0x0000
+    aim65assembler.s 3960
+le9cc, 0xe7e9, 0, 0x0000
+OUTA3, 0xe7ff, 0, 0x0000
+    aim65assembler.s 3966
+le9d4, 0xe7f1, 0, 0x0000
+OUTA4, 0xe807, 0, 0x0000
+    aim65assembler.s 3978
+le9e6, 0xe803, 0, 0x0000
+le9ee, 0xe80b, 0, 0x0000
+CR2J, 0xe840, 0, 0x0000
+    aim65assembler.s 3992 3996 3999 4002
+le9fa, 0xe817, 0, 0x0000
+lea01, 0xe81e, 0, 0x0000
+lea05, 0xe822, 0, 0x0000
+lea09, 0xe826, 0, 0x0000
+CRCK1, 0xe849, 0, 0x0000
+    aim65assembler.s 4022
+lea2b, 0xe848, 0, 0x0000
+lea31, 0xe84e, 0, 0x0000
+CRCK2, 0xe858, 0, 0x0000
+    aim65assembler.s 4030
+lea36, 0xe853, 0, 0x0000
+lea40, 0xe85d, 0, 0x0000
+NOUT, 0xe86e, 0, 0x0000
+    aim65assembler.s 4049
+LT10, 0xe877, 0, 0x0000
+    aim65assembler.s 4056
+lea58, 0xe875, 0, 0x0000
+RSPAC, 0xe898, 0, 0x0000
+    aim65assembler.s 4090 4093 4099 4064 4067 4073 4076
+lea64, 0xe881, 0, 0x0000
+lea68, 0xe885, 0, 0x0000
+RD1, 0xe88d, 0, 0x0000
+    aim65assembler.s 4070
+lea6c, 0xe889, 0, 0x0000
+lea75, 0xe892, 0, 0x0000
+HEX, 0xe89a, 0, 0x0000
+    aim65assembler.s 4185 6855
+lea88, 0xe8a5, 0, 0x0000
+lea8c, 0xe8a9, 0, 0x0000
+PAK1, 0xe8b3, 0, 0x0000
+    aim65assembler.s 4096
+lea90, 0xe8ad, 0, 0x0000
+lea94, 0xe8b1, 0, 0x0000
+PAK2, 0xe8bc, 0, 0x0000
+    aim65assembler.s 4113
+leaa6, 0xe8c3, 0, 0x0000
+ADDN1, 0xe8d4, 0, 0x0000
+    aim65assembler.s 4135
+ADDN2, 0xe8e4, 0, 0x0000
+    aim65assembler.s 4128 4131
+leabe, 0xe8db, 0, 0x0000
+leac2, 0xe8df, 0, 0x0000
+ADDN3, 0xe8f9, 0, 0x0000
+    aim65assembler.s 4140
+leacf, 0xe8ec, 0, 0x0000
+ADDN5, 0xe914, 0, 0x0000
+    aim65assembler.s 4154
+leae4, 0xe901, 0, 0x0000
+ADDN4, 0xe905, 0, 0x0000
+    aim65assembler.s 4164
+leaf1, 0xe90e, 0, 0x0000
+ADDN6, 0xe91a, 0, 0x0000
+    aim65assembler.s 4179 4167
+leb09, 0xe926, 0, 0x0000
+ADDN7, 0xe92a, 0, 0x0000
+    aim65assembler.s 4196
+ADDN8, 0xe948, 0, 0x0000
+    aim65assembler.s 4186 4192
+leb15, 0xe932, 0, 0x0000
+leb1f, 0xe93c, 0, 0x0000
+leb25, 0xe942, 0, 0x0000
+CLR, 0xe961, 0, 0x0000
+    aim65assembler.s 4995 6008 6088 6166 6456 6471 6888 7096 7199 7201
+PCLLD, 0xe973, 0, 0x0000
+    aim65assembler.s 5545 5604 5642
+SWSTAK, 0xe9d7, 0, 0x0000
+    aim65assembler.s 4261 4266
+SWST1, 0xe9da, 0, 0x0000
+    aim65assembler.s 4287
+lebd2, 0xe9ef, 0, 0x0000
+GET1, 0xe9ff, 0, 0x0000
+    aim65assembler.s 4301
+lebe7, 0xea04, 0, 0x0000
+DEHALF, 0xea40, 0, 0x0000
+    aim65assembler.s 4304 4316
+GET3, 0xea0a, 0, 0x0000
+    aim65assembler.s 4313
+lec01, 0xea1e, 0, 0x0000
+DE1, 0xea35, 0, 0x0000
+    aim65assembler.s 4520
+DE2, 0xea38, 0, 0x0000
+    aim65assembler.s 4331 4343 5022
+lec22, 0xea3f, 0, 0x0000
+GETKDO, 0xea55, 0, 0x0000
+    aim65assembler.s 4473
+IPO0, 0xee39, 0, 0x0000
+    aim65assembler.s 4347
+GETKY, 0xea60, 0, 0x0000
+    aim65assembler.s 4373 4389 4391
+DEBKEY, 0xeb47, 0, 0x0000
+    aim65assembler.s 4351 4483
+GETK1, 0xea8e, 0, 0x0000
+    aim65assembler.s 4356
+lec51, 0xea6e, 0, 0x0000
+GETKO, 0xea72, 0, 0x0000
+    aim65assembler.s 4371
+ONEK2, 0xeb28, 0, 0x0000
+    aim65assembler.s 4364 4489
+GETKOO, 0xea84, 0, 0x0000
+    aim65assembler.s 4367
+lec61, 0xea7e, 0, 0x0000
+lec65, 0xea82, 0, 0x0000
+ONEKEY, 0xeb22, 0, 0x0000
+    aim65assembler.s 4381
+GETK1B, 0xea9d, 0, 0x0000
+    aim65assembler.s 4383
+lec77, 0xea94, 0, 0x0000
+lec7e, 0xea9b, 0, 0x0000
+DEBK1, 0xeb49, 0, 0x0000
+    aim65assembler.s 4393
+GETK3, 0xeaaa, 0, 0x0000
+    aim65assembler.s 4405
+GETK4, 0xeab0, 0, 0x0000
+    aim65assembler.s 4402
+lec90, 0xeaad, 0, 0x0000
+ROW1, 0xf187, 0, 0x0000
+    aim65assembler.s 4407
+GETK7, 0xeadb, 0, 0x0000
+    aim65assembler.s 4410 4422 4427
+lec9a, 0xeab7, 0, 0x0000
+GETK5, 0xeac1, 0, 0x0000
+    aim65assembler.s 4413
+lec9e, 0xeabb, 0, 0x0000
+GETK8, 0xeadc, 0, 0x0000
+    aim65assembler.s 4417 4434 4438
+lecaa, 0xeac7, 0, 0x0000
+lecb0, 0xeacd, 0, 0x0000
+GETK6, 0xead6, 0, 0x0000
+    aim65assembler.s 4430
+lecb4, 0xead1, 0, 0x0000
+GETK11, 0xeae6, 0, 0x0000
+    aim65assembler.s 4443
+lecc3, 0xeae0, 0, 0x0000
+GETK10, 0xeb09, 0, 0x0000
+    aim65assembler.s 4446
+lecc7, 0xeae4, 0, 0x0000
+GETK13, 0xeafe, 0, 0x0000
+    aim65assembler.s 4451
+leccd, 0xeaea, 0, 0x0000
+GETK12, 0xeaef, 0, 0x0000
+    aim65assembler.s 4461
+lecde, 0xeafb, 0, 0x0000
+GETK14, 0xeb08, 0, 0x0000
+    aim65assembler.s 4466
+lece5, 0xeb02, 0, 0x0000
+IPSO, 0xee33, 0, 0x0000
+    aim65assembler.s 4468
+R001, 0xeb1d, 0, 0x0000
+    aim65assembler.s 4477
+lecf6, 0xeb13, 0, 0x0000
+lecfd, 0xeb1a, 0, 0x0000
+ONEK1, 0xeb26, 0, 0x0000
+    aim65assembler.s 4509
+ONEK3, 0xeb39, 0, 0x0000
+    aim65assembler.s 4505
+ONEK4, 0xeb46, 0, 0x0000
+    aim65assembler.s 4502
+led1f, 0xeb3c, 0, 0x0000
+led22, 0xeb3f, 0, 0x0000
+TIB1, 0xeb65, 0, 0x0000
+    aim65assembler.s 4525
+led45, 0xeb62, 0, 0x0000
+TIBY3, 0xeb73, 0, 0x0000
+    aim65assembler.s 4544
+TIBY4, 0xeb80, 0, 0x0000
+    aim65assembler.s 4539
+led5d, 0xeb7a, 0, 0x0000
+led61, 0xeb7e, 0, 0x0000
+TIBY5, 0xeb82, 0, 0x0000
+    aim65assembler.s 4552
+led70, 0xeb8d, 0, 0x0000
+TIBY5A, 0xeba5, 0, 0x0000
+    aim65assembler.s 4561
+led83, 0xeba0, 0, 0x0000
+TIBY7, 0xebcd, 0, 0x0000
+    aim65assembler.s 4564 4581
+BKCKSM, 0xefd0, 0, 0x0000
+    aim65assembler.s 4574 5140
+TIBY6, 0xebcc, 0, 0x0000
+    aim65assembler.s 4577
+leda3, 0xebc0, 0, 0x0000
+leda9, 0xebc6, 0, 0x0000
+ADDBLK, 0xebd7, 0, 0x0000
+TIOSET, 0xec39, 0, 0x0000
+    aim65assembler.s 5216 4621
+SYNC, 0xec1c, 0, 0x0000
+    aim65assembler.s 4632 4638
+RDBIT, 0xec58, 0, 0x0000
+    aim65assembler.s 4627 4658
+lee0f, 0xec2c, 0, 0x0000
+SYNC1, 0xec2e, 0, 0x0000
+    aim65assembler.s 4641
+lee18, 0xec35, 0, 0x0000
+lee1b, 0xec38, 0, 0x0000
+TIOS1, 0xec3f, 0, 0x0000
+    aim65assembler.s 4645
+lee1e, 0xec3b, 0, 0x0000
+TIOS2, 0xec41, 0, 0x0000
+    aim65assembler.s 4648
+GETA1, 0xec48, 0, 0x0000
+    aim65assembler.s 4663
+lee3a, 0xec57, 0, 0x0000
+RDBIT4, 0xec84, 0, 0x0000
+    aim65assembler.s 4695 4668
+lee40, 0xec5d, 0, 0x0000
+CKFREQ, 0xec92, 0, 0x0000
+    aim65assembler.s 7264 4670 4672 4680 4694 4697 4698
+RDBIT1, 0xec60, 0, 0x0000
+    aim65assembler.s 4673
+lee48, 0xec65, 0, 0x0000
+RDBIT2, 0xec6e, 0, 0x0000
+    aim65assembler.s 4681
+lee56, 0xec73, 0, 0x0000
+lee6c, 0xec89, 0, 0x0000
+PATC24, 0xfc2b, 0, 0x0000
+    aim65assembler.s 4699
+CKF4, 0xecbe, 0, 0x0000
+    aim65assembler.s 4731 4702
+CKF1, 0xec97, 0, 0x0000
+    aim65assembler.s 4705
+lee7f, 0xec9c, 0, 0x0000
+CKF2, 0xec9e, 0, 0x0000
+    aim65assembler.s 4733
+CKF3, 0xecb6, 0, 0x0000
+    aim65assembler.s 4716
+lee93, 0xecb0, 0, 0x0000
+CKF3A, 0xecba, 0, 0x0000
+    aim65assembler.s 7128
+leea6, 0xecc3, 0, 0x0000
+OUTT1, 0xece8, 0, 0x0000
+    aim65assembler.s 4758
+leee1, 0xecfe, 0, 0x0000
+OUTT2, 0xed18, 0, 0x0000
+    aim65assembler.s 4767 4770
+leef4, 0xed11, 0, 0x0000
+leef8, 0xed15, 0, 0x0000
+OUTD1, 0xed31, 0, 0x0000
+    aim65assembler.s 4786
+lef0d, 0xed2a, 0, 0x0000
+OUTD5, 0xed73, 0, 0x0000
+    aim65assembler.s 4841 4790
+PATCH4, 0xfb16, 0, 0x0000
+    aim65assembler.s 4792
+OUTD1A, 0xed34, 0, 0x0000
+    aim65assembler.s 7099
+OUTD2, 0xed3d, 0, 0x0000
+    aim65assembler.s 4795
+lef1b, 0xed38, 0, 0x0000
+OUTD4, 0xed65, 0, 0x0000
+    aim65assembler.s 4804
+lef2a, 0xed47, 0, 0x0000
+OUTD7, 0xed93, 0, 0x0000
+    aim65assembler.s 7097 4807 4829 4834 4843
+OUTD3, 0xed50, 0, 0x0000
+    aim65assembler.s 4820
+lef47, 0xed64, 0, 0x0000
+lef53, 0xed70, 0, 0x0000
+lef5a, 0xed77, 0, 0x0000
+lef6a, 0xed87, 0, 0x0000
+lef6d, 0xed8a, 0, 0x0000
+OUTDD3, 0xeda8, 0, 0x0000
+    aim65assembler.s 4867
+OUTDD2, 0xeda4, 0, 0x0000
+    aim65assembler.s 4871
+OUTO1, 0xedf8, 0, 0x0000
+    aim65assembler.s 4923
+lf008, 0xedf1, 0, 0x0000
+OUT04, 0xee0e, 0, 0x0000
+    aim65assembler.s 4927
+IPST, 0xee2e, 0, 0x0000
+    aim65assembler.s 7198 4934
+OUT05, 0xee1c, 0, 0x0000
+    aim65assembler.s 4938 4944
+lf030, 0xee19, 0, 0x0000
+OUTPR1, 0xee23, 0, 0x0000
+    aim65assembler.s 4959
+OUTPR2, 0xee2d, 0, 0x0000
+    aim65assembler.s 4955
+lf03e, 0xee27, 0, 0x0000
+IPO4, 0xee61, 0, 0x0000
+    aim65assembler.s 4964
+PINT, 0xeeb4, 0, 0x0000
+    aim65assembler.s 4966
+IPSU, 0xeecc, 0, 0x0000
+    aim65assembler.s 4967 5021
+PAT23, 0xfc16, 0, 0x0000
+    aim65assembler.s 4971 4974
+IPO2, 0xee4f, 0, 0x0000
+    aim65assembler.s 4988 4972 4975
+lf05a, 0xee43, 0, 0x0000
+lf05f, 0xee48, 0, 0x0000
+PRIERR, 0xee62, 0, 0x0000
+    aim65assembler.s 4977
+lf062, 0xee4b, 0, 0x0000
+PRNDOT, 0xee70, 0, 0x0000
+    aim65assembler.s 4984 4985
+IPO3, 0xee5c, 0, 0x0000
+    aim65assembler.s 7102
+PATCH5, 0xfb2b, 0, 0x0000
+    aim65assembler.s 4996
+PRDOT0, 0xee75, 0, 0x0000
+    aim65assembler.s 5006
+lf093, 0xee7c, 0, 0x0000
+INCP, 0xef0a, 0, 0x0000
+    aim65assembler.s 5042
+IPS1, 0xeed1, 0, 0x0000
+    aim65assembler.s 5069 6587
+IPS2, 0xeef7, 0, 0x0000
+    aim65assembler.s 5052 5059
+lf0f8, 0xeee1, 0, 0x0000
+IPS3, 0xeeee, 0, 0x0000
+    aim65assembler.s 5055
+lf0fd, 0xeee6, 0, 0x0000
+lf118, 0xef01, 0, 0x0000
+OP03, 0xef2d, 0, 0x0000
+    aim65assembler.s 5077
+lf126, 0xef0f, 0, 0x0000
+OP04, 0xef19, 0, 0x0000
+    aim65assembler.s 5080
+lf12b, 0xef14, 0, 0x0000
+NEWCOL, 0xef4c, 0, 0x0000
+    aim65assembler.s 5083 5091 5101 5108
+OP07, 0xef28, 0, 0x0000
+    aim65assembler.s 5086
+lf135, 0xef1e, 0, 0x0000
+NEWROW, 0xef49, 0, 0x0000
+    aim65assembler.s 5094
+OP05, 0xef39, 0, 0x0000
+    aim65assembler.s 5098
+lf14b, 0xef34, 0, 0x0000
+OP06, 0xef46, 0, 0x0000
+    aim65assembler.s 5104
+lf155, 0xef3e, 0, 0x0000
+MTBL, 0xf0c0, 0, 0x0000
+    aim65assembler.s 5123
+lf2d8, 0xf0c1, 0, 0x0000
+    aim65assembler.s 5125
+BKCK2, 0xeff8, 0, 0x0000
+    aim65assembler.s 5134 5199
+TABY3, 0xefb7, 0, 0x0000
+    aim65assembler.s 5138
+lf19c, 0xef85, 0, 0x0000
+TABY2, 0xef90, 0, 0x0000
+    aim65assembler.s 5149
+CKBUFF, 0xefbb, 0, 0x0000
+    aim65assembler.s 5186 5204 5145
+lf1b2, 0xef9b, 0, 0x0000
+PAT22, 0xfc10, 0, 0x0000
+    aim65assembler.s 5159
+CBUFF1, 0xefcb, 0, 0x0000
+    aim65assembler.s 5168 5171
+lf1da, 0xefc3, 0, 0x0000
+lf1de, 0xefc7, 0, 0x0000
+BKCK1, 0xefda, 0, 0x0000
+    aim65assembler.s 5195
+lf200, 0xefe9, 0, 0x0000
+    aim65assembler.s 5190
+lf1fd, 0xefe6, 0, 0x0000
+lf203, 0xefec, 0, 0x0000
+BKCK3, 0xf003, 0, 0x0000
+    aim65assembler.s 5206
+lf216, 0xefff, 0, 0x0000
+SETSPD, 0xf0a9, 0, 0x0000
+    aim65assembler.s 5214
+TAOS1, 0xf021, 0, 0x0000
+    aim65assembler.s 5231
+lf249, 0xf032, 0, 0x0000
+OUTTA1, 0xf079, 0, 0x0000
+    aim65assembler.s 5239
+lf257, 0xf040, 0, 0x0000
+TRY, 0xf041, 0, 0x0000
+    aim65assembler.s 5274
+ZON, 0xf046, 0, 0x0000
+    aim65assembler.s 5268 5271
+ZON1, 0xf04a, 0, 0x0000
+    aim65assembler.s 5259
+ZON2, 0xf055, 0, 0x0000
+    aim65assembler.s 5255
+lf271, 0xf05a, 0, 0x0000
+lf277, 0xf060, 0, 0x0000
+SETZ, 0xf06b, 0, 0x0000
+    aim65assembler.s 5263
+lf27d, 0xf066, 0, 0x0000
+ROUT, 0xf06f, 0, 0x0000
+    aim65assembler.s 5265
+lf27f, 0xf068, 0, 0x0000
+ROUT1, 0xf074, 0, 0x0000
+    aim65assembler.s 5304
+OUTTA2, 0xf07d, 0, 0x0000
+    aim65assembler.s 5302
+PATC25, 0xfc32, 0, 0x0000
+    aim65assembler.s 7270 5288 5297
+OUTTA3, 0xf09b, 0, 0x0000
+    aim65assembler.s 5299 5290
+lf2a8, 0xf091, 0, 0x0000
+lf2b8, 0xf0a1, 0, 0x0000
+lf2bb, 0xf0a4, 0, 0x0000
+lf2be, 0xf0a7, 0, 0x0000
+SETSP1, 0xf0b3, 0, 0x0000
+    aim65assembler.s 5312
+lf2c8, 0xf0b1, 0, 0x0000
+SETSP2, 0xf0bc, 0, 0x0000
+    aim65assembler.s 5318
+lf2d1, 0xf0ba, 0, 0x0000
+COL0, 0xf0ca, 0, 0x0000
+    aim65assembler.s 5325
+COL1, 0xf0ea, 0, 0x0000
+    aim65assembler.s 5326
+COL2, 0xf11c, 0, 0x0000
+    aim65assembler.s 5327
+COL3, 0xf140, 0, 0x0000
+    aim65assembler.s 5328
+COL4, 0xf165, 0, 0x0000
+    aim65assembler.s 5329
+lf305, 0xf0d6, 0, 0x0000
+lf30c, 0xf0db, 0, 0x0000
+lf30e, 0xf0dd, 0, 0x0000
+lf318, 0xf0e2, 0, 0x0000
+lf31f, 0xf0e8, 0, 0x0000
+lf330, 0xf0f8, 0, 0x0000
+lf347, 0xf105, 0, 0x0000
+lf357, 0xf114, 0, 0x0000
+    aim65assembler.s 5388
+lf350, 0xf10e, 0, 0x0000
+lf3a3, 0xf140, 0, 0x0000
+    aim65assembler.s 5391
+lf354, 0xf111, 0, 0x0000
+lf36b, 0xf11e, 0, 0x0000
+lf36f, 0xf122, 0, 0x0000
+lf378, 0xf12b, 0, 0x0000
+lf3a4, 0xf140, 0, 0x0000
+lf3af, 0xf149, 0, 0x0000
+lf3f2, 0xf16e, 0, 0x0000
+    aim65assembler.s 5446
+lf3b1, 0xf14b, 0, 0x0000
+lf400, 0xf176, 0, 0x0000
+    aim65assembler.s 5454
+lf3eb, 0xf168, 0, 0x0000
+lf3f0, 0xf16c, 0, 0x0000
+lf3f3, 0xf16f, 0, 0x0000
+lf407, 0xf179, 0, 0x0000
+lf409, 0xf17b, 0, 0x0000
+    aim65assembler.s 5490
+lf413, 0xf17f, 0, 0x0000
+lf450, 0xf19a, 0, 0x0000
+    aim65assembler.s 5497
+ROW2, 0xf189, 0, 0x0000
+ROW3, 0xf18d, 0, 0x0000
+lf432, 0xf18c, 0, 0x0000
+lf436, 0xf190, 0, 0x0000
+lf473, 0xf1b9, 0, 0x0000
+    aim65assembler.s 5513
+ROW4, 0xf193, 0, 0x0000
+ROW5, 0xf195, 0, 0x0000
+ROW6, 0xf199, 0, 0x0000
+ROW7, 0xf19b, 0, 0x0000
+ROW8, 0xf1a1, 0, 0x0000
+lf45c, 0xf1a2, 0, 0x0000
+lf466, 0xf1ac, 0, 0x0000
+PRBL2, 0xf28b, 0, 0x0000
+    aim65assembler.s 5541 5606 5629
+PRPC, 0xf282, 0, 0x0000
+    aim65assembler.s 6903 5542
+IEVEN, 0xf1cc, 0, 0x0000
+    aim65assembler.s 5548
+lf47b, 0xf1c1, 0, 0x0000
+ERR, 0xf1db, 0, 0x0000
+    aim65assembler.s 5551 5554
+lf47e, 0xf1c4, 0, 0x0000
+lf482, 0xf1c8, 0, 0x0000
+MODE, 0xf2a1, 0, 0x0000
+    aim65assembler.s 5561
+RTMODE, 0xf1d7, 0, 0x0000
+    aim65assembler.s 5562
+lf48d, 0xf1d3, 0, 0x0000
+GETFMT, 0xf1df, 0, 0x0000
+    aim65assembler.s 5570
+MODE2, 0xf2d5, 0, 0x0000
+    aim65assembler.s 5576
+MNNDX3, 0xf200, 0, 0x0000
+    aim65assembler.s 5586 5589
+MNNDX1, 0xf1f5, 0, 0x0000
+    aim65assembler.s 5601
+lf4b2, 0xf1f8, 0, 0x0000
+MNNDX2, 0xf1f9, 0, 0x0000
+    aim65assembler.s 5596
+lf4b9, 0xf1ff, 0, 0x0000
+lf4bd, 0xf203, 0, 0x0000
+MNEML, 0xf2e3, 0, 0x0000
+    aim65assembler.s 5609
+MNEMR, 0xf2f9, 0, 0x0000
+    aim65assembler.s 5611
+PRMN1, 0xf21d, 0, 0x0000
+    aim65assembler.s 5627
+PRMN2, 0xf221, 0, 0x0000
+    aim65assembler.s 5622
+lf4e5, 0xf22b, 0, 0x0000
+lf4ed, 0xf233, 0, 0x0000
+PRADR1, 0xf23d, 0, 0x0000
+    aim65assembler.s 5670
+PRADR3, 0xf25f, 0, 0x0000
+    aim65assembler.s 5635 5638
+lf4fb, 0xf241, 0, 0x0000
+PRADR2, 0xf245, 0, 0x0000
+    aim65assembler.s 5657
+RELADR, 0xf276, 0, 0x0000
+    aim65assembler.s 5643
+lf509, 0xf24f, 0, 0x0000
+lf50d, 0xf253, 0, 0x0000
+    aim65assembler.s 5735
+MR11A, 0xf258, 0, 0x0000
+    aim65assembler.s 5648
+lf50f, 0xf255, 0, 0x0000
+lf515, 0xf25b, 0, 0x0000
+    aim65assembler.s 5739
+PRADR4, 0xf272, 0, 0x0000
+    aim65assembler.s 5660 5665
+lf51e, 0xf264, 0, 0x0000
+lf5ac, 0xf2d8, 0, 0x0000
+    aim65assembler.s 5662
+lf5b2, 0xf2de, 0, 0x0000
+    aim65assembler.s 5664
+lf529, 0xf26f, 0, 0x0000
+lf52f, 0xf275, 0, 0x0000
+PCADJ3, 0xf293, 0, 0x0000
+    aim65assembler.s 5674
+PRNTYX, 0xf27e, 0, 0x0000
+    aim65assembler.s 5677
+lf537, 0xf27d, 0, 0x0000
+lf54a, 0xf290, 0, 0x0000
+PCADJ4, 0xf29a, 0, 0x0000
+    aim65assembler.s 5696
+lf553, 0xf299, 0, 0x0000
+RTS1, 0xf2a0, 0, 0x0000
+    aim65assembler.s 5701
+lf559, 0xf29f, 0, 0x0000
+lf55d, 0xf2a2, 0, 0x0000
+lf569, 0xf2ae, 0, 0x0000
+    aim65assembler.s 5709
+lf561, 0xf2a6, 0, 0x0000
+lf563, 0xf2a8, 0, 0x0000
+lf587, 0xf2c1, 0, 0x0000
+    aim65assembler.s 5714
+lf565, 0xf2aa, 0, 0x0000
+lf571, 0xf2b4, 0, 0x0000
+    aim65assembler.s 5717
+lf56d, 0xf2b0, 0, 0x0000
+lf579, 0xf2ba, 0, 0x0000
+    aim65assembler.s 5723
+lf575, 0xf2b6, 0, 0x0000
+lf581, 0xf2bf, 0, 0x0000
+    aim65assembler.s 5729
+lf57f, 0xf2bd, 0, 0x0000
+lf58a, 0xf2c4, 0, 0x0000
+lf5af, 0xf2db, 0, 0x0000
+    aim65assembler.s 5743
+lf58f, 0xf2c8, 0, 0x0000
+lf599, 0xf2d1, 0, 0x0000
+    aim65assembler.s 5746
+lf591, 0xf2ca, 0, 0x0000
+lf593, 0xf2cc, 0, 0x0000
+lf5b7, 0xf2e3, 0, 0x0000
+    aim65assembler.s 5751
+lf597, 0xf2cf, 0, 0x0000
+lf5a1, 0xf2d5, 0, 0x0000
+    aim65assembler.s 5754
+CHAR1, 0xf2d9, 0, 0x0000
+CHAR2, 0xf2df, 0, 0x0000
+lf5b8, 0xf2e4, 0, 0x0000
+    aim65assembler.s 7036
+lf5f8, 0xf2f8, 0, 0x0000
+    aim65assembler.s 7045
+lf637, 0xf30d, 0, 0x0000
+EDIO, 0xf31a, 0, 0x0000
+    aim65assembler.s 5829
+lf649, 0xf31f, 0, 0x0000
+lf651, 0xf327, 0, 0x0000
+    aim65assembler.s 5832
+lf64e, 0xf324, 0, 0x0000
+EDI1, 0xf329, 0, 0x0000
+    aim65assembler.s 5843
+lf660, 0xf336, 0, 0x0000
+EDI2, 0xf339, 0, 0x0000
+    aim65assembler.s 5848
+lf668, 0xf33e, 0, 0x0000
+EDI4, 0xf356, 0, 0x0000
+    aim65assembler.s 5852
+lf670, 0xf346, 0, 0x0000
+SAVNOW, 0xf60a, 0, 0x0000
+    aim65assembler.s 6307 6382 5854 5867
+EDI3, 0xf349, 0, 0x0000
+    aim65assembler.s 5857
+EDI, 0xf38c, 0, 0x0000
+    aim65assembler.s 5856 5869
+lf678, 0xf34e, 0, 0x0000
+EDI5, 0xf363, 0, 0x0000
+    aim65assembler.s 5870
+lf692, 0xf368, 0, 0x0000
+EDI7, 0xf380, 0, 0x0000
+    aim65assembler.s 5874
+lf699, 0xf36f, 0, 0x0000
+EDI8, 0xf384, 0, 0x0000
+    aim65assembler.s 5876
+EDI6, 0xf371, 0, 0x0000
+    aim65assembler.s 5886
+ENTRY, 0xf763, 0, 0x0000
+    aim65assembler.s 5883
+PATCH6, 0xfb31, 0, 0x0000
+    aim65assembler.s 5893
+EDI2B, 0xf3a2, 0, 0x0000
+    aim65assembler.s 5897
+lf6c3, 0xf399, 0, 0x0000
+TP, 0xf3a8, 0, 0x0000
+    aim65assembler.s 6515
+INO3A, 0xf48f, 0, 0x0000
+    aim65assembler.s 5912
+DNNO, 0xf3ae, 0, 0x0000
+    aim65assembler.s 5961 6048 6459
+ATTOP, 0xf5b1, 0, 0x0000
+    aim65assembler.s 5914 5924
+DOW1, 0xf3b9, 0, 0x0000
+    aim65assembler.s 5915
+lf6dd, 0xf3b3, 0, 0x0000
+PLNE, 0xf3fd, 0, 0x0000
+    aim65assembler.s 5991 5993 5998 6046 6075 6089 6179 5917 5934
+COM, 0xf74e, 0, 0x0000
+    aim65assembler.s 6477 6492 5918 6002 6049 6465
+SUB, 0xf5f3, 0, 0x0000
+    aim65assembler.s 6432 5921 5923 6175
+DOW2, 0xf3be, 0, 0x0000
+    aim65assembler.s 5929
+UP4, 0xf3f6, 0, 0x0000
+    aim65assembler.s 5925 5936 5948
+lf6f0, 0xf3c6, 0, 0x0000
+lf6f6, 0xf3cc, 0, 0x0000
+AD1, 0xf5fe, 0, 0x0000
+    aim65assembler.s 6341 6390 6528 5931
+UP, 0xf3cf, 0, 0x0000
+    aim65assembler.s 6001 6513
+UPNO, 0xf3df, 0, 0x0000
+    aim65assembler.s 6047 6062 6076 6104 5933
+ATBOT, 0xf5bf, 0, 0x0000
+    aim65assembler.s 5935 5942 5992 6077
+lf704, 0xf3da, 0, 0x0000
+UP1, 0xf3e9, 0, 0x0000
+    aim65assembler.s 5952 5943
+lf710, 0xf3e6, 0, 0x0000
+ENDERR, 0xf732, 0, 0x0000
+    aim65assembler.s 5945 6082 6129 6409
+lf717, 0xf3ed, 0, 0x0000
+lf71c, 0xf3f2, 0, 0x0000
+ADDA, 0xf600, 0, 0x0000
+    aim65assembler.s 5955 6165
+BT, 0xf3f7, 0, 0x0000
+    aim65assembler.s 6516
+SETBOT, 0xf59b, 0, 0x0000
+    aim65assembler.s 6383 5959
+DOWN, 0xf3fa, 0, 0x0000
+    aim65assembler.s 6512
+PO2, 0xf3ff, 0, 0x0000
+    aim65assembler.s 5974
+PO1, 0xf411, 0, 0x0000
+    aim65assembler.s 5966 5969
+lf72d, 0xf403, 0, 0x0000
+lf731, 0xf407, 0, 0x0000
+PO3, 0xf415, 0, 0x0000
+    aim65assembler.s 6080
+PO0, 0xf41f, 0, 0x0000
+    aim65assembler.s 5981
+lf746, 0xf41c, 0, 0x0000
+DLNE, 0xf422, 0, 0x0000
+KIFLG, 0xf58c, 0, 0x0000
+    aim65assembler.s 5987 6004
+lf75a, 0xf430, 0, 0x0000
+REPLAC, 0xf615, 0, 0x0000
+    aim65assembler.s 5997 6051
+IN, 0xf43a, 0, 0x0000
+    aim65assembler.s 6511
+INL, 0xf443, 0, 0x0000
+    aim65assembler.s 6061 6000
+INO2, 0xf450, 0, 0x0000
+    aim65assembler.s 6016 6027 6034 6170 7187
+PATC17, 0xfba4, 0, 0x0000
+    aim65assembler.s 6013
+INO2A, 0xf45b, 0, 0x0000
+    aim65assembler.s 7181
+lf789, 0xf45f, 0, 0x0000
+INO3, 0xf47e, 0, 0x0000
+    aim65assembler.s 6019
+lf78d, 0xf463, 0, 0x0000
+INO3B, 0xf46f, 0, 0x0000
+    aim65assembler.s 6022
+lf791, 0xf467, 0, 0x0000
+INO5, 0xf49b, 0, 0x0000
+    aim65assembler.s 6038 6041
+lf7ae, 0xf484, 0, 0x0000
+lf7b3, 0xf489, 0, 0x0000
+PATC13, 0xfb7d, 0, 0x0000
+    aim65assembler.s 6044
+INPU, 0xf4a1, 0, 0x0000
+    aim65assembler.s 6510
+INPU1, 0xf4ae, 0, 0x0000
+    aim65assembler.s 6063 6057
+lf7d5, 0xf4ab, 0, 0x0000
+LST, 0xf4b7, 0, 0x0000
+    aim65assembler.s 6514
+LSTO2, 0xf4ce, 0, 0x0000
+    aim65assembler.s 6069
+LSTO1, 0xf4c6, 0, 0x0000
+    aim65assembler.s 6078
+LST3, 0xf4d9, 0, 0x0000
+    aim65assembler.s 6073
+PATC14, 0xfb87, 0, 0x0000
+    aim65assembler.s 6081
+FCHAR, 0xf4e2, 0, 0x0000
+    aim65assembler.s 6151 6517
+FCH, 0xf4f4, 0, 0x0000
+    aim65assembler.s 6084
+FCHA1, 0xf4e5, 0, 0x0000
+    aim65assembler.s 6158
+FC1, 0xf4f9, 0, 0x0000
+    aim65assembler.s 6113
+FC3, 0xf50a, 0, 0x0000
+    aim65assembler.s 6099 6102
+lf82a, 0xf500, 0, 0x0000
+FC2, 0xf504, 0, 0x0000
+    aim65assembler.s 6132 6157
+FC5, 0xf51f, 0, 0x0000
+    aim65assembler.s 6105
+FC4, 0xf519, 0, 0x0000
+    aim65assembler.s 6108
+lf838, 0xf50e, 0, 0x0000
+lf840, 0xf516, 0, 0x0000
+ERROR, 0xf748, 0, 0x0000
+    aim65assembler.s 6115
+FC6, 0xf524, 0, 0x0000
+    aim65assembler.s 6138
+FC7, 0xf529, 0, 0x0000
+    aim65assembler.s 6143
+FC8, 0xf530, 0, 0x0000
+    aim65assembler.s 6127
+lf857, 0xf52d, 0, 0x0000
+lf85e, 0xf534, 0, 0x0000
+FC9, 0xf53e, 0, 0x0000
+    aim65assembler.s 6135
+lf862, 0xf538, 0, 0x0000
+lf86f, 0xf545, 0, 0x0000
+STOP, 0xf546, 0, 0x0000
+CHNG, 0xf54c, 0, 0x0000
+CFLG, 0xf588, 0, 0x0000
+    aim65assembler.s 6150
+CHN1, 0xf552, 0, 0x0000
+    aim65assembler.s 6159
+CHN2, 0xf562, 0, 0x0000
+    aim65assembler.s 6155
+lf883, 0xf559, 0, 0x0000
+CHN4, 0xf585, 0, 0x0000
+    aim65assembler.s 6173
+CHN3, 0xf57f, 0, 0x0000
+    aim65assembler.s 6177
+KI2, 0xf58e, 0, 0x0000
+    aim65assembler.s 6182
+TPO1, 0xf596, 0, 0x0000
+    aim65assembler.s 6200
+RESNOW, 0xf5a6, 0, 0x0000
+    aim65assembler.s 6349 6442
+ATO1, 0xf5cd, 0, 0x0000
+    aim65assembler.s 6236 6241 6210 6214 6222 6225
+lf8e1, 0xf5b7, 0, 0x0000
+lf8e7, 0xf5bd, 0, 0x0000
+lf8f1, 0xf5c7, 0, 0x0000
+ATO2, 0xf5cb, 0, 0x0000
+    aim65assembler.s 6238 6243
+ATEND, 0xf5cf, 0, 0x0000
+    aim65assembler.s 6402
+lf901, 0xf5d7, 0, 0x0000
+lf903, 0xf5d9, 0, 0x0000
+lf907, 0xf5dd, 0, 0x0000
+NOWS1, 0xf5df, 0, 0x0000
+    aim65assembler.s 6411
+ADDS1A, 0xf5ec, 0, 0x0000
+    aim65assembler.s 6247
+SUB1, 0xf5fd, 0, 0x0000
+    aim65assembler.s 6259
+lf925, 0xf5fb, 0, 0x0000
+ADDA1, 0xf609, 0, 0x0000
+    aim65assembler.s 6270
+lf931, 0xf607, 0, 0x0000
+REP2, 0xf614, 0, 0x0000
+    aim65assembler.s 6295
+R2W, 0xf635, 0, 0x0000
+    aim65assembler.s 6285
+lf945, 0xf61b, 0, 0x0000
+R87, 0xf624, 0, 0x0000
+    aim65assembler.s 6367 6287
+R8, 0xf61d, 0, 0x0000
+    aim65assembler.s 6371
+GOGO, 0xf720, 0, 0x0000
+    aim65assembler.s 6291 6299 6331 6423
+R88, 0xf629, 0, 0x0000
+    aim65assembler.s 6301
+lf95e, 0xf634, 0, 0x0000
+R100, 0xf6a5, 0, 0x0000
+    aim65assembler.s 6305
+lf961, 0xf637, 0, 0x0000
+RQP, 0xf64d, 0, 0x0000
+    aim65assembler.s 6313 6316
+lf970, 0xf646, 0, 0x0000
+lf975, 0xf64b, 0, 0x0000
+R6, 0xf65a, 0, 0x0000
+    aim65assembler.s 6347 6324
+lf981, 0xf657, 0, 0x0000
+R5, 0xf673, 0, 0x0000
+    aim65assembler.s 6335
+lf996, 0xf66c, 0, 0x0000
+R7, 0xf681, 0, 0x0000
+    aim65assembler.s 6339
+R55, 0xf67e, 0, 0x0000
+    aim65assembler.s 6343
+lf9a5, 0xf67b, 0, 0x0000
+R9, 0xf694, 0, 0x0000
+    aim65assembler.s 6443 6356
+lf9bc, 0xf692, 0, 0x0000
+R10, 0xf69d, 0, 0x0000
+    aim65assembler.s 6361
+lf9c3, 0xf699, 0, 0x0000
+R11, 0xf6a2, 0, 0x0000
+    aim65assembler.s 6364
+lf9cb, 0xf6a1, 0, 0x0000
+R101, 0xf6b0, 0, 0x0000
+    aim65assembler.s 6377
+lf9d8, 0xf6ae, 0, 0x0000
+R102, 0xf6b9, 0, 0x0000
+    aim65assembler.s 6391
+R108, 0xf6c5, 0, 0x0000
+    aim65assembler.s 6388
+lf9e9, 0xf6bf, 0, 0x0000
+R103, 0xf6d0, 0, 0x0000
+    aim65assembler.s 6398
+lf9f8, 0xf6ce, 0, 0x0000
+R107, 0xf6e0, 0, 0x0000
+    aim65assembler.s 6403
+lf9ff, 0xf6d5, 0, 0x0000
+R104, 0xf6ed, 0, 0x0000
+    aim65assembler.s 6440 6416
+lfa15, 0xf6eb, 0, 0x0000
+R105, 0xf707, 0, 0x0000
+    aim65assembler.s 6426
+lfa29, 0xf6ff, 0, 0x0000
+R106, 0xf71a, 0, 0x0000
+    aim65assembler.s 6430
+R1051, 0xf717, 0, 0x0000
+    aim65assembler.s 6436
+lfa3e, 0xf714, 0, 0x0000
+GOGO1, 0xf731, 0, 0x0000
+    aim65assembler.s 6446
+lfa4e, 0xf724, 0, 0x0000
+ENDE2, 0xf745, 0, 0x0000
+    aim65assembler.s 6461
+lfa6c, 0xf742, 0, 0x0000
+lfa75, 0xf74b, 0, 0x0000
+    aim65assembler.s 6540
+COMM, 0xf75e, 0, 0x0000
+    aim65assembler.s 6476
+PATCH8, 0xfb36, 0, 0x0000
+    aim65assembler.s 6480
+CD02, 0xf765, 0, 0x0000
+    aim65assembler.s 6488
+COMTBL, 0xf782, 0, 0x0000
+    aim65assembler.s 6484
+CFND1, 0xf776, 0, 0x0000
+    aim65assembler.s 6485
+lfa94, 0xf76a, 0, 0x0000
+lfa97, 0xf76d, 0, 0x0000
+PATC15, 0xfb91, 0, 0x0000
+    aim65assembler.s 6494
+lfab9, 0xf78f, 0, 0x0000
+    aim65assembler.s 6495
+lfaad, 0xf783, 0, 0x0000
+lfab6, 0xf78c, 0, 0x0000
+HTBL, 0xf78e, 0, 0x0000
+    aim65assembler.s 7169
+lfacd, 0xf7a3, 0, 0x0000
+TYPTR1, 0xf7b8, 0, 0x0000
+    aim65assembler.s 6814
+TYPTR2, 0xf7bd, 0, 0x0000
+    aim65assembler.s 6820
+lfaf3, 0xf7be, 0, 0x0000
+lfaf5, 0xf7c0, 0, 0x0000
+lfaf6, 0xf7c1, 0, 0x0000
+CORR, 0xf7c9, 0, 0x0000
+    aim65assembler.s 6825
+lfb09, 0xf7cb, 0, 0x0000
+SIZEM, 0xf7cf, 0, 0x0000
+    aim65assembler.s 6828 6554
+lfb1d, 0xf7d3, 0, 0x0000
+    aim65assembler.s 7055
+STCODE, 0xf7d4, 0, 0x0000
+lfb1f, 0xf7d4, 0, 0x0000
+lfb3a, 0xf7ed, 0, 0x0000
+    aim65assembler.s 6566
+lfb22, 0xf7d7, 0, 0x0000
+lfb27, 0xf7dc, 0, 0x0000
+lfb82, 0xf80a, 0, 0x0000
+    aim65assembler.s 6573
+lfb2a, 0xf7df, 0, 0x0000
+lfb2b, 0xf7e0, 0, 0x0000
+lfba6, 0xf820, 0, 0x0000
+    aim65assembler.s 6578
+lfb31, 0xf7e4, 0, 0x0000
+lfb40, 0xf7f2, 0, 0x0000
+lfb5d, 0xf7ff, 0, 0x0000
+    aim65assembler.s 7053
+TYPTB, 0xf7fe, 0, 0x0000
+lfb97, 0xf811, 0, 0x0000
+lfba7, 0xf821, 0, 0x0000
+lfba8, 0xf822, 0, 0x0000
+STARTM, 0xf824, 0, 0x0000
+    aim65assembler.s 6812 7174
+lfbab, 0xf825, 0, 0x0000
+MNEM, 0xfa80, 0, 0x0000
+    aim65assembler.s 6646
+MODEM, 0xf83b, 0, 0x0000
+    aim65assembler.s 7057
+PNTLUP, 0xf84a, 0, 0x0000
+    aim65assembler.s 6658
+lfbd9, 0xf853, 0, 0x0000
+RDADDR, 0xf85f, 0, 0x0000
+    aim65assembler.s 6676 6662
+lfbe0, 0xf85a, 0, 0x0000
+OPCOMP, 0xf945, 0, 0x0000
+    aim65assembler.s 6665 6706 6716 6719 6734 6737 6751 6754 6757 6767 6778 6789 6796 6799 6806 6809
+CLRLUP, 0xf863, 0, 0x0000
+    aim65assembler.s 6672
+lfbef, 0xf869, 0, 0x0000
+STORCH, 0xf870, 0, 0x0000
+    aim65assembler.s 6691
+TRY56, 0xf8d4, 0, 0x0000
+    aim65assembler.s 6681
+lfbfe, 0xf878, 0, 0x0000
+STOR1, 0xf884, 0, 0x0000
+    aim65assembler.s 6685
+lfc05, 0xf87f, 0, 0x0000
+EVAL, 0xf888, 0, 0x0000
+    aim65assembler.s 6688
+HATCJ, 0xf8b7, 0, 0x0000
+    aim65assembler.s 6696
+lfc18, 0xf892, 0, 0x0000
+PAREN, 0xf8f0, 0, 0x0000
+    aim65assembler.s 6699
+lfc1c, 0xf896, 0, 0x0000
+TRYZP, 0xf8a2, 0, 0x0000
+    aim65assembler.s 6703
+ACCUM, 0xf89d, 0, 0x0000
+TRY34, 0xf8ba, 0, 0x0000
+    aim65assembler.s 6709
+lfc2c, 0xf8a6, 0, 0x0000
+ZPAGE, 0xf8b2, 0, 0x0000
+    aim65assembler.s 6713
+lfc33, 0xf8ad, 0, 0x0000
+HATCH, 0xf930, 0, 0x0000
+    aim65assembler.s 6721
+ABSIND, 0xf8d6, 0, 0x0000
+    aim65assembler.s 6725
+lfc47, 0xf8c1, 0, 0x0000
+XORYZ, 0xfa6b, 0, 0x0000
+    aim65assembler.s 6728
+ABSOL, 0xf920, 0, 0x0000
+    aim65assembler.s 6729
+lfc4e, 0xf8c8, 0, 0x0000
+ZPX, 0xf8cf, 0, 0x0000
+    aim65assembler.s 6731
+ZPY, 0xf8ca, 0, 0x0000
+ERRORM, 0xf93f, 0, 0x0000
+    aim65assembler.s 6822 6848 6961 7051 6739 6742 6773 6775 6782 6786
+XORY, 0xfa69, 0, 0x0000
+    aim65assembler.s 6741 6772
+lfc61, 0xf8db, 0, 0x0000
+ABSX, 0xf8ec, 0, 0x0000
+    aim65assembler.s 6744
+ABSY, 0xf8dd, 0, 0x0000
+ABSY1, 0xf8e8, 0, 0x0000
+    aim65assembler.s 6748
+lfc6a, 0xf8e4, 0, 0x0000
+INDX, 0xf8fb, 0, 0x0000
+    aim65assembler.s 6761
+lfc7d, 0xf8f7, 0, 0x0000
+TRYINY, 0xf8ff, 0, 0x0000
+    aim65assembler.s 6764
+TRYJMP, 0xf90e, 0, 0x0000
+    aim65assembler.s 6770
+lfc89, 0xf903, 0, 0x0000
+lfc8e, 0xf908, 0, 0x0000
+lfc90, 0xf90a, 0, 0x0000
+lfc9b, 0xf915, 0, 0x0000
+lfca2, 0xf91c, 0, 0x0000
+ABSOL1, 0xf92c, 0, 0x0000
+    aim65assembler.s 6793
+lfcad, 0xf927, 0, 0x0000
+IMMED1, 0xf93b, 0, 0x0000
+    aim65assembler.s 6803
+lfcbd, 0xf937, 0, 0x0000
+OPCMP1, 0xf94f, 0, 0x0000
+    aim65assembler.s 6815
+lfcd0, 0xf94a, 0, 0x0000
+VALID, 0xf957, 0, 0x0000
+    aim65assembler.s 6818
+ONEBYT, 0xf9b8, 0, 0x0000
+    aim65assembler.s 6830
+lfcee, 0xf968, 0, 0x0000
+BRNCHC, 0xf989, 0, 0x0000
+    aim65assembler.s 6833
+lfcf2, 0xf96c, 0, 0x0000
+CONVRT, 0xf98c, 0, 0x0000
+    aim65assembler.s 6866 6926 6935 6847
+lfd0d, 0xf987, 0, 0x0000
+STASH, 0xf9a6, 0, 0x0000
+    aim65assembler.s 6886 6931 6975 6850
+BRCOMP, 0xfa00, 0, 0x0000
+    aim65assembler.s 6852
+ERRFLG, 0xf9a5, 0, 0x0000
+    aim65assembler.s 6856 6862
+lfd1a, 0xf994, 0, 0x0000
+lfd24, 0xf99e, 0, 0x0000
+lfd2a, 0xf9a4, 0, 0x0000
+STSHLP, 0xf9aa, 0, 0x0000
+    aim65assembler.s 6882
+FORMDS, 0xf9bf, 0, 0x0000
+    aim65assembler.s 6878
+lfd3a, 0xf9b4, 0, 0x0000
+FORMD1, 0xf9d2, 0, 0x0000
+    aim65assembler.s 6891
+lfd50, 0xf9ca, 0, 0x0000
+FORMD2, 0xf9e3, 0, 0x0000
+    aim65assembler.s 6895
+FORM1, 0xf9f7, 0, 0x0000
+    aim65assembler.s 6900
+lfd63, 0xf9dd, 0, 0x0000
+DISPLY, 0xf9e8, 0, 0x0000
+    aim65assembler.s 6914
+PATC16, 0xfb9e, 0, 0x0000
+    aim65assembler.s 6918 7065
+COMPBR, 0xfa18, 0, 0x0000
+    aim65assembler.s 6922
+lfd8d, 0xfa07, 0, 0x0000
+ERRJMP, 0xfa50, 0, 0x0000
+    aim65assembler.s 6966 6971 6927 6936
+lfd96, 0xfa10, 0, 0x0000
+lfda7, 0xfa21, 0, 0x0000
+CMPBR1, 0xfa35, 0, 0x0000
+    aim65assembler.s 6944
+lfdb8, 0xfa32, 0, 0x0000
+FORWRD, 0xfa5a, 0, 0x0000
+    aim65assembler.s 6956
+lfdd2, 0xfa4c, 0, 0x0000
+BACKWD, 0xfa53, 0, 0x0000
+    aim65assembler.s 6959
+OK, 0xfa61, 0, 0x0000
+    aim65assembler.s 6964 6969
+lfdde, 0xfa58, 0, 0x0000
+lfde5, 0xfa5f, 0, 0x0000
+XORY1, 0xfa76, 0, 0x0000
+    aim65assembler.s 6981
+lfdf8, 0xfa72, 0, 0x0000
+ISX, 0xfa7d, 0, 0x0000
+    aim65assembler.s 6987
+lfe00, 0xfa7a, 0, 0x0000
+XORYRT, 0xfa7c, 0, 0x0000
+    aim65assembler.s 6994
+RDLUP, 0xfa8e, 0, 0x0000
+    aim65assembler.s 7007 7016
+STLOAD, 0xfaed, 0, 0x0000
+    aim65assembler.s 7004
+lfe1b, 0xfa95, 0, 0x0000
+lfe1f, 0xfa99, 0, 0x0000
+lfe2e, 0xfaa8, 0, 0x0000
+OUTLUP, 0xfaaa, 0, 0x0000
+    aim65assembler.s 7030
+INLUP, 0xfaaf, 0, 0x0000
+    aim65assembler.s 7027
+lfe3f, 0xfab9, 0, 0x0000
+lfe42, 0xfabc, 0, 0x0000
+SRCHLP, 0xfabe, 0, 0x0000
+    aim65assembler.s 7049
+SRCHM, 0xfac1, 0, 0x0000
+    aim65assembler.s 7040
+MATCH, 0xfacb, 0, 0x0000
+    aim65assembler.s 7037
+lfe4c, 0xfac6, 0, 0x0000
+lfe4f, 0xfac9, 0, 0x0000
+MATCH1, 0xfad6, 0, 0x0000
+    aim65assembler.s 7042
+GOTIT, 0xfad9, 0, 0x0000
+    aim65assembler.s 7046
+lfe59, 0xfad3, 0, 0x0000
+STLO, 0xfae8, 0, 0x0000
+    aim65assembler.s 7063
+lfe78, 0xfaf2, 0, 0x0000
+lfe7b, 0xfaf5, 0, 0x0000
+PAT2A, 0xfb0b, 0, 0x0000
+    aim65assembler.s 7078
+lfe8c, 0xfb06, 0, 0x0000
+PAT4A, 0xfb28, 0, 0x0000
+    aim65assembler.s 7092
+lfea3, 0xfb1d, 0, 0x0000
+PATC8C, 0xfb4b, 0, 0x0000
+    aim65assembler.s 7115
+lfece, 0xfb48, 0, 0x0000
+PATCH9, 0xfb52, 0, 0x0000
+PAT9A, 0xfb5c, 0, 0x0000
+    aim65assembler.s 7125
+lfedc, 0xfb56, 0, 0x0000
+PAT9B, 0xfb62, 0, 0x0000
+    aim65assembler.s 7139 7142 7155 7161
+lfef1, 0xfb6b, 0, 0x0000
+lfef5, 0xfb6f, 0, 0x0000
+lff0a, 0xfb84, 0, 0x0000
+lff14, 0xfb8e, 0, 0x0000
+PAT17B, 0xfbb4, 0, 0x0000
+    aim65assembler.s 7176
+lff2c, 0xfba6, 0, 0x0000
+PAT17A, 0xfbad, 0, 0x0000
+    aim65assembler.s 7185 7179
+lff30, 0xfbaa, 0, 0x0000
+PAT18A, 0xfbc2, 0, 0x0000
+    aim65assembler.s 7192
+lff46, 0xfbc0, 0, 0x0000
+VECK4, 0xfbe9, 0, 0x0000
+    aim65assembler.s 7209
+lff62, 0xfbdc, 0, 0x0000
+VECK5, 0xfbe0, 0, 0x0000
+    aim65assembler.s 7217
+lff6c, 0xfbe6, 0, 0x0000
+PAT12A, 0xfbee, 0, 0x0000
+    aim65assembler.s 7230
+POMSG, 0xfc02, 0, 0x0000
+    aim65assembler.s 7225
+PAT12B, 0xfbf9, 0, 0x0000
+    aim65assembler.s 7226
+lff79, 0xfbf3, 0, 0x0000
+lff8f, 0xfc05, 0, 0x0000
+lff95, 0xfc0b, 0, 0x0000
+PAT23A, 0xfc1b, 0, 0x0000
+    aim65assembler.s 7257
+PAT23B, 0xfc28, 0, 0x0000
+    aim65assembler.s 7253
+lffaa, 0xfc20, 0, 0x0000
+lffb1, 0xfc27, 0, 0x0000
+lffc1, 0xfc37, 0, 0x0000
