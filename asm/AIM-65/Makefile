@@ -1,4 +1,4 @@
-SUBDIRS = "Monitor"
+SUBDIRS = Monitor Assembler
 
 all:
 	@for i in $(SUBDIRS); do \
