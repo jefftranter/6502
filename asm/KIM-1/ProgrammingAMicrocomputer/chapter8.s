@@ -1,4 +1,5 @@
 ; Digital Clock. Chapter 8.
+; Note that you need to put a jumper on the AUX IRQ header.
 
         .ORG    $0000
 
@@ -9,10 +10,10 @@ PORTA   = $1700
 DIRA    = $1701
 PORTB   = $1702
 DIRB    = $1703
-PORTC   = $1704
-DIRC    = $1705
-PORTD   = $1706
-DIRD    = $1707
+PORTC   = $1740
+DIRC    = $1741
+PORTD   = $1742
+DIRD    = $1743
 
 ; When we load the program from tape the address register ends up
 ; pointing at cell zero. We will use the first 6 cells to hold hours,
