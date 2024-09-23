@@ -8,6 +8,9 @@ These are from the mini-floppy (5.25" disk) version for the Challenger
 1P (C1P). There are differences in the versions for 8" floppies (e.g.
 number of disk tracks) and for the C3/C4 platforms.
 
+Note: Some files need to be named BEXEC* on disk but are called BEXEC
+here in order to comply with Windows filename limitations.
+
 ```
 *** TUTORIAL DISK 1 ***
    -- Directory --
