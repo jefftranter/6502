@@ -1,7 +1,7 @@
 all: disasm.mon
 
 disasm.mon: disasm.bin
-	bintomon disasm.bin >disasm.mon
+	bintomon -l 0x1000 disasm.bin >disasm.mon
 
 disasm.bin: disasm.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m disasm.map -o disasm.bin disasm.o

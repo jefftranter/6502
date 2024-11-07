@@ -1,7 +1,7 @@
 ;
 ; 6502/65C02 Disassembler
 ;
-; Copyright (C) 2012 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2024 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 ; Version Date         Comments
 ; 0.0     25-Mar-2012  First version started
 ; 0.9     28-Mar-2012  First public beta version
+; 1.0     06-Nov-2024  Add prompt for address
 
 ; *** ASSEMBLY TIME OPTIONS ***
 
@@ -159,11 +160,14 @@ START:
   LDX #<WelcomeString
   LDY #>WelcomeString
   JSR PrintString
+PROMPT:
   JSR PrintCR
-  LDA #<START
-  STA ADDR
-  LDA #>START
-  STA ADDR+1
+  LDX #<PromptString
+  LDY #>PromptString
+  JSR PrintString
+  JSR GetAddress
+  STX ADDR
+  STY ADDR+1
 OUTER:
   JSR PrintCR
   LDA #23
@@ -182,8 +186,8 @@ LOOP:
   CMP #' '
   BEQ OUTER
   CMP #ESC
+  BEQ PROMPT
   BNE @SpaceOrEscape
-  RTS
 
 ; Disassemble instruction at address ADDR (low) / ADDR+1 (high). On
 ; return ADDR/ADDR+1 points to next instruction so it can be called
@@ -663,6 +667,77 @@ PrintString:
 done:
   RTS
 
+; Convert A to uppercase if it is a lowercase letter.
+ToUpper:
+        CMP #'a'                ; Is it 'a' or higher?
+        BMI @NotLower
+        CMP #'z'+1              ; Is it 'z' or lower?
+        BPL @NotLower
+        AND #%11011111          ; Convert to upper case by clearing bit 5
+@NotLower:
+        RTS
+
+; Get Byte as 2 chars 0-9,A-F
+; Echoes characters as typed.
+; Ignores invalid characters
+; Returns byte in A
+; Registers changed: A
+GetByte:
+        JSR GetHex
+        ASL
+        ASL
+        ASL
+        ASL
+        STA T1                  ; Store first nybble
+        JSR GetHex
+        CLC
+        ADC T1                  ; Add second nybble
+        STA T1                  ; Save it
+        RTS
+
+; Gets a hex digit (0-9,A-F). Echoes character as typed.
+; Ignores invalid characters. Returns binary value in A
+; Registers changed: A
+GetHex:
+        JSR GetKey
+@next:
+        JSR ToUpper
+        CMP #'0'
+        BMI GetHex              ; Invalid, ignore and try again
+        CMP #'9'+1
+        BMI @Digit
+        CMP #'A'
+        BMI GetHex              ; Invalid, ignore and try again
+        CMP #'F'+1
+        BMI @Letter
+        JMP GetHex              ; Invalid, ignore and try again
+@Digit:
+        JSR PrintChar           ; echo
+        SEC
+        SBC #'0'                ; convert to value
+        CLC
+        RTS
+@Letter:
+        JSR PrintChar           ; echo
+        SEC
+        SBC #'A'-10             ; convert to value
+        CLC
+        RTS
+
+; Get Address as 4 chars 0-9,A-F
+; Echoes characters as typed.
+; Ignores invalid characters
+; Returns address in X (low), Y (high)
+; Registers changed: X, Y
+GetAddress:
+        PHA                     ; Save A
+        JSR GetByte             ; Get the first (most significant) hex byte
+        TAY                     ; Save in Y
+        JSR GetByte             ; Get the second (least significant) hex byte
+        TAX                     ; Save in X
+        PLA                     ; Restore A
+        RTS
+
 ;  get opcode
 ;  get mnemonic, addressing mode, instruction length
 ;  display opcode string
@@ -1033,4 +1108,6 @@ OPCODES2:
 ContinueString:
   .asciiz "  <SPACE> TO CONTINUE, <ESC> TO STOP"
 WelcomeString:
-  .asciiz "DISASM VERSION 0.9 by JEFF TRANTER"
+  .asciiz "DISASM VERSION 1.0 BY JEFF TRANTER"
+PromptString:
+  .asciiz "ADDRESS? "
