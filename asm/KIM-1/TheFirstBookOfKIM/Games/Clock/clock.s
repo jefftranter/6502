@@ -71,8 +71,8 @@ GO:     LDA     #$01            ; set I/O ports
         TAX                     ; set delay
 DECR:   DEX
         BPL     DECR
-END:    BMI     AGAIN           ; keep sounding
-        RTS
+        BMI     AGAIN           ; keep sounding
+END:    RTS
 
 ; INTERRUPT ROUTINE
 
