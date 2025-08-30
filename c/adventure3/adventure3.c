@@ -2,7 +2,7 @@
  *
  * James' The Prisoner Adventure
  *
- * A sequel to The Abandoned Farmhouse and Sky's Castle Adventures.
+ * A sequel to The Abandoned Farmhouse and Skye's Castle Adventures.
  *
  * Dedicated to my grandson James Tranter who was 19 months old when I
  * wrote this.
@@ -12,7 +12,7 @@
  * Written in standard C but designed to run on the Apple II or other
  * platforms using the CC65 6502 assembler.
  *
- * Copyright 2012-2023 Jeff Tranter
+ * Copyright 2012-2024 Jeff Tranter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@
  * -------  ----         --------
  * 0.0      30 Dec 2022  Started development.
  * 0.1      01 Jan 2023  First working version.
+ * 2.0      11 Aug 2024  Align all three games with common code.
  */
 
 
@@ -45,7 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef __CC65__
+#if defined(__CC65__) || defined(CPM)
 #include <conio.h>
 #ifdef JOYSTICK
 #include <joystick.h>
@@ -58,7 +59,7 @@
  * Linux.
  */
 
-#if defined(__linux__) || defined(__APPLE2ENH__) || defined(__C64__)
+#if defined(__linux__) || defined(__APPLE2ENH__) || defined(__C64__) || defined(CPM)
 #define FILEIO 1
 #endif
 
@@ -406,9 +407,9 @@ const char *introText =
     "Can you figure out how to escape?\n";
 
 #ifdef FILEIO
-const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nbackup <file>\nrestore <file>\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
+const char *helpString = "Valid commands:\ngo east/west/north/south/up/down\nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nbackup <file>\nrestore <file>\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
 #else
-const char *helpString = "Valid commands:\ngo east/west/north/south/up/down \nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nbackup <number>\nrestore <number>\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
+const char *helpString = "Valid commands:\ngo east/west/north/south/up/down\nlook\nuse <object>\nexamine <object>\ntake <object>\ndrop <object>\ninventory\nbackup <number>\nrestore <number>\nhelp\nquit\nYou can abbreviate commands and\ndirections to the first letter.\nType just the first letter of\na direction to move.\n";
 #endif
 
 /* Line of user input */
@@ -513,7 +514,7 @@ number itemIsHere(const char *item)
 }
 
 /* Check for an abbreviated item name. Return full name of item if it
-   uniquely matches. Otherwise returns the orignal name. Only check
+   uniquely matches. Otherwise returns the original name. Only check
    for items being carried or at current location. */
 char *getMatch(char *name)
 {
@@ -1199,7 +1200,7 @@ void doRestore()
     }
 
     /* Items: 0 1 8 0 7 6 9 2 16 15 18 25 29 10 12 19 */
-    i = fscanf(fp, "Items: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+    i = fscanf(fp, "Items: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
                (int*) &locationOfItem[0],
                (int*) &locationOfItem[1],
                (int*) &locationOfItem[2],
@@ -1230,8 +1231,7 @@ void doRestore()
                (int*) &locationOfItem[27],
                (int*) &locationOfItem[28],
                (int*) &locationOfItem[29],
-               (int*) &locationOfItem[30],
-               (int*) &locationOfItem[31]);
+               (int*) &locationOfItem[30]);
 
     if (i != 31) {
         printf("File is not a valid game file (3).\n");
