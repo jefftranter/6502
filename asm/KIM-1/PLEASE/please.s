@@ -90,67 +90,26 @@ INITS   =   $1E88
 KEYMAX  =   $1F
 PC      =   $14
 
-; PLEASE Monitor
+; Function Table
 
-        .ORG    $1780
-
-EXINIT: LDA     #DCDLO          ; DCDLO = Application Low
-        STA     EXAPLO          ; Address to Exec Transfer
-        LDA     #DCDHI          ; DCDHI = Application High
-        STA     EXAPHI          ; Address to Exec Transfer
-        LDA     #$20            ; 20 is uses to indicate
-        STA     CHAR            ; No character input
-
-EXLOOP: LDA     #$7B            ; Set millisecond timer
-        STA     $1745           ; (Actually 984 microseconds)
-
-KEYIN:  JSR    INITS            ; Setup for Keyboard Input
-        JSR    GETKEY           ; Get Keyboard Input if any
-        CMP    #KEYMAX          ; Was there a Key Pressed ?
-        BMI    KEYIN2           ; Yes, a Key was Pressed
-        STA    KEYTST           ; No, so reset debounce flag
-        BNE    DSPLAY           ; Unconditional branch
-KEYIN2: LDX    KEYTST           ; Test debounce flag.
-        BEQ    DSPLAY           ; Branch of not a new char.
-        STA    CHAR             ; Save new character
-        LDA    #$00             ; Clear debounce flag
-        STA    KEYTST
-
-DSPLAY: LDY    DSPPOS           ; Current Display Pointer
-        TYA                     ; Calculate Select Line
-        ASL    A
-        ADC    #$08
-        STA    $1742            ; Select Display Position
-        LDA    #$7F             ; Select All Output Lines
-        STA    $1741
-        LDA    (DSPLO),Y        ; Get Display Character from
-        STA    $1740            ; Display Buffer and Output
-        DEY                     ; Decrement Position Pointer
-        BPL    DSPLY2           ; Okay if Positive
-        LDY    #5               ; Else, Reset to Maximum
-DSPLY2: STY    DSPPOS           ; Save Pointer for Next Loop
-
-        JSR    TIMER            ; Go to TIMER subroutine
-        NOP                     ; (JSR ?????)
-        NOP                     ; NOPs can be changed
-        NOP
-        JSR     APPL            ; This goes off to Application
-
-EXWAIT: BIT     $1745           ; Text current interval
-        BPL     EXWAIT          ; Not done if Positive
-        BMI     EXLOOP          ; Done if Negative
-
-        NOP
-        NOP
-        NOP
-        NOP
-
-EXSET:  PLA                     ; Pull Address of Next
-        STA     EXAPLO          ; Application Instruction
-        INC     EXAPLO          ; and Save and Correct
-        PLA                     ; Pull Page Address of Next
-        STA     EXAPHI          ; Appl. Inst and Save it.
-        RTS                     ; Return to EXLOOP at EXWAIT
+        .ORG    $0100
+                        ; Code Word
+        .WORD   $0329   ; 00   ALPIN
+        .WORD   $032F   ; 01   HEXIN
+        .WORD   $0333   ; 02   DECIN
+        .WORD   $0283   ; 03   ALPOUT
+        .WORD   $0287   ; 04   HEXOUT
+        .WORD   $02AA   ; 05   TIMER
+        .WORD   $023B   ; 06   PACK
+        .WORD   $025D   ; 07   UNPACK
+        .WORD   $02A6   ; 08   BRANCH
+        .WORD   $0292   ; 09   BRCHAR
+        .WORD   $0366   ; 0A   BRTABL
+        .WORD   $02E9   ; 0B   FILL
+        .WORD   $02C5   ; 0C   COMPARE
+        .WORD   $02C5   ; 0D   MATCH
+        .WORD   $0000   ; 0E   Not used
+        .WORD   $0000   ; 0F   Not used
 
 ; System Timer
 
@@ -197,73 +156,6 @@ TIMER2: DEX                     ; Decrement Index
 
 TDONE:  CLD                     ; All Done.  Clear Decimal Mode
         RTS                     ; Subroutine Return
-
-; Alpha Display Table
-
-        .ORG    $03F0
-                        ; Key Character
-        .BYTE   $77     ; 0    A
-        .BYTE   $7C     ; 1    b
-        .BYTE   $58     ; 2    c
-        .BYTE   $5E     ; 3    d
-        .BYTE   $79     ; 4    E
-        .BYTE   $71     ; 5    F
-        .BYTE   $76     ; 6    H
-        .BYTE   $40     ; 7    I
-        .BYTE   $38     ; 8    L
-        .BYTE   $54     ; 9    n
-        .BYTE   $5C     ; A    o
-        .BYTE   $73     ; B    P
-        .BYTE   $50     ; C    r
-        .BYTE   $6D     ; D    S
-        .BYTE   $78     ; E    t
-        .BYTE   $6E     ; F    Y
-
-; Interpreter
-
-        .ORG    $0300
-
-DECODE: LDA     #$00
-SETSTP: STA     STEPNO
-NXTSTP: JSR     EXSET
-        LDA     STEPNO
-        ASL
-        ASL
-        STA     STEPLO
-
-        LDY     #3
-PARMOV: LDA     (STEPLO),Y
-        STA     PARAM0,Y
-        DEY
-        BPL     PARMOV
-        INC     STEPNO
-
-        ASL
-        STA     BREAK+3
-BREAK:  NOP
-        NOP
-        JMP     ($0100)
-
-; Function Table
-
-        .ORG    $0100
-                        ; Code Word
-        .WORD   $0329   ; 00   ALPIN
-        .WORD   $032F   ; 01   HEXIN
-        .WORD   $0333   ; 02   DECIN
-        .WORD   $0283   ; 03   ALPOUT
-        .WORD   $0287   ; 04   HEXOUT
-        .WORD   $02AA   ; 05   TIMER
-        .WORD   $023B   ; 06   PACK
-        .WORD   $025D   ; 07   UNPACK
-        .WORD   $02A6   ; 08   BRANCH
-        .WORD   $0292   ; 09   BRCHAR
-        .WORD   $0366   ; 0A   BRTABL
-        .WORD   $02E9   ; 0B   FILL
-        .WORD   $02C5   ; 0C   COMPARE
-        .WORD   $02C5   ; 0D   MATCH
-        .WORD   $0000   ; 0E   Not used
-        .WORD   $0000   ; 0F   Not used
 
 ; PLEASE functions
 
@@ -499,5 +391,113 @@ SHIFT:  INY
         TXA
 PUT:    STA     (ADRLO),Y
 RETURN: RTS
+
+; Interpreter
+
+        .ORG    $0300
+
+DECODE: LDA     #$00
+SETSTP: STA     STEPNO
+NXTSTP: JSR     EXSET
+        LDA     STEPNO
+        ASL
+        ASL
+        STA     STEPLO
+
+        LDY     #3
+PARMOV: LDA     (STEPLO),Y
+        STA     PARAM0,Y
+        DEY
+        BPL     PARMOV
+        INC     STEPNO
+
+        ASL
+        STA     BREAK+3
+BREAK:  NOP
+        NOP
+        JMP     ($0100)
+
+; Alpha Display Table
+
+        .ORG    $03F0
+                        ; Key Character
+        .BYTE   $77     ; 0    A
+        .BYTE   $7C     ; 1    b
+        .BYTE   $58     ; 2    c
+        .BYTE   $5E     ; 3    d
+        .BYTE   $79     ; 4    E
+        .BYTE   $71     ; 5    F
+        .BYTE   $76     ; 6    H
+        .BYTE   $40     ; 7    I
+        .BYTE   $38     ; 8    L
+        .BYTE   $54     ; 9    n
+        .BYTE   $5C     ; A    o
+        .BYTE   $73     ; B    P
+        .BYTE   $50     ; C    r
+        .BYTE   $6D     ; D    S
+        .BYTE   $78     ; E    t
+        .BYTE   $6E     ; F    Y
+
+; PLEASE Monitor
+
+        .ORG    $1780
+
+EXINIT: LDA     #DCDLO          ; DCDLO = Application Low
+        STA     EXAPLO          ; Address to Exec Transfer
+        LDA     #DCDHI          ; DCDHI = Application High
+        STA     EXAPHI          ; Address to Exec Transfer
+        LDA     #$20            ; 20 is uses to indicate
+        STA     CHAR            ; No character input
+
+EXLOOP: LDA     #$7B            ; Set millisecond timer
+        STA     $1745           ; (Actually 984 microseconds)
+
+KEYIN:  JSR    INITS            ; Setup for Keyboard Input
+        JSR    GETKEY           ; Get Keyboard Input if any
+        CMP    #KEYMAX          ; Was there a Key Pressed ?
+        BMI    KEYIN2           ; Yes, a Key was Pressed
+        STA    KEYTST           ; No, so reset debounce flag
+        BNE    DSPLAY           ; Unconditional branch
+KEYIN2: LDX    KEYTST           ; Test debounce flag.
+        BEQ    DSPLAY           ; Branch of not a new char.
+        STA    CHAR             ; Save new character
+        LDA    #$00             ; Clear debounce flag
+        STA    KEYTST
+
+DSPLAY: LDY    DSPPOS           ; Current Display Pointer
+        TYA                     ; Calculate Select Line
+        ASL    A
+        ADC    #$08
+        STA    $1742            ; Select Display Position
+        LDA    #$7F             ; Select All Output Lines
+        STA    $1741
+        LDA    (DSPLO),Y        ; Get Display Character from
+        STA    $1740            ; Display Buffer and Output
+        DEY                     ; Decrement Position Pointer
+        BPL    DSPLY2           ; Okay if Positive
+        LDY    #5               ; Else, Reset to Maximum
+DSPLY2: STY    DSPPOS           ; Save Pointer for Next Loop
+
+        JSR    TIMER            ; Go to TIMER subroutine
+        NOP                     ; (JSR ?????)
+        NOP                     ; NOPs can be changed
+        NOP
+        JSR     APPL            ; This goes off to Application
+
+EXWAIT: BIT     $1745           ; Text current interval
+        BPL     EXWAIT          ; Not done if Positive
+        BMI     EXLOOP          ; Done if Negative
+
+        NOP
+        NOP
+        NOP
+        NOP
+
+EXSET:  PLA                     ; Pull Address of Next
+        STA     EXAPLO          ; Application Instruction
+        INC     EXAPLO          ; and Save and Correct
+        PLA                     ; Pull Page Address of Next
+        STA     EXAPHI          ; Appl. Inst and Save it.
+        RTS                     ; Return to EXLOOP at EXWAIT
 
         .END
