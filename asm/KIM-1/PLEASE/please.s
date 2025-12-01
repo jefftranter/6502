@@ -159,8 +159,6 @@ TDONE:  CLD                     ; All Done.  Clear Decimal Mode
 
 ; PLEASE functions
 
-        .ORG    $023B
-
 PACK:   LDX     PARAM1
         LDA     0,X
         ASL
@@ -194,6 +192,7 @@ UNPACK: LDX     PARAM1
         BEQ     TONEXT
         LDX     PARAM1
         LDA     #$0F
+        AND     0,X
         LDX     PARAM2
         STA     0,X
         INC     PARAM2
@@ -271,6 +270,48 @@ FILLIT: STA     (ADRLO),Y
         BPL     FILLIT
         BMI     NXTSTP
 
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+
+; Interpreter
+
+DECODE: LDA     #$00
+SETSTP: STA     STEPNO
+NXTSTP: JSR     EXSET
+        LDA     STEPNO
+        ASL
+        ASL
+        STA     STEPLO
+
+        LDY     #3
+PARMOV: LDA     (STEPLO),Y
+        STA     PARAM0,Y
+        DEY
+        BPL     PARMOV
+        INC     STEPNO
+
+        ASL
+        STA     BREAK+3
+BREAK:  NOP
+        NOP
+        JMP     ($0100)
+
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+
+; PLEASE functions continued
+
 ALPHA:  LDA     #$10
         LDX     #ALPHLO
         BNE     SETTAB
@@ -278,7 +319,7 @@ ALPHA:  LDA     #$10
 HEXIN:  LDA     #$10
         BNE     SETHEX
 
-DECON:  LDA     #$0A
+DECIN:  LDA     #$0A
 SETHEX: LDX     #HEXDEC
 SETTAB: STX     XTABLE
         STA     LIMIT
@@ -323,6 +364,7 @@ FOUND:  INY
         LDA     (ADRLO),Y
         BPL     BRDONE
 
+        BRK
 
 DIRADR: LDA     PARAM1
         STA     ADRLO
@@ -392,34 +434,8 @@ SHIFT:  INY
 PUT:    STA     (ADRLO),Y
 RETURN: RTS
 
-; Interpreter
-
-        .ORG    $0300
-
-DECODE: LDA     #$00
-SETSTP: STA     STEPNO
-NXTSTP: JSR     EXSET
-        LDA     STEPNO
-        ASL
-        ASL
-        STA     STEPLO
-
-        LDY     #3
-PARMOV: LDA     (STEPLO),Y
-        STA     PARAM0,Y
-        DEY
-        BPL     PARMOV
-        INC     STEPNO
-
-        ASL
-        STA     BREAK+3
-BREAK:  NOP
-        NOP
-        JMP     ($0100)
-
 ; Alpha Display Table
 
-        .ORG    $03F0
                         ; Key Character
         .BYTE   $77     ; 0    A
         .BYTE   $7C     ; 1    b
