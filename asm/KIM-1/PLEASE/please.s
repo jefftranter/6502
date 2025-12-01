@@ -173,7 +173,7 @@ PACK2:  LDX     PARAM2
         STA     0,X
         INC     PARAM1
         INC     PARAM1
-        INC     PARAM1
+        INC     PARAM2
         DEC     PARAM3
         BNE     PACK
         BEQ     TONEXT
@@ -188,7 +188,7 @@ UNPACK: LDX     PARAM1
         STA     0,X
         INC     PARAM2
         DEC     PARAM3
-        BEQ     TONEXT
+        BEQ     TONEXT-2
         LDX     PARAM1
         LDA     #$0F
         AND     0,X
@@ -241,7 +241,7 @@ COMPAR: JSR     DIRADR
 
 CTEST:  LDA     0,X
         SEC
-        SBC     (ADRLO),Y
+        CMP     (ADRLO),Y
         BEQ     SAME
         BCS     LESS
 
@@ -335,7 +335,7 @@ MORE:   LDX     XTABLE
         JSR     CONDSP
         JSR     EXSET
         LDA     CHAR
-        LDX     #20
+        LDX     #$20
         STX     CHAR
         CMP     #PC
         BEQ     RSTART
@@ -444,7 +444,7 @@ RETURN: RTS
         .BYTE   $79     ; 4    E
         .BYTE   $71     ; 5    F
         .BYTE   $76     ; 6    H
-        .BYTE   $40     ; 7    I
+        .BYTE   $30     ; 7    I
         .BYTE   $38     ; 8    L
         .BYTE   $54     ; 9    n
         .BYTE   $5C     ; A    o
