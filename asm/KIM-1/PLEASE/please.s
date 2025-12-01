@@ -265,10 +265,119 @@ BREAK:  NOP
         .WORD   $0000   ; 0E   Not used
         .WORD   $0000   ; 0F   Not used
 
-
 ; PLEASE functions
 
-        .ORG    $0329
+        .ORG    $023B
+
+PACK:   LDX     PARAM1
+        LDA     0,X
+        ASL
+        ASL
+        ASL
+        ASL
+        ORA     1,X
+        BCC     PACK2
+        LDA     1,X
+        BPL     PACK2
+        LDA     #$00
+PACK2:  LDX     PARAM2
+        STA     0,X
+        INC     PARAM1
+        INC     PARAM1
+        INC     PARAM1
+        DEC     PARAM3
+        BNE     PACK
+        BEQ     TONEXT
+
+UNPACK: LDX     PARAM1
+        LDA     0,X
+        LSR
+        LSR
+        LSR
+        LSR
+        LDX     PARAM2
+        STA     0,X
+        INC     PARAM2
+        DEC     PARAM3
+        BEQ     TONEXT
+        LDX     PARAM1
+        LDA     #$0F
+        LDX     PARAM2
+        STA     0,X
+        INC     PARAM2
+        INC     PARAM1
+        DEC     PARAM3
+        BNE     UNPACK
+        BEQ     TONEXT
+
+ALPOUT: LDX     #ALPHLO
+        BNE     GETADR
+HEXOUT: LDX     #HEXDEC
+GETADR: JSR     DIRADR
+        JSR     CONDSP
+TONEXT: JMP     NXTSTP
+
+BRCHAR: LDX     CHAR
+        LDA     #$20
+        STA     CHAR
+        CPX     #$20
+        BEQ     TONEXT
+        LDA     PARAM2
+        CPX     PARAM1
+        BEQ     OKAY
+        LDA     PARAM3
+OKAY:   BPL     SETSTP
+
+BRANCH: LDA     PARAM1
+        BPL     SETSTP
+
+_TIMER: LDA     #10
+        STA     TEMP1
+RESET:  LDA     #10
+        STA     TEMP2
+WAIT:   JSR     EXSET
+        DEC     TEMP2
+        BNE     WAIT
+        DEC     TEMP1
+        BNE     RESET
+        DEC     PARAM1
+        BNE     _TIMER
+        LDA     PARAM2
+        BPL     SETSTP
+
+COMPAR: JSR     DIRADR
+        LDX     PARAM2
+        LDY     #$00
+
+CTEST:  LDA     0,X
+        SEC
+        SBC     (ADRLO),Y
+        BEQ     SAME
+        BCS     LESS
+
+GREAT:  LDA     #MATCH
+        CMP     PARAM0
+        BEQ     LESS
+        INC     STEPNO
+EQUAL:  INC     STEPNO
+
+LESS:   BPL     NXTSTP
+
+SAME:   INX
+        INY
+        CPY     PARAM3
+        BNE     CTEST
+        BEQ     EQUAL
+
+FILL:   JSR     DIRADR
+        LDA     PARAM2
+        LDY     PARAM3
+        DEY
+
+FILLIT: STA     (ADRLO),Y
+        DEY
+        BPL     FILLIT
+        BMI     NXTSTP
 
 ALPHA:  LDA     #$10
         LDX     #ALPHLO
@@ -303,6 +412,25 @@ MORE:   LDX     XTABLE
 
 FINISH: STA     KEYVAL
         BPL     NXTSTP
+
+BRTBL:  JSR     INDADR
+        LDX     PARAM2
+        LDY     #00
+
+_MORE:  LDA     0,X
+        CMP     (ADRLO),Y
+        BEQ     FOUND
+        INY
+        INY
+        LDA     (ADRLO),Y
+        BNE     _MORE
+        LDA     PARAM3
+BRDONE: BPL     SETSTP
+
+FOUND:  INY
+        LDA     (ADRLO),Y
+        BPL     BRDONE
+
 
 DIRADR: LDA     PARAM1
         STA     ADRLO
@@ -372,132 +500,4 @@ SHIFT:  INY
 PUT:    STA     (ADRLO),Y
 RETURN: RTS
 
-ALPOUT: LDX     #ALPHLO
-        BNE     GETADR
-HEXOUT: LDX     #HEXDEC
-GETADR: JSR     DIRADR
-        JSR     CONDSP
-TONEXT: JMP     NXTSTP
-
-_TIMER: LDA     #10
-        STA     TEMP1
-RESET:  LDA     #10
-        STA     TEMP2
-WAIT:   JSR     EXSET
-        DEC     TEMP2
-        BNE     WAIT
-        DEC     TEMP1
-        BNE     RESET
-        DEC     PARAM1
-        BNE     _TIMER
-        LDA     PARAM2
-        BPL     SETSTP
-
-PACK:   LDX     PARAM1
-        LDA     0,X
-        ASL
-        ASL
-        ASL
-        ASL
-        ORA     1,X
-        BCC     PACK2
-        LDA     1,X
-        BPL     PACK2
-        LDA     #$00
-PACK2:  LDX     PARAM2
-        STA     0,X
-        INC     PARAM1
-        INC     PARAM1
-        INC     PARAM1
-        DEC     PARAM3
-        BNE     PACK
-        BEQ     TONEXT
-
-UNPACK: LDX     PARAM1
-        LDA     0,X
-        LSR
-        LSR
-        LSR
-        LSR
-        LDX     PARAM2
-        STA     0,X
-        INC     PARAM2
-        DEC     PARAM3
-        BEQ     TONEXT
-        LDX     PARAM1
-        LDA     #$0F
-        LDX     PARAM2
-        STA     0,X
-        INC     PARAM2
-        INC     PARAM1
-        DEC     PARAM3
-        BNE     UNPACK
-        BEQ     TONEXT
-
-BRANCH: LDA     PARAM1
-        BPL     SETSTP
-
-BRCHAR: LDX     CHAR
-        LDA     #$20
-        STA     CHAR
-        CPX     #$20
-        BEQ     TONEXT
-        LDA     PARAM2
-        CPX     PARAM1
-        BEQ     OKAY
-        LDA     PARAM3
-OKAY:   BPL     SETSTP
-
-BRTBL:  JSR     INDADR
-        LDX     PARAM2
-        LDY     #00
-
-_MORE:  LDA     0,X
-        CMP     (ADRLO),Y
-        BEQ     FOUND
-        INY
-        INY
-        LDA     (ADRLO),Y
-        BNE     _MORE
-        LDA     PARAM3
-BRDONE: BPL     SETSTP
-
-FOUND:  INY
-        LDA     (ADRLO),Y
-        BPL     BRDONE
-
-FILL:   JSR     DIRADR
-        LDA     PARAM2
-        LDY     PARAM3
-        DEY
-
-FILLIT: STA     (ADRLO),Y
-        DEY
-        BPL     FILLIT
-        BMI     NXTSTP
-
-COMPAR: JSR     DIRADR
-        LDX     PARAM2
-        LDY     #$00
-
-CTEST:  LDA     0,X
-        SEC
-        SBC     (ADRLO),Y
-        BEQ     SAME
-        BCS     LESS
-
-GREAT:  LDA     #MATCH
-        CMP     PARAM0
-        BEQ     LESS
-        INC     STEPNO
-EQUAL:  INC     STEPNO
-
-LESS:   BPL     NXTSTP
-
-SAME:   INX
-        INY
-        CPY     PARAM3
-        BNE     CTEST
-        BEQ     EQUAL
-         
         .END
