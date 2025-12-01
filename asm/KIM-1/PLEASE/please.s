@@ -1,13 +1,14 @@
 ; Page zero addresses
 
-DCDLO   =       $00
-DCDHI   =       $03
+DCDLO   =       $00             ; Application Address Low
+DCDHI   =       $03             ; Application Address High
+
 PARAM0  =       $B0             ; Parameter 0 is usually the COMMAND CODE
-PARAM1  =       $B1             ; Paramater 1 is usually DATA
-PARAM2  =       $B2             ; Paramater 2 is usually DATA
-PARAM3  =       $B3             ; Paramater 3 is usually DATA
-ADRLO   =       $B4             ; Low Addess pointer for Indirect Address
-ADRHI   =       $B5             ; High Addess pointer for Indirect Address
+PARAM1  =       $B1             ; Parameter 1 is usually DATA
+PARAM2  =       $B2             ; Parameter 2 is usually DATA
+PARAM3  =       $B3             ; Parameter 3 is usually DATA
+ADRLO   =       $B4             ; Low Address pointer for Indirect Address
+ADRHI   =       $B5             ; High Address pointer for Indirect Address
 PNTR    =       $B6             ; Temporary Pointer Storage
 STEPNO  =       $B7             ; Number of NEXT PLEASE Step
 STEPLO  =       $B8             ; Low Address of Current PLEASE Step
@@ -24,7 +25,7 @@ TEMP2   =       PTEMP1
 THOUS   =       $C0             ; Thousands and Tens of Thousands of Seconds
 TENS    =       $C1             ; Tens and Hundreds of Seconds
 TENTHS  =       $C2             ; Tenths and Seconds
-MILLI   =       $C3             ; Thousandths and hunredths of Seconds
+MILLI   =       $C3             ; Thousandths and hundredths of Seconds
 HOUR    =       $C4             ; Hour portion of 24 Hour Clock
 MINUTE  =       $C5             ; Minute portion of 24 Hour Clock
 SECOND  =       $C6             ; Second portion of 24 Hour Clock
@@ -48,7 +49,7 @@ HEXLO   =       $D2             ; Hexadecimal (and Decimal) Conversion Table Low
 HEXHI   =       $D3             ; Hexadecimal (and Decimal) Conversion Table High Address = 17
 ALPHLO  =       $D4             ; Alphabetic Conversion Table Low Address (usually = F0)
 ALPHHI  =       $D5             ; Alphabetic Conversion Table High Address (usually = 03)
-XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or APHA Table
+XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or ALPHA Table
 TEMP    =       $D7             ; General Purpose Temporary Save Location
 LIMIT   =       $D8             ; Uses by Conversion Routine.  General Purposes Register
 DSPPOS  =       $D9             ; Executive Pointer to Current Display Position
@@ -91,23 +92,24 @@ KEYMAX  =   $14
 PC      =   $14
 
 ; Function Table
+; JJT: Table was not shown in original listng
 
         .ORG    $0100
                         ; Code Word
-        .WORD   $0329   ; 00   ALPIN
-        .WORD   $032F   ; 01   HEXIN
-        .WORD   $0333   ; 02   DECIN
-        .WORD   $0283   ; 03   ALPOUT
-        .WORD   $0287   ; 04   HEXOUT
-        .WORD   $02AA   ; 05   TIMER
-        .WORD   $023B   ; 06   PACK
-        .WORD   $025D   ; 07   UNPACK
-        .WORD   $02A6   ; 08   BRANCH
-        .WORD   $0292   ; 09   BRCHAR
-        .WORD   $0366   ; 0A   BRTABL
-        .WORD   $02E9   ; 0B   FILL
-        .WORD   $02C5   ; 0C   COMPARE
-        .WORD   $02C5   ; 0D   MATCH
+        .WORD   ALPIN   ; 00   ALPIN
+        .WORD   HEXIN   ; 01   HEXIN
+        .WORD   DECIN   ; 02   DECIN
+        .WORD   ALPOUT  ; 03   ALPOUT
+        .WORD   HEXOUT  ; 04   HEXOUT
+        .WORD   _TIMER  ; 05   TIMER
+        .WORD   PACK    ; 06   PACK
+        .WORD   UNPACK  ; 07   UNPACK
+        .WORD   BRANCH  ; 08   BRANCH
+        .WORD   BRCHAR  ; 09   BRCHAR
+        .WORD   BRTABL  ; 0A   BRTABL
+        .WORD   FILL    ; 0B   FILL
+        .WORD   COMPAR  ; 0C   COMPARE
+        .WORD   COMPAR  ; 0D   MATCH (same code as COMPARE)
         .WORD   $0000   ; 0E   Not used
         .WORD   $0000   ; 0F   Not used
 
@@ -221,7 +223,7 @@ OKAY:   BPL     SETSTP
 BRANCH: LDA     PARAM1
         BPL     SETSTP
 
-_TIMER: LDA     #10
+_TIMER: LDA     #10            ; JJT: Was TIMER in original listing but conficts with other label
         STA     TEMP1
 RESET:  LDA     #10
         STA     TEMP2
@@ -312,6 +314,7 @@ BREAK:  NOP
 
 ; PLEASE functions continued
 
+ALPIN:
 ALPHA:  LDA     #$10
         LDX     #ALPHLO
         BNE     SETTAB
@@ -346,11 +349,11 @@ MORE:   LDX     XTABLE
 FINISH: STA     KEYVAL
         BPL     NXTSTP
 
-BRTBL:  JSR     INDADR
+BRTABL: JSR     INDADR
         LDX     PARAM2
         LDY     #00
 
-_MORE:  LDA     0,X
+_MORE:  LDA     0,X             ; JJT: Was MORE in original listing but conficts with other label
         CMP     (ADRLO),Y
         BEQ     FOUND
         INY
