@@ -16,8 +16,10 @@ TRANLO  =       $BA             ; Temporary Transfer Pointer to PLEASE Function
 TRANHI  =       $BB             ; Temporary Transfer Pointer to PLEASE Function
 FUNTBL  =       $BC             ; Low Address of PLEASE Function Table
 FUNTBH  =       $BD             ; High Address of PLEASE Function Table
-PTEMP0 =        $BE             ; PLEASE Temporary Storage
-PTEMP1 =        $BF             ; PLEASE Temporary Storage
+PTEMP0  =       $BE             ; PLEASE Temporary Storage
+PTEMP1  =       $BF             ; PLEASE Temporary Storage
+TEMP1   =       PTEMP0
+TEMP2   =       PTEMP1
 
 THOUS   =       $C0             ; Thousands and Tens of Thousands of Seconds
 TENS    =       $C1             ; Tens and Hundreds of Seconds
@@ -75,14 +77,16 @@ APL0    =       $EC             ; Application General Registers
 APL1    =       $ED
 APL2    =       $EF
 
-; Addresses of PLEASE routines
+; Addresses of PLEASE routines and constants
 
 EXAPLO  =       $17CC
 EXAPHI  =       $17CD
+MATCH   =       $0D
 
 ; KIM-1 ROM routines and constants
 
 GETKEY  =   $1F6A
+INITS   =   $1E88
 KEYMAX  =   $1F
 PC      =   $14
 
@@ -152,6 +156,7 @@ EXSET:  PLA                     ; Pull Address of Next
 
         .ORG    $0200
 
+APPL:
 TIMER:  SED                     ; Calculations done in Decimal Mode
         LDX     #3              ; Setup Counter for Timer
 
@@ -263,115 +268,236 @@ BREAK:  NOP
 
 ; PLEASE functions
 
-         .ORG   $0329
+        .ORG    $0329
 
-ALPHA:   LDA    #$10
-         LDX    #ALPHLO
-         BNE    SETTAB
+ALPHA:  LDA     #$10
+        LDX     #ALPHLO
+        BNE     SETTAB
 
-HEXIN:   LDA    #$10
-         BNE    SETHEX
+HEXIN:  LDA     #$10
+        BNE     SETHEX
 
-DECON:   LDA    #$0A
-SETHEX:  LDX    #HEXDEC
-SETTAB:  STX    XTABLE
-         STA    LIMIT
-         JSR    DIRADR
+DECON:  LDA     #$0A
+SETHEX: LDX     #HEXDEC
+SETTAB: STX     XTABLE
+        STA     LIMIT
+        JSR     DIRADR
 
-RSTART:  JSR    CLRDSP
-         LDA    PARAM2
-         STA    CURPNT
-         BPL    MORE
+RSTART: JSR     CLRDSP
+        LDA     PARAM2
+        STA     CURPNT
+        BPL     MORE
 
-SAVE:    JSR    STORE
-MORE:    LDX    XTABLE
-         JSR    CONDSP
-         JSR    EXSET
-         LDA    CHAR
-         LDX    #20
-         STX    CHAR
-         CMP    #PC
-         BEQ    RSTART
-         BPL    MORE
-         CMP    LIMIT
-         BMI    SAVE
+SAVE:   JSR     STORE
+MORE:   LDX     XTABLE
+        JSR     CONDSP
+        JSR     EXSET
+        LDA     CHAR
+        LDX     #20
+        STX     CHAR
+        CMP     #PC
+        BEQ     RSTART
+        BPL     MORE
+        CMP     LIMIT
+        BMI     SAVE
 
-FINISH:  STA    KEYVAL
-         BPL    NXTSTP
+FINISH: STA     KEYVAL
+        BPL     NXTSTP
 
-DIRADR:  LDA    PARAM1
-         STA    ADRLO
-         LDA    #$00
-         STA    ADRHI
-         RTS
+DIRADR: LDA     PARAM1
+        STA     ADRLO
+        LDA     #$00
+        STA     ADRHI
+        RTS
 
-INDADR:  LDX    PARAM1
-XNDADR:  LDA    0,X
-         STA    ADRLO
-         LDA    1,X
-         STA    ADRHI
-         RTS
+INDADR: LDX     PARAM1
+XNDADR: LDA     0,X
+        STA     ADRLO
+        LDA     1,X
+        STA     ADRHI
+        RTS
 
-CLRDSP:  LDA    #$FF
-FILDSP:  LDX    #$06
-         STX    TEMP
-         LDY    PARAM2
-         STY    CURPNT
+CLRDSP: LDA     #$FF
+FILDSP: LDX     #$06
+        STX     TEMP
+        LDY     PARAM2
+        STY     CURPNT
 
-FILNXT:  JSR    STORE
-         DEC    TEMP
-         BNE    FILNXT
-         RTS
+FILNXT: JSR     STORE
+        DEC     TEMP
+        BNE     FILNXT
+        RTS
 
-CONDSP:  LDA    0,X
-         STA    DTABLO
-         LDA    1,X
-         STA    DTABHI
-         LDY    PARAM2
+CONDSP: LDA     0,X
+        STA     DTABLO
+        LDA     1,X
+        STA     DTABHI
+        LDY     PARAM2
 
-CON:     STY    TEMP
-         LDA    (ADRLO),Y
-         BPL    CON2
-         LDA    #$00
-         BEQ    CON3
-CON2:    TAY
-         LDA    (DTABLO),Y
-CON3:    LDY    TEMP
-         STA    (DSPLO),Y
-         CPY    PARAM3
-         BEQ    RETURN
-         BMI    INCR
-         DEY
-         BPL    CON
-INCR:    INY
-         BPL    CON
+CON:    STY     TEMP
+        LDA     (ADRLO),Y
+        BPL     CON2
+        LDA     #$00
+        BEQ     CON3
+CON2:   TAY
+        LDA     (DTABLO),Y
+CON3:   LDY     TEMP
+        STA     (DSPLO),Y
+        CPY     PARAM3
+        BEQ     RETURN
+        BMI     INCR
+        DEY
+        BPL     CON
+INCR:   INY
+        BPL     CON
 
-STORE:   TAX
-         LDY    PARAM3
-         CPY    PARAM2
-         BMI    SHIFT
-         CPY    CURPNT
-         BMI    RETURN
-         LDY    CURPNT
-         INC    CURPNT
-         BPL    PUT
+STORE:  TAX
+        LDY     PARAM3
+        CPY     PARAM2
+        BMI     SHIFT
+        CPY     CURPNT
+        BMI     RETURN
+        LDY     CURPNT
+        INC     CURPNT
+        BPL     PUT
 
-SHIFT:   INY
-         LDA    (ADRLO),Y
-         DEY
-         STA    (ADRLO),Y
-         INY
-         CPY    PARAM2
-         BMI    SHIFT
-         TXA
-PUT:     STA    (ADRLO),Y
-RETURN:  RTS
+SHIFT:  INY
+        LDA     (ADRLO),Y
+        DEY
+        STA     (ADRLO),Y
+        INY
+        CPY     PARAM2
+        BMI     SHIFT
+        TXA
+PUT:    STA     (ADRLO),Y
+RETURN: RTS
 
+ALPOUT: LDX     #ALPHLO
+        BNE     GETADR
+HEXOUT: LDX     #HEXDEC
+GETADR: JSR     DIRADR
+        JSR     CONDSP
+TONEXT: JMP     NXTSTP
 
+_TIMER: LDA     #10
+        STA     TEMP1
+RESET:  LDA     #10
+        STA     TEMP2
+WAIT:   JSR     EXSET
+        DEC     TEMP2
+        BNE     WAIT
+        DEC     TEMP1
+        BNE     RESET
+        DEC     PARAM1
+        BNE     _TIMER
+        LDA     PARAM2
+        BPL     SETSTP
+
+PACK:   LDX     PARAM1
+        LDA     0,X
+        ASL
+        ASL
+        ASL
+        ASL
+        ORA     1,X
+        BCC     PACK2
+        LDA     1,X
+        BPL     PACK2
+        LDA     #$00
+PACK2:  LDX     PARAM2
+        STA     0,X
+        INC     PARAM1
+        INC     PARAM1
+        INC     PARAM1
+        DEC     PARAM3
+        BNE     PACK
+        BEQ     TONEXT
+
+UNPACK: LDX     PARAM1
+        LDA     0,X
+        LSR
+        LSR
+        LSR
+        LSR
+        LDX     PARAM2
+        STA     0,X
+        INC     PARAM2
+        DEC     PARAM3
+        BEQ     TONEXT
+        LDX     PARAM1
+        LDA     #$0F
+        LDX     PARAM2
+        STA     0,X
+        INC     PARAM2
+        INC     PARAM1
+        DEC     PARAM3
+        BNE     UNPACK
+        BEQ     TONEXT
+
+BRANCH: LDA     PARAM1
+        BPL     SETSTP
+
+BRCHAR: LDX     CHAR
+        LDA     #$20
+        STA     CHAR
+        CPX     #$20
+        BEQ     TONEXT
+        LDA     PARAM2
+        CPX     PARAM1
+        BEQ     OKAY
+        LDA     PARAM3
+OKAY:   BPL     SETSTP
+
+BRTBL:  JSR     INDADR
+        LDX     PARAM2
+        LDY     #00
+
+_MORE:  LDA     0,X
+        CMP     (ADRLO),Y
+        BEQ     FOUND
+        INY
+        INY
+        LDA     (ADRLO),Y
+        BNE     _MORE
+        LDA     PARAM3
+BRDONE: BPL     SETSTP
+
+FOUND:  INY
+        LDA     (ADRLO),Y
+        BPL     BRDONE
+
+FILL:   JSR     DIRADR
+        LDA     PARAM2
+        LDY     PARAM3
+        DEY
+
+FILLIT: STA     (ADRLO),Y
+        DEY
+        BPL     FILLIT
+        BMI     NXTSTP
+
+COMPAR: JSR     DIRADR
+        LDX     PARAM2
+        LDY     #$00
+
+CTEST:  LDA     0,X
+        SEC
+        SBC     (ADRLO),Y
+        BEQ     SAME
+        BCS     LESS
+
+GREAT:  LDA     #MATCH
+        CMP     PARAM0
+        BEQ     LESS
+        INC     STEPNO
+EQUAL:  INC     STEPNO
+
+LESS:   BPL     NXTSTP
+
+SAME:   INX
+        INY
+        CPY     PARAM3
+        BNE     CTEST
+        BEQ     EQUAL
          
-
-
-INITS:
-APPL:
-
         .END
