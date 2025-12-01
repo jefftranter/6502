@@ -188,7 +188,7 @@ UNPACK: LDX     PARAM1
         STA     0,X
         INC     PARAM2
         DEC     PARAM3
-        BEQ     TONEXT-2
+        BEQ     TONEXT-2       ; JJT: Original code had TONEXT but listing used TONEXT-2
         LDX     PARAM1
         LDA     #$0F
         AND     0,X
@@ -241,7 +241,7 @@ COMPAR: JSR     DIRADR
 
 CTEST:  LDA     0,X
         SEC
-        CMP     (ADRLO),Y
+        CMP     (ADRLO),Y      ; JJT: Original code had SBC but used code for CMP
         BEQ     SAME
         BCS     LESS
 

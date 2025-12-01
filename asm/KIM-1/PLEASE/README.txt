@@ -3,7 +3,12 @@ for the KIM-1 written by Robert M. Tripp in 1977.
 
 It was originally distributed on cassette tape.
 
-I am entering the original source code in a format that it can be
-cross-assembled and loaded as a paper tape (PTP) file.
+I have entered the original source code in a format that it can be
+cross-assembled and loaded as a paper tape (PTP) file. Some errors in
+the original code were corrected and are marked with "JJT" in the
+comments.
+
+You need to load both please.ptp as well as one of the program
+module files (e.g. program1.ptp).
 
 See the PDF documentation for details.
