@@ -87,7 +87,7 @@ MATCH   =       $0D
 
 GETKEY  =   $1F6A
 INITS   =   $1E88
-KEYMAX  =   $1F
+KEYMAX  =   $14
 PC      =   $14
 
 ; Function Table
@@ -113,9 +113,8 @@ PC      =   $14
 
 ; System Timer
 
-        .ORG    $0200
+        .RES $0200-*, $00
 
-APPL:
 TIMER:  SED                     ; Calculations done in Decimal Mode
         LDX     #3              ; Setup Counter for Timer
 
@@ -281,6 +280,7 @@ FILLIT: STA     (ADRLO),Y
 
 ; Interpreter
 
+APPL:
 DECODE: LDA     #$00
 SETSTP: STA     STEPNO
 NXTSTP: JSR     EXSET
@@ -456,7 +456,7 @@ RETURN: RTS
 
 ; PLEASE Monitor
 
-        .ORG    $1780
+        .RES $1780-*, $00
 
 EXINIT: LDA     #DCDLO          ; DCDLO = Application Low
         STA     EXAPLO          ; Address to Exec Transfer
