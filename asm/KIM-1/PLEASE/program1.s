@@ -5,6 +5,7 @@
 ; PLEASE routine addresses
 
 NXTSTP  =       $0304
+DIRADR  =       $0383
 EXSET   =       $17D9
 
 ; Please command codes
@@ -23,7 +24,7 @@ BRCHAR  =       $09
 BRTABL  =       $0A
 FILL    =       $0B
 COMPAR  =       $0C
-MATCH   =       $0D
+;MATCH  =       $0D
 
 DECODE  =       $00
 MSGHI   =       $01
@@ -123,7 +124,7 @@ INCR:   ADC     #0              ; place.
         STA     PTEMP0
 SETIME: LDA     #100            ; Set 1/10 second timer.
         STA     PTEMP1
-_WAIT:  JSR     EXSET           ; Wait 1 milisecond
+_WAIT:  JSR     EXSET           ; Wait 1 millisecond
         DEC     PTEMP1          ; Bump 1/10 second counter
         BNE     _WAIT           ; until zero.
         DEC     PTEMP1          ; Then bump Delay counter
@@ -140,3 +141,51 @@ _WAIT:  JSR     EXSET           ; Wait 1 milisecond
         .BYTE   $00, $53, $00, $00, $00, $00 ;  ?
         .BYTE   $00, $00, $00, $00, $00, $00 ; Trailing blanks
         .BYTE   $FF                          ; Terminator
+
+_MASTER:JSR     DIRADR          ; Address of Guess
+        LDX     PARAM2          ; Bump Guesses Counter
+        INC     5,X
+        LDA     #$0A            ; Test Units digit - 10
+        CMP     5,X
+        BNE     TEST
+        LDA     #0              ; Set Units = 0.
+        STA     5,X             ; Incr Tens digit
+        INC     4,X
+
+TEST:   LDA     #0              ; Clear Evaluation
+        STA     PTEMP0          ; Counters
+        STA     PTEMP1
+        LDA     #3              ; Set DIgit Counter
+PTEST:  LDA     (ADRLO),Y       ; Get a Guess Character
+        CMP     3,X             ; Test Correct Char.
+        BNE     NOTPER          ; in Correct Location.
+        INC     PTEMP0          ; Bump Counter
+NOTPER: DEX                     ; Test all four Guess
+        DEY                     ; Characters.
+        BPL     PTEST
+
+        LDX     PARAM2          ; Test Correct without
+        LDA     #3              ; regard to position.
+        STA     TEMP
+SETUP:  LDY     #3
+MATCH:  LDA     3,X             ; Get Answer Digit
+        CMP     (ADRLO),y       ; Guess digit to prevent
+        INC     PTEMP1          ; multiple matches.
+        BPL     NEXT
+NMATCH: DEY                     ; If No-match, keep trying
+        BPL     MATCH
+NEXT:   DEX                     ; Get next Answer digit
+        DEC     TEMP            ; until all four done.
+        BPL     SETUP
+
+        LDY     #4              ; Test Perfect Match on
+        CPY     PTEMP0          ; all four digits.
+        BEQ     DONE            ; If so, then done.
+        LDA     PARAM3          ; Else, use PARAM3 for next
+        STA     STEPNO          ; Step Number.
+DONE:   LDA     PTEMP0          ; Move Evaluation counters
+        STA     (ADRLO),Y       ; to Guess Buffer for
+        INY                     ; displaying.
+        LDA     PTEMP1
+        STA     (ADRLO),y
+        JMP     NXTSTP
