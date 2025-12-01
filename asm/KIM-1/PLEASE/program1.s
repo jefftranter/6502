@@ -35,6 +35,7 @@ DTIMER  =       $0C
 NOTICE  =       $10
 MASTER  =       $10
 MESAGE  =       $11
+BBOARD  =       $12
 GO      =       $13
 BILBRD  =       $13
 DAFFY   =       $16
@@ -46,12 +47,13 @@ BAD     =       $20
 HOLD    =       $21
 DISPLAY =       $C8
 BMSGLO  =       $CA
-BBOARD  =       $CA
 NMSGLO  =       $D0
 CMDTBL  =       $DC
 BUFFER  =       $E0
+ANSWER  =       $E0
 GUESS   =       $E6
-ANSWER  =       $EC
+
+        .ORG    $0000
 
 ;               COMMAND  PARAM1   PARAM2  PARAM3
 
@@ -100,47 +102,7 @@ ANSWER  =       $EC
         .BYTE   BRCHAR,  GO,      DECODE, GET
         .BYTE   BRANCH,  HOLD,    0,      0
 
-        .ORG    $0190
-
-_MESAGE:LDY     #$00            ; Initialize start of message.
-        STY     PLACE
-MORE:   LDX     #$00            ; Get next character.
-FETCH:  LDA     (PARAM1),Y      ; If character is minus, then
-        BPL     OKAY            ; end of message.
-        JMP     NXTSTP
-OKAY:   STA     DSP0,X          ; Store character in display
-        INY                     ; buffer.  Bump pointers.
-        INX
-        CPX     #6              ; Text six characters done.
-        BNE     FETCH           ; If not, get next.
-        LDA     PLACE           ; Get message place pointer.
-        LDA     #$12            ; Test MESAGE or BILBRD
-        CPX     PARAM0          ; If MESAGE, then move place
-        BEQ     INCR            ; pointer forward six places.
-        ADC     #5              ; If BILBRD, then move one
-INCR:   ADC     #0              ; place.
-        STA     PLACE           ; Save modified PLACE.
-        LDA     PARAM3          ; Get Delay from PARAM3
-        STA     PTEMP0
-SETIME: LDA     #100            ; Set 1/10 second timer.
-        STA     PTEMP1
-_WAIT:  JSR     EXSET           ; Wait 1 millisecond
-        DEC     PTEMP1          ; Bump 1/10 second counter
-        BNE     _WAIT           ; until zero.
-        DEC     PTEMP1          ; Then bump Delay counter
-        BNE     SETIME          ; until zero.
-        LDY     PLACE           ; Now get next frame of the
-        BPL     MORE            ; message.
-
-; Message for Notice and Billboard
-
-        .BYTE   $00, $00, $00, $00, $00, $00 ; Blanks for Billboard
-        .BYTE   $73, $38, $79, $77, $6D, $79 ; PLEASE
-        .BYTE   $00, $37, $77, $37, $00, $30 ;  CAN I
-        .BYTE   $00, $76, $79, $38, $73, $00 ;  HELP
-        .BYTE   $00, $53, $00, $00, $00, $00 ;  ?
-        .BYTE   $00, $00, $00, $00, $00, $00 ; Trailing blanks
-        .BYTE   $FF                          ; Terminator
+        .RES $0130-*, $00
 
 _MASTER:JSR     DIRADR          ; Address of Guess
         LDX     PARAM2          ; Bump Guesses Counter
@@ -155,7 +117,7 @@ _MASTER:JSR     DIRADR          ; Address of Guess
 TEST:   LDA     #0              ; Clear Evaluation
         STA     PTEMP0          ; Counters
         STA     PTEMP1
-        LDA     #3              ; Set DIgit Counter
+        LDY     #3              ; Set Digit Counter
 PTEST:  LDA     (ADRLO),Y       ; Get a Guess Character
         CMP     3,X             ; Test Correct Char.
         BNE     NOTPER          ; in Correct Location.
@@ -170,6 +132,9 @@ NOTPER: DEX                     ; Test all four Guess
 SETUP:  LDY     #3
 MATCH:  LDA     3,X             ; Get Answer Digit
         CMP     (ADRLO),y       ; Guess digit to prevent
+        BNE     NMATCH
+        LDA     #$FF            ; If Match, wipe out the
+        STA     (ADRLO),Y       ; Guess digit to prevent
         INC     PTEMP1          ; multiple matches.
         BPL     NEXT
 NMATCH: DEY                     ; If No-match, keep trying
@@ -189,3 +154,49 @@ DONE:   LDA     PTEMP0          ; Move Evaluation counters
         LDA     PTEMP1
         STA     (ADRLO),y
         JMP     NXTSTP
+
+        BRK
+        BRK
+        BRK
+        BRK
+        BRK
+
+_MESAGE:LDY     #$00            ; Initialize start of message.
+        STY     PLACE
+MORE:   LDX     #$00            ; Get next character.
+FETCH:  LDA     (PARAM1),Y      ; If character is minus, then
+        BPL     OKAY            ; end of message.
+        JMP     NXTSTP
+OKAY:   STA     DSP0,X          ; Store character in display
+        INY                     ; buffer.  Bump pointers.
+        INX
+        CPX     #6              ; Text six characters done.
+        BNE     FETCH           ; If not, get next.
+        LDA     PLACE           ; Get message place pointer.
+        LDX     #$12            ; Test MESAGE or BILBRD
+        CPX     PARAM0          ; If MESAGE, then move place
+        BEQ     INCR            ; pointer forward six places.
+        ADC     #5              ; If BILBRD, then move one
+INCR:   ADC     #0              ; place.
+        STA     PLACE           ; Save modified PLACE.
+        LDA     PARAM3          ; Get Delay from PARAM3
+        STA     PTEMP0
+SETIME: LDA     #100            ; Set 1/10 second timer.
+        STA     PTEMP1
+_WAIT:  JSR     EXSET           ; Wait 1 millisecond
+        DEC     PTEMP1          ; Bump 1/10 second counter
+        BNE     _WAIT           ; until zero.
+        DEC     PTEMP0          ; Then bump Delay counter
+        BNE     SETIME          ; until zero.
+        LDY     PLACE           ; Now get next frame of the
+        BPL     MORE            ; message.
+
+; Message for Notice and Billboard
+
+        .BYTE   $00, $00, $00, $00, $00, $00 ; Blanks for Billboard
+        .BYTE   $73, $38, $79, $77, $6D, $79 ; PLEASE
+        .BYTE   $00, $39, $77, $37, $00, $30 ;  CAN I
+        .BYTE   $00, $76, $79, $38, $73, $00 ;  HELP
+        .BYTE   $00, $53, $00, $00, $00, $00 ;  ?
+        .BYTE   $00, $00, $00, $00, $00, $00 ; Trailing blanks
+        .BYTE   $FF                          ; Terminator
