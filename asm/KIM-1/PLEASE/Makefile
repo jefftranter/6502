@@ -1,15 +1,23 @@
-PROGRAM = please
 
-all: $(PROGRAM).ptp
+all: please.ptp program1.ptp
 
-$(PROGRAM).ptp: $(PROGRAM).bin Makefile
-	srec_cat $(PROGRAM).bin -binary -offset 0x0100 -o $(PROGRAM).ptp -MOS_Technologies
+please.ptp: please.bin Makefile
+	srec_cat please.bin -binary -offset 0x0100 -o please.ptp -MOS_Technologies
 
-$(PROGRAM).bin: $(PROGRAM).o
-	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m $(PROGRAM).map -o $(PROGRAM).bin $(PROGRAM).o
+please.bin: please.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m please.map -o please.bin please.o
 
-$(PROGRAM).o:	$(PROGRAM).s
-	ca65 -g -l $(PROGRAM).lst $(PROGRAM).s
+please.o:	please.s
+	ca65 -g -l please.lst please.s
+
+program1.ptp: program1.bin Makefile
+	srec_cat program1.bin -binary -offset 0x0000 -o program1.ptp -MOS_Technologies
+
+program1.bin: program1.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program1.map -o program1.bin program1.o
+
+program1.o:	program1.s
+	ca65 -g -l program1.lst program1.s
 
 clean:
 	$(RM) *.o *.lst *.map *.bin *.ptp
