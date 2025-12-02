@@ -102,7 +102,19 @@ GUESS   =       $E6
         .BYTE   BRCHAR,  GO,      DECODE, GET
         .BYTE   BRANCH,  HOLD,    0,      0
 
-        .RES $0130-*, $00
+; Special Function Table
+; JJT: Table was not shown in original listng
+
+        .RES $0120-*, $00
+                        ; Code Word
+        .WORD   MASTER  ; 10   MASTER
+        .WORD   MESAGE  ; 11   MESAGE
+        .WORD   MESAGE  ; 12   BBOARD
+        .WORD   BILBRD  ; 13   BILBRD
+        .WORD   $0000   ; 14   Not used
+        .WORD   $0000   ; 15   Not used
+        .WORD   $0000   ; 16   Not used
+        .WORD   $0000   ; 17   Not used
 
 _MASTER:JSR     DIRADR          ; Address of Guess
         LDX     PARAM2          ; Bump Guesses Counter
