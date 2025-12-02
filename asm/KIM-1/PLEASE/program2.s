@@ -5,8 +5,6 @@
 ; PLEASE routine addresses
 
 NXTSTP  =       $0304
-;DIRADR  =       $0383
-;EXSET   =       $17D9
 
 ; Please command codes
 
@@ -78,7 +76,7 @@ CENTER  =       $E8
 ; HILO Number Guessing Game
         .BYTE   FILL,    GUESS,     $FF,      6
         .BYTE   UNPACK,  TENTHS,    BUFFER+4, 2
-        .BYTE   BRCHAR,  GO,        DECODE, READY
+        .BYTE   BRCHAR,  GO,        DECODE,   READY
         .BYTE   BRANCH,  WAIT,      0,        0
         .BYTE   FILL,    DISPLAY+4, 0,        2
         .BYTE   DECIN,   GUESS,     0,        1

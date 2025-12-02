@@ -104,7 +104,7 @@ GUESS   =       $E6
 ; Special Function Table
 ; JJT: Table was not shown in original listing
 
-        .RES $0120-*, $00
+        .RES    $0120-*, $00
                         ; Code Word
         .WORD   _MASTER ; 10   MASTER
         .WORD   _MESAGE ; 11   MESAGE
