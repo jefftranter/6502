@@ -11,7 +11,7 @@ please.o:	please.s
 	ca65 -g -l please.lst please.s
 
 program1.ptp: program1.bin Makefile
-	srec_cat program1.bin -binary -offset 0x0000 -o program1.ptp -MOS_Technologies
+	srec_cat program1.bin -binary -offset 0x0000 -crop 0x0000 0x008c 0x0130 0x01ef -o program1.ptp -MOS_Technologies
 
 program1.bin: program1.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program1.map -o program1.bin program1.o
