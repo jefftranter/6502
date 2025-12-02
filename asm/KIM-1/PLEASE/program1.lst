@@ -84,7 +84,7 @@ Current file: program1.s
 000000r 2               
 000000r 2               APL0    =       $EC             ; Application General Registers
 000000r 2               APL1    =       $ED
-000000r 2               APL2    =       $EF
+000000r 2               APL2    =       $EE
 000000r 2               
 000000r 1               
 000000r 1               ; PLEASE routine addresses

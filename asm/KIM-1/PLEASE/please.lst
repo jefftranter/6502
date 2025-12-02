@@ -82,7 +82,7 @@ Current file: please.s
 000000r 2               
 000000r 2               APL0    =       $EC             ; Application General Registers
 000000r 2               APL1    =       $ED
-000000r 2               APL2    =       $EF
+000000r 2               APL2    =       $EE
 000000r 2               
 000000r 1               
 000000r 1               ; Addresses of PLEASE routines and constants
@@ -93,15 +93,42 @@ Current file: please.s
 000000r 1               
 000000r 1               ; KIM-1 ROM routines and constants
 000000r 1               
-000000r 1               GETKEY  =   $1F6A
-000000r 1               INITS   =   $1E88
-000000r 1               KEYMAX  =   $14
-000000r 1               PC      =   $14
+000000r 1               GETKEY  =       $1F6A
+000000r 1               INITS   =       $1E88
+000000r 1               KEYMAX  =       $14
+000000r 1               PC      =       $14
 000000r 1               
-000000r 1               ; Function Table
-000000r 1               ; JJT: Table was not shown in original listng
+000000r 1               ; Page Zero Data - $00A0 to $00EE
 000000r 1               
-000000r 1                       .ORG    $0100
+000000r 1                       .ORG    $00A0
+0000A0  1               
+0000A0  1  D2 04 32 06          .BYTE   $d2, $04, $32, $06, $de, $0a, $3e, $0c
+0000A4  1  DE 0A 3E 0C  
+0000A8  1  30 16 9A 10          .BYTE   $30, $16, $9a, $10, $11, $13, $00, $00
+0000AC  1  11 13 00 00  
+0000B0  1  11 D0 01 0A          .BYTE   $11, $d0, $01, $0a, $a0, $00, $00, $11
+0000B4  1  A0 00 00 11  
+0000B8  1  40 00 90 1E          .BYTE   $40, $00, $90, $1e, $00, $01, $04, $54
+0000BC  1  00 01 04 54  
+0000C0  1  02 55 82 04          .BYTE   $02, $55, $82, $04, $12, $18, $53, $09
+0000C4  1  12 18 53 09  
+0000C8  1  00 00 00 00          .BYTE   $00, $00, $00, $00, $00, $00, $c8, $00
+0000CC  1  00 00 C8 00  
+0000D0  1  F0 03 E7 1F          .BYTE   $f0, $03, $e7, $1f, $f0, $03, $d4, $05
+0000D4  1  F0 03 D4 05  
+0000D8  1  10 03 02 20          .BYTE   $10, $03, $02, $20, $a0, $00, $15, $11
+0000DC  1  A0 00 15 11  
+0000E0  1  01 01 FF FF          .BYTE   $01, $01, $ff, $ff, $ff, $ff, $ff, $ff
+0000E4  1  FF FF FF FF  
+0000E8  1  FF FF 04 04          .BYTE   $ff, $ff, $04, $04, $00, $00, $00
+0000EC  1  00 00 00     
+0000EF  1               
+0000EF  1               ; Function Table
+0000EF  1               ; JJT: Table was not shown in original listng
+0000EF  1               
+0000EF  1  00 00 00 00          .RES    $0100-*, $00
+0000F3  1  00 00 00 00  
+0000F7  1  00 00 00 00  
 000100  1                                       ; Code Word
 000100  1  29 03                .WORD   ALPIN   ; 00   ALPIN
 000102  1  2F 03                .WORD   HEXIN   ; 01   HEXIN
@@ -122,7 +149,7 @@ Current file: please.s
 000120  1               
 000120  1               ; System Timer
 000120  1               
-000120  1  00 00 00 00          .RES $0200-*, $00
+000120  1  00 00 00 00          .RES    $0200-*, $00
 000124  1  00 00 00 00  
 000128  1  00 00 00 00  
 000200  1               
@@ -167,7 +194,7 @@ Current file: please.s
 000239  1  D8           TDONE:  CLD                     ; All Done.  Clear Decimal Mode
 00023A  1  60                   RTS                     ; Subroutine Return
 00023B  1               
-00023B  1               ; PLEASE functions
+00023B  1               ; PLEASE Functions
 00023B  1               
 00023B  1  A6 B1        PACK:   LDX     PARAM1
 00023D  1  B5 00                LDA     0,X
@@ -468,7 +495,7 @@ Current file: please.s
 000400  1               
 000400  1               ; PLEASE Monitor
 000400  1               
-000400  1  00 00 00 00          .RES $1780-*, $00
+000400  1  00 00 00 00          .RES    $1780-*, $00
 000404  1  00 00 00 00  
 000408  1  00 00 00 00  
 001780  1               
