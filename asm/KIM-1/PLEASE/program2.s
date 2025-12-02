@@ -28,6 +28,7 @@ DECODE  =       $00
 STAR    =       $04
 RWAIT   =       $09
 LOSE    =       $0B
+SWAIT   =       $0C
 WIN     =       $0E
 START   =       $10
 SHOT    =       $11
@@ -69,10 +70,10 @@ CENTER  =       $E8
         .BYTE   BRANCH,  RWAIT,     0,        0
         .BYTE   FILL,    DISPLAY+4, $53,      2
         .BYTE   BRCHAR,  GO,        DECODE,   STAR
-        .BYTE   BRANCH,  WAIT,      0,        0
+        .BYTE   BRANCH,  SWAIT,     0,        0
         .BYTE   UNPACK,  COUNT,     BUFFER+4, 2
         .BYTE   DECOUT,  BUFFER,    4,        5
-        .BYTE   BRANCH,  WAIT,      0,        0
+        .BYTE   BRANCH,  SWAIT,     0,        0
 
 ; HILO Number Guessing Game
         .BYTE   FILL,    GUESS,     $FF,      6

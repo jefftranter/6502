@@ -113,6 +113,7 @@ Current file: program2.s
 000000r 1               STAR    =       $04
 000000r 1               RWAIT   =       $09
 000000r 1               LOSE    =       $0B
+000000r 1               SWAIT   =       $0C
 000000r 1               WIN     =       $0E
 000000r 1               START   =       $10
 000000r 1               SHOT    =       $11
@@ -154,10 +155,10 @@ Current file: program2.s
 000028  1  08 09 00 00          .BYTE   BRANCH,  RWAIT,     0,        0
 00002C  1  0B CC 53 02          .BYTE   FILL,    DISPLAY+4, $53,      2
 000030  1  09 13 00 04          .BYTE   BRCHAR,  GO,        DECODE,   STAR
-000034  1  08 13 00 00          .BYTE   BRANCH,  WAIT,      0,        0
+000034  1  08 0C 00 00          .BYTE   BRANCH,  SWAIT,     0,        0
 000038  1  07 E6 E4 02          .BYTE   UNPACK,  COUNT,     BUFFER+4, 2
 00003C  1  04 E0 04 05          .BYTE   DECOUT,  BUFFER,    4,        5
-000040  1  08 13 00 00          .BYTE   BRANCH,  WAIT,      0,        0
+000040  1  08 0C 00 00          .BYTE   BRANCH,  SWAIT,     0,        0
 000044  1               
 000044  1               ; HILO Number Guessing Game
 000044  1  0B E6 FF 06          .BYTE   FILL,    GUESS,     $FF,      6
