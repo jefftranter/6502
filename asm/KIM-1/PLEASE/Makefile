@@ -2,7 +2,7 @@
 all: please.ptp program1.ptp
 
 please.ptp: please.bin Makefile
-	srec_cat please.bin -binary -offset 0x0100 -o please.ptp -MOS_Technologies
+	srec_cat please.bin -binary -offset 0x0100 -crop 0x0100 0x0120 0x0200 0x0400 0x1780 0x17e5 -o please.ptp -MOS_Technologies
 
 please.bin: please.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m please.map -o please.bin please.o
