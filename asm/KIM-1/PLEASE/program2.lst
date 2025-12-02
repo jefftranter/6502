@@ -90,8 +90,6 @@ Current file: program2.s
 000000r 1               ; PLEASE routine addresses
 000000r 1               
 000000r 1               NXTSTP  =       $0304
-000000r 1               ;DIRADR  =       $0383
-000000r 1               ;EXSET   =       $17D9
 000000r 1               
 000000r 1               ; Please command codes
 000000r 1               
@@ -163,7 +161,7 @@ Current file: program2.s
 000044  1               ; HILO Number Guessing Game
 000044  1  0B E6 FF 06          .BYTE   FILL,    GUESS,     $FF,      6
 000048  1  07 C2 E4 02          .BYTE   UNPACK,  TENTHS,    BUFFER+4, 2
-00004C  1  09 13 00 15          .BYTE   BRCHAR,  GO,        DECODE, READY
+00004C  1  09 13 00 15          .BYTE   BRCHAR,  GO,        DECODE,   READY
 000050  1  08 13 00 00          .BYTE   BRANCH,  WAIT,      0,        0
 000054  1  0B CC 00 02          .BYTE   FILL,    DISPLAY+4, 0,        2
 000058  1  02 E6 00 01          .BYTE   DECIN,   GUESS,     0,        1
