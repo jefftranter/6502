@@ -1,0 +1,307 @@
+ca65 V2.19 - Git dbcfa9108
+Main file   : program1.s
+Current file: program1.s
+
+000000r 1               ; Program Module #1
+000000r 1               
+000000r 1               .INCLUDE        "pagezero.s"
+000000r 2               ; Page zero addresses
+000000r 2               
+000000r 2               DCDLO   =       $00             ; Application Address Low
+000000r 2               DCDHI   =       $03             ; Application Address High
+000000r 2               
+000000r 2               PARAM0  =       $B0             ; Parameter 0 is usually the COMMAND CODE
+000000r 2               PARAM1  =       $B1             ; Parameter 1 is usually DATA
+000000r 2               PARAM2  =       $B2             ; Parameter 2 is usually DATA
+000000r 2               PARAM3  =       $B3             ; Parameter 3 is usually DATA
+000000r 2               ADRLO   =       $B4             ; Low Address pointer for Indirect Address
+000000r 2               ADRHI   =       $B5             ; High Address pointer for Indirect Address
+000000r 2               PNTR    =       $B6             ; Temporary Pointer Storage
+000000r 2               STEPNO  =       $B7             ; Number of NEXT PLEASE Step
+000000r 2               STEPLO  =       $B8             ; Low Address of Current PLEASE Step
+000000r 2               STEPHI  =       $B9             ; High Address of Current PLEASE Step
+000000r 2               TRANLO  =       $BA             ; Temporary Transfer Pointer to PLEASE Function
+000000r 2               TRANHI  =       $BB             ; Temporary Transfer Pointer to PLEASE Function
+000000r 2               PLACE   =       $BB             ; Alternate name
+000000r 2               FUNTBL  =       $BC             ; Low Address of PLEASE Function Table
+000000r 2               FUNTBH  =       $BD             ; High Address of PLEASE Function Table
+000000r 2               PTEMP0  =       $BE             ; PLEASE Temporary Storage
+000000r 2               PTEMP1  =       $BF             ; PLEASE Temporary Storage
+000000r 2               TEMP1   =       PTEMP0
+000000r 2               TEMP2   =       PTEMP1
+000000r 2               
+000000r 2               THOUS   =       $C0             ; Thousands and Tens of Thousands of Seconds
+000000r 2               TENS    =       $C1             ; Tens and Hundreds of Seconds
+000000r 2               TENTHS  =       $C2             ; Tenths and Seconds
+000000r 2               MILLI   =       $C3             ; Thousandths and hundredths of Seconds
+000000r 2               HOUR    =       $C4             ; Hour portion of 24 Hour Clock
+000000r 2               MINUTE  =       $C5             ; Minute portion of 24 Hour Clock
+000000r 2               SECOND  =       $C6             ; Second portion of 24 Hour Clock
+000000r 2               ONESEC  =       $C7             ; Counter for One Second
+000000r 2               
+000000r 2               DSP0    =       $C8             ; Display position 0 (Leftmost Digit)
+000000r 2               DSP1    =       $C9             ; Display position 1
+000000r 2               DSP2    =       $CA             ; Display position 2
+000000r 2               DSP3    =       $CB             ; Display position 3
+000000r 2               DSP4    =       $CC             ; Display position 4
+000000r 2               DSP5    =       $CD             ; Display position 5 (Rightmost Digit)
+000000r 2               DSPLO   =       $CE             ; Low Address of Display Buffer (Usually = DSP0 = C8)
+000000r 2               DSPHI   =       $CF             ; High Address of Display Buffer (Usually = DSP0 = 00)
+000000r 2               
+000000r 2               DCONLO  =       $D0             ; Display Conversion Table Low Address
+000000r 2               DCONHI  =       $D1             ; Display Conversion Table High Address
+000000r 2               DTABLO  =       DCONLO
+000000r 2               DTABHI  =       DCONHI
+000000r 2               HEXDEC  =       HEXLO
+000000r 2               HEXLO   =       $D2             ; Hexadecimal (and Decimal) Conversion Table Low Address = E7
+000000r 2               HEXHI   =       $D3             ; Hexadecimal (and Decimal) Conversion Table High Address = 17
+000000r 2               ALPHLO  =       $D4             ; Alphabetic Conversion Table Low Address (usually = F0)
+000000r 2               ALPHHI  =       $D5             ; Alphabetic Conversion Table High Address (usually = 03)
+000000r 2               XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or ALPHA Table
+000000r 2               TEMP    =       $D7             ; General Purpose Temporary Save Location
+000000r 2               LIMIT   =       $D8             ; Uses by Conversion Routine.  General Purposes Register
+000000r 2               DSPPOS  =       $D9             ; Executive Pointer to Current Display Position
+000000r 2               CURPNT  =       $DA             ; Used by Input Routines as Current Data Pointer.
+000000r 2               CHAR    =       $DB             ; Save location for Input Character
+000000r 2               CTABLO  =       $DC             ; Command Table Low Address (usually = A0)
+000000r 2               CTABHI  =       $DD             ; Command Table High Address (usually = 00)
+000000r 2               KEYTST  =       $DE             ; Used by Executive as part of Keyboard Input
+000000r 2               KEYVAL  =       $DF             ; Contains Last Character if Input String
+000000r 2               
+000000r 2               BUF0    =       $E0             ; General Purpose Buffer
+000000r 2               BUF1    =       $E1
+000000r 2               BUF2    =       $E2
+000000r 2               BUF3    =       $E3
+000000r 2               BUF4    =       $E4
+000000r 2               BUF5    =       $E5
+000000r 2               
+000000r 2               ALT0    =       $E6             ; Alternate General Purposes Buffer
+000000r 2               ALT1    =       $E7
+000000r 2               ALT2    =       $E8
+000000r 2               ALT3    =       $E9
+000000r 2               ALT4    =       $EA
+000000r 2               ALT5    =       $EB
+000000r 2               
+000000r 2               APL0    =       $EC             ; Application General Registers
+000000r 2               APL1    =       $ED
+000000r 2               APL2    =       $EF
+000000r 2               
+000000r 1               
+000000r 1               ; PLEASE routine addresses
+000000r 1               
+000000r 1               NXTSTP  =       $0304
+000000r 1               DIRADR  =       $0383
+000000r 1               EXSET   =       $17D9
+000000r 1               
+000000r 1               ; Please command codes
+000000r 1               
+000000r 1               ALPIN   =       $00
+000000r 1               HEXIN   =       $01
+000000r 1               DECIN   =       $02
+000000r 1               ALPOUT  =       $03
+000000r 1               HEXOUT  =       $04
+000000r 1               DECOUT  =       $04
+000000r 1               TIMER   =       $05
+000000r 1               PACK    =       $06
+000000r 1               UNPACK  =       $07
+000000r 1               BRANCH  =       $08
+000000r 1               BRCHAR  =       $09
+000000r 1               BRTABL  =       $0A
+000000r 1               FILL    =       $0B
+000000r 1               COMPAR  =       $0C
+000000r 1               
+000000r 1               DECODE  =       $00
+000000r 1               MSGHI   =       $01
+000000r 1               SCLOCK  =       $04
+000000r 1               DCLOCK  =       $06
+000000r 1               STIMER  =       $0A
+000000r 1               DTIMER  =       $0C
+000000r 1               NOTICE  =       $10
+000000r 1               MASTER  =       $10
+000000r 1               MESAGE  =       $11
+000000r 1               BBOARD  =       $12
+000000r 1               GO      =       $13
+000000r 1               BILBRD  =       $13
+000000r 1               DAFFY   =       $16
+000000r 1               GET     =       $18
+000000r 1               GOOD    =       $1A
+000000r 1               BLANK   =       $1C
+000000r 1               WAIT    =       $1E
+000000r 1               BAD     =       $20
+000000r 1               HOLD    =       $21
+000000r 1               DISPLAY =       $C8
+000000r 1               BMSGLO  =       $CA
+000000r 1               NMSGLO  =       $D0
+000000r 1               CMDTBL  =       $DC
+000000r 1               BUFFER  =       $E0
+000000r 1               ANSWER  =       $E0
+000000r 1               GUESS   =       $E6
+000000r 1               
+000000r 1                       .ORG    $0000
+000000  1               
+000000  1               ;               COMMAND  PARAM1   PARAM2  PARAM3
+000000  1               
+000000  1               ; Command Decoder
+000000  1  00 E0 00 05          .BYTE   ALPIN,   BUFFER,  0,      5
+000004  1  06 E0 DF 01          .BYTE   PACK,    BUFFER,  KEYVAL, 1
+000008  1  0B C8 00 06          .BYTE   FILL,    DISPLAY, 0,      6
+00000C  1  0A DC DF 00          .BYTE   BRTABL,  CMDTBL,  KEYVAL, DECODE
+000010  1               
+000010  1               ; Set Clock and Display Clock
+000010  1  02 E0 00 05          .BYTE   DECIN,   BUFFER,  0,      5
+000014  1  06 E0 C4 03          .BYTE   PACK,    BUFFER,  HOUR,   3
+000018  1  07 C4 E0 06          .BYTE   UNPACK,  HOUR,    BUFFER, 6
+00001C  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,  0,      5
+000020  1  09 13 00 04          .BYTE   BRCHAR,  GO,      DECODE, SCLOCK
+000024  1  08 06 00 00          .BYTE   BRANCH,  DCLOCK,  0,      0
+000028  1               
+000028  1               ; Set Timer and Display Timer
+000028  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,  5,      0
+00002C  1  06 E0 C1 03          .BYTE   PACK,    BUFFER,  TENS,   3
+000030  1  07 C1 E0 06          .BYTE   UNPACK,  TENS,    BUFFER, 6
+000034  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,  0,      5
+000038  1  09 13 00 0A          .BYTE   BRCHAR,  GO,      DECODE, STIMER
+00003C  1  08 0C 00 00          .BYTE   BRANCH,  DTIMER,  0,      0
+000040  1               
+000040  1               ; Notice and Billboard
+000040  1  11 D0 01 0A          .BYTE   MESAGE,  NMSGLO,  MSGHI,  10
+000044  1  09 13 00 13          .BYTE   BRCHAR,  GO,      DECODE, BILBRD
+000048  1  08 10 00 00          .BYTE   BRANCH,  NOTICE,  0,      0
+00004C  1  12 CA 01 04          .BYTE   BBOARD,  BMSGLO,  MSGHI,  4
+000050  1  09 13 00 10          .BYTE   BRCHAR,  GO,      DECODE, NOTICE
+000054  1  08 13 00 00          .BYTE   BRANCH,  BILBRD,  0,      0
+000058  1               
+000058  1               ; Daffy
+000058  1  0B E0 00 06          .BYTE   FILL,    ANSWER,  0,      6
+00005C  1  07 C1 E0 04          .BYTE   UNPACK,  TENS,    ANSWER, 4
+000060  1  02 E6 00 03          .BYTE   DECIN,   GUESS,   0,      3
+000064  1  10 E6 E0 20          .BYTE   MASTER,  GUESS,   ANSWER, BAD
+000068  1  04 E0 00 05          .BYTE   DECOUT,  ANSWER,  0,      5
+00006C  1  05 02 1C 00          .BYTE   TIMER,   2,       BLANK,  0
+000070  1  0B CC 00 02          .BYTE   FILL,    DISPLAY+4, 0,    2
+000074  1  05 01 1E 00          .BYTE   TIMER,   1,       WAIT,   0
+000078  1  09 13 00 16          .BYTE   BRCHAR,  GO,      DECODE, DAFFY
+00007C  1  08 1A 00 00          .BYTE   BRANCH,  GOOD,    0,      0
+000080  1  04 E6 04 05          .BYTE   DECOUT,  GUESS,   4,      5
+000084  1  09 13 00 18          .BYTE   BRCHAR,  GO,      DECODE, GET
+000088  1  08 21 00 00          .BYTE   BRANCH,  HOLD,    0,      0
+00008C  1               
+00008C  1               ; Special Function Table
+00008C  1               ; JJT: Table was not shown in original listing
+00008C  1               
+00008C  1  00 00 00 00          .RES $0120-*, $00
+000090  1  00 00 00 00  
+000094  1  00 00 00 00  
+000120  1                                       ; Code Word
+000120  1  10 00                .WORD   MASTER  ; 10   MASTER
+000122  1  11 00                .WORD   MESAGE  ; 11   MESAGE
+000124  1  11 00                .WORD   MESAGE  ; 12   BBOARD
+000126  1  13 00                .WORD   BILBRD  ; 13   BILBRD
+000128  1  00 00                .WORD   $0000   ; 14   Not used
+00012A  1  00 00                .WORD   $0000   ; 15   Not used
+00012C  1  00 00                .WORD   $0000   ; 16   Not used
+00012E  1  00 00                .WORD   $0000   ; 17   Not used
+000130  1               
+000130  1  20 83 03     _MASTER:JSR     DIRADR          ; Address of Guess
+000133  1  A6 B2                LDX     PARAM2          ; Bump Guesses Counter
+000135  1  F6 05                INC     5,X
+000137  1  A9 0A                LDA     #$0A            ; Test Units digit - 10
+000139  1  D5 05                CMP     5,X
+00013B  1  D0 06                BNE     TEST
+00013D  1  A9 00                LDA     #0              ; Set Units = 0.
+00013F  1  95 05                STA     5,X             ; Incr Tens digit
+000141  1  F6 04                INC     4,X
+000143  1               
+000143  1  A9 00        TEST:   LDA     #0              ; Clear Evaluation
+000145  1  85 BE                STA     PTEMP0          ; Counters
+000147  1  85 BF                STA     PTEMP1
+000149  1  A0 03                LDY     #3              ; Set Digit Counter
+00014B  1  B1 B4        PTEST:  LDA     (ADRLO),Y       ; Get a Guess Character
+00014D  1  D5 03                CMP     3,X             ; Test Correct Char.
+00014F  1  D0 02                BNE     NOTPER          ; in Correct Location.
+000151  1  E6 BE                INC     PTEMP0          ; Bump Counter
+000153  1  CA           NOTPER: DEX                     ; Test all four Guess
+000154  1  88                   DEY                     ; Characters.
+000155  1  10 F4                BPL     PTEST
+000157  1               
+000157  1  A6 B2                LDX     PARAM2          ; Test Correct without
+000159  1  A9 03                LDA     #3              ; regard to position.
+00015B  1  85 D7                STA     TEMP
+00015D  1  A0 03        SETUP:  LDY     #3
+00015F  1  B5 03        MATCH:  LDA     3,X             ; Get Answer Digit
+000161  1  D1 B4                CMP     (ADRLO),y       ; Guess digit to prevent
+000163  1  D0 08                BNE     NMATCH
+000165  1  A9 FF                LDA     #$FF            ; If Match, wipe out the
+000167  1  91 B4                STA     (ADRLO),Y       ; Guess digit to prevent
+000169  1  E6 BF                INC     PTEMP1          ; multiple matches.
+00016B  1  10 03                BPL     NEXT
+00016D  1  88           NMATCH: DEY                     ; If No-match, keep trying
+00016E  1  10 EF                BPL     MATCH
+000170  1  CA           NEXT:   DEX                     ; Get next Answer digit
+000171  1  C6 D7                DEC     TEMP            ; until all four done.
+000173  1  10 E8                BPL     SETUP
+000175  1               
+000175  1  A0 04                LDY     #4              ; Test Perfect Match on
+000177  1  C4 BE                CPY     PTEMP0          ; all four digits.
+000179  1  F0 04                BEQ     DONE            ; If so, then done.
+00017B  1  A5 B3                LDA     PARAM3          ; Else, use PARAM3 for next
+00017D  1  85 B7                STA     STEPNO          ; Step Number.
+00017F  1  A5 BE        DONE:   LDA     PTEMP0          ; Move Evaluation counters
+000181  1  91 B4                STA     (ADRLO),Y       ; to Guess Buffer for
+000183  1  C8                   INY                     ; displaying.
+000184  1  A5 BF                LDA     PTEMP1
+000186  1  91 B4                STA     (ADRLO),y
+000188  1  4C 04 03             JMP     NXTSTP
+00018B  1               
+00018B  1  00                   BRK
+00018C  1  00                   BRK
+00018D  1  00                   BRK
+00018E  1  00                   BRK
+00018F  1  00                   BRK
+000190  1               
+000190  1  A0 00        _MESAGE:LDY     #$00            ; Initialize start of message.
+000192  1  84 BB                STY     PLACE
+000194  1  A2 00        MORE:   LDX     #$00            ; Get next character.
+000196  1  B1 B1        FETCH:  LDA     (PARAM1),Y      ; If character is minus, then
+000198  1  10 03                BPL     OKAY            ; end of message.
+00019A  1  4C 04 03             JMP     NXTSTP
+00019D  1  95 C8        OKAY:   STA     DSP0,X          ; Store character in display
+00019F  1  C8                   INY                     ; buffer.  Bump pointers.
+0001A0  1  E8                   INX
+0001A1  1  E0 06                CPX     #6              ; Text six characters done.
+0001A3  1  D0 F1                BNE     FETCH           ; If not, get next.
+0001A5  1  A5 BB                LDA     PLACE           ; Get message place pointer.
+0001A7  1  A2 12                LDX     #$12            ; Test MESAGE or BILBRD
+0001A9  1  E4 B0                CPX     PARAM0          ; If MESAGE, then move place
+0001AB  1  F0 02                BEQ     INCR            ; pointer forward six places.
+0001AD  1  69 05                ADC     #5              ; If BILBRD, then move one
+0001AF  1  69 00        INCR:   ADC     #0              ; place.
+0001B1  1  85 BB                STA     PLACE           ; Save modified PLACE.
+0001B3  1  A5 B3                LDA     PARAM3          ; Get Delay from PARAM3
+0001B5  1  85 BE                STA     PTEMP0
+0001B7  1  A9 64        SETIME: LDA     #100            ; Set 1/10 second timer.
+0001B9  1  85 BF                STA     PTEMP1
+0001BB  1  20 D9 17     _WAIT:  JSR     EXSET           ; Wait 1 millisecond
+0001BE  1  C6 BF                DEC     PTEMP1          ; Bump 1/10 second counter
+0001C0  1  D0 F9                BNE     _WAIT           ; until zero.
+0001C2  1  C6 BE                DEC     PTEMP0          ; Then bump Delay counter
+0001C4  1  D0 F1                BNE     SETIME          ; until zero.
+0001C6  1  A4 BB                LDY     PLACE           ; Now get next frame of the
+0001C8  1  10 CA                BPL     MORE            ; message.
+0001CA  1               
+0001CA  1               ; Message for Notice and Billboard
+0001CA  1               
+0001CA  1  00 00 00 00          .BYTE   $00, $00, $00, $00, $00, $00 ; Blanks for Billboard
+0001CE  1  00 00        
+0001D0  1  73 38 79 77          .BYTE   $73, $38, $79, $77, $6D, $79 ; PLEASE
+0001D4  1  6D 79        
+0001D6  1  00 39 77 37          .BYTE   $00, $39, $77, $37, $00, $30 ;  CAN I
+0001DA  1  00 30        
+0001DC  1  00 76 79 38          .BYTE   $00, $76, $79, $38, $73, $00 ;  HELP
+0001E0  1  73 00        
+0001E2  1  00 53 00 00          .BYTE   $00, $53, $00, $00, $00, $00 ;  ?
+0001E6  1  00 00        
+0001E8  1  00 00 00 00          .BYTE   $00, $00, $00, $00, $00, $00 ; Trailing blanks
+0001EC  1  00 00        
+0001EE  1  FF                   .BYTE   $FF                          ; Terminator
+0001EE  1               

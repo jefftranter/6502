@@ -24,7 +24,6 @@ BRCHAR  =       $09
 BRTABL  =       $0A
 FILL    =       $0B
 COMPAR  =       $0C
-;MATCH  =       $0D
 
 DECODE  =       $00
 MSGHI   =       $01
@@ -103,7 +102,7 @@ GUESS   =       $E6
         .BYTE   BRANCH,  HOLD,    0,      0
 
 ; Special Function Table
-; JJT: Table was not shown in original listng
+; JJT: Table was not shown in original listing
 
         .RES $0120-*, $00
                         ; Code Word

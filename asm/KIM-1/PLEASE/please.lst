@@ -1,0 +1,533 @@
+ca65 V2.19 - Git dbcfa9108
+Main file   : please.s
+Current file: please.s
+
+000000r 1               .INCLUDE        "pagezero.s"
+000000r 2               ; Page zero addresses
+000000r 2               
+000000r 2               DCDLO   =       $00             ; Application Address Low
+000000r 2               DCDHI   =       $03             ; Application Address High
+000000r 2               
+000000r 2               PARAM0  =       $B0             ; Parameter 0 is usually the COMMAND CODE
+000000r 2               PARAM1  =       $B1             ; Parameter 1 is usually DATA
+000000r 2               PARAM2  =       $B2             ; Parameter 2 is usually DATA
+000000r 2               PARAM3  =       $B3             ; Parameter 3 is usually DATA
+000000r 2               ADRLO   =       $B4             ; Low Address pointer for Indirect Address
+000000r 2               ADRHI   =       $B5             ; High Address pointer for Indirect Address
+000000r 2               PNTR    =       $B6             ; Temporary Pointer Storage
+000000r 2               STEPNO  =       $B7             ; Number of NEXT PLEASE Step
+000000r 2               STEPLO  =       $B8             ; Low Address of Current PLEASE Step
+000000r 2               STEPHI  =       $B9             ; High Address of Current PLEASE Step
+000000r 2               TRANLO  =       $BA             ; Temporary Transfer Pointer to PLEASE Function
+000000r 2               TRANHI  =       $BB             ; Temporary Transfer Pointer to PLEASE Function
+000000r 2               PLACE   =       $BB             ; Alternate name
+000000r 2               FUNTBL  =       $BC             ; Low Address of PLEASE Function Table
+000000r 2               FUNTBH  =       $BD             ; High Address of PLEASE Function Table
+000000r 2               PTEMP0  =       $BE             ; PLEASE Temporary Storage
+000000r 2               PTEMP1  =       $BF             ; PLEASE Temporary Storage
+000000r 2               TEMP1   =       PTEMP0
+000000r 2               TEMP2   =       PTEMP1
+000000r 2               
+000000r 2               THOUS   =       $C0             ; Thousands and Tens of Thousands of Seconds
+000000r 2               TENS    =       $C1             ; Tens and Hundreds of Seconds
+000000r 2               TENTHS  =       $C2             ; Tenths and Seconds
+000000r 2               MILLI   =       $C3             ; Thousandths and hundredths of Seconds
+000000r 2               HOUR    =       $C4             ; Hour portion of 24 Hour Clock
+000000r 2               MINUTE  =       $C5             ; Minute portion of 24 Hour Clock
+000000r 2               SECOND  =       $C6             ; Second portion of 24 Hour Clock
+000000r 2               ONESEC  =       $C7             ; Counter for One Second
+000000r 2               
+000000r 2               DSP0    =       $C8             ; Display position 0 (Leftmost Digit)
+000000r 2               DSP1    =       $C9             ; Display position 1
+000000r 2               DSP2    =       $CA             ; Display position 2
+000000r 2               DSP3    =       $CB             ; Display position 3
+000000r 2               DSP4    =       $CC             ; Display position 4
+000000r 2               DSP5    =       $CD             ; Display position 5 (Rightmost Digit)
+000000r 2               DSPLO   =       $CE             ; Low Address of Display Buffer (Usually = DSP0 = C8)
+000000r 2               DSPHI   =       $CF             ; High Address of Display Buffer (Usually = DSP0 = 00)
+000000r 2               
+000000r 2               DCONLO  =       $D0             ; Display Conversion Table Low Address
+000000r 2               DCONHI  =       $D1             ; Display Conversion Table High Address
+000000r 2               DTABLO  =       DCONLO
+000000r 2               DTABHI  =       DCONHI
+000000r 2               HEXDEC  =       HEXLO
+000000r 2               HEXLO   =       $D2             ; Hexadecimal (and Decimal) Conversion Table Low Address = E7
+000000r 2               HEXHI   =       $D3             ; Hexadecimal (and Decimal) Conversion Table High Address = 17
+000000r 2               ALPHLO  =       $D4             ; Alphabetic Conversion Table Low Address (usually = F0)
+000000r 2               ALPHHI  =       $D5             ; Alphabetic Conversion Table High Address (usually = 03)
+000000r 2               XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or ALPHA Table
+000000r 2               TEMP    =       $D7             ; General Purpose Temporary Save Location
+000000r 2               LIMIT   =       $D8             ; Uses by Conversion Routine.  General Purposes Register
+000000r 2               DSPPOS  =       $D9             ; Executive Pointer to Current Display Position
+000000r 2               CURPNT  =       $DA             ; Used by Input Routines as Current Data Pointer.
+000000r 2               CHAR    =       $DB             ; Save location for Input Character
+000000r 2               CTABLO  =       $DC             ; Command Table Low Address (usually = A0)
+000000r 2               CTABHI  =       $DD             ; Command Table High Address (usually = 00)
+000000r 2               KEYTST  =       $DE             ; Used by Executive as part of Keyboard Input
+000000r 2               KEYVAL  =       $DF             ; Contains Last Character if Input String
+000000r 2               
+000000r 2               BUF0    =       $E0             ; General Purpose Buffer
+000000r 2               BUF1    =       $E1
+000000r 2               BUF2    =       $E2
+000000r 2               BUF3    =       $E3
+000000r 2               BUF4    =       $E4
+000000r 2               BUF5    =       $E5
+000000r 2               
+000000r 2               ALT0    =       $E6             ; Alternate General Purposes Buffer
+000000r 2               ALT1    =       $E7
+000000r 2               ALT2    =       $E8
+000000r 2               ALT3    =       $E9
+000000r 2               ALT4    =       $EA
+000000r 2               ALT5    =       $EB
+000000r 2               
+000000r 2               APL0    =       $EC             ; Application General Registers
+000000r 2               APL1    =       $ED
+000000r 2               APL2    =       $EF
+000000r 2               
+000000r 1               
+000000r 1               ; Addresses of PLEASE routines and constants
+000000r 1               
+000000r 1               EXAPLO  =       $17CC
+000000r 1               EXAPHI  =       $17CD
+000000r 1               MATCH   =       $0D
+000000r 1               
+000000r 1               ; KIM-1 ROM routines and constants
+000000r 1               
+000000r 1               GETKEY  =   $1F6A
+000000r 1               INITS   =   $1E88
+000000r 1               KEYMAX  =   $14
+000000r 1               PC      =   $14
+000000r 1               
+000000r 1               ; Function Table
+000000r 1               ; JJT: Table was not shown in original listng
+000000r 1               
+000000r 1                       .ORG    $0100
+000100  1                                       ; Code Word
+000100  1  29 03                .WORD   ALPIN   ; 00   ALPIN
+000102  1  2F 03                .WORD   HEXIN   ; 01   HEXIN
+000104  1  33 03                .WORD   DECIN   ; 02   DECIN
+000106  1  83 02                .WORD   ALPOUT  ; 03   ALPOUT
+000108  1  87 02                .WORD   HEXOUT  ; 04   HEXOUT
+00010A  1  AA 02                .WORD   _TIMER  ; 05   TIMER
+00010C  1  3B 02                .WORD   PACK    ; 06   PACK
+00010E  1  5D 02                .WORD   UNPACK  ; 07   UNPACK
+000110  1  A6 02                .WORD   BRANCH  ; 08   BRANCH
+000112  1  92 02                .WORD   BRCHAR  ; 09   BRCHAR
+000114  1  66 03                .WORD   BRTABL  ; 0A   BRTABL
+000116  1  E9 02                .WORD   FILL    ; 0B   FILL
+000118  1  C5 02                .WORD   COMPAR  ; 0C   COMPARE
+00011A  1  C5 02                .WORD   COMPAR  ; 0D   MATCH (same code as COMPARE)
+00011C  1  00 00                .WORD   $0000   ; 0E   Not used
+00011E  1  00 00                .WORD   $0000   ; 0F   Not used
+000120  1               
+000120  1               ; System Timer
+000120  1               
+000120  1  00 00 00 00          .RES $0200-*, $00
+000124  1  00 00 00 00  
+000128  1  00 00 00 00  
+000200  1               
+000200  1  F8           TIMER:  SED                     ; Calculations done in Decimal Mode
+000201  1  A2 03                LDX     #3              ; Setup Counter for Timer
+000203  1               
+000203  1  18           TIMER1: CLC                     ; Clear Carry Bit
+000204  1  B5 C0                LDA     THOUS,X         ; Add 1 to Current Timer Value
+000206  1  69 01                ADC     #1
+000208  1  95 C0                STA     THOUS,X
+00020A  1  90 2D                BCC     TDONE           ; All done if no Carry
+00020C  1               
+00020C  1  E0 03                CPX     #3              ; Test Carry from Millisecond
+00020E  1  D0 26                BNE     TIMER2          ; Skip Clock Update unless Millisecond
+000210  1  C6 C7                DEC     ONESEC          ; Decrement a Ten * 1/10 second timer
+000212  1  D0 22                BNE     TIMER2          ; Skip Clock Update unless 10 counts
+000214  1               
+000214  1  18           CLOCK:  CLC
+000215  1  B5 C3                LDA     MILLI,X         ; Get Byte Using Index
+000217  1  69 01                ADC     #1              ; Increment Byte
+000219  1  C9 60                CMP     #$60            ; Test Second or Minute Limit
+00021B  1  D0 07                BNE     HTEST           ; Not Limit.  Test Hour Limit
+00021D  1  A9 00                LDA     #0              ; Reset Second or Minute to Zero
+00021F  1  95 C3                STA     MILLI,X         ; Save Modified Byte
+000221  1  CA                   DEX                     ; Decrement Index
+000222  1  10 F0                BPL     CLOCK           ; Unconditional Branch
+000224  1               
+000224  1  E0 01        HTEST:  CPX     #1              ; Is this the Hour Byte?
+000226  1  D0 06                BNE     CDONE           ; If not, then Clock is Done
+000228  1  C9 24                CMP     #$24            ; Test Hour Limit
+00022A  1  D0 02                BNE     CDONE           ; If not Limit, then Clock is Done
+00022C  1  A9 00                LDA     #0              ; If Limit, Reset to Zero
+00022E  1               
+00022E  1  95 C3        CDONE:  STA     MILLI,X         ; Store Modified Value
+000230  1  A2 03                LDX     #3              ; Restore Index Value
+000232  1  A9 0A                lDA     #10             ; Reset Ten * 1/10 Counter
+000234  1  85 C7                STA     ONESEC
+000236  1               
+000236  1  CA           TIMER2: DEX                     ; Decrement Index
+000237  1  10 CA                BPL     TIMER1          ; If Index Positive, Continue Updates
+000239  1               
+000239  1  D8           TDONE:  CLD                     ; All Done.  Clear Decimal Mode
+00023A  1  60                   RTS                     ; Subroutine Return
+00023B  1               
+00023B  1               ; PLEASE functions
+00023B  1               
+00023B  1  A6 B1        PACK:   LDX     PARAM1
+00023D  1  B5 00                LDA     0,X
+00023F  1  0A                   ASL
+000240  1  0A                   ASL
+000241  1  0A                   ASL
+000242  1  0A                   ASL
+000243  1  15 01                ORA     1,X
+000245  1  90 06                BCC     PACK2
+000247  1  B5 01                LDA     1,X
+000249  1  10 02                BPL     PACK2
+00024B  1  A9 00                LDA     #$00
+00024D  1  A6 B2        PACK2:  LDX     PARAM2
+00024F  1  95 00                STA     0,X
+000251  1  E6 B1                INC     PARAM1
+000253  1  E6 B1                INC     PARAM1
+000255  1  E6 B2                INC     PARAM2
+000257  1  C6 B3                DEC     PARAM3
+000259  1  D0 E0                BNE     PACK
+00025B  1  F0 32                BEQ     TONEXT
+00025D  1               
+00025D  1  A6 B1        UNPACK: LDX     PARAM1
+00025F  1  B5 00                LDA     0,X
+000261  1  4A                   LSR
+000262  1  4A                   LSR
+000263  1  4A                   LSR
+000264  1  4A                   LSR
+000265  1  A6 B2                LDX     PARAM2
+000267  1  95 00                STA     0,X
+000269  1  E6 B2                INC     PARAM2
+00026B  1  C6 B3                DEC     PARAM3
+00026D  1  F0 1E                BEQ     TONEXT-2       ; JJT: Original code had TONEXT but listing used TONEXT-2
+00026F  1  A6 B1                LDX     PARAM1
+000271  1  A9 0F                LDA     #$0F
+000273  1  35 00                AND     0,X
+000275  1  A6 B2                LDX     PARAM2
+000277  1  95 00                STA     0,X
+000279  1  E6 B2                INC     PARAM2
+00027B  1  E6 B1                INC     PARAM1
+00027D  1  C6 B3                DEC     PARAM3
+00027F  1  D0 DC                BNE     UNPACK
+000281  1  F0 0C                BEQ     TONEXT
+000283  1               
+000283  1  A2 D4        ALPOUT: LDX     #ALPHLO
+000285  1  D0 02                BNE     GETADR
+000287  1  A2 D2        HEXOUT: LDX     #HEXDEC
+000289  1  20 83 03     GETADR: JSR     DIRADR
+00028C  1  20 A9 03             JSR     CONDSP
+00028F  1  4C 04 03     TONEXT: JMP     NXTSTP
+000292  1               
+000292  1  A6 DB        BRCHAR: LDX     CHAR
+000294  1  A9 20                LDA     #$20
+000296  1  85 DB                STA     CHAR
+000298  1  E0 20                CPX     #$20
+00029A  1  F0 F3                BEQ     TONEXT
+00029C  1  A5 B2                LDA     PARAM2
+00029E  1  E4 B1                CPX     PARAM1
+0002A0  1  F0 02                BEQ     OKAY
+0002A2  1  A5 B3                LDA     PARAM3
+0002A4  1  10 5C        OKAY:   BPL     SETSTP
+0002A6  1               
+0002A6  1  A5 B1        BRANCH: LDA     PARAM1
+0002A8  1  10 58                BPL     SETSTP
+0002AA  1               
+0002AA  1  A9 0A        _TIMER: LDA     #10            ; JJT: Was TIMER in original listing but conficts with other label
+0002AC  1  85 BE                STA     TEMP1
+0002AE  1  A9 0A        RESET:  LDA     #10
+0002B0  1  85 BF                STA     TEMP2
+0002B2  1  20 D9 17     WAIT:   JSR     EXSET
+0002B5  1  C6 BF                DEC     TEMP2
+0002B7  1  D0 F9                BNE     WAIT
+0002B9  1  C6 BE                DEC     TEMP1
+0002BB  1  D0 F1                BNE     RESET
+0002BD  1  C6 B1                DEC     PARAM1
+0002BF  1  D0 E9                BNE     _TIMER
+0002C1  1  A5 B2                LDA     PARAM2
+0002C3  1  10 3D                BPL     SETSTP
+0002C5  1               
+0002C5  1  20 83 03     COMPAR: JSR     DIRADR
+0002C8  1  A6 B2                LDX     PARAM2
+0002CA  1  A0 00                LDY     #$00
+0002CC  1               
+0002CC  1  B5 00        CTEST:  LDA     0,X
+0002CE  1  38                   SEC
+0002CF  1  D1 B4                CMP     (ADRLO),Y      ; JJT: Original code had SBC but used code for CMP
+0002D1  1  F0 0E                BEQ     SAME
+0002D3  1  B0 0A                BCS     LESS
+0002D5  1               
+0002D5  1  A9 0D        GREAT:  LDA     #MATCH
+0002D7  1  C5 B0                CMP     PARAM0
+0002D9  1  F0 04                BEQ     LESS
+0002DB  1  E6 B7                INC     STEPNO
+0002DD  1  E6 B7        EQUAL:  INC     STEPNO
+0002DF  1               
+0002DF  1  10 23        LESS:   BPL     NXTSTP
+0002E1  1               
+0002E1  1  E8           SAME:   INX
+0002E2  1  C8                   INY
+0002E3  1  C4 B3                CPY     PARAM3
+0002E5  1  D0 E5                BNE     CTEST
+0002E7  1  F0 F4                BEQ     EQUAL
+0002E9  1               
+0002E9  1  20 83 03     FILL:   JSR     DIRADR
+0002EC  1  A5 B2                LDA     PARAM2
+0002EE  1  A4 B3                LDY     PARAM3
+0002F0  1  88                   DEY
+0002F1  1               
+0002F1  1  91 B4        FILLIT: STA     (ADRLO),Y
+0002F3  1  88                   DEY
+0002F4  1  10 FB                BPL     FILLIT
+0002F6  1  30 0C                BMI     NXTSTP
+0002F8  1               
+0002F8  1  00                   BRK
+0002F9  1  00                   BRK
+0002FA  1  00                   BRK
+0002FB  1  00                   BRK
+0002FC  1  00                   BRK
+0002FD  1  00                   BRK
+0002FE  1  00                   BRK
+0002FF  1  00                   BRK
+000300  1               
+000300  1               ; Interpreter
+000300  1               
+000300  1               APPL:
+000300  1  A9 00        DECODE: LDA     #$00
+000302  1  85 B7        SETSTP: STA     STEPNO
+000304  1  20 D9 17     NXTSTP: JSR     EXSET
+000307  1  A5 B7                LDA     STEPNO
+000309  1  0A                   ASL
+00030A  1  0A                   ASL
+00030B  1  85 B8                STA     STEPLO
+00030D  1               
+00030D  1  A0 03                LDY     #3
+00030F  1  B1 B8        PARMOV: LDA     (STEPLO),Y
+000311  1  99 B0 00             STA     PARAM0,Y
+000314  1  88                   DEY
+000315  1  10 F8                BPL     PARMOV
+000317  1  E6 B7                INC     STEPNO
+000319  1               
+000319  1  0A                   ASL
+00031A  1  8D 20 03             STA     BREAK+3
+00031D  1  EA           BREAK:  NOP
+00031E  1  EA                   NOP
+00031F  1  6C 00 01             JMP     ($0100)
+000322  1               
+000322  1  00                   BRK
+000323  1  00                   BRK
+000324  1  00                   BRK
+000325  1  00                   BRK
+000326  1  00                   BRK
+000327  1  00                   BRK
+000328  1  00                   BRK
+000329  1               
+000329  1               ; PLEASE functions continued
+000329  1               
+000329  1               ALPIN:
+000329  1  A9 10        ALPHA:  LDA     #$10
+00032B  1  A2 D4                LDX     #ALPHLO
+00032D  1  D0 08                BNE     SETTAB
+00032F  1               
+00032F  1  A9 10        HEXIN:  LDA     #$10
+000331  1  D0 02                BNE     SETHEX
+000333  1               
+000333  1  A9 0A        DECIN:  LDA     #$0A
+000335  1  A2 D2        SETHEX: LDX     #HEXDEC
+000337  1  86 D6        SETTAB: STX     XTABLE
+000339  1  85 D8                STA     LIMIT
+00033B  1  20 83 03             JSR     DIRADR
+00033E  1               
+00033E  1  20 97 03     RSTART: JSR     CLRDSP
+000341  1  A5 B2                LDA     PARAM2
+000343  1  85 DA                STA     CURPNT
+000345  1  10 03                BPL     MORE
+000347  1               
+000347  1  20 D0 03     SAVE:   JSR     STORE
+00034A  1  A6 D6        MORE:   LDX     XTABLE
+00034C  1  20 A9 03             JSR     CONDSP
+00034F  1  20 D9 17             JSR     EXSET
+000352  1  A5 DB                LDA     CHAR
+000354  1  A2 20                LDX     #$20
+000356  1  86 DB                STX     CHAR
+000358  1  C9 14                CMP     #PC
+00035A  1  F0 E2                BEQ     RSTART
+00035C  1  10 EC                BPL     MORE
+00035E  1  C5 D8                CMP     LIMIT
+000360  1  30 E5                BMI     SAVE
+000362  1               
+000362  1  85 DF        FINISH: STA     KEYVAL
+000364  1  10 9E                BPL     NXTSTP
+000366  1               
+000366  1  20 8C 03     BRTABL: JSR     INDADR
+000369  1  A6 B2                LDX     PARAM2
+00036B  1  A0 00                LDY     #00
+00036D  1               
+00036D  1  B5 00        _MORE:  LDA     0,X             ; JJT: Was MORE in original listing but conficts with other label
+00036F  1  D1 B4                CMP     (ADRLO),Y
+000371  1  F0 0A                BEQ     FOUND
+000373  1  C8                   INY
+000374  1  C8                   INY
+000375  1  B1 B4                LDA     (ADRLO),Y
+000377  1  D0 F4                BNE     _MORE
+000379  1  A5 B3                LDA     PARAM3
+00037B  1  10 85        BRDONE: BPL     SETSTP
+00037D  1               
+00037D  1  C8           FOUND:  INY
+00037E  1  B1 B4                LDA     (ADRLO),Y
+000380  1  10 F9                BPL     BRDONE
+000382  1               
+000382  1  00                   BRK
+000383  1               
+000383  1  A5 B1        DIRADR: LDA     PARAM1
+000385  1  85 B4                STA     ADRLO
+000387  1  A9 00                LDA     #$00
+000389  1  85 B5                STA     ADRHI
+00038B  1  60                   RTS
+00038C  1               
+00038C  1  A6 B1        INDADR: LDX     PARAM1
+00038E  1  B5 00        XNDADR: LDA     0,X
+000390  1  85 B4                STA     ADRLO
+000392  1  B5 01                LDA     1,X
+000394  1  85 B5                STA     ADRHI
+000396  1  60                   RTS
+000397  1               
+000397  1  A9 FF        CLRDSP: LDA     #$FF
+000399  1  A2 06        FILDSP: LDX     #$06
+00039B  1  86 D7                STX     TEMP
+00039D  1  A4 B2                LDY     PARAM2
+00039F  1  84 DA                STY     CURPNT
+0003A1  1               
+0003A1  1  20 D0 03     FILNXT: JSR     STORE
+0003A4  1  C6 D7                DEC     TEMP
+0003A6  1  D0 F9                BNE     FILNXT
+0003A8  1  60                   RTS
+0003A9  1               
+0003A9  1  B5 00        CONDSP: LDA     0,X
+0003AB  1  85 D0                STA     DTABLO
+0003AD  1  B5 01                LDA     1,X
+0003AF  1  85 D1                STA     DTABHI
+0003B1  1  A4 B2                LDY     PARAM2
+0003B3  1               
+0003B3  1  84 D7        CON:    STY     TEMP
+0003B5  1  B1 B4                LDA     (ADRLO),Y
+0003B7  1  10 04                BPL     CON2
+0003B9  1  A9 00                LDA     #$00
+0003BB  1  F0 03                BEQ     CON3
+0003BD  1  A8           CON2:   TAY
+0003BE  1  B1 D0                LDA     (DTABLO),Y
+0003C0  1  A4 D7        CON3:   LDY     TEMP
+0003C2  1  91 CE                STA     (DSPLO),Y
+0003C4  1  C4 B3                CPY     PARAM3
+0003C6  1  F0 27                BEQ     RETURN
+0003C8  1  30 03                BMI     INCR
+0003CA  1  88                   DEY
+0003CB  1  10 E6                BPL     CON
+0003CD  1  C8           INCR:   INY
+0003CE  1  10 E3                BPL     CON
+0003D0  1               
+0003D0  1  AA           STORE:  TAX
+0003D1  1  A4 B3                LDY     PARAM3
+0003D3  1  C4 B2                CPY     PARAM2
+0003D5  1  30 0A                BMI     SHIFT
+0003D7  1  C4 DA                CPY     CURPNT
+0003D9  1  30 14                BMI     RETURN
+0003DB  1  A4 DA                LDY     CURPNT
+0003DD  1  E6 DA                INC     CURPNT
+0003DF  1  10 0C                BPL     PUT
+0003E1  1               
+0003E1  1  C8           SHIFT:  INY
+0003E2  1  B1 B4                LDA     (ADRLO),Y
+0003E4  1  88                   DEY
+0003E5  1  91 B4                STA     (ADRLO),Y
+0003E7  1  C8                   INY
+0003E8  1  C4 B2                CPY     PARAM2
+0003EA  1  30 F5                BMI     SHIFT
+0003EC  1  8A                   TXA
+0003ED  1  91 B4        PUT:    STA     (ADRLO),Y
+0003EF  1  60           RETURN: RTS
+0003F0  1               
+0003F0  1               ; Alpha Display Table
+0003F0  1               
+0003F0  1                                       ; Key Character
+0003F0  1  77                   .BYTE   $77     ; 0    A
+0003F1  1  7C                   .BYTE   $7C     ; 1    b
+0003F2  1  58                   .BYTE   $58     ; 2    c
+0003F3  1  5E                   .BYTE   $5E     ; 3    d
+0003F4  1  79                   .BYTE   $79     ; 4    E
+0003F5  1  71                   .BYTE   $71     ; 5    F
+0003F6  1  76                   .BYTE   $76     ; 6    H
+0003F7  1  30                   .BYTE   $30     ; 7    I
+0003F8  1  38                   .BYTE   $38     ; 8    L
+0003F9  1  54                   .BYTE   $54     ; 9    n
+0003FA  1  5C                   .BYTE   $5C     ; A    o
+0003FB  1  73                   .BYTE   $73     ; B    P
+0003FC  1  50                   .BYTE   $50     ; C    r
+0003FD  1  6D                   .BYTE   $6D     ; D    S
+0003FE  1  78                   .BYTE   $78     ; E    t
+0003FF  1  6E                   .BYTE   $6E     ; F    Y
+000400  1               
+000400  1               ; PLEASE Monitor
+000400  1               
+000400  1  00 00 00 00          .RES $1780-*, $00
+000404  1  00 00 00 00  
+000408  1  00 00 00 00  
+001780  1               
+001780  1  A9 00        EXINIT: LDA     #DCDLO          ; DCDLO = Application Low
+001782  1  8D CC 17             STA     EXAPLO          ; Address to Exec Transfer
+001785  1  A9 03                LDA     #DCDHI          ; DCDHI = Application High
+001787  1  8D CD 17             STA     EXAPHI          ; Address to Exec Transfer
+00178A  1  A9 20                LDA     #$20            ; 20 is uses to indicate
+00178C  1  85 DB                STA     CHAR            ; No character input
+00178E  1               
+00178E  1  A9 7B        EXLOOP: LDA     #$7B            ; Set millisecond timer
+001790  1  8D 45 17             STA     $1745           ; (Actually 984 microseconds)
+001793  1               
+001793  1  20 88 1E     KEYIN:  JSR    INITS            ; Setup for Keyboard Input
+001796  1  20 6A 1F             JSR    GETKEY           ; Get Keyboard Input if any
+001799  1  C9 14                CMP    #KEYMAX          ; Was there a Key Pressed ?
+00179B  1  30 04                BMI    KEYIN2           ; Yes, a Key was Pressed
+00179D  1  85 DE                STA    KEYTST           ; No, so reset debounce flag
+00179F  1  D0 0A                BNE    DSPLAY           ; Unconditional branch
+0017A1  1  A6 DE        KEYIN2: LDX    KEYTST           ; Test debounce flag.
+0017A3  1  F0 06                BEQ    DSPLAY           ; Branch of not a new char.
+0017A5  1  85 DB                STA    CHAR             ; Save new character
+0017A7  1  A9 00                LDA    #$00             ; Clear debounce flag
+0017A9  1  85 DE                STA    KEYTST
+0017AB  1               
+0017AB  1  A4 D9        DSPLAY: LDY    DSPPOS           ; Current Display Pointer
+0017AD  1  98                   TYA                     ; Calculate Select Line
+0017AE  1  0A                   ASL    A
+0017AF  1  69 08                ADC    #$08
+0017B1  1  8D 42 17             STA    $1742            ; Select Display Position
+0017B4  1  A9 7F                LDA    #$7F             ; Select All Output Lines
+0017B6  1  8D 41 17             STA    $1741
+0017B9  1  B1 CE                LDA    (DSPLO),Y        ; Get Display Character from
+0017BB  1  8D 40 17             STA    $1740            ; Display Buffer and Output
+0017BE  1  88                   DEY                     ; Decrement Position Pointer
+0017BF  1  10 02                BPL    DSPLY2           ; Okay if Positive
+0017C1  1  A0 05                LDY    #5               ; Else, Reset to Maximum
+0017C3  1  84 D9        DSPLY2: STY    DSPPOS           ; Save Pointer for Next Loop
+0017C5  1               
+0017C5  1  20 00 02             JSR    TIMER            ; Go to TIMER subroutine
+0017C8  1  EA                   NOP                     ; (JSR ?????)
+0017C9  1  EA                   NOP                     ; NOPs can be changed
+0017CA  1  EA                   NOP
+0017CB  1  20 00 03             JSR     APPL            ; This goes off to Application
+0017CE  1               
+0017CE  1  2C 45 17     EXWAIT: BIT     $1745           ; Text current interval
+0017D1  1  10 FB                BPL     EXWAIT          ; Not done if Positive
+0017D3  1  30 B9                BMI     EXLOOP          ; Done if Negative
+0017D5  1               
+0017D5  1  EA                   NOP
+0017D6  1  EA                   NOP
+0017D7  1  EA                   NOP
+0017D8  1  EA                   NOP
+0017D9  1               
+0017D9  1  68           EXSET:  PLA                     ; Pull Address of Next
+0017DA  1  8D CC 17             STA     EXAPLO          ; Application Instruction
+0017DD  1  EE CC 17             INC     EXAPLO          ; and Save and Correct
+0017E0  1  68                   PLA                     ; Pull Page Address of Next
+0017E1  1  8D CD 17             STA     EXAPHI          ; Appl. Inst and Save it.
+0017E4  1  60                   RTS                     ; Return to EXLOOP at EXWAIT
+0017E5  1               
+0017E5  1                       .END
