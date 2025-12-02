@@ -20,6 +20,7 @@ program1.o:	program1.s
 	ca65 -g -l program1.lst program1.s
 
 clean:
-	$(RM) *.o *.lst *.map *.bin *.ptp
+	$(RM) *.o *.map *.bin
 
 distclean: clean
+	$(RM) *.lst *.ptp
