@@ -193,10 +193,10 @@ Current file: program1.s
 000090  1  00 00 00 00  
 000094  1  00 00 00 00  
 000120  1                                       ; Code Word
-000120  1  10 00                .WORD   MASTER  ; 10   MASTER
-000122  1  11 00                .WORD   MESAGE  ; 11   MESAGE
-000124  1  11 00                .WORD   MESAGE  ; 12   BBOARD
-000126  1  13 00                .WORD   BILBRD  ; 13   BILBRD
+000120  1  30 01                .WORD   _MASTER ; 10   MASTER
+000122  1  90 01                .WORD   _MESAGE ; 11   MESAGE
+000124  1  90 01                .WORD   _MESAGE ; 12   BBOARD
+000126  1  00 00                .WORD   $0000   ; 13   Not used
 000128  1  00 00                .WORD   $0000   ; 14   Not used
 00012A  1  00 00                .WORD   $0000   ; 15   Not used
 00012C  1  00 00                .WORD   $0000   ; 16   Not used

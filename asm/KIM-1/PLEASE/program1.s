@@ -106,10 +106,10 @@ GUESS   =       $E6
 
         .RES $0120-*, $00
                         ; Code Word
-        .WORD   MASTER  ; 10   MASTER
-        .WORD   MESAGE  ; 11   MESAGE
-        .WORD   MESAGE  ; 12   BBOARD
-        .WORD   BILBRD  ; 13   BILBRD
+        .WORD   _MASTER ; 10   MASTER
+        .WORD   _MESAGE ; 11   MESAGE
+        .WORD   _MESAGE ; 12   BBOARD
+        .WORD   $0000   ; 13   Not used
         .WORD   $0000   ; 14   Not used
         .WORD   $0000   ; 15   Not used
         .WORD   $0000   ; 16   Not used
