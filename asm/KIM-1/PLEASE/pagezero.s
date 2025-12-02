@@ -77,4 +77,4 @@ ALT5    =       $EB
 
 APL0    =       $EC             ; Application General Registers
 APL1    =       $ED
-APL2    =       $EF
+APL2    =       $EE

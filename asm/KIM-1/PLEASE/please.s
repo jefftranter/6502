@@ -8,15 +8,28 @@ MATCH   =       $0D
 
 ; KIM-1 ROM routines and constants
 
-GETKEY  =   $1F6A
-INITS   =   $1E88
-KEYMAX  =   $14
-PC      =   $14
+GETKEY  =       $1F6A
+INITS   =       $1E88
+KEYMAX  =       $14
+PC      =       $14
+
+; Page Zero Data - $00B0 to $00EE
+
+        .ORG    $00B0
+
+        .BYTE   $11, $d0, $01, $0a, $a0, $00, $00, $11
+        .BYTE   $40, $00, $90, $1e, $00, $01, $04, $54
+        .BYTE   $02, $55, $82, $04, $12, $18, $53, $09
+        .BYTE   $00, $00, $00, $00, $00, $00, $c8, $00
+        .BYTE   $f0, $03, $e7, $1f, $f0, $03, $d4, $05
+        .BYTE   $10, $03, $02, $20, $a0, $00, $15, $11
+        .BYTE   $01, $01, $ff, $ff, $ff, $ff, $ff, $ff
+        .BYTE   $ff, $ff, $04, $04, $00, $00, $00
 
 ; Function Table
 ; JJT: Table was not shown in original listng
 
-        .ORG    $0100
+        .RES    $0100-*, $00
                         ; Code Word
         .WORD   ALPIN   ; 00   ALPIN
         .WORD   HEXIN   ; 01   HEXIN
@@ -37,7 +50,7 @@ PC      =   $14
 
 ; System Timer
 
-        .RES $0200-*, $00
+        .RES    $0200-*, $00
 
 TIMER:  SED                     ; Calculations done in Decimal Mode
         LDX     #3              ; Setup Counter for Timer
@@ -80,7 +93,7 @@ TIMER2: DEX                     ; Decrement Index
 TDONE:  CLD                     ; All Done.  Clear Decimal Mode
         RTS                     ; Subroutine Return
 
-; PLEASE functions
+; PLEASE Functions
 
 PACK:   LDX     PARAM1
         LDA     0,X
@@ -381,7 +394,7 @@ RETURN: RTS
 
 ; PLEASE Monitor
 
-        .RES $1780-*, $00
+        .RES    $1780-*, $00
 
 EXINIT: LDA     #DCDLO          ; DCDLO = Application Low
         STA     EXAPLO          ; Address to Exec Transfer
