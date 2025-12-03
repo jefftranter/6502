@@ -9,23 +9,22 @@ NXTSTP  =       $0304
 ; Please command codes
 
 ALPIN   =       $00
+DECODE  =       $00
 HEXIN   =       $01
 DECIN   =       $02
 ALPOUT  =       $03
 DECOUT  =       $04
+STAR    =       $04
 TIMER   =       $05
 PACK    =       $06
 UNPACK  =       $07
 BRANCH  =       $08
 BRCHAR  =       $09
+RWAIT   =       $09
 BRTABL  =       $0A
 FILL    =       $0B
-COMPARE =       $0C
-
-DECODE  =       $00
-STAR    =       $04
-RWAIT   =       $09
 LOSE    =       $0B
+COMPARE =       $0C
 SWAIT   =       $0C
 WIN     =       $0E
 START   =       $10

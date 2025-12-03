@@ -96,25 +96,24 @@ Current file: program1.s
 000000r 1               ; Please command codes
 000000r 1               
 000000r 1               ALPIN   =       $00
+000000r 1               DECODE  =       $00
 000000r 1               HEXIN   =       $01
+000000r 1               MSGHI   =       $01
 000000r 1               DECIN   =       $02
 000000r 1               ALPOUT  =       $03
 000000r 1               HEXOUT  =       $04
 000000r 1               DECOUT  =       $04
+000000r 1               SCLOCK  =       $04
 000000r 1               TIMER   =       $05
 000000r 1               PACK    =       $06
+000000r 1               DCLOCK  =       $06
 000000r 1               UNPACK  =       $07
 000000r 1               BRANCH  =       $08
 000000r 1               BRCHAR  =       $09
 000000r 1               BRTABL  =       $0A
+000000r 1               STIMER  =       $0A
 000000r 1               FILL    =       $0B
 000000r 1               COMPAR  =       $0C
-000000r 1               
-000000r 1               DECODE  =       $00
-000000r 1               MSGHI   =       $01
-000000r 1               SCLOCK  =       $04
-000000r 1               DCLOCK  =       $06
-000000r 1               STIMER  =       $0A
 000000r 1               DTIMER  =       $0C
 000000r 1               NOTICE  =       $10
 000000r 1               MASTER  =       $10

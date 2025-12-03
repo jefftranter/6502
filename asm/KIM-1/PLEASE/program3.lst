@@ -90,22 +90,21 @@ Current file: program3.s
 000000r 1               ; Please command codes
 000000r 1               
 000000r 1               ALPIN   =       $00
+000000r 1               DECODE  =       $00
 000000r 1               DECIN   =       $02
 000000r 1               DECOUT  =       $04
 000000r 1               HEXOUT  =       $04
 000000r 1               TIMER   =       $05
+000000r 1               PLUS    =       $05
 000000r 1               PACK    =       $06
 000000r 1               UNPACK  =       $07
+000000r 1               READY   =       $07
 000000r 1               BRANCH  =       $08
 000000r 1               BRCHAR  =       $09
 000000r 1               BRTABL  =       $0A
 000000r 1               FILL    =       $0B
-000000r 1               MATCH   =       $0D
-000000r 1               
-000000r 1               DECODE  =       $00
-000000r 1               PLUS    =       $05
-000000r 1               READY   =       $07
 000000r 1               BLANK   =       $0B
+000000r 1               MATCH   =       $0D
 000000r 1               ACCEPT  =       $0D
 000000r 1               START   =       $10
 000000r 1               GO      =       $13

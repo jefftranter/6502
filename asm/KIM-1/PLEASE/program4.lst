@@ -94,20 +94,19 @@ Current file: program4.s
 000000r 1               ; Please command codes
 000000r 1               
 000000r 1               ALPIN   =       $00
+000000r 1               DECODE  =       $00
 000000r 1               HEXIN   =       $01
 000000r 1               DECIN   =       $02
 000000r 1               HEXOUT  =       $04
+000000r 1               DECM    =       $04
 000000r 1               PACK    =       $06
 000000r 1               UNPACK  =       $07
+000000r 1               SHOW    =       $07
 000000r 1               BRANCH  =       $08
 000000r 1               BRCHAR  =       $09
+000000r 1               WAIT    =       $09
 000000r 1               BRTABL  =       $0A
 000000r 1               FILL    =       $0B
-000000r 1               
-000000r 1               DECODE  =       $00
-000000r 1               DECM    =       $04
-000000r 1               SHOW    =       $07
-000000r 1               WAIT    =       $09
 000000r 1               HEX     =       $0B
 000000r 1               OVRFLO  =       $0F
 000000r 1               DECHEX  =       $10

@@ -11,25 +11,24 @@ EXSET   =       $17D9
 ; Please command codes
 
 ALPIN   =       $00
+DECODE  =       $00
 HEXIN   =       $01
+MSGHI   =       $01
 DECIN   =       $02
 ALPOUT  =       $03
 HEXOUT  =       $04
 DECOUT  =       $04
+SCLOCK  =       $04
 TIMER   =       $05
 PACK    =       $06
+DCLOCK  =       $06
 UNPACK  =       $07
 BRANCH  =       $08
 BRCHAR  =       $09
 BRTABL  =       $0A
+STIMER  =       $0A
 FILL    =       $0B
 COMPAR  =       $0C
-
-DECODE  =       $00
-MSGHI   =       $01
-SCLOCK  =       $04
-DCLOCK  =       $06
-STIMER  =       $0A
 DTIMER  =       $0C
 NOTICE  =       $10
 MASTER  =       $10

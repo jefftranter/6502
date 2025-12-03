@@ -5,22 +5,21 @@
 ; Please command codes
 
 ALPIN   =       $00
+DECODE  =       $00
 DECIN   =       $02
 DECOUT  =       $04
 HEXOUT  =       $04
 TIMER   =       $05
+PLUS    =       $05
 PACK    =       $06
 UNPACK  =       $07
+READY   =       $07
 BRANCH  =       $08
 BRCHAR  =       $09
 BRTABL  =       $0A
 FILL    =       $0B
-MATCH   =       $0D
-
-DECODE  =       $00
-PLUS    =       $05
-READY   =       $07
 BLANK   =       $0B
+MATCH   =       $0D
 ACCEPT  =       $0D
 START   =       $10
 GO      =       $13

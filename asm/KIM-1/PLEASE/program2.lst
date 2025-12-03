@@ -94,23 +94,22 @@ Current file: program2.s
 000000r 1               ; Please command codes
 000000r 1               
 000000r 1               ALPIN   =       $00
+000000r 1               DECODE  =       $00
 000000r 1               HEXIN   =       $01
 000000r 1               DECIN   =       $02
 000000r 1               ALPOUT  =       $03
 000000r 1               DECOUT  =       $04
+000000r 1               STAR    =       $04
 000000r 1               TIMER   =       $05
 000000r 1               PACK    =       $06
 000000r 1               UNPACK  =       $07
 000000r 1               BRANCH  =       $08
 000000r 1               BRCHAR  =       $09
+000000r 1               RWAIT   =       $09
 000000r 1               BRTABL  =       $0A
 000000r 1               FILL    =       $0B
-000000r 1               COMPARE =       $0C
-000000r 1               
-000000r 1               DECODE  =       $00
-000000r 1               STAR    =       $04
-000000r 1               RWAIT   =       $09
 000000r 1               LOSE    =       $0B
+000000r 1               COMPARE =       $0C
 000000r 1               SWAIT   =       $0C
 000000r 1               WIN     =       $0E
 000000r 1               START   =       $10
