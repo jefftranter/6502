@@ -445,7 +445,7 @@ DSPLY2: STY    DSPPOS           ; Save Pointer for Next Loop
         NOP
         JSR     APPL            ; This goes off to Application
 
-EXWAIT: BIT     $1745           ; Text current interval
+EXWAIT: BIT     $1745           ; Test Current Interval
         BPL     EXWAIT          ; Not done if Positive
         BMI     EXLOOP          ; Done if Negative
 
