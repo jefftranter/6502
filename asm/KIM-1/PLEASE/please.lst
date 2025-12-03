@@ -124,16 +124,16 @@ Current file: please.s
 0000DC  1  A0 00 15 11  
 0000E0  1  01 01 FF FF          .BYTE   $01, $01, $ff, $ff, $ff, $ff, $ff, $ff
 0000E4  1  FF FF FF FF  
-0000E8  1  FF FF 04 04          .BYTE   $ff, $ff, $04, $04, $00, $00, $00
-0000EC  1  00 00 00     
-0000EF  1               
-0000EF  1               ; Function Table
-0000EF  1               ; JJT: Table was not shown in original listing but is described in the
-0000EF  1               ; LISTING document page 38.
-0000EF  1               
-0000EF  1  00 00 00 00          .RES    $0100-*, $00
-0000F3  1  00 00 00 00  
-0000F7  1  00 00 00 00  
+0000E8  1  FF FF 04 04          .BYTE   $ff, $ff, $04, $04, $00, $00, $00, $89
+0000EC  1  00 00 00 89  
+0000F0  1               
+0000F0  1               ; Function Table
+0000F0  1               ; JJT: Table was not shown in original listing but is described in the
+0000F0  1               ; LISTING document page 38.
+0000F0  1               
+0000F0  1  00 00 00 00          .RES    $0100-*, $00
+0000F4  1  00 00 00 00  
+0000F8  1  00 00 00 00  
 000100  1                                       ; Code Word
 000100  1  29 03                .WORD   ALPIN   ; 00   ALPIN
 000102  1  2F 03                .WORD   HEXIN   ; 01   HEXIN
@@ -546,7 +546,7 @@ Current file: please.s
 0017CA  1  EA                   NOP
 0017CB  1  20 00 03             JSR     APPL            ; This goes off to Application
 0017CE  1               
-0017CE  1  2C 45 17     EXWAIT: BIT     $1745           ; Text current interval
+0017CE  1  2C 45 17     EXWAIT: BIT     $1745           ; Test Current Interval
 0017D1  1  10 FB                BPL     EXWAIT          ; Not done if Positive
 0017D3  1  30 B9                BMI     EXLOOP          ; Done if Negative
 0017D5  1               

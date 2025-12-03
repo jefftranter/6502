@@ -30,7 +30,7 @@ PC      =       $14
         .BYTE   $f0, $03, $e7, $1f, $f0, $03, $d4, $05
         .BYTE   $10, $03, $02, $20, $a0, $00, $15, $11
         .BYTE   $01, $01, $ff, $ff, $ff, $ff, $ff, $ff
-        .BYTE   $ff, $ff, $04, $04, $00, $00, $00
+        .BYTE   $ff, $ff, $04, $04, $00, $00, $00, $89
 
 ; Function Table
 ; JJT: Table was not shown in original listing but is described in the
