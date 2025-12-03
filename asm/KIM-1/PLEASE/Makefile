@@ -1,5 +1,5 @@
 
-all: please.ptp program1.ptp program2.ptp program3.ptp program4.ptp
+all: please.ptp program1.ptp program2.ptp program3.ptp program4.ptp program5.ptp
 
 please.ptp: please.bin Makefile
 	srec_cat please.bin -binary -offset 0x00a0 -crop 0x00a0 0x00ef 0x0100 0x0120 0x0200 0x0400 0x1780 0x17e5 -o please.ptp -MOS_Technologies
@@ -45,6 +45,15 @@ program4.bin: program4.o
 
 program4.o:	program4.s
 	ca65 -g -l program4.lst program4.s
+
+program5.ptp: program5.bin Makefile
+	srec_cat program5.bin -binary -offset 0x0000 -crop 0x0000 0x00a0 0x0120 0x0172 -o program5.ptp -MOS_Technologies
+
+program5.bin: program5.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program5.map -o program5.bin program5.o
+
+program5.o:	program5.s
+	ca65 -g -l program5.lst program5.s
 
 clean:
 	$(RM) *.o *.map *.bin
