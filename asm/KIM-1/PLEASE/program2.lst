@@ -135,6 +135,11 @@ Current file: program2.s
 000000r 1               
 000000r 1                       .ORG    $0000
 000000  1               
+000000  1               ; JJT: The table below in the LISTING document showed different hex
+000000  1               ; values in different places for the symbol WAIT: $0C and $13. The
+000000  1               ; table below matches the hex values in the listing but it could be in
+000000  1               ; error.
+000000  1               
 000000  1               ;               COMMAND  PARAM1   PARAM2  PARAM3
 000000  1               
 000000  1               ; Command Decoder
@@ -225,7 +230,7 @@ Current file: program2.s
 000160  1  C8           FIX:    INY                     ; Set for next byte.
 000161  1  B1 B4                LDA     (ADRLO),Y       ; Get GALAXY
 000163  1  45 E7                EOR     UNIV            ; Exclusive OR to turn on/off
-000165  1  85 E7                STA     UNIV            ; associated STars.
+000165  1  85 E7                STA     UNIV            ; associated Stars.
 000167  1  C8                   INY                     ; Set for next byte.
 000168  1  B1 B4                LDA     (ADRLO),Y       ; Get Center value
 00016A  1  45 E8                EOR     CENTER          ; Exclusive OR

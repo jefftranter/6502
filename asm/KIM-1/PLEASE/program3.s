@@ -67,7 +67,8 @@ GUESS   =       $E6
         .BYTE   BRANCH,  PLUS,      0,        0
 
 ; Special Function Table
-; JJT: Table was not shown in original listing
+; JJT: Table was not shown in original listing. Unsure if it is needed
+; since the program does not have any native routines.
 
         .RES    $0120-*, $00
                         ; Code Word

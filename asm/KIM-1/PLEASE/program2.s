@@ -50,6 +50,11 @@ CENTER  =       $E8
 
         .ORG    $0000
 
+; JJT: The table below in the LISTING document showed different hex
+; values in different places for the symbol WAIT: $0C and $13. The
+; table below matches the hex values in the listing but it could be in
+; error.
+
 ;               COMMAND  PARAM1   PARAM2  PARAM3
 
 ; Command Decoder
@@ -138,7 +143,7 @@ MATCH:  INY                     ; Set for next byte
 FIX:    INY                     ; Set for next byte.
         LDA     (ADRLO),Y       ; Get GALAXY
         EOR     UNIV            ; Exclusive OR to turn on/off
-        STA     UNIV            ; associated STars.
+        STA     UNIV            ; associated Stars.
         INY                     ; Set for next byte.
         LDA     (ADRLO),Y       ; Get Center value
         EOR     CENTER          ; Exclusive OR
@@ -194,7 +199,7 @@ RUN:    JMP     NXTSTP
 
         .RES    $01C0-*, $00
 
-;               SHOT POS GALAXY CENTER 
+;               SHOT POS GALAXY CENTER
 MAP:    .BYTE   $00, $08, $68, $01
         .BYTE   $01, $20, $38, $00
         .BYTE   $02, $10, $B0, $01

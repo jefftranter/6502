@@ -152,7 +152,8 @@ Current file: program3.s
 000064  1  08 05 00 00          .BYTE   BRANCH,  PLUS,      0,        0
 000068  1               
 000068  1               ; Special Function Table
-000068  1               ; JJT: Table was not shown in original listing
+000068  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
+000068  1               ; since the program does not have any native routines.
 000068  1               
 000068  1  00 00 00 00          .RES    $0120-*, $00
 00006C  1  00 00 00 00  
