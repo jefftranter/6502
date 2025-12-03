@@ -54,7 +54,7 @@ Current file: program2.s
 000000r 2               DTABHI  =       DCONHI
 000000r 2               HEXDEC  =       HEXLO
 000000r 2               HEXLO   =       $D2             ; Hexadecimal (and Decimal) Conversion Table Low Address = E7
-000000r 2               HEXHI   =       $D3             ; Hexadecimal (and Decimal) Conversion Table High Address = 17
+000000r 2               HEXHI   =       $D3             ; Hexadecimal (and Decimal) Conversion Table High Address = 1F
 000000r 2               ALPHLO  =       $D4             ; Alphabetic Conversion Table Low Address (usually = F0)
 000000r 2               ALPHHI  =       $D5             ; Alphabetic Conversion Table High Address (usually = 03)
 000000r 2               XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or ALPHA Table

@@ -1,8 +1,8 @@
 ca65 V2.19 - Git dbcfa9108
-Main file   : program3.s
-Current file: program3.s
+Main file   : program4.s
+Current file: program4.s
 
-000000r 1               ; Program Module #3
+000000r 1               ; Program Module #4
 000000r 1               
 000000r 1               .INCLUDE        "pagezero.s"
 000000r 2               ; Page zero addresses
@@ -87,35 +87,36 @@ Current file: program3.s
 000000r 2               APL2    =       $EE
 000000r 2               
 000000r 1               
+000000r 1               ; Please Functions
+000000r 1               
+000000r 1               NXTSTP  =      $0304
+000000r 1               
 000000r 1               ; Please command codes
 000000r 1               
 000000r 1               ALPIN   =       $00
+000000r 1               HEXIN   =       $01
 000000r 1               DECIN   =       $02
-000000r 1               DECOUT  =       $04
 000000r 1               HEXOUT  =       $04
-000000r 1               TIMER   =       $05
 000000r 1               PACK    =       $06
 000000r 1               UNPACK  =       $07
 000000r 1               BRANCH  =       $08
 000000r 1               BRCHAR  =       $09
 000000r 1               BRTABL  =       $0A
 000000r 1               FILL    =       $0B
-000000r 1               MATCH   =       $0D
 000000r 1               
 000000r 1               DECODE  =       $00
-000000r 1               PLUS    =       $05
-000000r 1               READY   =       $07
-000000r 1               BLANK   =       $0B
-000000r 1               ACCEPT  =       $0D
-000000r 1               START   =       $10
+000000r 1               DECM    =       $04
+000000r 1               SHOW    =       $07
+000000r 1               WAIT    =       $09
+000000r 1               HEX     =       $0B
+000000r 1               OVRFLO  =       $0F
+000000r 1               DECHEX  =       $10
+000000r 1               HEXDEX  =       $11
 000000r 1               GO      =       $13
-000000r 1               NO      =       $18
-000000r 1               DASH    =       $40
-000000r 1               ZERO    =       $52
 000000r 1               DISPLAY =       $C8
 000000r 1               CMDTBL  =       $DC
 000000r 1               BUFFER  =       $E0
-000000r 1               GUESS   =       $E6
+000000r 1               DATA    =       $E6
 000000r 1               
 000000r 1                       .ORG    $0000
 000000  1               
@@ -127,44 +128,111 @@ Current file: program3.s
 000008  1  0B C8 00 06          .BYTE   FILL,    DISPLAY,   0,        6
 00000C  1  0A DC DF 00          .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE
 000010  1               
-000010  1               ; Tipsy
-000010  1  0B C8 00 06          .BYTE   FILL,    DISPLAY,   0,        6
-000014  1  09 13 00 07          .BYTE   BRCHAR,  GO,        DECODE,   READY
-000018  1  08 05 00 00          .BYTE   BRANCH,  PLUS,      0,        0
-00001C  1  0B E0 FF 06          .BYTE   FILL,    BUFFER,    $FF,      6
-000020  1  07 C2 E0 04          .BYTE   UNPACK,  TENTHS,    BUFFER,   4
-000024  1  04 E0 00 05          .BYTE   HEXOUT,  BUFFER,    0,        5
-000028  1  05 14 0B 00          .BYTE   TIMER,   20,        BLANK,    0
-00002C  1  0B C8 00 04          .BYTE   FILL,    DISPLAY,   0,        4
-000030  1  05 0A 0D 00          .BYTE   TIMER,   10,        ACCEPT,   0
-000034  1  0B CC 40 02          .BYTE   FILL,    DISPLAY+4, DASH,     2
-000038  1  0B DB 20 01          .BYTE   FILL,    CHAR,      $20,      1
-00003C  1  0B C0 00 04          .BYTE   FILL,    THOUS,     0,        4
-000040  1  02 E6 00 03          .BYTE   DECIN,   GUESS,     0,        3
-000044  1  0D E0 E6 04          .BYTE   MATCH,   BUFFER,    GUESS,    4
-000048  1  08 18 00 00          .BYTE   BRANCH,  NO,        0,        0
-00004C  1  0D 52 C1 01          .BYTE   MATCH,   ZERO,      TENS,     1
-000050  1  08 18 00 00          .BYTE   BRANCH,  NO,        0,        0
-000054  1  07 C2 E4 02          .BYTE   UNPACK,  TENTHS,    BUFFER+4, 2
-000058  1  04 E0 04 05          .BYTE   DECOUT,  BUFFER,    4,        5
-00005C  1  08 05 00 00          .BYTE   BRANCH,  PLUS,      0,        0
-000060  1  0B CC 53 02          .BYTE   FILL,    DISPLAY+4, $53,      2
-000064  1  08 05 00 00          .BYTE   BRANCH,  PLUS,      0,        0
-000068  1               
-000068  1               ; Special Function Table
-000068  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
-000068  1               ; since the program does not have any native routines.
-000068  1               
-000068  1  00 00 00 00          .RES    $0120-*, $00
-00006C  1  00 00 00 00  
-000070  1  00 00 00 00  
+000010  1               ; Decimal/Hexadecimal Conversion
+000010  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,    5,        0
+000014  1  10 E0 E6 06          .BYTE   DECHEX,  BUFFER,    DATA,     6
+000018  1  08 0F 00 00          .BYTE   BRANCH,  OVRFLO,    0,        0
+00001C  1  07 E6 E0 06          .BYTE   UNPACK,  DATA,      BUFFER,   6
+000020  1  04 E0 00 05          .BYTE   HEXOUT,  BUFFER ,   0,        5
+000024  1  09 13 0B 04          .BYTE   BRCHAR,  GO,        HEX,      DECM
+000028  1  08 09 00 00          .BYTE   BRANCH,  WAIT,      0,        0
+00002C  1  01 E0 05 00          .BYTE   HEXIN,   BUFFER,    5,        0
+000030  1  11 E0 E6 06          .BYTE   HEXDEX,  BUFFER,    DATA,     6
+000034  1  08 0F 00 00          .BYTE   BRANCH,  OVRFLO,    0,        0
+000038  1  08 07 00 00          .BYTE   BRANCH,  SHOW,      0,        0
+00003C  1  0B C8 53 06          .BYTE   FILL,    DISPLAY,   $53,      6
+000040  1  08 09 00 00          .BYTE   BRANCH,  WAIT,      0,        0
+000044  1               
+000044  1               ; Special Function Table
+000044  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
+000044  1               ; since the program does not have any native routines.
+000044  1               
+000044  1  00 00 00 00          .RES    $0120-*, $00
+000048  1  00 00 00 00  
+00004C  1  00 00 00 00  
 000120  1                                       ; Code Word
-000120  1  00 00                .WORD   $0000   ; 10   Not used
+000120  1  30 01                .WORD   _HEXDEC ; 10   _HEXDEC
 000122  1  00 00                .WORD   $0000   ; 11   Not used
 000124  1  00 00                .WORD   $0000   ; 12   Not used
 000126  1  00 00                .WORD   $0000   ; 13   Not used
 000128  1  00 00                .WORD   $0000   ; 14   Not used
 00012A  1  00 00                .WORD   $0000   ; 15   Not used
 00012C  1  00 00                .WORD   $0000   ; 16   Not used
-00012E  1  00 00                .WORD   $0000   ; 17   Not used
-00012E  1               
+00012E  1  00 00                .WORD   $0000   ; 17   Not used;
+000130  1               
+000130  1               _HEXDEC:
+000130  1  A6 B2                LDX     PARAM2          ; Get Pointer to Answer Buffer
+000132  1  A9 00                LDA     #0              ; Clear three bytes or six
+000134  1  95 00                STA     0,X             ; digit positions
+000136  1  95 01                STA     1,X
+000138  1  95 02                STA     2,X
+00013A  1               
+00013A  1  A6 B1        NEXT:   LDX     PARAM1          ; Get Pointer to Input Buffer
+00013C  1  B5 00                LDA     0,X             ; Get next character
+00013E  1  30 0D                BMI     LZERO           ; Test leading blanks
+000140  1  A6 B2                LDX     PARAM2          ; Get Pointer to Answer Buffer
+000142  1  A0 11                LDY     #HEXDEX         ; Test Hex to Dec or Dec to Hex
+000144  1  C4 B0                CPY     PARAM0
+000146  1  F0 10                BEQ     HX              ; Hex to Dec
+000148  1  20 75 01             JSR     XTEN            ; Dec to Hex Subroutine
+00014B  1  B0 08                BCS     _OVRFLO         ; Branch on Overflow
+00014D  1  E6 B1        LZERO:  INC     PARAM1          ; Bump Pointer
+00014F  1  C6 B3                DEC     PARAM3          ; Decrement No. Digits
+000151  1  D0 E7                BNE     NEXT            ; Get Next
+000153  1  E6 B7                INC     STEPNO          ; Incr. Step. No. for Normal
+000155  1               _OVRFLO:
+000155  1  4C 04 03             JMP     NXTSTP          ; or Next Step for Overflow
+000158  1               
+000158  1  C9 0A        HX:     CMP     #10             ; Hex to Dec.  Convert from
+00015A  1  30 02                BMI     OKAY            ; Hex Character to BCD byte
+00015C  1  69 05                ADC     #5
+00015E  1  20 70 01     OKAY:   JSR     DSIXT           ; Hex to Dec Subroutine
+000161  1  B0 F2                BCS     _OVRFLO         ; Branch on Overflow
+000163  1  90 E8                BCC     LZERO           ; Normal return
+000165  1               
+000165  1  00 00 00 00          .RES    $0170-*, $00
+000169  1  00 00 00 00  
+00016D  1  00 00 00     
+000170  1               
+000170  1  A0 10        DSIXT:  LDY     #16             ; Set Counter for 16 loops
+000172  1  F8                   SED                     ; Set Decimal Mode
+000173  1  10 03                BPL     COMMON
+000175  1               
+000175  1  A0 0A        XTEN:   LDY     #10             ; Set Counter for 10 loops
+000177  1  D8                   CLD                     ; Set Binary Mode
+000178  1  85 D7        COMMON: STA     TEMP            ; Store New Value
+00017A  1  18                   CLC                     ; Clear Carry
+00017B  1  A9 00                LDA     #0              ; Clear Temporary bytes
+00017D  1  95 03                STA     3,X
+00017F  1  95 04                STA     4,X
+000181  1  95 05                STA     5,X
+000183  1               
+000183  1  B5 02        NTIMES: LDA     2,X             ; Shift old value by
+000185  1  75 05        LAST:   ADC     5,X             ; adding to itself the
+000187  1  95 05                STA     5,X             ; required number of times
+000189  1  B5 01                LDA     1,X             ; 16 for Hex
+00018B  1  75 04                ADC     4,X             ; 10 for Decimal
+00018D  1  95 04                STA     4,X             ; Do addition for all three
+00018F  1  B5 00                LDA     0,X             ; bytes worth of data
+000191  1  75 03                ADC     3,X
+000193  1  95 03                STA     3,X
+000195  1  B0 1D                BCS     ERROR           ; Branch on Overflow
+000197  1  88                   DEY                     ; Decrement Loop Counter
+000198  1  30 0E                BMI     DONE            ; When minus, then done
+00019A  1  D0 E7                BNE     NTIMES          ; If not zero, keep looping
+00019C  1  A9 00                LDA     #0              ; On zero, set up to add
+00019E  1  95 00                STA     0,X             ; in the new value by
+0001A0  1  95 01                STA     1,X             ; clearing the old values
+0001A2  1  95 02                STA     2,X             ; and then pick up the
+0001A4  1  A5 D7                LDA     TEMP            ; new value and make final
+0001A6  1  10 DD                BPL     LAST            ; loop.
+0001A8  1               
+0001A8  1  B5 05        DONE:   LDA     5,X             ; Move result from Temp
+0001AA  1  95 02                STA     2,X             ; to Result bytes
+0001AC  1  B5 04                LDA     4,X
+0001AE  1  95 01                STA     1,X
+0001B0  1  B5 03                LDA     3,X
+0001B2  1  95 00                STA     0,X
+0001B4  1  D8           ERROR:  CLD                     ; Clear Decimal Mode
+0001B5  1  60                   RTS                     ; Return
+0001B5  1               
