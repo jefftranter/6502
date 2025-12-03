@@ -47,7 +47,7 @@ DTABLO  =       DCONLO
 DTABHI  =       DCONHI
 HEXDEC  =       HEXLO
 HEXLO   =       $D2             ; Hexadecimal (and Decimal) Conversion Table Low Address = E7
-HEXHI   =       $D3             ; Hexadecimal (and Decimal) Conversion Table High Address = 17
+HEXHI   =       $D3             ; Hexadecimal (and Decimal) Conversion Table High Address = 1F
 ALPHLO  =       $D4             ; Alphabetic Conversion Table Low Address (usually = F0)
 ALPHHI  =       $D5             ; Alphabetic Conversion Table High Address (usually = 03)
 XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or ALPHA Table
