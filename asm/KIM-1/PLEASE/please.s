@@ -17,6 +17,10 @@ PC      =       $14
 
         .ORG    $00A0
 
+; Command Table.
+; JJT: Table was not shown in the original listing but is described in
+; the LISTING document page 38.
+
         .BYTE   $d2, $04, $32, $06, $de, $0a, $3e, $0c
         .BYTE   $30, $16, $9a, $10, $11, $13, $00, $00
         .BYTE   $11, $d0, $01, $0a, $a0, $00, $00, $11
@@ -29,7 +33,8 @@ PC      =       $14
         .BYTE   $ff, $ff, $04, $04, $00, $00, $00
 
 ; Function Table
-; JJT: Table was not shown in original listng
+; JJT: Table was not shown in original listing but is described in the
+; LISTING document page 38.
 
         .RES    $0100-*, $00
                         ; Code Word
@@ -37,7 +42,7 @@ PC      =       $14
         .WORD   HEXIN   ; 01   HEXIN
         .WORD   DECIN   ; 02   DECIN
         .WORD   ALPOUT  ; 03   ALPOUT
-        .WORD   HEXOUT  ; 04   HEXOUT
+        .WORD   HEXOUT  ; 04   HEXOUT and DECOUT
         .WORD   _TIMER  ; 05   TIMER
         .WORD   PACK    ; 06   PACK
         .WORD   UNPACK  ; 07   UNPACK

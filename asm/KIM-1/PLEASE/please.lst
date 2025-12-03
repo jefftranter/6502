@@ -102,6 +102,10 @@ Current file: please.s
 000000r 1               
 000000r 1                       .ORG    $00A0
 0000A0  1               
+0000A0  1               ; Command Table.
+0000A0  1               ; JJT: Table was not shown in the original listing but is described in
+0000A0  1               ; the LISTING document page 38.
+0000A0  1               
 0000A0  1  D2 04 32 06          .BYTE   $d2, $04, $32, $06, $de, $0a, $3e, $0c
 0000A4  1  DE 0A 3E 0C  
 0000A8  1  30 16 9A 10          .BYTE   $30, $16, $9a, $10, $11, $13, $00, $00
@@ -124,7 +128,8 @@ Current file: please.s
 0000EC  1  00 00 00     
 0000EF  1               
 0000EF  1               ; Function Table
-0000EF  1               ; JJT: Table was not shown in original listng
+0000EF  1               ; JJT: Table was not shown in original listing but is described in the
+0000EF  1               ; LISTING document page 38.
 0000EF  1               
 0000EF  1  00 00 00 00          .RES    $0100-*, $00
 0000F3  1  00 00 00 00  
@@ -134,7 +139,7 @@ Current file: please.s
 000102  1  2F 03                .WORD   HEXIN   ; 01   HEXIN
 000104  1  33 03                .WORD   DECIN   ; 02   DECIN
 000106  1  83 02                .WORD   ALPOUT  ; 03   ALPOUT
-000108  1  87 02                .WORD   HEXOUT  ; 04   HEXOUT
+000108  1  87 02                .WORD   HEXOUT  ; 04   HEXOUT and DECOUT
 00010A  1  AA 02                .WORD   _TIMER  ; 05   TIMER
 00010C  1  3B 02                .WORD   PACK    ; 06   PACK
 00010E  1  5D 02                .WORD   UNPACK  ; 07   UNPACK
