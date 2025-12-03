@@ -100,11 +100,30 @@ GUESS   =       $E6
         .BYTE   BRCHAR,  GO,      DECODE, GET
         .BYTE   BRANCH,  HOLD,    0,      0
 
+; Command Table.
+; JJT: Table was not shown in the original listing but is described in
+; the LISTING document page 38.
+
+; Command Keys Step  Description
+;  "SC"   D2   04   Set Clock
+;  "DC"   32   06   Display Clock
+;  "ST"   DE   0A   Set Timer
+;  "DT"   3E   0C   Display Timer
+;  "DA"   30   16   Daffy
+;  "NO"   9A   10   Notice
+;  "BB"   11   13   Billboard
+;         00   00   End of table
+
+        .RES    $00A0-*, $0000
+
+        .BYTE   $D2, $04, $32, $06, $DE, $0A, $3E, $0C
+        .BYTE   $30, $16, $9A, $10, $11, $13, $00, $00
+
 ; Special Function Table
 ; JJT: Table was not shown in original listing
 
         .RES    $0120-*, $00
-                        ; Code Word
+                       ; Code Word
         .WORD   _MASTER ; 10   MASTER
         .WORD   _MESAGE ; 11   MESAGE
         .WORD   _MESAGE ; 12   BBOARD

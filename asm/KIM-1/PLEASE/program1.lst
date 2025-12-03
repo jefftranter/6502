@@ -185,13 +185,36 @@ Current file: program1.s
 000084  1  09 13 00 18          .BYTE   BRCHAR,  GO,      DECODE, GET
 000088  1  08 21 00 00          .BYTE   BRANCH,  HOLD,    0,      0
 00008C  1               
-00008C  1               ; Special Function Table
-00008C  1               ; JJT: Table was not shown in original listing
+00008C  1               ; Command Table.
+00008C  1               ; JJT: Table was not shown in the original listing but is described in
+00008C  1               ; the LISTING document page 38.
 00008C  1               
-00008C  1  00 00 00 00          .RES    $0120-*, $00
+00008C  1               ; Command Keys Step  Description
+00008C  1               ;  "SC"   D2   04   Set Clock
+00008C  1               ;  "DC"   32   06   Display Clock
+00008C  1               ;  "ST"   DE   0A   Set Timer
+00008C  1               ;  "DT"   3E   0C   Display Timer
+00008C  1               ;  "DA"   30   16   Daffy
+00008C  1               ;  "NO"   9A   10   Notice
+00008C  1               ;  "BB"   11   13   Billboard
+00008C  1               ;         00   00   End of table
+00008C  1               
+00008C  1  00 00 00 00          .RES    $00A0-*, $0000
 000090  1  00 00 00 00  
 000094  1  00 00 00 00  
-000120  1                                       ; Code Word
+0000A0  1               
+0000A0  1  D2 04 32 06          .BYTE   $D2, $04, $32, $06, $DE, $0A, $3E, $0C
+0000A4  1  DE 0A 3E 0C  
+0000A8  1  30 16 9A 10          .BYTE   $30, $16, $9A, $10, $11, $13, $00, $00
+0000AC  1  11 13 00 00  
+0000B0  1               
+0000B0  1               ; Special Function Table
+0000B0  1               ; JJT: Table was not shown in original listing
+0000B0  1               
+0000B0  1  00 00 00 00          .RES    $0120-*, $00
+0000B4  1  00 00 00 00  
+0000B8  1  00 00 00 00  
+000120  1                                      ; Code Word
 000120  1  30 01                .WORD   _MASTER ; 10   MASTER
 000122  1  90 01                .WORD   _MESAGE ; 11   MESAGE
 000124  1  90 01                .WORD   _MESAGE ; 12   BBOARD

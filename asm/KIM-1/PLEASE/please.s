@@ -13,30 +13,11 @@ INITS   =       $1E88
 KEYMAX  =       $14
 PC      =       $14
 
-; Page Zero Data - $00A0 to $00EE
-
-        .ORG    $00A0
-
-; Command Table.
-; JJT: Table was not shown in the original listing but is described in
-; the LISTING document page 38.
-
-        .BYTE   $d2, $04, $32, $06, $de, $0a, $3e, $0c
-        .BYTE   $30, $16, $9a, $10, $11, $13, $00, $00
-        .BYTE   $11, $d0, $01, $0a, $a0, $00, $00, $11
-        .BYTE   $40, $00, $90, $1e, $00, $01, $04, $54
-        .BYTE   $02, $55, $82, $04, $12, $18, $53, $09
-        .BYTE   $00, $00, $00, $00, $00, $00, $c8, $00
-        .BYTE   $f0, $03, $e7, $1f, $f0, $03, $d4, $05
-        .BYTE   $10, $03, $02, $20, $a0, $00, $15, $11
-        .BYTE   $01, $01, $ff, $ff, $ff, $ff, $ff, $ff
-        .BYTE   $ff, $ff, $04, $04, $00, $00, $00, $89
-
 ; Function Table
 ; JJT: Table was not shown in original listing but is described in the
 ; LISTING document page 38.
 
-        .RES    $0100-*, $00
+        .ORG    $0100
                         ; Code Word
         .WORD   ALPIN   ; 00   ALPIN
         .WORD   HEXIN   ; 01   HEXIN
