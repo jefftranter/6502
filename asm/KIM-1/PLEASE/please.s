@@ -13,6 +13,19 @@ INITS   =       $1E88
 KEYMAX  =       $14
 PC      =       $14
 
+; Page Zero Data - $00B0 to $00EE
+
+        .ORG    $00B0
+
+        .BYTE   $11, $D0, $01, $0A, $A0, $00, $00, $11
+        .BYTE   $40, $00, $90, $1E, $00, $01, $04, $54
+        .BYTE   $02, $55, $82, $04, $12, $18, $53, $09
+        .BYTE   $00, $00, $00, $00, $00, $00, $C8, $00
+        .BYTE   $F0, $03, $E7, $1F, $F0, $03, $D4, $05
+        .BYTE   $10, $03, $02, $20, $A0, $00, $15, $11
+        .BYTE   $01, $01, $FF, $FF, $FF, $FF, $FF, $FF
+        .BYTE   $FF, $FF, $04, $04, $00, $00, $00, $89
+
 ; Function Table
 ; JJT: Table was not shown in original listing but is described in the
 ; LISTING document page 38.

@@ -98,11 +98,32 @@ Current file: please.s
 000000r 1               KEYMAX  =       $14
 000000r 1               PC      =       $14
 000000r 1               
-000000r 1               ; Function Table
-000000r 1               ; JJT: Table was not shown in original listing but is described in the
-000000r 1               ; LISTING document page 38.
+000000r 1               ; Page Zero Data - $00B0 to $00EE
 000000r 1               
-000000r 1                       .ORG    $0100
+000000r 1                       .ORG    $00B0
+0000B0  1               
+0000B0  1  11 D0 01 0A          .BYTE   $11, $D0, $01, $0A, $A0, $00, $00, $11
+0000B4  1  A0 00 00 11  
+0000B8  1  40 00 90 1E          .BYTE   $40, $00, $90, $1E, $00, $01, $04, $54
+0000BC  1  00 01 04 54  
+0000C0  1  02 55 82 04          .BYTE   $02, $55, $82, $04, $12, $18, $53, $09
+0000C4  1  12 18 53 09  
+0000C8  1  00 00 00 00          .BYTE   $00, $00, $00, $00, $00, $00, $C8, $00
+0000CC  1  00 00 C8 00  
+0000D0  1  F0 03 E7 1F          .BYTE   $F0, $03, $E7, $1F, $F0, $03, $D4, $05
+0000D4  1  F0 03 D4 05  
+0000D8  1  10 03 02 20          .BYTE   $10, $03, $02, $20, $A0, $00, $15, $11
+0000DC  1  A0 00 15 11  
+0000E0  1  01 01 FF FF          .BYTE   $01, $01, $FF, $FF, $FF, $FF, $FF, $FF
+0000E4  1  FF FF FF FF  
+0000E8  1  FF FF 04 04          .BYTE   $FF, $FF, $04, $04, $00, $00, $00, $89
+0000EC  1  00 00 00 89  
+0000F0  1               
+0000F0  1               ; Function Table
+0000F0  1               ; JJT: Table was not shown in original listing but is described in the
+0000F0  1               ; LISTING document page 38.
+0000F0  1               
+0000F0  1                       .ORG    $0100
 000100  1                                       ; Code Word
 000100  1  29 03                .WORD   ALPIN   ; 00   ALPIN
 000102  1  2F 03                .WORD   HEXIN   ; 01   HEXIN
