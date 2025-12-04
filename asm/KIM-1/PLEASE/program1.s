@@ -104,7 +104,7 @@ GUESS   =       $E6
 ; JJT: Table was not shown in the original listing but is described in
 ; the LISTING document page 38.
 
-; Command Keys Step  Description
+; Command Keys Step Description
 ;  "SC"   D2   04   Set Clock
 ;  "DC"   32   06   Display Clock
 ;  "ST"   DE   0A   Set Timer

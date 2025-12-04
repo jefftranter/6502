@@ -183,12 +183,30 @@ Current file: program2.s
 000088  1  09 13 00 11          .BYTE   BRCHAR,  GO,        DECODE,   HILO
 00008C  1  08 1E 00 00          .BYTE   BRANCH,  EQUAL,     0,        0
 000090  1               
-000090  1               ; Special Function Table
-000090  1               ; JJT: Table was not shown in original listing
+000090  1               ; Command Table.
+000090  1               ; JJT: Table was not shown in the original listing but is described in
+000090  1               ; the LISTING document page 38.
 000090  1               
-000090  1  00 00 00 00          .RES    $0120-*, $00
+000090  1               ; Command Keys Step Description
+000090  1               ;  "SS"   DD   04   Shooting Stars
+000090  1               ;  "HI"   67   11   HiLo
+000090  1               ;         00   00   End of table
+000090  1               
+000090  1  00 00 00 00          .RES    $00A0-*, $0000
 000094  1  00 00 00 00  
 000098  1  00 00 00 00  
+0000A0  1               
+0000A0  1  DD 04 67 11          .BYTE   $DD, $04, $67, $11, $00, $00, $00, $00
+0000A4  1  00 00 00 00  
+0000A8  1  00 00 00 00          .BYTE   $00, $00, $00, $00, $00, $00, $00, $00
+0000AC  1  00 00 00 00  
+0000B0  1               
+0000B0  1               ; Special Function Table
+0000B0  1               ; JJT: Table was not shown in original listing
+0000B0  1               
+0000B0  1  00 00 00 00          .RES    $0120-*, $00
+0000B4  1  00 00 00 00  
+0000B8  1  00 00 00 00  
 000120  1                                       ; Code Word
 000120  1  30 01                .WORD   _START  ; 10   START
 000122  1  3C 01                .WORD   _SHOT   ; 11   SHOT

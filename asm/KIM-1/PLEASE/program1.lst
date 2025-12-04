@@ -189,7 +189,7 @@ Current file: program1.s
 00008C  1               ; JJT: Table was not shown in the original listing but is described in
 00008C  1               ; the LISTING document page 38.
 00008C  1               
-00008C  1               ; Command Keys Step  Description
+00008C  1               ; Command Keys Step Description
 00008C  1               ;  "SC"   D2   04   Set Clock
 00008C  1               ;  "DC"   32   06   Display Clock
 00008C  1               ;  "ST"   DE   0A   Set Timer

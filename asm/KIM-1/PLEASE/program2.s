@@ -98,6 +98,20 @@ CENTER  =       $E8
         .BYTE   BRCHAR,  GO,        DECODE,   HILO
         .BYTE   BRANCH,  EQUAL,     0,        0
 
+; Command Table.
+; JJT: Table was not shown in the original listing but is described in
+; the LISTING document page 38.
+
+; Command Keys Step Description
+;  "SS"   DD   04   Shooting Stars
+;  "HI"   67   11   HiLo
+;         00   00   End of table
+
+        .RES    $00A0-*, $0000
+
+        .BYTE   $DD, $04, $67, $11, $00, $00, $00, $00
+        .BYTE   $00, $00, $00, $00, $00, $00, $00, $00
+
 ; Special Function Table
 ; JJT: Table was not shown in original listing
 
