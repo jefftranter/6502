@@ -78,13 +78,13 @@ DATA    =       $E6
         .RES    $0120-*, $00
                         ; Code Word
         .WORD   _HEXDEC ; 10   _HEXDEC
-        .WORD   $0000   ; 11   Not used
+        .WORD   _HEXDEC ; 11   _HEXDEC
         .WORD   $0000   ; 12   Not used
         .WORD   $0000   ; 13   Not used
         .WORD   $0000   ; 14   Not used
         .WORD   $0000   ; 15   Not used
         .WORD   $0000   ; 16   Not used
-        .WORD   $0000   ; 17   Not used;
+        .WORD   $0000   ; 17   Not used
 
 _HEXDEC:
         LDX     PARAM2          ; Get Pointer to Answer Buffer

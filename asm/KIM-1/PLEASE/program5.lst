@@ -211,13 +211,13 @@ Current file: program5.s
 0000B8  1  00 00 00 00  
 000120  1                                       ; Code Word
 000120  1  30 01                .WORD   _DECADD ; 10   DECADD
-000122  1  31 01                .WORD   _HEXADD ; 11   HEXADD
-000124  1  51 01                .WORD   _DECSUB ; 12   DECSUB
+000122  1  51 01                .WORD   _DECSUB ; 11   DECSUB
+000124  1  31 01                .WORD   _HEXADD ; 12   HEXADD
 000126  1  52 01                .WORD   _HEXSUB ; 13   HEXSUB
 000128  1  00 00                .WORD   $0000   ; 14   Not used
 00012A  1  00 00                .WORD   $0000   ; 15   Not used
 00012C  1  00 00                .WORD   $0000   ; 16   Not used
-00012E  1  00 00                .WORD   $0000   ; 17   Not used;
+00012E  1  00 00                .WORD   $0000   ; 17   Not used
 000130  1               
 000130  1  F8           _DECADD:SED                     ; Set Decimal Mode
 000131  1  18           _HEXADD:CLC                     ; Entry for Hex Add
@@ -260,5 +260,4 @@ Current file: program5.s
 00016B  1  90 02                BCC     RETRN           ; Test Borrow
 00016D  1  E6 B7                INC     STEPNO          ; Skip on Step if no borrow
 00016F  1  4C 04 03     RETRN:  JMP     NXTSTP          ; Next Step if borrow
-000172  1               
-000172  1               
+00016F  1               

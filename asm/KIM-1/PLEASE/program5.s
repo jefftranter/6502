@@ -122,13 +122,13 @@ BREG    =       $E9
         .RES    $0120-*, $00
                         ; Code Word
         .WORD   _DECADD ; 10   DECADD
-        .WORD   _HEXADD ; 11   HEXADD
-        .WORD   _DECSUB ; 12   DECSUB
+        .WORD   _DECSUB ; 11   DECSUB
+        .WORD   _HEXADD ; 12   HEXADD
         .WORD   _HEXSUB ; 13   HEXSUB
         .WORD   $0000   ; 14   Not used
         .WORD   $0000   ; 15   Not used
         .WORD   $0000   ; 16   Not used
-        .WORD   $0000   ; 17   Not used;
+        .WORD   $0000   ; 17   Not used
 
 _DECADD:SED                     ; Set Decimal Mode
 _HEXADD:CLC                     ; Entry for Hex Add
@@ -171,4 +171,3 @@ NXT:    LDX     PARAM1          ; Get A buffer digit
         BCC     RETRN           ; Test Borrow
         INC     STEPNO          ; Skip on Step if no borrow
 RETRN:  JMP     NXTSTP          ; Next Step if borrow
-

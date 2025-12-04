@@ -169,13 +169,13 @@ Current file: program4.s
 0000B8  1  00 00 00 00  
 000120  1                                       ; Code Word
 000120  1  30 01                .WORD   _HEXDEC ; 10   _HEXDEC
-000122  1  00 00                .WORD   $0000   ; 11   Not used
+000122  1  30 01                .WORD   _HEXDEC ; 11   _HEXDEC
 000124  1  00 00                .WORD   $0000   ; 12   Not used
 000126  1  00 00                .WORD   $0000   ; 13   Not used
 000128  1  00 00                .WORD   $0000   ; 14   Not used
 00012A  1  00 00                .WORD   $0000   ; 15   Not used
 00012C  1  00 00                .WORD   $0000   ; 16   Not used
-00012E  1  00 00                .WORD   $0000   ; 17   Not used;
+00012E  1  00 00                .WORD   $0000   ; 17   Not used
 000130  1               
 000130  1               _HEXDEC:
 000130  1  A6 B2                LDX     PARAM2          ; Get Pointer to Answer Buffer
