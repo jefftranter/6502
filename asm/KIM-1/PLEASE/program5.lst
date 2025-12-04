@@ -186,13 +186,29 @@ Current file: program5.s
 000098  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0         ,5
 00009C  1  08 1A 90 00          .BYTE   BRANCH,  REACT,     TTABLO,   TTABHI
 0000A0  1               
-0000A0  1               ; Special Function Table
-0000A0  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
-0000A0  1               ; since the program does not have any native routines.
+0000A0  1               ; Command Table.
+0000A0  1               ; JJT: Table was not shown in the original listing but is described in
+0000A0  1               ; the LISTING document page 38.
 0000A0  1               
-0000A0  1  00 00 00 00          .RES    $0120-*, $00
+0000A0  1               ; Command Keys Step Description
+0000A0  1               ;  "AS"   0D   04   Add/Subtract Calculator
+0000A0  1               ;  "RE"   C4   1A   Reaction Time Tester
+0000A0  1               ;         00   00   End of table
+0000A0  1               
+0000A0  1                       .RES    $00A0-*, $0000
+0000A0  1               
+0000A0  1  0D 04 C4 1A          .BYTE   $0D, $04, $C4, $1A, $00, $00, $00, $00
 0000A4  1  00 00 00 00  
-0000A8  1  00 00 00 00  
+0000A8  1  00 00 00 00          .BYTE   $00, $00, $00, $00, $00, $00, $00, $00
+0000AC  1  00 00 00 00  
+0000B0  1               
+0000B0  1               ; Special Function Table
+0000B0  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
+0000B0  1               ; since the program does not have any native routines.
+0000B0  1               
+0000B0  1  00 00 00 00          .RES    $0120-*, $00
+0000B4  1  00 00 00 00  
+0000B8  1  00 00 00 00  
 000120  1                                       ; Code Word
 000120  1  30 01                .WORD   _DECADD ; 10   DECADD
 000122  1  31 01                .WORD   _HEXADD ; 11   HEXADD

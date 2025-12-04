@@ -142,13 +142,31 @@ Current file: program4.s
 00003C  1  0B C8 53 06          .BYTE   FILL,    DISPLAY,   $53,      6
 000040  1  08 09 00 00          .BYTE   BRANCH,  WAIT,      0,        0
 000044  1               
-000044  1               ; Special Function Table
-000044  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
-000044  1               ; since the program does not have any native routines.
+000044  1               ; Command Table.
+000044  1               ; JJT: Table was not shown in the original listing but is described in
+000044  1               ; the LISTING document page 38.
 000044  1               
-000044  1  00 00 00 00          .RES    $0120-*, $00
+000044  1               ; Command Keys Step Description
+000044  1               ;  "DH"   36   04   Decimal to Hex
+000044  1               ;  "HD"   63   0B   Hex to Decimal
+000044  1               ;         00   00   End of table
+000044  1               
+000044  1  00 00 00 00          .RES    $00A0-*, $0000
 000048  1  00 00 00 00  
 00004C  1  00 00 00 00  
+0000A0  1               
+0000A0  1  36 04 63 0B          .BYTE   $36, $04, $63, $0B, $00, $00, $00, $00
+0000A4  1  00 00 00 00  
+0000A8  1  00 00 00 00          .BYTE   $00, $00, $00, $00, $00, $00, $00, $00
+0000AC  1  00 00 00 00  
+0000B0  1               
+0000B0  1               ; Special Function Table
+0000B0  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
+0000B0  1               ; since the program does not have any native routines.
+0000B0  1               
+0000B0  1  00 00 00 00          .RES    $0120-*, $00
+0000B4  1  00 00 00 00  
+0000B8  1  00 00 00 00  
 000120  1                                       ; Code Word
 000120  1  30 01                .WORD   _HEXDEC ; 10   _HEXDEC
 000122  1  00 00                .WORD   $0000   ; 11   Not used

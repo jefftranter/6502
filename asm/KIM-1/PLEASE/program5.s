@@ -101,6 +101,20 @@ BREG    =       $E9
         .BYTE   DECOUT,  BUFFER,    0         ,5
         .BYTE   BRANCH,  REACT,     TTABLO,   TTABHI
 
+; Command Table.
+; JJT: Table was not shown in the original listing but is described in
+; the LISTING document page 38.
+
+; Command Keys Step Description
+;  "AS"   0D   04   Add/Subtract Calculator
+;  "RE"   C4   1A   Reaction Time Tester
+;         00   00   End of table
+
+        .RES    $00A0-*, $0000
+
+        .BYTE   $0D, $04, $C4, $1A, $00, $00, $00, $00
+        .BYTE   $00, $00, $00, $00, $00, $00, $00, $00
+
 ; Special Function Table
 ; JJT: Table was not shown in original listing. Unsure if it is needed
 ; since the program does not have any native routines.

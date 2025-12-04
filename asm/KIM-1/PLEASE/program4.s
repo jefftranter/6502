@@ -57,6 +57,20 @@ DATA    =       $E6
         .BYTE   FILL,    DISPLAY,   $53,      6
         .BYTE   BRANCH,  WAIT,      0,        0
 
+; Command Table.
+; JJT: Table was not shown in the original listing but is described in
+; the LISTING document page 38.
+
+; Command Keys Step Description
+;  "DH"   36   04   Decimal to Hex
+;  "HD"   63   0B   Hex to Decimal
+;         00   00   End of table
+
+        .RES    $00A0-*, $0000
+
+        .BYTE   $36, $04, $63, $0B, $00, $00, $00, $00
+        .BYTE   $00, $00, $00, $00, $00, $00, $00, $00
+
 ; Special Function Table
 ; JJT: Table was not shown in original listing. Unsure if it is needed
 ; since the program does not have any native routines.
