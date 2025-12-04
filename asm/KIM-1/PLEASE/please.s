@@ -30,7 +30,7 @@ PC      =       $14
 ; JJT: Table was not shown in original listing but is described in the
 ; LISTING document page 38.
 
-        .ORG    $0100
+        .RES    $0100-*, $00
                         ; Code Word
         .WORD   ALPIN   ; 00   ALPIN
         .WORD   HEXIN   ; 01   HEXIN

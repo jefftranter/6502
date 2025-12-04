@@ -7,7 +7,7 @@ please.ptp: please.bin Makefile
 please.bin: please.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m please.map -o please.bin please.o
 
-please.o:	please.s
+please.o: please.s
 	ca65 -g -l please.lst please.s
 
 program1.ptp: program1.bin Makefile
@@ -16,7 +16,7 @@ program1.ptp: program1.bin Makefile
 program1.bin: program1.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program1.map -o program1.bin program1.o
 
-program1.o:	program1.s
+program1.o: program1.s
 	ca65 -g -l program1.lst program1.s
 
 program2.ptp: program2.bin Makefile
@@ -25,7 +25,7 @@ program2.ptp: program2.bin Makefile
 program2.bin: program2.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program2.map -o program2.bin program2.o
 
-program2.o:	program2.s
+program2.o: program2.s
 	ca65 -g -l program2.lst program2.s
 
 program3.ptp: program3.bin Makefile
@@ -34,7 +34,7 @@ program3.ptp: program3.bin Makefile
 program3.bin: program3.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program3.map -o program3.bin program3.o
 
-program3.o:	program3.s
+program3.o: program3.s
 	ca65 -g -l program3.lst program3.s
 
 program4.ptp: program4.bin Makefile
@@ -43,7 +43,7 @@ program4.ptp: program4.bin Makefile
 program4.bin: program4.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program4.map -o program4.bin program4.o
 
-program4.o:	program4.s
+program4.o: program4.s
 	ca65 -g -l program4.lst program4.s
 
 program5.ptp: program5.bin Makefile
@@ -52,7 +52,7 @@ program5.ptp: program5.bin Makefile
 program5.bin: program5.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program5.map -o program5.bin program5.o
 
-program5.o:	program5.s
+program5.o: program5.s
 	ca65 -g -l program5.lst program5.s
 
 clean:

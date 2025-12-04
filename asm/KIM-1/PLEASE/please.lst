@@ -123,7 +123,9 @@ Current file: please.s
 0000F0  1               ; JJT: Table was not shown in original listing but is described in the
 0000F0  1               ; LISTING document page 38.
 0000F0  1               
-0000F0  1                       .ORG    $0100
+0000F0  1  00 00 00 00          .RES    $0100-*, $00
+0000F4  1  00 00 00 00  
+0000F8  1  00 00 00 00  
 000100  1                                       ; Code Word
 000100  1  29 03                .WORD   ALPIN   ; 00   ALPIN
 000102  1  2F 03                .WORD   HEXIN   ; 01   HEXIN
