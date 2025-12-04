@@ -40,6 +40,7 @@ START   =       $1C
 TEST    =       $1D
 WAIT3   =       $21
 STOP    =       $23
+ASTAB   =       $5E
 ASTABL  =       $60
 TTABLO  =       $90
 TTABLE  =       $9E
@@ -47,7 +48,7 @@ DISPLAY =       $C8
 DSPLAY  =       $C8
 CMDTBL  =       $DC
 BUFFER  =       $E0
-HALT    =       $E0
+HALT    =       $1E
 AREG    =       $E6
 BREG    =       $E9
 
@@ -66,7 +67,7 @@ BREG    =       $E9
         .BYTE   PACK,    BUFFER,    AREG,     3
         .BYTE   DECIN,   BUFFER,    5,        0
         .BYTE   PACK,    BUFFER,    BREG,     3
-        .BYTE   BRTABL,  ASTABL,    KEYVAL,   NEW
+        .BYTE   BRTABL,  ASTAB,     KEYVAL,   NEW
         .BYTE   DECADD,  AREG,      BREG,     AREG
         .BYTE   BRANCH,  FLASH,     0,        0
         .BYTE   UNPACK,  AREG,      BUFFER,   6

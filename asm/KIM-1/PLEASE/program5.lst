@@ -125,6 +125,7 @@ Current file: program5.s
 000000r 1               TEST    =       $1D
 000000r 1               WAIT3   =       $21
 000000r 1               STOP    =       $23
+000000r 1               ASTAB   =       $5E
 000000r 1               ASTABL  =       $60
 000000r 1               TTABLO  =       $90
 000000r 1               TTABLE  =       $9E
@@ -132,7 +133,7 @@ Current file: program5.s
 000000r 1               DSPLAY  =       $C8
 000000r 1               CMDTBL  =       $DC
 000000r 1               BUFFER  =       $E0
-000000r 1               HALT    =       $E0
+000000r 1               HALT    =       $1E
 000000r 1               AREG    =       $E6
 000000r 1               BREG    =       $E9
 000000r 1               
@@ -151,7 +152,7 @@ Current file: program5.s
 000014  1  06 E0 E6 03          .BYTE   PACK,    BUFFER,    AREG,     3
 000018  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,    5,        0
 00001C  1  06 E0 E9 03          .BYTE   PACK,    BUFFER,    BREG,     3
-000020  1  0A 60 DF 05          .BYTE   BRTABL,  ASTABL,    KEYVAL,   NEW
+000020  1  0A 5E DF 05          .BYTE   BRTABL,  ASTAB,     KEYVAL,   NEW
 000024  1  10 E6 E9 E6          .BYTE   DECADD,  AREG,      BREG,     AREG
 000028  1  08 12 00 00          .BYTE   BRANCH,  FLASH,     0,        0
 00002C  1  07 E6 E0 06          .BYTE   UNPACK,  AREG,      BUFFER,   6
@@ -181,7 +182,7 @@ Current file: program5.s
 000084  1  09 13 00 23          .BYTE   BRCHAR,  GO,        DECODE,   STOP
 000088  1  08 21 00 00          .BYTE   BRANCH,  WAIT3,     0,        0
 00008C  1  11 C1 E6 E6          .BYTE   DECSUB,  TENS,      AREG,     AREG
-000090  1  01 E0 00 00          .BYTE   $01,     HALT,      0,        0
+000090  1  01 1E 00 00          .BYTE   $01,     HALT,      0,        0
 000094  1  07 E6 E0 06          .BYTE   UNPACK,  AREG,      BUFFER,   6
 000098  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0         ,5
 00009C  1  08 1A 90 00          .BYTE   BRANCH,  REACT,     TTABLO,   TTABHI
