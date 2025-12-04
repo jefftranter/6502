@@ -117,8 +117,7 @@ BREG    =       $E9
         .BYTE   $00, $00, $00, $00, $00, $00, $00, $00
 
 ; Special Function Table
-; JJT: Table was not shown in original listing. Unsure if it is needed
-; since the program does not have any native routines.
+; JJT: Table was not shown in original listing.
 
         .RES    $0120-*, $00
                         ; Code Word

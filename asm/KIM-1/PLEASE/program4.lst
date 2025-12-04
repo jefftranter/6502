@@ -161,8 +161,7 @@ Current file: program4.s
 0000AC  1  00 00 00 00  
 0000B0  1               
 0000B0  1               ; Special Function Table
-0000B0  1               ; JJT: Table was not shown in original listing. Unsure if it is needed
-0000B0  1               ; since the program does not have any native routines.
+0000B0  1               ; JJT: Table was not shown in original listing.
 0000B0  1               
 0000B0  1  00 00 00 00          .RES    $0120-*, $00
 0000B4  1  00 00 00 00  
