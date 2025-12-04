@@ -12,6 +12,3 @@ You need to load both please.ptp as well as one of the program
 module files (e.g. program1.ptp).
 
 See the PDF documentation for details.
-
-Current status: Program module # 1 is working. The others are not
-fully working or are untested.

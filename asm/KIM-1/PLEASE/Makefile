@@ -20,7 +20,7 @@ program1.o: program1.s
 	ca65 -g -l program1.lst program1.s
 
 program2.ptp: program2.bin Makefile
-	srec_cat program2.bin -binary -offset 0x0000 -crop 0x0000 0x008c 0x00a0 0x00b0 0x0120 0x01e4 -o program2.ptp -MOS_Technologies
+	srec_cat program2.bin -binary -offset 0x0000 -crop 0x0000 0x0090 0x00a0 0x00b0 0x0120 0x01e4 -o program2.ptp -MOS_Technologies
 
 program2.bin: program2.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m program2.map -o program2.bin program2.o

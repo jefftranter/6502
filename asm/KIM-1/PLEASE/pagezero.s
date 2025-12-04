@@ -52,7 +52,7 @@ ALPHLO  =       $D4             ; Alphabetic Conversion Table Low Address (usual
 ALPHHI  =       $D5             ; Alphabetic Conversion Table High Address (usually = 03)
 XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or ALPHA Table
 TEMP    =       $D7             ; General Purpose Temporary Save Location
-LIMIT   =       $D8             ; Uses by Conversion Routine.  General Purposes Register
+LIMIT   =       $D8             ; Uses by Conversion Routine.  General Purpose Register
 DSPPOS  =       $D9             ; Executive Pointer to Current Display Position
 CURPNT  =       $DA             ; Used by Input Routines as Current Data Pointer.
 CHAR    =       $DB             ; Save location for Input Character
@@ -68,7 +68,7 @@ BUF3    =       $E3
 BUF4    =       $E4
 BUF5    =       $E5
 
-ALT0    =       $E6             ; Alternate General Purposes Buffer
+ALT0    =       $E6             ; Alternate General Purpose Buffer
 ALT1    =       $E7
 ALT2    =       $E8
 ALT3    =       $E9

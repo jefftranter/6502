@@ -57,7 +57,7 @@ Current file: please.s
 000000r 2               ALPHHI  =       $D5             ; Alphabetic Conversion Table High Address (usually = 03)
 000000r 2               XTABLE  =       $D6             ; Used by Conversion Routine to Point to HEX or ALPHA Table
 000000r 2               TEMP    =       $D7             ; General Purpose Temporary Save Location
-000000r 2               LIMIT   =       $D8             ; Uses by Conversion Routine.  General Purposes Register
+000000r 2               LIMIT   =       $D8             ; Uses by Conversion Routine.  General Purpose Register
 000000r 2               DSPPOS  =       $D9             ; Executive Pointer to Current Display Position
 000000r 2               CURPNT  =       $DA             ; Used by Input Routines as Current Data Pointer.
 000000r 2               CHAR    =       $DB             ; Save location for Input Character
@@ -73,7 +73,7 @@ Current file: please.s
 000000r 2               BUF4    =       $E4
 000000r 2               BUF5    =       $E5
 000000r 2               
-000000r 2               ALT0    =       $E6             ; Alternate General Purposes Buffer
+000000r 2               ALT0    =       $E6             ; Alternate General Purpose Buffer
 000000r 2               ALT1    =       $E7
 000000r 2               ALT2    =       $E8
 000000r 2               ALT3    =       $E9
