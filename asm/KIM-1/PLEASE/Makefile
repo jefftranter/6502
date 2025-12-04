@@ -1,5 +1,5 @@
 
-all: please.ptp program1.ptp program2.ptp program3.ptp program4.ptp program5.ptp
+all: please.ptp program1.ptp program2.ptp program3.ptp program4.ptp program5.ptp bin
 
 please.ptp: please.bin Makefile
 	srec_cat please.bin -binary -offset 0x00b0 -crop 0x00b0 0x00f0 0x0100 0x0120 0x0200 0x0400 0x1780 0x17e5 -o please.ptp -MOS_Technologies
@@ -55,8 +55,15 @@ program5.bin: program5.o
 program5.o: program5.s
 	ca65 -g -l program5.lst program5.s
 
+bin: please.ptp program1.ptp program2.ptp program3.ptp program4.ptp program5.ptp
+	srec_cat please.ptp -MOS_Technologies program1.ptp -MOS_Technologies -o please-p1.bin -binary
+	srec_cat please.ptp -MOS_Technologies program2.ptp -MOS_Technologies -o please-p2.bin -binary
+	srec_cat please.ptp -MOS_Technologies program3.ptp -MOS_Technologies -o please-p3.bin -binary
+	srec_cat please.ptp -MOS_Technologies program4.ptp -MOS_Technologies -o please-p4.bin -binary
+	srec_cat please.ptp -MOS_Technologies program5.ptp -MOS_Technologies -o please-p5.bin -binary
+
 clean:
-	$(RM) *.o *.map *.bin
+	$(RM) *.o *.map please.bin program*.bin
 
 distclean: clean
-	$(RM) *.lst *.ptp
+	$(RM) *.lst *.ptp *.bin
