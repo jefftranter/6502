@@ -33,37 +33,37 @@ GUESS   =       $E6
 
         .ORG    $0000
 
-;               COMMAND  PARAM1   PARAM2  PARAM3
+;               COMMAND  PARAM1     PARAM2    PARAM3   STEP LABEL
 
 ; Command Decoder
-        .BYTE   ALPIN,   BUFFER,    0,        5
-        .BYTE   PACK,    BUFFER,    KEYVAL,   1
-        .BYTE   FILL,    DISPLAY,   0,        6
-        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE
+        .BYTE   ALPIN,   BUFFER,    0,        5      ;  0   DECODE
+        .BYTE   PACK,    BUFFER,    KEYVAL,   1      ;  1
+        .BYTE   FILL,    DISPLAY,   0,        6      ;  2
+        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE ;  3
 
 ; Tipsy
-        .BYTE   FILL,    DISPLAY,   0,        6
-        .BYTE   BRCHAR,  GO,        DECODE,   READY
-        .BYTE   BRANCH,  PLUS,      0,        0
-        .BYTE   FILL,    BUFFER,    $FF,      6
-        .BYTE   UNPACK,  TENTHS,    BUFFER,   4
-        .BYTE   HEXOUT,  BUFFER,    0,        5
-        .BYTE   TIMER,   20,        BLANK,    0
-        .BYTE   FILL,    DISPLAY,   0,        4
-        .BYTE   TIMER,   10,        ACCEPT,   0
-        .BYTE   FILL,    DISPLAY+4, DASH,     2
-        .BYTE   FILL,    CHAR,      $20,      1
-        .BYTE   FILL,    THOUS,     0,        4
-        .BYTE   DECIN,   GUESS,     0,        3
-        .BYTE   MATCH,   BUFFER,    GUESS,    4
-        .BYTE   BRANCH,  NO,        0,        0
-        .BYTE   MATCH,   ZERO,      TENS,     1
-        .BYTE   BRANCH,  NO,        0,        0
-        .BYTE   UNPACK,  TENTHS,    BUFFER+4, 2
-        .BYTE   DECOUT,  BUFFER,    4,        5
-        .BYTE   BRANCH,  PLUS,      0,        0
-        .BYTE   FILL,    DISPLAY+4, $53,      2
-        .BYTE   BRANCH,  PLUS,      0,        0
+        .BYTE   FILL,    DISPLAY,   0,        6      ;  4   TIPSY
+        .BYTE   BRCHAR,  GO,        DECODE,   READY  ;  5   PLUS
+        .BYTE   BRANCH,  PLUS,      0,        0      ;  6
+        .BYTE   FILL,    BUFFER,    $FF,      6      ;  7   READY
+        .BYTE   UNPACK,  TENTHS,    BUFFER,   4      ;  8
+        .BYTE   HEXOUT,  BUFFER,    0,        5      ;  9
+        .BYTE   TIMER,   20,        BLANK,    0      ;  A
+        .BYTE   FILL,    DISPLAY,   0,        4      ;  B   BLANK
+        .BYTE   TIMER,   10,        ACCEPT,   0      ;  C
+        .BYTE   FILL,    DISPLAY+4, DASH,     2      ;  D   ACCEPT
+        .BYTE   FILL,    CHAR,      $20,      1      ;  E
+        .BYTE   FILL,    THOUS,     0,        4      ;  F
+        .BYTE   DECIN,   GUESS,     0,        3      ; 10
+        .BYTE   MATCH,   BUFFER,    GUESS,    4      ; 11
+        .BYTE   BRANCH,  NO,        0,        0      ; 12
+        .BYTE   MATCH,   ZERO,      TENS,     1      ; 13   YES
+        .BYTE   BRANCH,  NO,        0,        0      ; 14
+        .BYTE   UNPACK,  TENTHS,    BUFFER+4, 2      ; 15
+        .BYTE   DECOUT,  BUFFER,    4,        5      ; 16
+        .BYTE   BRANCH,  PLUS,      0,        0      ; 17
+        .BYTE   FILL,    DISPLAY+4, $53,      2      ; 18   NO
+        .BYTE   BRANCH,  PLUS,      0,        0      ; 19
 
 ; Command Table.
 ; JJT: Table was not shown in the original listing but is described in

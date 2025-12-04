@@ -54,49 +54,49 @@ CENTER  =       $E8
 ; table below matches the hex values in the listing but it could be in
 ; error.
 
-;               COMMAND  PARAM1   PARAM2  PARAM3
+;               COMMAND  PARAM1     PARAM2    PARAM3   STEP LABEL
 
 ; Command Decoder
-        .BYTE   ALPIN,   BUFFER,    0,        5
-        .BYTE   PACK,    BUFFER,    KEYVAL,   1
-        .BYTE   FILL,    DISPLAY,   0,        6
-        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE
+        .BYTE   ALPIN,   BUFFER,    0,        5      ;  0   DECODE
+        .BYTE   PACK,    BUFFER,    KEYVAL,   1      ;  1
+        .BYTE   FILL,    DISPLAY,   0,        6      ;  2
+        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE ;  3
 
 ; Shooting Stars
-        .BYTE   START,   0,         0,        0
-        .BYTE   HEXIN,   BUFFER,    3,        3
-        .BYTE   SHOT,    LOSE,      WIN,      0
-        .BYTE   UNPACK,  COUNT,     BUFFER+4, 2
-        .BYTE   DECOUT,  BUFFER,    4,        5
-        .BYTE   BRCHAR,  GO,        DECODE,   5
-        .BYTE   BRANCH,  RWAIT,     0,        0
-        .BYTE   FILL,    DISPLAY+4, $53,      2
-        .BYTE   BRCHAR,  GO,        DECODE,   STAR
-        .BYTE   BRANCH,  SWAIT,     0,        0
-        .BYTE   UNPACK,  COUNT,     BUFFER+4, 2
-        .BYTE   DECOUT,  BUFFER,    4,        5
-        .BYTE   BRANCH,  SWAIT,     0,        0
+        .BYTE   START,   0,         0,        0      ;  4   STAR
+        .BYTE   HEXIN,   BUFFER,    3,        3      ;  5   NEXT
+        .BYTE   SHOT,    LOSE,      WIN,      0      ;  6
+        .BYTE   UNPACK,  COUNT,     BUFFER+4, 2      ;  7   RUN
+        .BYTE   DECOUT,  BUFFER,    4,        5      ;  8
+        .BYTE   BRCHAR,  GO,        DECODE,   5      ;  9   RWAIT
+        .BYTE   BRANCH,  RWAIT,     0,        0      ;  A
+        .BYTE   FILL,    DISPLAY+4, $53,      2      ;  B   LOSE
+        .BYTE   BRCHAR,  GO,        DECODE,   STAR   ;  C   WAIT
+        .BYTE   BRANCH,  SWAIT,     0,        0      ;  D
+        .BYTE   UNPACK,  COUNT,     BUFFER+4, 2      ;  E   WIN
+        .BYTE   DECOUT,  BUFFER,    4,        5      ;  F
+        .BYTE   BRANCH,  SWAIT,     0,        0      ; 10
 
 ; HILO Number Guessing Game
-        .BYTE   FILL,    GUESS,     $FF,      6
-        .BYTE   UNPACK,  TENTHS,    BUFFER+4, 2
-        .BYTE   BRCHAR,  GO,        DECODE,   READY
-        .BYTE   BRANCH,  WAIT,      0,        0
-        .BYTE   FILL,    DISPLAY+4, 0,        2
-        .BYTE   DECIN,   GUESS,     0,        1
-        .BYTE   COMPARE, GUESS,     BUFFER+4, 2
-        .BYTE   BRANCH,  LOW,       0,        0
-        .BYTE   BRANCH,  EQUAL,     0,        0
-        .BYTE   ALPOUT,  HI,        4,        5
-        .BYTE   BRANCH,  WAIT,      $06,      $07
-        .BYTE   ALPOUT,  LO,        4,        5
-        .BYTE   BRANCH,  WAIT,      $08,      $0A
-        .BYTE   DECOUT,  BUFFER,    4,        5
-        .BYTE   TIMER,   1,         BLANK,    0
-        .BYTE   FILL,    DISPLAY+4, 0,        2
-        .BYTE   TIMER,   1,         NEXT,     0
-        .BYTE   BRCHAR,  GO,        DECODE,   HILO
-        .BYTE   BRANCH,  EQUAL,     0,        0
+        .BYTE   FILL,    GUESS,     $FF,      6      ; 11   HILO
+        .BYTE   UNPACK,  TENTHS,    BUFFER+4, 2      ; 12
+        .BYTE   BRCHAR,  GO,        DECODE,   READY  ; 13   WAIT
+        .BYTE   BRANCH,  WAIT,      0,        0      ; 14
+        .BYTE   FILL,    DISPLAY+4, 0,        2      ; 15   READY
+        .BYTE   DECIN,   GUESS,     0,        1      ; 16
+        .BYTE   COMPARE, GUESS,     BUFFER+4, 2      ; 17
+        .BYTE   BRANCH,  LOW,       0,        0      ; 18
+        .BYTE   BRANCH,  EQUAL,     0,        0      ; 19
+        .BYTE   ALPOUT,  HI,        4,        5      ; 1A   HIGH
+        .BYTE   BRANCH,  WAIT,      $06,      $07    ; 1B
+        .BYTE   ALPOUT,  LO,        4,        5      ; 1C   LOW
+        .BYTE   BRANCH,  WAIT,      $08,      $0A    ; 1D
+        .BYTE   DECOUT,  BUFFER,    4,        5      ; 1E   EQUAL
+        .BYTE   TIMER,   1,         BLANK,    0      ; 1F
+        .BYTE   FILL,    DISPLAY+4, 0,        2      ; 20   BLANK
+        .BYTE   TIMER,   1,         NEXT,     0      ; 21
+        .BYTE   BRCHAR,  GO,        DECODE,   HILO   ; 22   NEXT
+        .BYTE   BRANCH,  EQUAL,     0,        0      ; 23
 
 ; Command Table.
 ; JJT: Table was not shown in the original listing but is described in

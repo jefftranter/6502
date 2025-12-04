@@ -53,52 +53,52 @@ GUESS   =       $E6
 
         .ORG    $0000
 
-;               COMMAND  PARAM1   PARAM2  PARAM3
+;               COMMAND  PARAM1     PARAM2    PARAM3   STEP LABEL
 
 ; Command Decoder
-        .BYTE   ALPIN,   BUFFER,  0,      5
-        .BYTE   PACK,    BUFFER,  KEYVAL, 1
-        .BYTE   FILL,    DISPLAY, 0,      6
-        .BYTE   BRTABL,  CMDTBL,  KEYVAL, DECODE
+        .BYTE   ALPIN,   BUFFER,    0,        5      ;  0   DECODE
+        .BYTE   PACK,    BUFFER,    KEYVAL,   1      ;  1
+        .BYTE   FILL,    DISPLAY,   0,        6      ;  2
+        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE ;  3
 
 ; Set Clock and Display Clock
-        .BYTE   DECIN,   BUFFER,  0,      5
-        .BYTE   PACK,    BUFFER,  HOUR,   3
-        .BYTE   UNPACK,  HOUR,    BUFFER, 6
-        .BYTE   DECOUT,  BUFFER,  0,      5
-        .BYTE   BRCHAR,  GO,      DECODE, SCLOCK
-        .BYTE   BRANCH,  DCLOCK,  0,      0
+        .BYTE   DECIN,   BUFFER,    0,        5      ;  4   SCLOCK
+        .BYTE   PACK,    BUFFER,    HOUR,     3      ;  5
+        .BYTE   UNPACK,  HOUR,      BUFFER,   6      ;  6   DCLOCK
+        .BYTE   DECOUT,  BUFFER,    0,        5      ;  7
+        .BYTE   BRCHAR,  GO,        DECODE,   SCLOCK ;  8
+        .BYTE   BRANCH,  DCLOCK,    0,        0      ;  9
 
 ; Set Timer and Display Timer
-        .BYTE   DECIN,   BUFFER,  5,      0
-        .BYTE   PACK,    BUFFER,  TENS,   3
-        .BYTE   UNPACK,  TENS,    BUFFER, 6
-        .BYTE   DECOUT,  BUFFER,  0,      5
-        .BYTE   BRCHAR,  GO,      DECODE, STIMER
-        .BYTE   BRANCH,  DTIMER,  0,      0
+        .BYTE   DECIN,   BUFFER,    5,        0      ;  A   STIMER
+        .BYTE   PACK,    BUFFER,    TENS,     3      ;  B
+        .BYTE   UNPACK,  TENS,      BUFFER,   6      ;  C   DTIMER
+        .BYTE   DECOUT,  BUFFER,    0,        5      ;  D
+        .BYTE   BRCHAR,  GO,        DECODE,   STIMER ;  E
+        .BYTE   BRANCH,  DTIMER,    0,        0      ;  F
 
 ; Notice and Billboard
-        .BYTE   MESAGE,  NMSGLO,  MSGHI,  10
-        .BYTE   BRCHAR,  GO,      DECODE, BILBRD
-        .BYTE   BRANCH,  NOTICE,  0,      0
-        .BYTE   BBOARD,  BMSGLO,  MSGHI,  4
-        .BYTE   BRCHAR,  GO,      DECODE, NOTICE
-        .BYTE   BRANCH,  BILBRD,  0,      0
+        .BYTE   MESAGE,  NMSGLO,    MSGHI,    10     ; 10   NOTICE
+        .BYTE   BRCHAR,  GO,        DECODE,   BILBRD ; 11
+        .BYTE   BRANCH,  NOTICE,    0,        0      ; 12
+        .BYTE   BBOARD,  BMSGLO,    MSGHI,    4      ; 13   BILBRD
+        .BYTE   BRCHAR,  GO,        DECODE,   NOTICE ; 14
+        .BYTE   BRANCH,  BILBRD,    0,        0      ; 15
 
 ; Daffy
-        .BYTE   FILL,    ANSWER,  0,      6
-        .BYTE   UNPACK,  TENS,    ANSWER, 4
-        .BYTE   DECIN,   GUESS,   0,      3
-        .BYTE   MASTER,  GUESS,   ANSWER, BAD
-        .BYTE   DECOUT,  ANSWER,  0,      5
-        .BYTE   TIMER,   2,       BLANK,  0
-        .BYTE   FILL,    DISPLAY+4, 0,    2
-        .BYTE   TIMER,   1,       WAIT,   0
-        .BYTE   BRCHAR,  GO,      DECODE, DAFFY
-        .BYTE   BRANCH,  GOOD,    0,      0
-        .BYTE   DECOUT,  GUESS,   4,      5
-        .BYTE   BRCHAR,  GO,      DECODE, GET
-        .BYTE   BRANCH,  HOLD,    0,      0
+        .BYTE   FILL,    ANSWER,    0,        6      ; 16   DAFFY
+        .BYTE   UNPACK,  TENS,      ANSWER,   4      ; 17
+        .BYTE   DECIN,   GUESS,     0,        3      ; 18   GET
+        .BYTE   MASTER,  GUESS,     ANSWER,   BAD    ; 19
+        .BYTE   DECOUT,  ANSWER,    0,        5      ; 1A   GOOD
+        .BYTE   TIMER,   2,         BLANK,    0      ; 1B
+        .BYTE   FILL,    DISPLAY+4, 0,        2      ; 1C   BLANK
+        .BYTE   TIMER,   1,         WAIT,     0      ; 1D
+        .BYTE   BRCHAR,  GO,        DECODE,   DAFFY  ; 1E   WAIT
+        .BYTE   BRANCH,  GOOD,      0,        0      ; 1F
+        .BYTE   DECOUT,  GUESS,     4,        5      ; 20   BAD
+        .BYTE   BRCHAR,  GO,        DECODE,   GET    ; 21   HOLD
+        .BYTE   BRANCH,  HOLD,      0,        0      ; 22
 
 ; Command Table.
 ; JJT: Table was not shown in the original listing but is described in

@@ -34,28 +34,28 @@ DATA    =       $E6
 
         .ORG    $0000
 
-;               COMMAND  PARAM1   PARAM2  PARAM3
+;               COMMAND  PARAM1     PARAM2    PARAM3   STEP LABEL
 
 ; Command Decoder
-        .BYTE   ALPIN,   BUFFER,    0,        5
-        .BYTE   PACK,    BUFFER,    KEYVAL,   1
-        .BYTE   FILL,    DISPLAY,   0,        6
-        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE
+        .BYTE   ALPIN,   BUFFER,    0,        5      ;  0   DECODE
+        .BYTE   PACK,    BUFFER,    KEYVAL,   1      ;  1
+        .BYTE   FILL,    DISPLAY,   0,        6      ;  2
+        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE ;  3
 
 ; Decimal/Hexadecimal Conversion
-        .BYTE   DECIN,   BUFFER,    5,        0
-        .BYTE   DECHEX,  BUFFER,    DATA,     6
-        .BYTE   BRANCH,  OVRFLO,    0,        0
-        .BYTE   UNPACK,  DATA,      BUFFER,   6
-        .BYTE   HEXOUT,  BUFFER ,   0,        5
-        .BYTE   BRCHAR,  GO,        HEX,      DECM
-        .BYTE   BRANCH,  WAIT,      0,        0
-        .BYTE   HEXIN,   BUFFER,    5,        0
-        .BYTE   HEXDEX,  BUFFER,    DATA,     6
-        .BYTE   BRANCH,  OVRFLO,    0,        0
-        .BYTE   BRANCH,  SHOW,      0,        0
-        .BYTE   FILL,    DISPLAY,   $53,      6
-        .BYTE   BRANCH,  WAIT,      0,        0
+        .BYTE   DECIN,   BUFFER,    5,        0      ;  4   DEC
+        .BYTE   DECHEX,  BUFFER,    DATA,     6      ;  5
+        .BYTE   BRANCH,  OVRFLO,    0,        0      ;  6
+        .BYTE   UNPACK,  DATA,      BUFFER,   6      ;  7   SHOW
+        .BYTE   HEXOUT,  BUFFER ,   0,        5      ;  8
+        .BYTE   BRCHAR,  GO,        HEX,      DECM   ;  9   WAIT
+        .BYTE   BRANCH,  WAIT,      0,        0      ;  A
+        .BYTE   HEXIN,   BUFFER,    5,        0      ;  B   HEX
+        .BYTE   HEXDEX,  BUFFER,    DATA,     6      ;  C
+        .BYTE   BRANCH,  OVRFLO,    0,        0      ;  D
+        .BYTE   BRANCH,  SHOW,      0,        0      ;  E
+        .BYTE   FILL,    DISPLAY,   $53,      6      ;  F   OVRFLO
+        .BYTE   BRANCH,  WAIT,      0,        0      ; 10
 
 ; Command Table.
 ; JJT: Table was not shown in the original listing but is described in

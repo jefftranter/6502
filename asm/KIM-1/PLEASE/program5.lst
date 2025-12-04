@@ -139,53 +139,53 @@ Current file: program5.s
 000000r 1               
 000000r 1                       .ORG    $0000
 000000  1               
-000000  1               ;               COMMAND  PARAM1   PARAM2  PARAM3
+000000  1               ;               COMMAND  PARAM1     PARAM2    PARAM3   STEP LABEL
 000000  1               
 000000  1               ; Command Decoder
-000000  1  00 E0 00 05          .BYTE   ALPIN,   BUFFER,    0,        5
-000004  1  06 E0 DF 01          .BYTE   PACK,    BUFFER,    KEYVAL,   1
-000008  1  0B C8 00 06          .BYTE   FILL,    DISPLAY,   0,        6
-00000C  1  0A DC DF 00          .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE
+000000  1  00 E0 00 05          .BYTE   ALPIN,   BUFFER,    0,        5      ;  0   DECODE
+000004  1  06 E0 DF 01          .BYTE   PACK,    BUFFER,    KEYVAL,   1      ;  1
+000008  1  0B C8 00 06          .BYTE   FILL,    DISPLAY,   0,        6      ;  2
+00000C  1  0A DC DF 00          .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE ;  3
 000010  1               
 000010  1               ; Add and Subtract
-000010  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,    5,        0
-000014  1  06 E0 E6 03          .BYTE   PACK,    BUFFER,    AREG,     3
-000018  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,    5,        0
-00001C  1  06 E0 E9 03          .BYTE   PACK,    BUFFER,    BREG,     3
-000020  1  0A 5E DF 05          .BYTE   BRTABL,  ASTAB,     KEYVAL,   NEW
-000024  1  10 E6 E9 E6          .BYTE   DECADD,  AREG,      BREG,     AREG
-000028  1  08 12 00 00          .BYTE   BRANCH,  FLASH,     0,        0
-00002C  1  07 E6 E0 06          .BYTE   UNPACK,  AREG,      BUFFER,   6
-000030  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0,        5
-000034  1  09 13 00 06          .BYTE   BRCHAR,  GO,        DECODE,   NEXT
-000038  1  08 0D 00 00          .BYTE   BRANCH,  WAIT,      0,        0
-00003C  1  11 E6 E9 E6          .BYTE   DECSUB,  AREG,      BREG,     AREG
-000040  1  08 12 00 00          .BYTE   BRANCH,  FLASH,     0,        0
-000044  1  08 0B 00 00          .BYTE   BRANCH,  SHOW,      0,        0
-000048  1  05 02 13 00          .BYTE   TIMER,   2,         BLANK,    0
-00004C  1  0B C8 00 06          .BYTE   FILL,    DISPLAY,   0,        6
-000050  1  05 02 15 00          .BYTE   TIMER,   2,         WAIT2,    0
-000054  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0,        5
-000058  1  09 13 00 04          .BYTE   BRCHAR,  GO,        DECODE,   ADDSUB
-00005C  1  08 12 60 00          .BYTE   BRANCH,  FLASH,     ASTABL,   ASTABH
-000060  1  12 09 11 0F          .BYTE   $12,     ADD,       $11,      SUB
-000064  1  00 00 00 00          .BYTE   0,       0,         0,        0
+000010  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,    5,        0      ;  4   ADDSUB
+000014  1  06 E0 E6 03          .BYTE   PACK,    BUFFER,    AREG,     3      ;  5   NEW
+000018  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,    5,        0      ;  6   NEXT
+00001C  1  06 E0 E9 03          .BYTE   PACK,    BUFFER,    BREG,     3      ;  7
+000020  1  0A 5E DF 05          .BYTE   BRTABL,  ASTAB,     KEYVAL,   NEW    ;  8
+000024  1  10 E6 E9 E6          .BYTE   DECADD,  AREG,      BREG,     AREG   ;  9   ADD
+000028  1  08 12 00 00          .BYTE   BRANCH,  FLASH,     0,        0      ;  A
+00002C  1  07 E6 E0 06          .BYTE   UNPACK,  AREG,      BUFFER,   6      ;  B   SHOW
+000030  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0,        5      ;  C
+000034  1  09 13 00 06          .BYTE   BRCHAR,  GO,        DECODE,   NEXT   ;  D   WAIT
+000038  1  08 0D 00 00          .BYTE   BRANCH,  WAIT,      0,        0      ;  E
+00003C  1  11 E6 E9 E6          .BYTE   DECSUB,  AREG,      BREG,     AREG   ;  F   SUB
+000040  1  08 12 00 00          .BYTE   BRANCH,  FLASH,     0,        0      ; 10
+000044  1  08 0B 00 00          .BYTE   BRANCH,  SHOW,      0,        0      ; 11
+000048  1  05 02 13 00          .BYTE   TIMER,   2,         BLANK,    0      ; 12   FLASH
+00004C  1  0B C8 00 06          .BYTE   FILL,    DISPLAY,   0,        6      ; 13   BLANK
+000050  1  05 02 15 00          .BYTE   TIMER,   2,         WAIT2,    0      ; 14
+000054  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0,        5      ; 15   WAIT2
+000058  1  09 13 00 04          .BYTE   BRCHAR,  GO,        DECODE,   ADDSUB ; 16
+00005C  1  08 12 60 00          .BYTE   BRANCH,  FLASH,     ASTABL,   ASTABH ; 17
+000060  1  12 09 11 0F          .BYTE   $12,     ADD,       $11,      SUB    ; 18
+000064  1  00 00 00 00          .BYTE   0,       0,         0,        0      ; 19
 000068  1               
 000068  1               ; Reaction Time Tester
-000068  1  09 13 00 1C          .BYTE   BRCHAR,  GO,        DECODE,   START
-00006C  1  08 1A 00 00          .BYTE   BRANCH,  REACT,     00,       00
-000070  1  0B C8 3F 06          .BYTE   FILL,    DSPLAY,    $3F,      6
-000074  1  0A 9E C2 1D          .BYTE   BRTABL,  TTABLE,    TENTHS,   TEST
-000078  1  0B C8 00 06          .BYTE   FILL,    DSPLAY,    BLNK,     6
-00007C  1  07 C1 E0 06          .BYTE   UNPACK,  TENS,      BUFFER,   6
-000080  1  06 E0 E6 03          .BYTE   PACK,    BUFFER,    AREG,     3
-000084  1  09 13 00 23          .BYTE   BRCHAR,  GO,        DECODE,   STOP
-000088  1  08 21 00 00          .BYTE   BRANCH,  WAIT3,     0,        0
-00008C  1  11 C1 E6 E6          .BYTE   DECSUB,  TENS,      AREG,     AREG
-000090  1  01 1E 00 00          .BYTE   $01,     HALT,      0,        0
-000094  1  07 E6 E0 06          .BYTE   UNPACK,  AREG,      BUFFER,   6
-000098  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0         ,5
-00009C  1  08 1A 90 00          .BYTE   BRANCH,  REACT,     TTABLO,   TTABHI
+000068  1  09 13 00 1C          .BYTE   BRCHAR,  GO,        DECODE,   START  ; 1A   REACT
+00006C  1  08 1A 00 00          .BYTE   BRANCH,  REACT,     00,       00     ; 1B
+000070  1  0B C8 3F 06          .BYTE   FILL,    DSPLAY,    $3F,      6      ; 1C   START
+000074  1  0A 9E C2 1D          .BYTE   BRTABL,  TTABLE,    TENTHS,   TEST   ; 1D   TEST
+000078  1  0B C8 00 06          .BYTE   FILL,    DSPLAY,    BLNK,     6      ; 1E   HALT
+00007C  1  07 C1 E0 06          .BYTE   UNPACK,  TENS,      BUFFER,   6      ; 1F
+000080  1  06 E0 E6 03          .BYTE   PACK,    BUFFER,    AREG,     3      ; 20
+000084  1  09 13 00 23          .BYTE   BRCHAR,  GO,        DECODE,   STOP   ; 21   WAIT
+000088  1  08 21 00 00          .BYTE   BRANCH,  WAIT3,     0,        0      ; 22
+00008C  1  11 C1 E6 E6          .BYTE   DECSUB,  TENS,      AREG,     AREG   ; 23   STOP
+000090  1  01 1E 00 00          .BYTE   $01,     HALT,      0,        0      ; 24
+000094  1  07 E6 E0 06          .BYTE   UNPACK,  AREG,      BUFFER,   6      ; 25
+000098  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0         ,5     ; 26
+00009C  1  08 1A 90 00          .BYTE   BRANCH,  REACT,     TTABLO,   TTABHI ; 27
 0000A0  1               
 0000A0  1               ; Command Table.
 0000A0  1               ; JJT: Table was not shown in the original listing but is described in

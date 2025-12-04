@@ -138,52 +138,52 @@ Current file: program1.s
 000000r 1               
 000000r 1                       .ORG    $0000
 000000  1               
-000000  1               ;               COMMAND  PARAM1   PARAM2  PARAM3
+000000  1               ;               COMMAND  PARAM1     PARAM2    PARAM3   STEP LABEL
 000000  1               
 000000  1               ; Command Decoder
-000000  1  00 E0 00 05          .BYTE   ALPIN,   BUFFER,  0,      5
-000004  1  06 E0 DF 01          .BYTE   PACK,    BUFFER,  KEYVAL, 1
-000008  1  0B C8 00 06          .BYTE   FILL,    DISPLAY, 0,      6
-00000C  1  0A DC DF 00          .BYTE   BRTABL,  CMDTBL,  KEYVAL, DECODE
+000000  1  00 E0 00 05          .BYTE   ALPIN,   BUFFER,    0,        5      ;  0   DECODE
+000004  1  06 E0 DF 01          .BYTE   PACK,    BUFFER,    KEYVAL,   1      ;  1
+000008  1  0B C8 00 06          .BYTE   FILL,    DISPLAY,   0,        6      ;  2
+00000C  1  0A DC DF 00          .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE ;  3
 000010  1               
 000010  1               ; Set Clock and Display Clock
-000010  1  02 E0 00 05          .BYTE   DECIN,   BUFFER,  0,      5
-000014  1  06 E0 C4 03          .BYTE   PACK,    BUFFER,  HOUR,   3
-000018  1  07 C4 E0 06          .BYTE   UNPACK,  HOUR,    BUFFER, 6
-00001C  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,  0,      5
-000020  1  09 13 00 04          .BYTE   BRCHAR,  GO,      DECODE, SCLOCK
-000024  1  08 06 00 00          .BYTE   BRANCH,  DCLOCK,  0,      0
+000010  1  02 E0 00 05          .BYTE   DECIN,   BUFFER,    0,        5      ;  4   SCLOCK
+000014  1  06 E0 C4 03          .BYTE   PACK,    BUFFER,    HOUR,     3      ;  5
+000018  1  07 C4 E0 06          .BYTE   UNPACK,  HOUR,      BUFFER,   6      ;  6   DCLOCK
+00001C  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0,        5      ;  7
+000020  1  09 13 00 04          .BYTE   BRCHAR,  GO,        DECODE,   SCLOCK ;  8
+000024  1  08 06 00 00          .BYTE   BRANCH,  DCLOCK,    0,        0      ;  9
 000028  1               
 000028  1               ; Set Timer and Display Timer
-000028  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,  5,      0
-00002C  1  06 E0 C1 03          .BYTE   PACK,    BUFFER,  TENS,   3
-000030  1  07 C1 E0 06          .BYTE   UNPACK,  TENS,    BUFFER, 6
-000034  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,  0,      5
-000038  1  09 13 00 0A          .BYTE   BRCHAR,  GO,      DECODE, STIMER
-00003C  1  08 0C 00 00          .BYTE   BRANCH,  DTIMER,  0,      0
+000028  1  02 E0 05 00          .BYTE   DECIN,   BUFFER,    5,        0      ;  A   STIMER
+00002C  1  06 E0 C1 03          .BYTE   PACK,    BUFFER,    TENS,     3      ;  B
+000030  1  07 C1 E0 06          .BYTE   UNPACK,  TENS,      BUFFER,   6      ;  C   DTIMER
+000034  1  04 E0 00 05          .BYTE   DECOUT,  BUFFER,    0,        5      ;  D
+000038  1  09 13 00 0A          .BYTE   BRCHAR,  GO,        DECODE,   STIMER ;  E
+00003C  1  08 0C 00 00          .BYTE   BRANCH,  DTIMER,    0,        0      ;  F
 000040  1               
 000040  1               ; Notice and Billboard
-000040  1  11 D0 01 0A          .BYTE   MESAGE,  NMSGLO,  MSGHI,  10
-000044  1  09 13 00 13          .BYTE   BRCHAR,  GO,      DECODE, BILBRD
-000048  1  08 10 00 00          .BYTE   BRANCH,  NOTICE,  0,      0
-00004C  1  12 CA 01 04          .BYTE   BBOARD,  BMSGLO,  MSGHI,  4
-000050  1  09 13 00 10          .BYTE   BRCHAR,  GO,      DECODE, NOTICE
-000054  1  08 13 00 00          .BYTE   BRANCH,  BILBRD,  0,      0
+000040  1  11 D0 01 0A          .BYTE   MESAGE,  NMSGLO,    MSGHI,    10     ; 10   NOTICE
+000044  1  09 13 00 13          .BYTE   BRCHAR,  GO,        DECODE,   BILBRD ; 11
+000048  1  08 10 00 00          .BYTE   BRANCH,  NOTICE,    0,        0      ; 12
+00004C  1  12 CA 01 04          .BYTE   BBOARD,  BMSGLO,    MSGHI,    4      ; 13   BILBRD
+000050  1  09 13 00 10          .BYTE   BRCHAR,  GO,        DECODE,   NOTICE ; 14
+000054  1  08 13 00 00          .BYTE   BRANCH,  BILBRD,    0,        0      ; 15
 000058  1               
 000058  1               ; Daffy
-000058  1  0B E0 00 06          .BYTE   FILL,    ANSWER,  0,      6
-00005C  1  07 C1 E0 04          .BYTE   UNPACK,  TENS,    ANSWER, 4
-000060  1  02 E6 00 03          .BYTE   DECIN,   GUESS,   0,      3
-000064  1  10 E6 E0 20          .BYTE   MASTER,  GUESS,   ANSWER, BAD
-000068  1  04 E0 00 05          .BYTE   DECOUT,  ANSWER,  0,      5
-00006C  1  05 02 1C 00          .BYTE   TIMER,   2,       BLANK,  0
-000070  1  0B CC 00 02          .BYTE   FILL,    DISPLAY+4, 0,    2
-000074  1  05 01 1E 00          .BYTE   TIMER,   1,       WAIT,   0
-000078  1  09 13 00 16          .BYTE   BRCHAR,  GO,      DECODE, DAFFY
-00007C  1  08 1A 00 00          .BYTE   BRANCH,  GOOD,    0,      0
-000080  1  04 E6 04 05          .BYTE   DECOUT,  GUESS,   4,      5
-000084  1  09 13 00 18          .BYTE   BRCHAR,  GO,      DECODE, GET
-000088  1  08 21 00 00          .BYTE   BRANCH,  HOLD,    0,      0
+000058  1  0B E0 00 06          .BYTE   FILL,    ANSWER,    0,        6      ; 16   DAFFY
+00005C  1  07 C1 E0 04          .BYTE   UNPACK,  TENS,      ANSWER,   4      ; 17
+000060  1  02 E6 00 03          .BYTE   DECIN,   GUESS,     0,        3      ; 18   GET
+000064  1  10 E6 E0 20          .BYTE   MASTER,  GUESS,     ANSWER,   BAD    ; 19
+000068  1  04 E0 00 05          .BYTE   DECOUT,  ANSWER,    0,        5      ; 1A   GOOD
+00006C  1  05 02 1C 00          .BYTE   TIMER,   2,         BLANK,    0      ; 1B
+000070  1  0B CC 00 02          .BYTE   FILL,    DISPLAY+4, 0,        2      ; 1C   BLANK
+000074  1  05 01 1E 00          .BYTE   TIMER,   1,         WAIT,     0      ; 1D
+000078  1  09 13 00 16          .BYTE   BRCHAR,  GO,        DECODE,   DAFFY  ; 1E   WAIT
+00007C  1  08 1A 00 00          .BYTE   BRANCH,  GOOD,      0,        0      ; 1F
+000080  1  04 E6 04 05          .BYTE   DECOUT,  GUESS,     4,        5      ; 20   BAD
+000084  1  09 13 00 18          .BYTE   BRCHAR,  GO,        DECODE,   GET    ; 21   HOLD
+000088  1  08 21 00 00          .BYTE   BRANCH,  HOLD,      0,        0      ; 22
 00008C  1               
 00008C  1               ; Command Table.
 00008C  1               ; JJT: Table was not shown in the original listing but is described in

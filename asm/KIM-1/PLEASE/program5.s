@@ -54,53 +54,53 @@ BREG    =       $E9
 
         .ORG    $0000
 
-;               COMMAND  PARAM1   PARAM2  PARAM3
+;               COMMAND  PARAM1     PARAM2    PARAM3   STEP LABEL
 
 ; Command Decoder
-        .BYTE   ALPIN,   BUFFER,    0,        5
-        .BYTE   PACK,    BUFFER,    KEYVAL,   1
-        .BYTE   FILL,    DISPLAY,   0,        6
-        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE
+        .BYTE   ALPIN,   BUFFER,    0,        5      ;  0   DECODE
+        .BYTE   PACK,    BUFFER,    KEYVAL,   1      ;  1
+        .BYTE   FILL,    DISPLAY,   0,        6      ;  2
+        .BYTE   BRTABL,  CMDTBL,    KEYVAL,   DECODE ;  3
 
 ; Add and Subtract
-        .BYTE   DECIN,   BUFFER,    5,        0
-        .BYTE   PACK,    BUFFER,    AREG,     3
-        .BYTE   DECIN,   BUFFER,    5,        0
-        .BYTE   PACK,    BUFFER,    BREG,     3
-        .BYTE   BRTABL,  ASTAB,     KEYVAL,   NEW
-        .BYTE   DECADD,  AREG,      BREG,     AREG
-        .BYTE   BRANCH,  FLASH,     0,        0
-        .BYTE   UNPACK,  AREG,      BUFFER,   6
-        .BYTE   DECOUT,  BUFFER,    0,        5
-        .BYTE   BRCHAR,  GO,        DECODE,   NEXT
-        .BYTE   BRANCH,  WAIT,      0,        0
-        .BYTE   DECSUB,  AREG,      BREG,     AREG
-        .BYTE   BRANCH,  FLASH,     0,        0
-        .BYTE   BRANCH,  SHOW,      0,        0
-        .BYTE   TIMER,   2,         BLANK,    0
-        .BYTE   FILL,    DISPLAY,   0,        6
-        .BYTE   TIMER,   2,         WAIT2,    0
-        .BYTE   DECOUT,  BUFFER,    0,        5
-        .BYTE   BRCHAR,  GO,        DECODE,   ADDSUB
-        .BYTE   BRANCH,  FLASH,     ASTABL,   ASTABH
-        .BYTE   $12,     ADD,       $11,      SUB
-        .BYTE   0,       0,         0,        0
+        .BYTE   DECIN,   BUFFER,    5,        0      ;  4   ADDSUB
+        .BYTE   PACK,    BUFFER,    AREG,     3      ;  5   NEW
+        .BYTE   DECIN,   BUFFER,    5,        0      ;  6   NEXT
+        .BYTE   PACK,    BUFFER,    BREG,     3      ;  7
+        .BYTE   BRTABL,  ASTAB,     KEYVAL,   NEW    ;  8
+        .BYTE   DECADD,  AREG,      BREG,     AREG   ;  9   ADD
+        .BYTE   BRANCH,  FLASH,     0,        0      ;  A
+        .BYTE   UNPACK,  AREG,      BUFFER,   6      ;  B   SHOW
+        .BYTE   DECOUT,  BUFFER,    0,        5      ;  C
+        .BYTE   BRCHAR,  GO,        DECODE,   NEXT   ;  D   WAIT
+        .BYTE   BRANCH,  WAIT,      0,        0      ;  E
+        .BYTE   DECSUB,  AREG,      BREG,     AREG   ;  F   SUB
+        .BYTE   BRANCH,  FLASH,     0,        0      ; 10
+        .BYTE   BRANCH,  SHOW,      0,        0      ; 11
+        .BYTE   TIMER,   2,         BLANK,    0      ; 12   FLASH
+        .BYTE   FILL,    DISPLAY,   0,        6      ; 13   BLANK
+        .BYTE   TIMER,   2,         WAIT2,    0      ; 14
+        .BYTE   DECOUT,  BUFFER,    0,        5      ; 15   WAIT2
+        .BYTE   BRCHAR,  GO,        DECODE,   ADDSUB ; 16
+        .BYTE   BRANCH,  FLASH,     ASTABL,   ASTABH ; 17
+        .BYTE   $12,     ADD,       $11,      SUB    ; 18
+        .BYTE   0,       0,         0,        0      ; 19
 
 ; Reaction Time Tester
-        .BYTE   BRCHAR,  GO,        DECODE,   START
-        .BYTE   BRANCH,  REACT,     00,       00
-        .BYTE   FILL,    DSPLAY,    $3F,      6
-        .BYTE   BRTABL,  TTABLE,    TENTHS,   TEST
-        .BYTE   FILL,    DSPLAY,    BLNK,     6
-        .BYTE   UNPACK,  TENS,      BUFFER,   6
-        .BYTE   PACK,    BUFFER,    AREG,     3
-        .BYTE   BRCHAR,  GO,        DECODE,   STOP
-        .BYTE   BRANCH,  WAIT3,     0,        0
-        .BYTE   DECSUB,  TENS,      AREG,     AREG
-        .BYTE   $01,     HALT,      0,        0
-        .BYTE   UNPACK,  AREG,      BUFFER,   6
-        .BYTE   DECOUT,  BUFFER,    0         ,5
-        .BYTE   BRANCH,  REACT,     TTABLO,   TTABHI
+        .BYTE   BRCHAR,  GO,        DECODE,   START  ; 1A   REACT
+        .BYTE   BRANCH,  REACT,     00,       00     ; 1B
+        .BYTE   FILL,    DSPLAY,    $3F,      6      ; 1C   START
+        .BYTE   BRTABL,  TTABLE,    TENTHS,   TEST   ; 1D   TEST
+        .BYTE   FILL,    DSPLAY,    BLNK,     6      ; 1E   HALT
+        .BYTE   UNPACK,  TENS,      BUFFER,   6      ; 1F
+        .BYTE   PACK,    BUFFER,    AREG,     3      ; 20
+        .BYTE   BRCHAR,  GO,        DECODE,   STOP   ; 21   WAIT
+        .BYTE   BRANCH,  WAIT3,     0,        0      ; 22
+        .BYTE   DECSUB,  TENS,      AREG,     AREG   ; 23   STOP
+        .BYTE   $01,     HALT,      0,        0      ; 24
+        .BYTE   UNPACK,  AREG,      BUFFER,   6      ; 25
+        .BYTE   DECOUT,  BUFFER,    0         ,5     ; 26
+        .BYTE   BRANCH,  REACT,     TTABLO,   TTABHI ; 27
 
 ; Command Table.
 ; JJT: Table was not shown in the original listing but is described in
