@@ -13,7 +13,7 @@ INITS   =       $1E88
 KEYMAX  =       $14
 PC      =       $14
 
-; Page Zero Data - $00B0 to $00EE
+; Page Zero Data - $00B0 to $00EF
 
         .ORG    $00B0
 

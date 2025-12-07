@@ -98,7 +98,7 @@ Current file: please.s
 000000r 1               KEYMAX  =       $14
 000000r 1               PC      =       $14
 000000r 1               
-000000r 1               ; Page Zero Data - $00B0 to $00EE
+000000r 1               ; Page Zero Data - $00B0 to $00EF
 000000r 1               
 000000r 1                       .ORG    $00B0
 0000B0  1               

@@ -212,8 +212,8 @@ Current file: program5.s
 000120  1                                       ; Code Word
 000120  1  30 01                .WORD   _DECADD ; 10   DECADD
 000122  1  51 01                .WORD   _DECSUB ; 11   DECSUB
-000124  1  31 01                .WORD   _HEXADD ; 12   HEXADD
-000126  1  52 01                .WORD   _HEXSUB ; 13   HEXSUB
+000124  1  00 00                .WORD   $0000   ; 12   Not used
+000126  1  00 00                .WORD   $0000   ; 13   Not used
 000128  1  00 00                .WORD   $0000   ; 14   Not used
 00012A  1  00 00                .WORD   $0000   ; 15   Not used
 00012C  1  00 00                .WORD   $0000   ; 16   Not used

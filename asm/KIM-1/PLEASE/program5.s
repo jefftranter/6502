@@ -123,8 +123,8 @@ BREG    =       $E9
                         ; Code Word
         .WORD   _DECADD ; 10   DECADD
         .WORD   _DECSUB ; 11   DECSUB
-        .WORD   _HEXADD ; 12   HEXADD
-        .WORD   _HEXSUB ; 13   HEXSUB
+        .WORD   $0000   ; 12   Not used
+        .WORD   $0000   ; 13   Not used
         .WORD   $0000   ; 14   Not used
         .WORD   $0000   ; 15   Not used
         .WORD   $0000   ; 16   Not used
