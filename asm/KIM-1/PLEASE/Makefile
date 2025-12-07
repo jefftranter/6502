@@ -1,5 +1,5 @@
 
-all: please.ptp program1.ptp program2.ptp program3.ptp program4.ptp program5.ptp bin
+all: please.ptp program1.ptp program2.ptp program3.ptp program4.ptp program5.ptp
 
 please.ptp: please.bin Makefile
 	srec_cat please.bin -binary -offset 0x00b0 -crop 0x00b0 0x00f0 0x0100 0x0120 0x0200 0x0400 0x1780 0x17e5 -o please.ptp -MOS_Technologies
