@@ -46,7 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__CC65__) || defined(CPM)
+#if defined(__CC65__) || defined(CPM) || defined(HDOS)
 #include <conio.h>
 #ifdef JOYSTICK
 #include <joystick.h>
@@ -215,7 +215,7 @@ const char *DescriptionOfLocation[NUMLOCATIONS] = {
     "in the Cafeteria and Recreation Area",
     "in the Senior Officers' Mess",
     "in the Canada Forces Exchange System (CANEX)",
-    "on the 100 levels stairs",
+    "on the 100 level stairs",
     "on the 200 level stairs",
     "on the 300 level stairs",
     "on the 400 level stairs",
@@ -363,8 +363,11 @@ number matchesCommand(const char *cmd, const char *str)
 /* Clear the screen */
 void clearScreen()
 {
-#if (defined(__CC65__) && !defined(__KIM1__)) || defined(HDOS)
+#if (defined(__CC65__) && !defined(__KIM1__))
     clrscr();
+#elif defined(HDOS) || defined(CPM)
+    /* Heathkit H89/H19 screen clear */
+    printf("\eE");
 #else
     number i;
     for (i = 0; i < 24; ++i)
@@ -483,7 +486,11 @@ void doLook()
 void doQuit()
 {
     printf("%s", "Are you sure you want to quit (y/n)? ");
+#ifdef __Z88DK
+    fflush(stdout);
+#else
     fflush(NULL);
+#endif
     fgets(buffer, sizeof(buffer)-1, stdin);
     if (tolower(buffer[0]) == 'y') {
         gameOver = 1;
@@ -729,6 +736,7 @@ void doUse()
         printf("which releases 13 metric tones of pea gravel. A ladder now leads nine\n");
         printf("meters up to the surface.\n");
         Move[EscapeHatch][Up] = Surface;
+        doorUnlocked = 1;
         return;
     }
 
@@ -1056,7 +1064,11 @@ void prompt()
     }
 #else
     /* Get keyboard input */
+#ifdef __Z88DK
+    fflush(stdout);
+#else
     fflush(NULL);
+#endif
     fgets(buffer, sizeof(buffer)-1, stdin);
 
     /* Remove trailing newline */
@@ -1067,7 +1079,7 @@ void prompt()
 /* Do special things unrelated to command typed. */
 void doActions()
 {
-    if (currentLocation == EscapeHatch) {
+    if (currentLocation == EscapeHatch && !doorUnlocked) {
         printf("There is a closet with a locked door here.\n");
     }
 
@@ -1170,7 +1182,11 @@ int main(void)
 
         printf("Game over after %d turns.\n", turnsPlayed);
         printf("%s", "Do you want to play again (y/n)? ");
-        fflush(NULL);
+#ifdef __Z88DK
+    fflush(stdout);
+#else
+    fflush(NULL);
+#endif
         fgets(buffer, sizeof(buffer)-1, stdin);
         if (tolower(buffer[0]) == 'n') {
             break;
