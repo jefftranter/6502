@@ -33,6 +33,7 @@
  * Version  Date         Comments
  * -------  ----         --------
  * 0.0      12 Mar 2026  Started development.
+ * 0.1      14 Mar 2026  Working version.
  */
 
 
@@ -559,21 +560,29 @@ void doTake()
         if (!strcasecmp(item, DescriptionOfItem[i])) {
             /* Found it, but is it here? */
             if (locationOfItem[i] == currentLocation) {
-            /* It is here. Add to inventory. */
-            for (j = 0; j < MAXITEMS; j++) {
-                if (Inventory[j] == 0) {
-                    Inventory[j] = (Item_t)i;
-                    /* And remove from location. */
-                    locationOfItem[i] = NoLocation;
-                    printf("Took %s.\n", item);
+
+                /* Check for item that can't be taken */
+                if (i == Computer) {
+                    printf("It is too heavy and bolted to the floor.\n");
                     ++turnsPlayed;
                     return;
                 }
-            }
 
-            /* Reached maximum number of items to carry */
-            printf("You can't carry any more. Drop something.\n");
-            return;
+                /* It is here. Add to inventory. */
+                for (j = 0; j < MAXITEMS; j++) {
+                    if (Inventory[j] == 0) {
+                        Inventory[j] = (Item_t)i;
+                        /* And remove from location. */
+                        locationOfItem[i] = NoLocation;
+                        printf("Took %s.\n", item);
+                        ++turnsPlayed;
+                        return;
+                    }
+                }
+
+                /* Reached maximum number of items to carry */
+                printf("You can't carry any more. Drop something.\n");
+                return;
             }
         }
     }
@@ -733,7 +742,7 @@ void doUse()
     /* Use key */
     if (!strcasecmp(item, "key") && currentLocation == EscapeHatch) {
         printf("The door to the escape hatch unlocks. You open it, and pull the lever\n");
-        printf("which releases 13 metric tones of pea gravel. A ladder now leads nine\n");
+        printf("which releases 13 metric tonnes of pea gravel. A ladder now leads nine\n");
         printf("meters up to the surface.\n");
         Move[EscapeHatch][Up] = Surface;
         doorUnlocked = 1;
