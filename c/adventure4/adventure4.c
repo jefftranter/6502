@@ -182,6 +182,20 @@ const char *DescriptionOfItem[LastItem+1] = {
     "bomb"
 };
 
+/* Strings for using items. */
+const char *UseItem[LastItem+1] = {
+    "",
+    "It is a a key marked \"master key\".",
+    "A map of the Diefenbunker. It shows an escape hatch on level 400 near\nthe Message Control Centre and Teletype Repair Room.",
+    "A pack of \"Thrills\" chewing gum.",
+    "A flashlight marked Big Beam no. 287EX, for use in hazardous\nlocations, Class I Group D. It has no battery.",
+    "A working cellphone, but there is no service here.",
+    "A cold war survival booklet entitled \"11 Steps to Survival\".",
+    "A model CD V-715 Ion Chamber Survey Meter.",
+    "A NORAD STRAD supercomputer.",
+    "A BDU-8/B H-Bomb trainer.",
+};
+
 /* Names of locations */
 const char *DescriptionOfLocation[NUMLOCATIONS] = {
     "",
@@ -643,6 +657,7 @@ void doExamine()
 {
     char *sp;
     char *item;
+    int i;
 
     /* Command line should be like "E[XAMINE] ITEM" Item name will be after first space. */
     sp = strchr(buffer, ' ');
@@ -663,50 +678,25 @@ void doExamine()
         return;
     }
 
-    if (!strcasecmp(item, "key")) {
-        printf("It is a a key marked \"master key\".\n");
+    for (i = 1; i <= LastItem; i++) {
+        if (!strcasecmp(item, DescriptionOfItem[i])) {
+            /* Found it, but is it here? */
+            if (locationOfItem[i] == currentLocation) {
+                printf("%s\n", UseItem[i]);
+                return;
+            }
+        }
+    }
+
+    // Allow some aliases for item names
+
+    if (!strcasecmp(item, "cell") || !strcasecmp(item, "phone") || strcasecmp(item, "cell phone")) {
+        printf("%s\n", UseItem[CellPhone]);
         return;
     }
 
-    if (!strcasecmp(item, "map")) {
-        printf("A map of the Diefenbunker. It shows an escape hatch on level 400 near\n");
-        printf("the Message Control Centre and Teletype Repair Room.\n");
-        return;
-    }
-
-    if (!strcasecmp(item, "gum")) {
-        printf("A pack of \"Thrills\" chewing gum.\n");
-        return;
-    }
-
-    if (!strcasecmp(item, "flashlight")) {
-        printf("A flashlight marked Big Beam no. 287EX, for use in hazardous\n");
-        printf("locations, Class I Group D. It has no battery.\n");
-        return;
-    }
-
-    if (!strcasecmp(item, "cellphone") || !strcasecmp(item, "cell") || !strcasecmp(item, "phone") || !strcasecmp(item, "cell phone")) {
-        printf("A working cellphone, but there is no service here.\n");
-        return;
-    }
-
-    if (!strcasecmp(item, "pamphlet")) {
-        printf("pamphlet - A cold war survival booklet entitled \"11 Steps to Survival\".\n");
-        return;
-    }
-
-    if (!strcasecmp(item, "geiger counter") || !strcasecmp(item, "geiger") || !strcasecmp(item, "counter")) {
-        printf("A model CD V-715 Ion Chamber Survey Meter.\n");
-        return;
-    }
-
-    if (!strcasecmp(item, "computer")) {
-        printf("A NORAD STRAD supercomputer.\n");
-        return;
-    }
-
-    if (!strcasecmp(item, "bomb")) {
-        printf("A BDU-8/B H-Bomb trainer.\n");
+    if (!strcasecmp(item, "geiger") || !strcasecmp(item, "counter")) {
+        printf("%s\n", UseItem[CellPhone]);
         return;
     }
 
