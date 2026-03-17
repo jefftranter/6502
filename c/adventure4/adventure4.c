@@ -185,7 +185,7 @@ const char *DescriptionOfItem[LastItem+1] = {
 /* Strings for using items. */
 const char *UseItem[LastItem+1] = {
     "",
-    "It is a a key marked \"master key\".",
+    "It is a key marked \"master key\".",
     "A map of the Diefenbunker. It shows an escape hatch on level 400 near\nthe Message Control Centre and Teletype Repair Room.",
     "A pack of \"Thrills\" chewing gum.",
     "A flashlight marked Big Beam no. 287EX, for use in hazardous\nlocations, Class I Group D. It has no battery.",
