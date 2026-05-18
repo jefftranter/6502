@@ -10,7 +10,7 @@ RPEAT:  LSR     MLTP            ; Shift multiplier to check for zero.
         BCC     ARND            ; Or one in the carry flag.
         CLC                     ; If C=1, then add multiplicand.
         ADC     MCND            ; Add multiplicand.
-ARND:   BEQ     QUIT            ; MLTP has neen shifted to zero.
+ARND:   BEQ     QUIT            ; MLTP has been shifted to zero.
         ASL     MCND            ; Shift multiplicand.
         BNE     RPEAT           ; Get another partial product.
 QUIT:   RTS                     ; That's all.

@@ -5,6 +5,6 @@ HERE    =       $037F
         SED                     ; Set the decimal mode flag.
         CLC                     ; Clear the carry flag.
         LDA     #$83            ; Load A with the decimal number 83.
-        ADC     #$35            ; Add rthe decimal number 35.
+        ADC     #$35            ; Add the decimal number 35.
         STA     HERE            ; Store the result here.
         BRK
