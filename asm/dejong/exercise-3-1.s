@@ -9,4 +9,5 @@ WAIT:   lda     KYBD            ; Read the keyboard input port.
 
         sta     STROBE          ; Clear the flag flip-flop.
         jsr     COUT            ; Output the character
-        brk
+        clc
+        bcc     WAIT
