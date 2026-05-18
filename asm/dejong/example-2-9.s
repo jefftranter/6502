@@ -1,7 +1,7 @@
 INVFLG  =       $32
 
-        .org    $1015
+        .ORG    $1015
 
-START:  ldx     #$7F            ; "LDX" in the immediate mode.
-        stx     INVFLG          ; "STX" in the zero-page mode.
-END:    brk
+START:  LDX     #$7F            ; "LDX" in the immediate mode.
+        STX     INVFLG          ; "STX" in the zero-page mode.
+END:    BRK

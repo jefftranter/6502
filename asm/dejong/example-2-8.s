@@ -1,6 +1,6 @@
-        .org    $1010
+        .ORG    $1010
 
-BEGIN:  lda     #$00            ; "LDA" in the immediate mode.
-        tax                     ; "TAX" uses the implied mode.
-        tay                     ; "TAY" uses the implied mode.
-END:    brk                     ; "BRK" uses the implied mode.
+BEGIN:  LDA     #$00            ; "LDA" in the immediate mode.
+        TAX                     ; "TAX" uses the implied mode.
+        TAY                     ; "TAY" uses the implied mode.
+END:    BRK                     ; "BRK" uses the implied mode.

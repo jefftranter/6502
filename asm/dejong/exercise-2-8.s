@@ -1,36 +1,36 @@
-        .org    $1000
+        .ORG    $1000
 
 ; Part A
 
-        lda     #$4C
-        sta     $03FB
-        lda     #00
-        sta     $03FC
-        lda     #$80
-        sta     $03FD
+        LDA     #$4C
+        STA     $03FB
+        LDA     #00
+        STA     $03FC
+        LDA     #$80
+        STA     $03FD
 
 ; Part B
 
-        lda     $FFFF
-        sta     $0000
+        LDA     $FFFF
+        STA     $0000
 
 ; Part C
 
-        lda     #$00
-        sta     $003A
-        sta     $003B
-        sta     $0045
-        sta     $0046
-        sta     $0047
-        sta     $0048
-        sta     $0049
-        brk
+        LDA     #$00
+        STA     $003A
+        STA     $003B
+        STA     $0045
+        STA     $0046
+        STA     $0047
+        STA     $0048
+        STA     $0049
+        BRK
 
 ; Part D
 
-LOOP:   sta     $C030           ; Toggle speaker
-        lda     $C000           ; Delay
-        lda     $C000           ; "
-        lda     $C000           ; "
-        lda     $C000           ; "
-        jmp     LOOP
+LOOP:   STA     $C030           ; Toggle speaker
+        LDA     $C000           ; Delay
+        LDA     $C000           ; "
+        LDA     $C000           ; "
+        LDA     $C000           ; "
+        JMP     LOOP

@@ -1,9 +1,9 @@
 CURSHO  =       $24
 CURSVT  =       $25
 
-        .org    $1009
+        .ORG    $1009
 
-        lda     #$00            ; "LDA" in immediate mode.
-        sta     CURSHO          ; "STA" in zero-page mode.
-        sta     CURSVT
-        brk                     ; BREAK to the monitor.
+        LDA     #$00            ; "LDA" in immediate mode.
+        STA     CURSHO          ; "STA" in zero-page mode.
+        STA     CURSVT
+        BRK                     ; BREAK to the monitor.

@@ -2,12 +2,12 @@ KYBD    =       $C000
 STROBE  =       $C010
 COUT    =       $FDED
 
-        .org    $102A
+        .ORG    $102A
 
-WAIT:   lda     KYBD            ; Read the keyboard input port.
-        bpl     WAIT            ; Wait in this loop for a keystroke.
+WAIT:   LDA     KYBD            ; Read the keyboard input port.
+        BPL     WAIT            ; Wait in this loop for a keystroke.
 
-        sta     STROBE          ; Clear the flag flip-flop.
-        jsr     COUT            ; Output the character
-        clc
-        bcc     WAIT
+        STA     STROBE          ; Clear the flag flip-flop.
+        JSR     COUT            ; Output the character
+        CLC
+        BCC     WAIT

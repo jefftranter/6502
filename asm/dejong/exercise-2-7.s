@@ -3,10 +3,10 @@ MIXCLR  =       $C052
 HISCR   =       $C055
 LORES   =       $C056
 
-        .org    $1000
+        .ORG    $1000
 
-        sta     TXTCLR
-        sta     MIXCLR
-        sta     LORES
-        sta     HISCR
-        brk
+        STA     TXTCLR
+        STA     MIXCLR
+        STA     LORES
+        STA     HISCR
+        BRK

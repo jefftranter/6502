@@ -1,8 +1,8 @@
 M       =       $00
 
-        .org    $1038
+        .ORG    $1038
 
-        ldx     M               ; Load X with M.
-LOOP:   dex                     ; Decrement X.
-        bne     LOOP            ; Loop until X is zero.
-        brk
+        LDX     M               ; Load X with M.
+LOOP:   DEX                     ; Decrement X.
+        BNE     LOOP            ; Loop until X is zero.
+        BRK
