@@ -4,7 +4,7 @@
 
         LDA     #$4C
         STA     $03FB
-        LDA     #00
+        LDA     #$00
         STA     $03FC
         LDA     #$80
         STA     $03FD
