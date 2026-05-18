@@ -4,7 +4,7 @@ MONS	= $(SRCS:.s=.mon)
 all:	$(MONS)
 
 %.mon:  %.bin Makefile
-	bintomon -v $*.bin >$*.mon
+	bintomon $*.bin >$*.mon
 
 %.bin:  %.o
 	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m $*.map -o $*.bin $*.o
