@@ -1,0 +1,18 @@
+M       =       $00
+N       =       $01
+SPKR    =       $C030
+
+        .org    $1060
+
+START:  sta     SPKR            ; Toggle the speaker.
+        jsr     TIMER           ; Use the subroutine to delay.
+        jmp     START           ; Loop back to START.
+
+; Subroutine TIMER
+TIMER:  ldx     M               ; Load X with the number in M.
+LOOPX:  ldy     N               ; Load Y with the number in N.
+LOOPY:  dey                     ; Decrement the number in Y.
+        bne     LOOPY           ; If Y is not zero, loop back to LOOPY.
+        dex                     ; Decrement the number in X.
+        bne     LOOPX           ; If X is not zero, loop back to LOOPX.
+        rts
