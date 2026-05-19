@@ -3,7 +3,7 @@ MONS	= $(SRCS:.s=.mon)
 
 all:	$(MONS)
 
-%.mon:  %.bin Makefile
+%.mon:  %.bin
 	bintomon $*.bin >$*.mon
 
 %.bin:  %.o
@@ -11,6 +11,8 @@ all:	$(MONS)
 
 %.o:	%.s
 	ca65 -g -l $*.lst $*.s
+
+.PRECIOUS: %.bin
 
 clean:
 	$(RM) *.o *.lst *.mon *.map *.bin
