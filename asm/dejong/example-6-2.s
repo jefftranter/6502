@@ -1,16 +1,16 @@
-S51     =       $C050
-S52     =       $C052
-S53     =       $C054
-S54     =       $C056
+SS1     =       $C050
+SS2     =       $C052
+SS3     =       $C054
+SS4     =       $C056
 CLRSCR  =       $F832
 TABLE   =       $0528
 
         .ORG    $137C
 
-        STA     S51             ; Set screen soft switches
-        STA     S52             ; for low resolution
-        STA     S53             ; graphics mode.
-        STA     S54             ; LORES graphics mode is set.
+        STA     SS1             ; Set screen soft switches
+        STA     SS2             ; for low resolution
+        STA     SS3             ; graphics mode.
+        STA     SS4             ; LORES graphics mode is set.
         JSR     CLRSCR          ; Subroutine to clear screen.
 
 ;****************

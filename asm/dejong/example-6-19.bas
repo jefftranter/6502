@@ -1,0 +1,7 @@
+10 FOR I = 0 TO 255
+20 Y = 95 * SIN (2 * I * 3.14159 / 64 )
+30 Y = 95 - Y
+35 PRINT I,Y
+40 POKE 15 * 256 + I,Y
+50 NEXT I
+60 END
