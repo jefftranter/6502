@@ -5,7 +5,7 @@ IAL     =       $FE
 ; Subroutine CLEAR
 
 CLEAR:  LDY     #$00            ; Initialize Y to zero.
-        LDA     #$00            ; Zeros into the accummulator.
+        LDA     #$00            ; Zeros into the accumulator.
         STA     IAL             ; Set up base address low, BAL.
         LDX     #$20            ; BAH = $20
         STX     IAL+1           ; Set up base address high, BAH.
