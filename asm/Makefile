@@ -8,6 +8,7 @@ SUBDIRS = \
     Apple][Monitor \
     BeyondGames \
     disasm \
+    dejong \
     ehbasic \
     jmon \
     kimath \
