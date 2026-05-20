@@ -7,7 +7,7 @@ all:	$(MONS)
 	bintomon $*.bin >$*.mon
 
 %.bin:  %.o
-	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -m $*.map -o $*.bin $*.o
+	ld65 -C /usr/local/share/cc65/cfg/none.cfg -vm -o $*.bin $*.o
 
 %.o:	%.s
 	ca65 -g -l $*.lst $*.s
@@ -15,6 +15,6 @@ all:	$(MONS)
 .PRECIOUS: %.bin
 
 clean:
-	$(RM) *.o *.lst *.mon *.map *.bin
+	$(RM) *.o *.lst *.mon *.bin
 
 distclean: clean
