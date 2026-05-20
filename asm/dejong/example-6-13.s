@@ -20,4 +20,4 @@ DOTDASH:
         RTS
 SEND:   NOP                     ; Dummy instruction illustrates branch.
         CLV                     ; Clear the overflow flag.
-        BVC     DOTDASH         ; Force a breanch to dotdash.
+        BVC     DOTDASH         ; Force a branch to dotdash.

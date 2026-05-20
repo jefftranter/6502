@@ -28,5 +28,3 @@ LOOP4:  ROL     BCD,X           ; Rotate one byte.
         DEY                     ; Have all digits been converted?
         BNE     OUTLOOP         ; No, so convert the others.
         RTS                     ; Yes, then quit.
-
-        
