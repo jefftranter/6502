@@ -1,7 +1,7 @@
 COUT    =       $FDED           ; Monitor output routine.
 BINO    =       $00F7           ; Base address of binary #.
 NBYTE   =       $FD             ; Two complement of # bytes
-                                ; in the BCD number.
+                                ; in the BCD number (-3).
 
         .ORG    $1459
 
@@ -9,7 +9,7 @@ NBYTE   =       $FD             ; Two complement of # bytes
 
         LDY     #$06            ; Y is # of hex digits. 2 times # bytes.
 OUTLOOP:
-        LDX     #NBYTE          ; X is # of bytes in binary #.
+        LDX     #NBYTE          ; X = negative offset to MSB (-3)
         LDA     BINO,X          ; Get the most significant byte.
         AND     #$F0            ; Mask the lest significant nibble.
         LSR     A               ; Shift to the low-order nibble.
@@ -27,7 +27,7 @@ BR2:    ORA     #$80            ; Change to Apple ASCII: bit 7=1.
         LDY     #$04            ; Y will count 4 bit shifts.
 LOOPY:  LDX     #$02            ; Start with LSB.
         CLC
-LOOPX:  ROL     BINO-3,X        ; JJT: Original code used BINO+NBYTE,X
+LOOPX:  ROL     <(BINO+NBYTE),X
         DEX
         BPL     LOOPX
         DEY                     ; Four bits yet?
