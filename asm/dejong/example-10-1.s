@@ -164,7 +164,7 @@ CNTSPD: JSR     RDBYTE          ; Get a 2-digit BCD number from
         LDA     #$12            ; Find number of clock cycles
         STA     DVNDHI          ; in one dot time.
         LDA     #$BB            ; $13BB50=1,227,600.
-        STA     DVNDMI         ; #cycles = 1,227,600/SPEED.
+        STA     DVNDMI          ; #cycles = 1,227,600/SPEED.
         LDA     #$50
         STA     DVNDLO
         LDA     #$00

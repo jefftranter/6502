@@ -54,10 +54,9 @@ NEXT2:  CMP     #$95            ; Escape? Panic?
 NEXT3:  CMP     #$8D            ; Carriage return.
         BNE     NEXT4
         BEQ     BACK
-NEXT4:  CMP     #$92            ; "Ctl R" key?
+NEXT4:  CMP     #$92            ; "Ctrl R" key?
         BNE     NEXT5
         JMP     $2250           ; Jump to another routine.
 NEXT5:  CMP     #$94            ; "Ctrl T" key?
         BNE     OUT             ; No, then return from interrupt.
         JMP     $223E           ; Start sending code.
-
