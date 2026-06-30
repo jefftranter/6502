@@ -1115,7 +1115,6 @@ void doActions()
                 printf("Congratulations! You succeeded and won\nthe game. I hope you had as much fun\nplaying the game as I did creating it.\n- Jeff Tranter <tranter@pobox.com>\n");
                 gameOver = 1;
                 return;
-                break;
             }
     }
 }
