@@ -158,6 +158,7 @@
   TEST_PATRN = $1F              ; Memory test - 1 byte - current test pattern
   PASSES  = $ED                 ; Memory test - number of passes
   VECTOR  = $EE                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
+  T4      = $F6                 ; Temp variable 4 (2 bytes)
   BPA     = $F8                 ; Address of breakpoint (2 bytes * 4 breakpoints)
 .else
   T1      = $30                 ; Temp variable 1 (2 bytes)
