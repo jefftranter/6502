@@ -1,6 +1,6 @@
 ; JMON - 6502 Monitor Program
 ;
-; Copyright (C) 2012-2024 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2026 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -92,6 +92,7 @@
 ; 1.3.7  26-May-2021   Added P (scope loop) command.
 ; 1.3.8  08-Mar-2023   Move variables to top of RAM on SBC platform (to allow loading code at $0200).
 ; 1.3.9  30-Apr-2023   Move variables to top of RAM on all platforms
+; 1.3.10 07-Jul-2026   Fix build error and check for BASIC ROM on Apple.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -3260,9 +3261,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.9 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.10 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.9 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.10 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
