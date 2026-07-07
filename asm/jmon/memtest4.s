@@ -129,7 +129,7 @@ CHK_TEST2:
         ASL         TEST_PATRN                ; shift left - zero to LSB- MSB to CARRY
         BCC        NX_PASS1
 ;
-; all test 2 passes complete - prepase for test 3
+; all test 2 passes complete - prepare for test 3
 ;
         LDA        #$7F
         BNE        NX_TEST                ;always branch
@@ -146,7 +146,7 @@ CHK_TEST3:                ;floating zeros in progress or done
 
 NXT_ADDR_TEST:
         INY                        ; move to test 4 or 5 - address in address
-        BNE        NX_PASS3        ; aways
+        BNE        NX_PASS3        ; always
 ;
 ; ADDRESS IN ADDRESS tests - two test only make one pass each
 ;
@@ -176,7 +176,7 @@ KeyPressed:
         BMI        KeyPressed
         JMP        REPEAT
 KeyPressed:
-        STA        $C010 ; Clear keyboard strobe
+        LDA        $C010 ; Clear keyboard strobe
         JMP        FINISHED
 .elseif .defined(OSI)
         LDA        #$00
