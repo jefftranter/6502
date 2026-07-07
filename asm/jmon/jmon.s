@@ -92,7 +92,8 @@
 ; 1.3.7  26-May-2021   Added P (scope loop) command.
 ; 1.3.8  08-Mar-2023   Move variables to top of RAM on SBC platform (to allow loading code at $0200).
 ; 1.3.9  30-Apr-2023   Move variables to top of RAM on all platforms
-; 1.3.10 07-Jul-2026   Fix build error and check for BASIC ROM on Apple. Add check for Disk II card.
+; 1.3.10 07-Jul-2026   Fix build error and check for BASIC ROM on Apple.
+;                      Add check for Disk II card and language card.
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,

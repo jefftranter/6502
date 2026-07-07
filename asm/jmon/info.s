@@ -313,6 +313,31 @@ PrintType:
         .asciiz "Slot ID Type"
         JSR PrintCR             ; And newline
 
+; Special check for language card in slot 0.
+; Algorithm:
+; - Read $C083 twice to switch the Language Card into read-write RAM mode.
+; - Write test value $AA to $D000
+; - If $AA is read back, language card is present
+; - Read $C081 twice to put card back to default mode (Read ROM, write RAM bank 2)
+
+        LDA $C083
+        LDA $C083
+        LDA #$AA
+        STA $D000
+        LDA $D000
+        CMP #$AA
+        BNE NoLC
+        LDA $C081
+        LDA $C081
+        JSR Imprint
+        .asciiz " 0   -- Language card"
+        JSR PrintCR
+        JMP Slot1
+NoLC:
+        JSR Imprint
+        .asciiz " 0   -- empty or unknown"
+        JSR PrintCR
+Slot1:
         LDA #1                  ; Initialize slot number
         STA SLOT
 Slots:
