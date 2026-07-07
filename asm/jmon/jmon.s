@@ -228,9 +228,9 @@
 ; $0800 should work for DOS 3.3 but conflict with Applesoft.
 ; $2000 should work but conflict with ProDOS.
 ; $6000 should work with ProDOS, need to first do HIMEM:24575 from Applesoft.
-; .org $0800
+  .org $0800
 ; .org $2000
-  .org $6000
+; .org $6000
 .elseif .defined(OSI)
   .org $0380
 .elseif .defined(KIM1)
