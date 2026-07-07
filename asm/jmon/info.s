@@ -333,27 +333,24 @@ Slots:
         LDA (ADDR,X)
         CMP #$38                ; Should be $38 for peripheral card
         BEQ OK1
-        JMP EmptySlot
+        JMP DiskII
 OK1:
         LDA #$07                ; Want to read $Cs07
         STA ADDR                ; Low byte of address to read
-        LDX #0                  ; Read $Cs07
-        LDA (ADDR,X)
+        LDA (ADDR,X)            ; Read $Cs07
         CMP #$18                ; Should be $18 for peripheral card
         BEQ OK2
-        JMP EmptySlot
+        JMP DiskII
 OK2:
         LDA #$0B                ; Want to read $Cs0B
         STA ADDR                ; Low byte of address to read
-        LDX #0                  ; Read $Cs0B
-        LDA (ADDR,X)
+        LDA (ADDR,X)            ; Read $Cs0B
         CMP #$01                ; Should be $01 for peripheral card
         BEQ OK3
-        JMP EmptySlot
+        JMP DiskII
 OK3:
         LDA #$0C                ; Want to read $Cs0C
         STA ADDR                ; Low byte of address to read
-        LDX #0                  ; Read $Cs0C
         LDA (ADDR,X)            ; This is the card ID
         PHA                     ; Save A
         JSR PrintByte           ; Print card ID
@@ -443,6 +440,24 @@ Try10:
 Default:
         JSR Imprint
         .asciiz "future expansion"
+        JSR PrintCR
+        JMP NextSlot
+DiskII:
+; Additional check for Disk II card. $Cs00 will read $A2 and Cs01 will
+; read $20.
+        LDA #$00                ; Want to read $Cs00
+        STA ADDR                ; Low byte of address to read
+        LDX #0                  ; Read $Cs00
+        LDA (ADDR,X)
+        CMP #$A2                ; Should be $A2 for Disk II
+        BNE EmptySlot
+        LDA #$01                ; Want to read $Cs01
+        STA ADDR                ; Low byte of address to read
+        LDA (ADDR,X)            ; Read $Cs01
+        CMP #$20                ; Should be $20 for Disk II
+        BNE EmptySlot
+        JSR Imprint
+        .asciiz "-- Disk II card"
         JSR PrintCR
         JMP NextSlot
 EmptySlot:
