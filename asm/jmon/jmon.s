@@ -223,6 +223,8 @@
 .elseif .defined(KIM1)
   KIMMON  = $1C00               ; KIM monitor entry point
   BRKVECTOR = $17FE             ; Break/interrupt vector (2 bytes)
+  GETCH     = $1E5A
+  OUTCH     = $1EA0
 ; Note: ECHO not defined because KIM-1 always echoes characters back.
 .elseif .defined(SBC)
   BASIC   = $DD09               ; BASIC Cold Start
@@ -2136,7 +2138,7 @@ GetKey:
 .elseif .defined(KIM1)
         TYA                     ; Save Y on stack
         PHA
-        JSR $1E5A               ; Call KIM GETCH routine. Returns char in A. Changes Y.
+        JSR GETCH               ; Call KIM GETCH routine. Returns char in A. Changes Y.
         STA T3                  ; Save A
         PLA                     ; Restore Y from stack
         TAY
@@ -2544,7 +2546,7 @@ PrintChar:
         TYA             ; Save Y
         PHA
         LDA     T3      ; Get A back
-        JSR     $1EA0   ; Call monitor OUTCH character out routine. Changes A and Y.
+        JSR     OUTCH   ; Call monitor OUTCH character out routine. Changes A and Y.
         PLA             ; Restore Y
         TAY
         LDA     T3      ; Restore A

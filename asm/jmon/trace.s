@@ -1,7 +1,7 @@
 ;
 ; 6502 Instruction Trace
 ;
-; Copyright (C) 2012-2019 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2026 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 ;
 ; A breakpoint (BRK instruction) will display a message and update
 ; the current register values so that it can be traced. This works
-; whether the breakpint address is set using the B command or not.
+; whether the breakpoint address is set using the B command or not.
 ;
 ; The command supports tracing/stepping through ROM as well as RAM.
 ;
