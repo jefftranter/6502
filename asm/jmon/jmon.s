@@ -94,6 +94,8 @@
 ; 1.3.9  30-Apr-2023   Move variables to top of RAM on all platforms
 ; 1.3.10 07-Jul-2026   Fix build error and check for BASIC ROM on Apple.
 ;                      Add check for Disk II card and language card.
+; 1.3.11 27-Aug-2026   Optionally use Apple II COUT and RDKEY routines for i/o to
+;                      support peripheral cards (e.g. 80-column or serial).
 
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
@@ -105,6 +107,12 @@
 ; OSI     = 1
 ; KIM1    = 1
 ; SBC     = 1
+
+; On the Apple II platform, defining USE_IO_HOOKS will use the ROM
+; COUT and RDKEY routines for i/o which will use the currently active
+; slot/device for i/o. If not defined, will use the screen and
+; keyboard.
+;USE_IO_HOOKS = 1
 
 ; Define if you want the mini-assembler, comment out if not.
 ; Should fit in 8K if this is disabled.
@@ -127,6 +135,7 @@
 ; Constants
   CR      = $0D                 ; Carriage Return
   LF      = $0A                 ; Line Feed
+  FF      = $0C                 ; Form feed
   SP      = $20                 ; Space
   ESC     = $1B                 ; Escape
   NUL     = $00                 ; Null
@@ -159,7 +168,7 @@
   ADDRS   = $EB                 ; Memory test - 2 bytes - address of memory
   TEST_PATRN = $1F              ; Memory test - 1 byte - current test pattern
   PASSES  = $ED                 ; Memory test - number of passes
-  VECTOR  = $EE                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
+  VECTOR  = $EE                 ; Holds address of IRQ/BREAK entry point (2 bytes)
   T4      = $F6                 ; Temp variable 4 (2 bytes)
   BPA     = $F8                 ; Address of breakpoint (2 bytes * 4 breakpoints)
 .else
@@ -174,7 +183,7 @@
   ADDRS   = $3A                 ; Memory test - 2 bytes - address of memory
   TEST_PATRN = $3C              ; Memory test - 1 byte - current test pattern
   PASSES  = $3D                 ; Memory test - number of passes
-  VECTOR  = $3E                 ; Holds adddress of IRQ/BREAK entry point (2 bytes)
+  VECTOR  = $3E                 ; Holds address of IRQ/BREAK entry point (2 bytes)
   BPA     = $40                 ; Address of breakpoint (2 bytes * 4 breakpoints)
   T3      = $48                 ; Temp variable 3 (1 byte)
   T4      = $49                 ; Temp variable 4 (2 bytes)
@@ -202,6 +211,10 @@
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $03F0             ; Break/interrupt vector (2 bytes)
   BEEP    = $FBE4               ; Beep the speaker
+  RDKEY   = $FD0C               ; Read keyboard
+  COUT    = $FDED               ; Character output to current device
+  COUT1   = $FDF0               ; Character output to screen
+  HOME    = $FC58               ; Home cursir
 .elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
@@ -380,7 +393,7 @@ Assemble:
         STX ADDR                ; Save it
         STY ADDR+1              ; Save it
         JSR PrintCR             ; Start new line
-        JMP AssembleLine        ; Call asssembler
+        JMP AssembleLine        ; Call assembler
 .endif
 
 ; Go to BASIC
@@ -1111,7 +1124,7 @@ BRKHANDLER:
 .if .defined(APPLE2)
 
 ; On the Apple II platform the ROM interrupt handler has already
-; determined that a BRK intruction was executed and has saved the
+; determined that a BRK instruction was executed and has saved the
 ; register values in RAM.
 
         SEC                     ; subtract 2 from return address to get actual instruction address
@@ -1214,7 +1227,7 @@ RESTORE:
         LDA SAVE_PC+1
         STA ADDR+1
         JSR DISASM
-        JMP MainLoop           ; Continue with JMon main command loop
+        JMP MainLoop           ; Continue with JMON main command loop
 
 ; Memory write command.
 ; Format:
@@ -1553,7 +1566,7 @@ Options:
 .endif
         JMP PrintCR             ; new line
 
-; Math command. Add or substract two 16-bit hex numbers.
+; Math command. Add or subtract two 16-bit hex numbers.
 ; Format: = <ADDRESS> +/- <ADDRESS>
 ; e.g.
 ; = 1234 + 0077 = 12AB
@@ -1638,7 +1651,7 @@ Checksum:
         RTS
 
 @okay1:
-        LDA #0                  ; Initialize checkum to zero
+        LDA #0                  ; Initialize checksum to zero
         STA DL
         STA DH
         LDY #0
@@ -2098,6 +2111,17 @@ GetKey:
         AND #%01111111          ; Clear most significant bit to convert to standard ASCII
         RTS
 .elseif .defined(APPLE2)
+.if .defined (USE_IO_HOOKS)
+        TYA                     ; Save Y on stack
+        PHA
+        JSR RDKEY               ; Returns char in A, changes Y
+        AND #%01111111          ; Clear most significant bit to convert to standard ASCII
+        STA T4                  ; Save A
+        PLA                     ; Restore Y from stack
+        TAY
+        LDA T4                  ; Restore A
+        RTS
+.else
         LDA $C000               ; Read keyboard register
         BPL GetKey              ; Loop until key pressed (bit 7 goes high)
         AND #%01111111          ; Clear most significant bit to convert to standard ASCII
@@ -2105,6 +2129,7 @@ GetKey:
         LDA $C010               ; Clear keyboard strobe
         PLA
         RTS
+.endif
 .elseif .defined(OSI)
         JMP $FD00               ; Call OSI keyboard input routine
 ;       JMP $FE80               ; Call OSI serial input routine
@@ -2488,7 +2513,11 @@ PrintChar:
         PHP             ; Save status
         PHA             ; Save A as it may be changed
         ORA #%10000000  ; Make sure high bit is set
-        JSR $FDF0       ; Apple II COUT1
+.if .defined(USE_IO_HOOKS)
+        JSR COUT
+.else
+        JSR COUT1
+.endif
         PLA             ; Restore A
         PLP             ; Restore status
         RTS             ; Return
@@ -2972,7 +3001,13 @@ ClearScreen:
         PLA             ; restore A
         RTS
 .elseif .defined(APPLE2)
-        JMP $FC58       ; Apple II HOME
+.if .defined(USE_IO_HOOKS)
+        JSR HOME        ; Apple II HOME
+        LDA #FF         ; Also send form feed, e.g. for 80-column card
+        JMP PrintChar
+.else
+        JMP HOME        ; Apple II HOME
+.endif
 .elseif .defined(OSI)
 ; Clear screen by writing spaces to all video memory.
         PHA             ; save A
@@ -3132,7 +3167,7 @@ MultiIOPresent:
         RTS
 .endif
 
-; Determines if an Apple II serial port is is present.
+; Determines if an Apple II serial port is present.
 ; Returns in A 1 if present, 0 if not.
 ; Method is to check the first few 6551 registers.
 .ifdef APPLE2
@@ -3262,9 +3297,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.10 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.11 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.10 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.11 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
