@@ -23,7 +23,6 @@
 ; - assembler: binary, character, decimal constants
 ; - disassembler: comment out more 65816 and 65C02-specific code when support is not enabled
 ; - refactor some common code to reduce size
-; - option to use other device for I/O, e.g. ACIA on Multi I/O card
 ; - make some modules configurable to enable/disable to reduce code size
 
 ; Revision History
