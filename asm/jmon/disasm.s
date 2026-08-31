@@ -1,7 +1,7 @@
 ;
 ; 6502/65C02/65816 Disassembler
 ;
-; Copyright (C) 2012-2023 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2026 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -484,7 +484,7 @@ DOBB:                   ; handle special BBRn and BBSn instructions
   LDA #$FF              ; negative offset, high byte if $FF
 @ADD:
   STA REL+1             ; save offset high byte
-  LDA ADDR              ; take adresss
+  LDA ADDR              ; take address
   CLC
   ADC REL               ; add offset
   STA DEZT              ; and store
@@ -590,7 +590,7 @@ NEG:
   LDA #$FF              ; negative offset, high byte if $FF
 ADD:
   STA REL+1             ; save offset high byte
-  LDA ADDR              ; take adresss
+  LDA ADDR              ; take address
   CLC
   ADC REL               ; add offset
   STA DEZT              ; and store
@@ -803,7 +803,7 @@ PCRL:
   LDY #2
   LDA (ADDR),Y          ; get 2nd operand byte
   STA REL+1             ; save offset high byte
-  LDA ADDR              ; take adresss
+  LDA ADDR              ; take address
   CLC
   ADC REL               ; add offset
   STA DEZT              ; and store

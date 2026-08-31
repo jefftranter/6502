@@ -111,7 +111,7 @@
 ; COUT and RDKEY routines for i/o which will use the currently active
 ; slot/device for i/o. If not defined, will use the screen and
 ; keyboard.
-;USE_IO_HOOKS = 1
+; USE_IO_HOOKS = 1
 
 ; Define if you want the mini-assembler, comment out if not.
 ; Should fit in 8K if this is disabled.

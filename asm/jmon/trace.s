@@ -1,5 +1,5 @@
 ;
-; 6502 Instruction Trace
+; 6502/65C02 Instruction Trace
 ;
 ; Copyright (C) 2012-2026 by Jeff Tranter <tranter@pobox.com>
 ;

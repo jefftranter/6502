@@ -1,7 +1,7 @@
 ;
 ; 6502/65C02 Mini Assembler
 ;
-; Copyright (C) 2012-2016 by Jeff Tranter <tranter@pobox.com>
+; Copyright (C) 2012-2026 by Jeff Tranter <tranter@pobox.com>
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -500,7 +500,7 @@ TryAbsIndInd:
         LDA IN+8                      ; Get 8th char of operand
         CMP #')'                      ; Is it a )?
         BNE InvalidOp
-        LDA #AM_ABSOLUTE_INDEXED_INDIRECT ; Yes, this is abolute indexed indirect
+        LDA #AM_ABSOLUTE_INDEXED_INDIRECT ; Yes, this is absolute indexed indirect
         STA AM                        ; Save it
 
         LDX IN+2                      ; Get operand characters

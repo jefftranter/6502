@@ -5,7 +5,7 @@ A machine language monitor program for the Apple Replica 1, Apple II,
 Ohio Scientific Challenger 1P/Superboard II, Briel Superboard ///, or
 MOS Technology KIM-1.
 
-Copyright (C) 2012-2021 by Jeff Tranter <tranter@pobox.com>
+Copyright (C) 2012-2026 by Jeff Tranter <tranter@pobox.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
