@@ -95,6 +95,7 @@
 ;                      Add check for Disk II card and language card.
 ; 1.3.11 27-Aug-2026   Optionally use Apple II COUT and RDKEY routines for i/o to
 ;                      support peripheral cards (e.g. 80-column or serial).
+; 1.3.12 21-Sep-2026   Optional 65C02 optimizations.
 
 ; Uncomment if you are running on a 65C02 CPU and want to make use of
 ; optimizations.
@@ -3354,9 +3355,9 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.11 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.12 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.11 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.12 by J. Tranter", CR, 0
 .endif
 
 ; Help string.
