@@ -70,7 +70,6 @@
 ; AM - addressing mode (AM_*)
 ; TRACEINST - buffer holding traced instruction
 
-
 ; Trace the next instruction using saved registers. Execute the
 ; instruction, display new registers values. disassemble new current
 ; instruction, and return.
@@ -299,7 +298,7 @@ TryRTI:
         LDA ADDR+1
         ADC #0                  ; Add any carry
         STA NEXT_PC+1
-        JMP AfterStep           ; We're done
+        JBRA AfterStep          ; We're done
 
 ; RTS - Pop PC. Increment PC to get next PC.
 
@@ -325,7 +324,7 @@ TryRTS:
         LDA ADDR+1
         ADC #0                  ; Add any carry
         STA NEXT_PC+1
-        JMP AfterStep           ; We're done
+        JBRA AfterStep          ; We're done
 
 ; Not a special instruction. We execute it from the buffer.
 
@@ -452,7 +451,7 @@ GetLength:
         INX
         LDA OPCODES1,X          ; Get addressing mode
         STA AM                  ; Store it
-        JMP @AROUND
+        JBRA @AROUND
 @UPPER:
         ASL A                   ; Double it since table is two bytes per entry
         TAX

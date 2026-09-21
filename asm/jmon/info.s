@@ -84,13 +84,13 @@ Info:
         BNE Next1
         LDX #<TypeAppleIIString
         LDY #>TypeAppleIIString
-        JMP PrintType
+        JBRA PrintType
 Next1:
         CMP #$EA
         BNE Next2
         LDX #<TypeAppleIIplusString
         LDY #>TypeAppleIIplusString
-        JMP PrintType
+        JBRA PrintType
 Next2:
         CMP #$06
         BNE Unknown
@@ -99,13 +99,13 @@ Next2:
         BNE Next3
         LDX #<TypeAppleIIeString
         LDY #>TypeAppleIIeString
-        JMP PrintType
+        JBRA PrintType
 Next3:
         CMP #$00
         BNE Unknown
         LDX #<TypeAppleIIcString
         LDY #>TypeAppleIIcString
-        JMP PrintType
+        JBRA PrintType
 Unknown:
         LDX #<TypeAppleUnknown
         LDY #>TypeAppleUnknown
@@ -136,13 +136,13 @@ PrintType:
         BNE @Try2
         LDX #<Type6502String
         LDY #>Type6502String
-        JMP @PrintCPU
+        JBRA @PrintCPU
 @Try2:
         CMP #2
         BNE @Try3
         LDX #<Type65C02String
         LDY #>Type65C02String
-        JMP @PrintCPU
+        JBRA @PrintCPU
 @Try3:
         CMP #3
         BNE @Invalid
@@ -332,7 +332,7 @@ PrintType:
         JSR Imprint
         .asciiz " 0   -- Language card"
         JSR PrintCR
-        JMP Slot1
+        JBRA Slot1
 NoLC:
         JSR Imprint
         .asciiz " 0   -- empty or unknown"
@@ -454,19 +454,19 @@ Try9:
         JSR Imprint
         .asciiz "network or bus interface"
         JSR PrintCR
-        JMP NextSlot
+        JBRA NextSlot
 Try10:
         CMP #$0A
         BNE Default
         JSR Imprint
         .asciiz "special purpose"
         JSR PrintCR
-        JMP NextSlot
+        JBRA NextSlot
 Default:
         JSR Imprint
         .asciiz "future expansion"
         JSR PrintCR
-        JMP NextSlot
+        JBRA NextSlot
 DiskII:
 ; Additional check for Disk II card. $Cs00 will read $A2 and Cs01 will
 ; read $20.
@@ -484,7 +484,7 @@ DiskII:
         JSR Imprint
         .asciiz "-- Disk II card"
         JSR PrintCR
-        JMP NextSlot
+        JBRA NextSlot
 EmptySlot:
         JSR Imprint
         .asciiz "-- empty or unknown"

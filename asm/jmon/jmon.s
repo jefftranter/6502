@@ -96,6 +96,20 @@
 ; 1.3.11 27-Aug-2026   Optionally use Apple II COUT and RDKEY routines for i/o to
 ;                      support peripheral cards (e.g. 80-column or serial).
 
+; Uncomment if you are running on a 65C02 CPU and want to make use of
+; optimizations.
+;       .setcpu "65C02"
+
+; Macro: JBRA
+; Emits BRA if targeting 65C02, otherwise falls back to JMP.
+.macro JBRA label
+.if (.cpu .bitand CPU_ISET_65C02)
+        bra label
+.else
+        jmp label
+.endif
+.endmacro
+
 ; Platform
 ; Define either APPLE1 for Apple 1 Replica 1, Apple2 for Apple II series,
 ; OSI for Ohio Scientific SuperBoard II or ///, or KIM1 for KIM-1 platform.
@@ -263,12 +277,20 @@ JMON:
         CLI                     ; clear interrupt disable
         LDX #$80                ; initialize stack pointer to $0180
         TXS                     ; so we are less likely to clobber BRK vector at $0100 on OSI
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ OWDELAY             ; initialize write delay to zero
+        STZ RETOK               ; Don't accept <Return> by default
+        STZ CHAROK              ; Don't accept character input by default
+        STZ CHARMODE            ; Not currently in char input mode
+        STZ OHIGHASCII          ; Characters should not have high bit set
+.else
         LDA #0
         STA OWDELAY             ; initialize write delay to zero
         STA RETOK               ; Don't accept <Return> by default
         STA CHAROK              ; Don't accept character input by default
         STA CHARMODE            ; Not currently in char input mode
         STA OHIGHASCII          ; Characters should not have high bit set
+.endif
         LDA #$FF                ; Default to uppercase only mode
         STA OUPPER
         LDA #1
@@ -298,7 +320,7 @@ MainLoop:
 
 ; Call option picker to run appropriate command
         JSR OPICK
-        JMP MainLoop
+        JBRA MainLoop
 
 ; Invalid command
 Invalid:
@@ -433,7 +455,7 @@ Num:    CMP #'0'                ; is it 0 through 3?
         BMI IGN                 ; Invalid, ignore and try again
         CMP #'3'+1
         BMI VALIDBP
-        JMP IGN
+        JBRA IGN
 VALIDBP:
 .ifdef ECHO
         JSR PrintChar           ; echo number
@@ -484,9 +506,14 @@ Hex:
         JSR PrintChar
 @plus:
         JSR BINBCD16
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ LZ
+        STZ LAST
+.else
         LDA #0
         STA LZ
         STA LAST
+.endif
         LDA BCD+2
         JSR PrintByteLZ
         LDA BCD+1
@@ -516,8 +543,12 @@ RetPressed:
         LDA SAVE_PC+1
         STA SL+1
 
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ RETOK
+.else
         LDA #0
         STA RETOK
+.endif
 
 ; Save our current stack pointer value
 
@@ -603,7 +634,7 @@ Copy:
         BNE @NoCarry2
         INC DH
 @NoCarry2:
-        JMP @copyUp
+        JBRA @copyUp
 
 @okayDown:
         LDA EL                 ; Calculate length = End - Start
@@ -647,7 +678,7 @@ Copy:
         BCS @NoBorrow2
         DEC DH
 @NoBorrow2:
-        JMP @copyDown
+        JBRA @copyDown
 
 ; Search Memory
 Search:
@@ -711,7 +742,7 @@ Search:
         BNE @NoCarry
         INC SH
 @NoCarry:
-        JMP @search
+        JBRA @search
 
 @Match:
         DEC IN                  ; Calculate start address as SL,SH minus (IN - 1)
@@ -801,7 +832,7 @@ Verify:
         BNE @NoCarry2
         INC DH
 @NoCarry2:
-        JMP @verify
+        JBRA @verify
 
 ; Dump Memory
 
@@ -945,9 +976,9 @@ Fill:
 @NoCarry:
         INX                     ; increment index into pattern
         CPX IN                  ; end of pattern reached?
-        BNE @dofill             ; if not, go back
+        JBRA @dofill             ; if not, go back
         LDX #0                  ; Otherwise go back to start of pattern
-        JMP @dofill
+        JBRA @dofill
 
 ; Do setup so we can support breakpoints
 BPSETUP:
@@ -960,7 +991,7 @@ BPSETUP:
         STA VECTOR              ; and save in page zero
         LDA BRKVECTOR+1
         STA VECTOR+1
-        LDA #$4C                ; JMP instruction
+        LDA #$4C                ; JBRA instruction
         LDY #0
         STA (VECTOR),Y          ; store at IRQ/BRK vector
         CMP (VECTOR),Y          ; if we don't read back what we wrote
@@ -1128,7 +1159,7 @@ BRKHANDLER:
         STA SAVE_Y              ; Y
         LDA $48
         STA SAVE_P              ; P
-        JMP CHECKADDR
+        JBRA CHECKADDR
 
 .else
 
@@ -1184,7 +1215,7 @@ UNKNOWN:
         LDX SAVE_PC
         LDY SAVE_PC+1
         JSR PrintAddress
-        JMP RESTORE
+        JBRA RESTORE
 MATCHES:
         TXA
         PHA
@@ -1258,7 +1289,7 @@ nocarry:
         LDX SL
         LDY SH
         JSR PrintAddress        ; Display current address
-        JMP writeLoop           ; Input more data
+        JBRA writeLoop           ; Input more data
 
 ; Scope loop command. For hardware debugging, loops on reading from an address.
 ; Continuously loops until reset.
@@ -1319,7 +1350,7 @@ Registers:
         JSR GetByte
         BCS RetPressed1
         STA SAVE_A
-        JMP EnterX
+        JBRA EnterX
 RetPressed1:
         LDA SAVE_A
         JSR PrintByte
@@ -1332,7 +1363,7 @@ EnterX:
         JSR GetByte
         BCS RetPressed2
         STA SAVE_X
-        JMP EnterY
+        JBRA EnterY
 RetPressed2:
         LDA SAVE_X
         JSR PrintByte
@@ -1345,7 +1376,7 @@ EnterY:
         JSR GetByte
         BCS RetPressed3
         STA SAVE_Y
-        JMP EnterS
+        JBRA EnterS
 RetPressed3:
         LDA SAVE_Y
         JSR PrintByte
@@ -1361,7 +1392,7 @@ EnterS:
         JSR GetByte
         BCS RetPressed4
         STA SAVE_S
-        JMP EnterP
+        JBRA EnterP
 RetPressed4:
         LDA SAVE_S
         JSR PrintByte
@@ -1374,7 +1405,7 @@ EnterP:
         JSR GetByte
         BCS RetPressed5
         STA SAVE_P
-        JMP PrintP
+        JBRA PrintP
 RetPressed5:
         LDA SAVE_P
         JSR PrintByte
@@ -1392,15 +1423,19 @@ PrintP:
         BCS RetPressed6
         STX SAVE_PC
         STY SAVE_PC+1
-        JMP Eol
+        JBRA Eol
 RetPressed6:
         LDX SAVE_PC
         LDY SAVE_PC+1
         JSR PrintAddress
 Eol:
         JSR PrintCR
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ RETOK
+.else
         LDA #0
         STA RETOK
+.endif
         RTS
 
 ; Print saved values of registers
@@ -1476,8 +1511,12 @@ Options:
 .ifdef ECHO
         JSR PrintChar           ; echo command
 .endif
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ OUPPER
+.else
         LDA #0
         STA OUPPER
+.endif
 @Next:
         JSR PrintCR             ; new line
 .endif
@@ -1517,8 +1556,12 @@ Options:
 .ifdef ECHO
         JSR PrintChar           ; echo command
 .endif
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ OHIGHASCII
+.else
         LDA #0
         STA OHIGHASCII
+.endif
 @Next1:
         JSR PrintCR             ; new line
 .endif
@@ -1572,7 +1615,7 @@ Math:
         BEQ @Okay
         CMP #'-'                ; Is it minus?
         BEQ @Okay
-        JMP @PlusOrMinus        ; If not, try again
+        JBRA @PlusOrMinus        ; If not, try again
 @Okay:
         STA OP
 .ifdef ECHO
@@ -1597,7 +1640,7 @@ Math:
         LDA SH
         ADC EH
         STA DH
-        JMP @PrintResult
+        JBRA @PrintResult
 
 @Sub:
         SEC                     ; Calculate DL,DH = SL,SH - EL,EH
@@ -1637,9 +1680,14 @@ Checksum:
         RTS
 
 @okay1:
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ DL
+        STZ DH
+.else
         LDA #0                  ; Initialize checksum to zero
         STA DL
         STA DH
+.endif
         LDY #0
 @CalcSum:
         LDA (SL),Y              ; read a byte
@@ -1669,7 +1717,7 @@ Checksum:
         BCC @NoCarry2
         INC SH
 @NoCarry2:
-        JMP @CalcSum
+        JBRA @CalcSum
 
 ; S Record Loader
 ; Format: J
@@ -1699,170 +1747,178 @@ Checksum:
 ; At any point, quit if <ESC> character received.
 
 Load:
-        ldx     #<SLoading
-        ldy     #>SLoading
-        jsr     PrintCR
-        jsr     PrintString     ; Display "Loading"
-        jsr     PrintCR
+        LDX     #<SLoading
+        LDY     #>SLoading
+        JSR     PrintCR
+        JSR     PrintString     ; Display "Loading"
+        JSR     PrintCR
 
 SRecord:
-        lda     #0
-        sta     checksum        ; Checksum = 0
-        sta     bytesRead       ; BytesRead = 0
-        sta     byteCount       ; ByteCount = 0
-        sta     ADDR            ; Address = 0
-        sta     ADDR+1
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ     checksum        ; Checksum = 0
+        STZ     bytesRead       ; BytesRead = 0
+        STZ     byteCount       ; ByteCount = 0
+        STZ     ADDR            ; Address = 0
+        STZ     ADDR+1
+.else
+        LDA     #0
+        STA     checksum        ; Checksum = 0
+        STA     bytesRead       ; BytesRead = 0
+        STA     byteCount       ; ByteCount = 0
+        STA     ADDR            ; Address = 0
+        STA     ADDR+1
+.endif
 
 sloop:
-        jsr     GetKey          ; Get character
-        cmp     #ESC
-        bne     notesc
-        rts                     ; Return if <ESC>
+        JSR     GetKey          ; Get character
+        CMP     #ESC
+        BNE     notesc
+        RTS                     ; Return if <ESC>
 notesc:
-;       jsr     PrintChar       ; Echo the character
-        cmp     #CR             ; Ignore if <CR>
-        beq     sloop
-        cmp     #LF             ; Ignore if <LF>
-        beq     sloop
-        cmp     #NUL            ; Ignore if <NUL>
-        beq     sloop
+;       JSR     PrintChar       ; Echo the character
+        CMP     #CR             ; Ignore if <CR>
+        BEQ     sloop
+        CMP     #LF             ; Ignore if <LF>
+        BEQ     sloop
+        CMP     #NUL            ; Ignore if <NUL>
+        BEQ     sloop
 
-        cmp     #'S'            ; Should be 'S'
-        bne     invalidRecord   ; If not, error
+        CMP     #'S'            ; Should be 'S'
+        BNE     invalidRecord   ; If not, error
 
-        jsr     GetKey          ; Get record type character
-;       jsr     PrintChar       ; Echo the character
+        JSR     GetKey          ; Get record type character
+;       JSR     PrintChar       ; Echo the character
 
-        cmp     #'0'            ; Should be '0', '1', '5', '6' or '9'
-        beq     validType
-        cmp     #'1'
-        beq     validType
-        cmp     #'5'
-        beq     validType
-        cmp     #'6'
-        beq     validType
-        cmp     #'9'
-        beq     validType
+        CMP     #'0'            ; Should be '0', '1', '5', '6' or '9'
+        BEQ     validType
+        CMP     #'1'
+        BEQ     validType
+        CMP     #'5'
+        BEQ     validType
+        CMP     #'6'
+        BEQ     validType
+        CMP     #'9'
+        BEQ     validType
 
 invalidRecord:
-        ldx     #<SInvalidRecord
-        ldy     #>SInvalidRecord
-        jsr     PrintString     ; Display "Invalid record"
-        jsr     PrintCR
-        rts                     ; Return
+        LDX     #<SInvalidRecord
+        LDY     #>SInvalidRecord
+        JSR     PrintString     ; Display "Invalid record"
+        JSR     PrintCR
+        RTS                     ; Return
 
 validType:
-        sta     recordType      ; Save char as record type '0'..'9'
+        STA     recordType      ; Save char as record type '0'..'9'
 
-        jsr     getHexByte      ; Get byte count
-        bcs     invalidRecord
-        cmp     #3              ; Invalid if byteCount  < 3
-        bmi     invalidRecord
-        sta     byteCount       ; Save as byte count
+        JSR     getHexByte      ; Get byte count
+        BCS     invalidRecord
+        CMP     #3              ; Invalid if byteCount  < 3
+        BMI     invalidRecord
+        STA     byteCount       ; Save as byte count
 
-        clc
-        adc     checksum        ; Add byte count to checksum
-        sta     checksum
+        CLC
+        ADC     checksum        ; Add byte count to checksum
+        STA     checksum
 
-        lda     recordType      ; If record type is 5 or 9, byte count should be 3
-        cmp     #'5'
-        beq     checkcnt
-        cmp     #'9'
-        bne     getadd
+        LDA     recordType      ; If record type is 5 or 9, byte count should be 3
+        CMP     #'5'
+        BEQ     checkcnt
+        CMP     #'9'
+        BNE     getadd
 checkcnt:
-        lda     byteCount
-        cmp     #3
-        beq     getadd
-        bne     invalidRecord
+        LDA     byteCount
+        CMP     #3
+        BEQ     getadd
+        BNE     invalidRecord
 
 getadd:
-        jsr     getHexAddress   ; Get 16-bit start address
-        bcs     invalidRecord
+        JSR     getHexAddress   ; Get 16-bit start address
+        BCS     invalidRecord
 
-        stx     ADDR            ; Save as address
-        sty     ADDR+1
+        STX     ADDR            ; Save as address
+        STY     ADDR+1
 
-        txa
-        clc
-        adc     checksum        ; Add address bytes to checksum
-        sta     checksum
-        tya
-        clc
-        adc     checksum
-        sta     checksum
+        TXA
+        CLC
+        ADC     checksum        ; Add address bytes to checksum
+        STA     checksum
+        TYA
+        CLC
+        ADC     checksum
+        STA     checksum
 
-        inc     bytesRead       ; Increment bytesRead by 2 for address field
-        inc     bytesRead
+        INC     bytesRead       ; Increment bytesRead by 2 for address field
+        INC     bytesRead
 
 readRecord:
-        lda     bytesRead       ; If bytesRead+1 = byteCount (have to allow for checksum byte)
-        clc
-        adc     #1
-        cmp     byteCount
-        beq     dataend         ; ...break out of loop
+        LDA     bytesRead       ; If bytesRead+1 = byteCount (have to allow for checksum byte)
+        CLC
+        ADC     #1
+        CMP     byteCount
+        BEQ     dataend         ; ...break out of loop
 
-        jsr     getHexByte      ; Get two hex digits
-        bcs     invalidRecord   ; Exit if invalid
+        JSR     getHexByte      ; Get two hex digits
+        BCS     invalidRecord   ; Exit if invalid
 
-        sta     temp1           ; Save data
+        STA     temp1           ; Save data
 
-        clc
-        adc     checksum        ; Add data read to checksum
-        sta     checksum
+        CLC
+        ADC     checksum        ; Add data read to checksum
+        STA     checksum
 
-        lda     recordType
-        cmp     #'1'            ; Is record type 1?
-        bne     nowrite
-        lda     temp1           ; Get data back
-        ldy     #0
-        sta     (ADDR),y        ; Write data to address
+        LDA     recordType
+        CMP     #'1'            ; Is record type 1?
+        BNE     nowrite
+        LDA     temp1           ; Get data back
+        LDY     #0
+        STA     (ADDR),y        ; Write data to address
 
 ; TODO: Could verify data written, but not necessarily an error.
 
 nowrite:
-        lda     recordType      ; Only increment address if this is an S1 record
-        cmp     #'1'
-        bne     @nocarry1
-        inc     ADDR            ; Increment address (low byte)
-        bne     @nocarry1
-        inc     ADDR+1          ; Increment address (high byte)
+        LDA     recordType      ; Only increment address if this is an S1 record
+        CMP     #'1'
+        BNE     @nocarry1
+        INC     ADDR            ; Increment address (low byte)
+        BNE     @nocarry1
+        INC     ADDR+1          ; Increment address (high byte)
 @nocarry1:
-        inc     bytesRead       ; Increment bytesRead
-        jmp     readRecord      ; Go back and read more data
+        INC     bytesRead       ; Increment bytesRead
+        JBRA    readRecord      ; Go back and read more data
 
 dataend:
-        jsr     getHexByte      ; Get two hex digits (checksum)
-        bcc     okay1
-        jmp     invalidRecord
+        JSR     getHexByte      ; Get two hex digits (checksum)
+        BCC     okay1
+        JMP     invalidRecord
 okay1:
-        eor     #$FF            ; Calculate 1's complement
-        cmp     checksum        ; Compare to calculated checksum
-        beq     sumokay         ; branch if matches
-        ldx     #<SChecksumError
-        ldy     #>SChecksumError
-        jsr     PrintString     ; Display "Checksum error"
-        jsr     PrintCR
-        rts                     ; Return
+        EOR     #$FF            ; Calculate 1's complement
+        CMP     checksum        ; Compare to calculated checksum
+        BEQ     sumokay         ; branch if matches
+        LDX     #<SChecksumError
+        LDY     #>SChecksumError
+        JSR     PrintString     ; Display "Checksum error"
+        JSR     PrintCR
+        RTS                     ; Return
 
 sumokay:
-        lda     recordType      ; Get record type
-        cmp     #'9'            ; S9 (end of file)?
-        beq     s9
-        jmp     SRecord         ; If not go back and read more records
+        LDA     recordType      ; Get record type
+        CMP     #'9'            ; S9 (end of file)?
+        BEQ     s9
+        JMP     SRecord         ; If not go back and read more records
 s9:
-        ldx     #<SLoaded
-        ldy     #>SLoaded
-        jsr     PrintCR
-        jsr     PrintString     ; Display "Loaded"
-        jsr     PrintCR
-        lda     ADDR            ; Start execution if start address = 0
-        beq     lowz
+        LDX     #<SLoaded
+        LDY     #>SLoaded
+        JSR     PrintCR
+        JSR     PrintString     ; Display "Loaded"
+        JSR     PrintCR
+        LDA     ADDR            ; Start execution if start address = 0
+        BEQ     lowz
 highz:
-        rts                     ; Otherwise just return
+        RTS                     ; Otherwise just return
 lowz:
-        lda     ADDR+1
-        beq     highz
-        jmp     (ADDR)          ; Start execution at start address
+        LDA     ADDR+1
+        BEQ     highz
+        JMP     (ADDR)          ; Start execution at start address
 
 ; Write S record file to output frome startAddress to endAddress with
 ; execution start address goAddress.
@@ -1889,161 +1945,165 @@ Writer:
         BCC     @okay
         RTS
 @okay:
-        lda     SL              ; address = startAddress
-        sta     ADDR
-        lda     SH
-        sta     ADDR+1
+        LDA     SL              ; address = startAddress
+        STA     ADDR
+        LDA     SH
+        STA     ADDR+1
 
 ; Write S0 record, fixed as: <CR>S0030000FC<CR>
 
-        ldx     #<S0String
-        ldy     #>S0String
-        jsr     PrintString
+        LDX     #<S0String
+        LDY     #>S0String
+        JSR     PrintString
 
 writes1:                        ; Write S1 records
-        lda     #0
-        sta     bytesWritten    ; bytesWritten = 0
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ     bytesWritten    ; bytesWritten = 0
+.else
+        LDA     #0
+        STA     bytesWritten    ; bytesWritten = 0
+.endif
 
-        lda     #'S'            ; Write "S1"
-        jsr     PrintChar
-        lda     #'1'
-        jsr     PrintChar
+        LDA     #'S'            ; Write "S1"
+        JSR     PrintChar
+        LDA     #'1'
+        JSR     PrintChar
 
-        lda     #bytesPerLine+3 ; write bytesPerLine (+3 for size and address)
-        sta     checksum        ; update checksum
-        jsr     PrintByte
+        LDA     #bytesPerLine+3 ; write bytesPerLine (+3 for size and address)
+        STA     checksum        ; update checksum
+        JSR     PrintByte
 
-        ldx      ADDR           ; write address
-        ldy      ADDR+1
-        jsr      PrintAddress
+        LDX      ADDR           ; write address
+        LDY      ADDR+1
+        JSR      PrintAddress
 
-        lda      checksum       ; checksum = checksum + address high
-        clc
-        adc      ADDR+1
-        clc
-        adc      ADDR           ; checksum = checksum + address low
-        sta      checksum
+        LDA      checksum       ; checksum = checksum + address high
+        CLC
+        ADC      ADDR+1
+        CLC
+        ADC      ADDR           ; checksum = checksum + address low
+        STA      checksum
 
 writeLoop1:
-        ldy     #0
-        lda     (ADDR),y
-        jsr     PrintByte       ; print byte at address
+        LDY     #0
+        LDA     (ADDR),y
+        JSR     PrintByte       ; print byte at address
 
-        lda     (ADDR),y        ; Get back A (modified by PrintByte)
-        clc
-        adc     checksum        ; checksum = checksum + byte at address
-        sta     checksum
+        LDA     (ADDR),y        ; Get back A (modified by PrintByte)
+        CLC
+        ADC     checksum        ; checksum = checksum + byte at address
+        STA     checksum
 
-        inc     ADDR            ; Increment address (low byte)
-        bne     nocarry1
-        inc     ADDR+1          ; Increment address (high byte)
+        INC     ADDR            ; Increment address (low byte)
+        BNE     nocarry1
+        INC     ADDR+1          ; Increment address (high byte)
 nocarry1:
-        inc     bytesWritten    ; bytesWritten = bytesWritten + 1
+        INC     bytesWritten    ; bytesWritten = bytesWritten + 1
 
-        lda     bytesWritten    ; if bytesWritten = bytesPerLine
-        cmp     #bytesPerLine
-        bne     writeLoop1      ; ...go back and loop
+        LDA     bytesWritten    ; if bytesWritten = bytesPerLine
+        CMP     #bytesPerLine
+        BNE     writeLoop1      ; ...go back and loop
 
-        lda     checksum        ; Calculate checksum 1's complement
-        eor     #$ff
-        jsr     PrintByte       ; Output checksum
-        jsr     PrintCR         ; Output line terminator
+        LDA     checksum        ; Calculate checksum 1's complement
+        EOR     #$ff
+        JSR     PrintByte       ; Output checksum
+        JSR     PrintCR         ; Output line terminator
 
-        lda     ADDR+1          ; if address <= endAddress, go back and continue
-        cmp     EH
-        bne     @tstaddr
-        lda     ADDR
-        cmp     EL
+        LDA     ADDR+1          ; if address <= endAddress, go back and continue
+        CMP     EH
+        BNE     @tstaddr
+        LDA     ADDR
+        CMP     EL
 @tstaddr:
-        bcc     writes1
-        beq     writes1
+        BCC     writes1
+        BEQ     writes1
 
 ; Write S9 record
 writes9:
-        lda     #'S'            ; Write S9
-        jsr     PrintChar
-        lda     #'9'
-        jsr     PrintChar
-        lda     #$03            ; Write 03
-        jsr     PrintByte
-        lda     #$03            ; checksum = 03
-        sta     checksum
+        LDA     #'S'            ; Write S9
+        JSR     PrintChar
+        LDA     #'9'
+        JSR     PrintChar
+        LDA     #$03            ; Write 03
+        JSR     PrintByte
+        LDA     #$03            ; checksum = 03
+        STA     checksum
 
-        ldx     DL              ; Send go address
-        ldy     DH
-        jsr     PrintAddress
+        LDX     DL              ; Send go address
+        LDY     DH
+        JSR     PrintAddress
 
-        lda     checksum        ; checksum = checksum + goAaddress high
-        clc
-        adc     DH
-        clc
-        adc     DL              ; checksum = checksum + goAddress low
-        sta     checksum
+        LDA     checksum        ; checksum = checksum + goAaddress high
+        CLC
+        ADC     DH
+        CLC
+        ADC     DL              ; checksum = checksum + goAddress low
+        STA     checksum
 
-        lda     checksum        ; Calculate checksum 1's complement
-        eor     #$ff
-        jsr     PrintByte       ; Output checksum
-        jsr     PrintCR         ; Output line terminator
+        LDA     checksum        ; Calculate checksum 1's complement
+        EOR     #$ff
+        JSR     PrintByte       ; Output checksum
+        JSR     PrintCR         ; Output line terminator
 
-        rts
+        RTS
 
 ; Read character corresponding to hex number ('0'-'9','A'-'F').
 ; If valid, return binary value in A and carry bit clear.
 ; If not valid, return with carry bit set.
 getHexChar:
-        jsr     GetKey          ; Read character
-;       jsr     PrintChar       ; Echo the character
-        cmp     #'0'            ; Error if < '0'
-        bmi     error1
-        cmp     #'9'+1          ; Valid if <= '9'
-        bmi     number1
-        cmp     #'F'+1          ; Error if > 'F'
-        bpl     error1
-        cmp     #'A'            ; Error if < 'A'
-        bmi     error1
-        sec
-        sbc     #'A'-10         ; Value is character-('A'-10)
-        jmp     good1
+        JSR     GetKey          ; Read character
+;       JSR     PrintChar       ; Echo the character
+        CMP     #'0'            ; Error if < '0'
+        BMI     error1
+        CMP     #'9'+1          ; Valid if <= '9'
+        BMI     number1
+        CMP     #'F'+1          ; Error if > 'F'
+        BPL     error1
+        CMP     #'A'            ; Error if < 'A'
+        BMI     error1
+        SEC
+        SBC     #'A'-10         ; Value is character-('A'-10)
+        JBRA    good1
 number1:
-        sec
-        sbc     #'0'            ; Value is character-'0'
-        jmp     good1
+        SEC
+        SBC     #'0'            ; Value is character-'0'
+        JBRA    good1
 error1:
-        sec                     ; Set carry to indicate error
-        rts                     ; Return
+        SEC                     ; Set carry to indicate error
+        RTS                     ; Return
 good1:
-        clc                     ; Clear carry to indicate valid
-        rts                     ; Return
+        CLC                     ; Clear carry to indicate valid
+        RTS                     ; Return
 
 ; Read two characters corresponding to 8-bit hex number.
 ; If valid, return binary value in A and carry bit clear.
 ; If not valid, return with carry bit set.
 getHexByte:
-        jsr     getHexChar      ; Get high nybble
-        bcs     bad1            ; Branch if invalid
-        asl                     ; Shift return value left to upper nybble
-        asl
-        asl
-        asl
-        sta     temp1           ; Save value
-        jsr     getHexChar      ; Get low nybble
-        bcs     bad1            ; Branch if invalid
-        ora     temp1           ; Add (OR) return value to previous value
-        rts                     ; Return with carry clear
+        JSR     getHexChar      ; Get high nybble
+        BCS     bad1            ; Branch if invalid
+        ASL                     ; Shift return value left to upper nybble
+        ASL
+        ASL
+        ASL
+        STA     temp1           ; Save value
+        JSR     getHexChar      ; Get low nybble
+        BCS     bad1            ; Branch if invalid
+        ORA     temp1           ; Add (OR) return value to previous value
+        RTS                     ; Return with carry clear
 
 ; Read four characters corresponding to 16-bit hex address.
 ; If valid, return binary value in X (low) and Y (high) and carry bit clear.
 ; If not valid, return with carry bit set.
 getHexAddress:
-        jsr     getHexByte      ; Get high order byte
-        bcs     bad1            ; Branch if invalid
-        tay                     ; Save value in Y
-        jsr     getHexByte      ; Get low order byte
-        bcs     bad1            ; Branch if invalid
-        tax                     ; Save value in X
-        rts                     ; Return with carry clear
+        JSR     getHexByte      ; Get high order byte
+        BCS     bad1            ; Branch if invalid
+        TAY                     ; Save value in Y
+        JSR     getHexByte      ; Get low order byte
+        BCS     bad1            ; Branch if invalid
+        TAX                     ; Save value in X
+        RTS                     ; Return with carry clear
 bad1:
-        rts                     ; Return with carry set
+        RTS                     ; Return with carry set
 
 ; -------------------- Utility Functions --------------------
 
@@ -2117,8 +2177,8 @@ GetKey:
         RTS
 .endif
 .elseif .defined(OSI)
-        JMP $FD00               ; Call OSI keyboard input routine
-;       JMP $FE80               ; Call OSI serial input routine
+        JBRA $FD00               ; Call OSI keyboard input routine
+;       JBRA $FE80               ; Call OSI serial input routine
 .elseif .defined(KIM1)
         TYA                     ; Save Y on stack
         PHA
@@ -2198,7 +2258,7 @@ GetHex:
         BMI GetHex              ; Invalid, ignore and try again
         CMP #'F'+1
         BMI @Letter
-        JMP GetHex              ; Invalid, ignore and try again
+        JBRA GetHex              ; Invalid, ignore and try again
 @Digit:
 .ifdef ECHO
         JSR PrintChar           ; echo
@@ -2322,7 +2382,7 @@ PrintByteLZ:
         AND #$0F                ; mask out lower nybble
         CLC
         ADC #'0'
-        JMP PrintCharLZ
+        JBRA PrintCharLZ
 
 ; Print character but suppress 0 if LZ it not set.
 ; Sets LZ when non-zero printed.
@@ -2352,7 +2412,7 @@ PrintAscii:
         BMI NotAscii
         CMP #$7E+1              ; last printable character (~)
         BPL NotAscii
-        JMP PrintChar
+        JBRA PrintChar
 
 NotAscii:
         PHA                     ; save A
@@ -2401,7 +2461,7 @@ PrintString:
         BCC @nocarry
         INC T1+1        ; High byte
 @nocarry:
-        JMP @loop       ; Go back and print next character
+        JBRA @loop       ; Go back and print next character
 done:
         PLA
         TAY             ; Restore Y
@@ -2430,7 +2490,7 @@ NXTCHR2:
 NOC2:   LDA (T4),Y      ; Get character
         BEQ END2        ; If zero marker
         JSR PrintChar   ; Print character
-        JMP NXTCHR2     ; Branch back
+        JBRA NXTCHR2     ; Branch back
 END2:   LDA T4+1        ; Restore PC low
         PHA
         LDA T4          ; Restore PC high
@@ -2904,9 +2964,14 @@ GetHexBytes:
         BNE @loop               ; If not, go back and get more input
 @Return:
         STX IN                  ; Store length of string
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ RETOK               ; Clear flag to accept <Return> key
+        STZ CHAROK              ; Clear flag to accept character input
+.else
         LDA #0
         STA RETOK               ; Clear flag to accept <Return> key
         STA CHAROK              ; Clear flag to accept character input
+.endif
         RTS                     ; Return
 
 ; Below came from
@@ -2923,10 +2988,16 @@ GetHexBytes:
 ;
 ; Andrew Jacobs, 28-Feb-2004
 BINBCD16:    SED                ; Switch to decimal mode
+.if (.cpu .bitand CPU_ISET_65C02)
+        STZ BCD+0
+        STZ BCD+1
+        STZ BCD+2
+.else
         LDA #0                  ; Ensure the result is clear
         STA BCD+0
         STA BCD+1
         STA BCD+2
+.endif
         LDX #16                 ; The number of source bits
 CNVBIT: ASL BIN+0               ; Shift out one bit
         ROL BIN+1
@@ -2961,7 +3032,7 @@ P1:     LDX #7
         BIT OUPPER
         BMI @Dot
         ORA #%00100000              ; Toggle letter case
-        JMP @2
+        JBRA @2
 @Dot:   LDA #'.'
 
 @2:     JSR PrintChar
@@ -2990,7 +3061,7 @@ ClearScreen:
 .if .defined(USE_IO_HOOKS)
         JSR HOME        ; Apple II HOME
         LDA #FF         ; Also send form feed, e.g. for 80-column card
-        JMP PrintChar
+        JBRA PrintChar
 .else
         JMP HOME        ; Apple II HOME
 .endif

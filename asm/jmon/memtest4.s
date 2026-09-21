@@ -166,10 +166,10 @@ TESTDONE:                        ; print done and stop
 ; Stop if key pressed
         BIT        $D011 ; Keyboard CR
         BMI        KeyPressed
-        JMP        REPEAT
+        JBRA       REPEAT
 KeyPressed:
         LDA        $D010 ; Keyboard data
-        JMP        FINISHED
+        JBRA       FINISHED
 .elseif .defined(APPLE2)
 ; Stop if key pressed
         BIT        $C000 ; Keyboard register
@@ -185,20 +185,20 @@ KeyPressed:
         ORA        #$01   ; Set bit for possible shift lock key
         CMP        #$FF   ; All bits set means no key pressed
         BNE        KeyPressed
-        JMP        REPEAT
+        JBRA       REPEAT
 KeyPressed:
-        JMP        FINISHED
+        JBRA       FINISHED
 .elseif .defined(KIM1)
 
 ; Can't find any way to detect keypress on KIM-1 without blocking, so
 ; just prompt user.
         JSR        PromptToContinue
         BCS        FINISHED           ; done
-        JMP        REPEAT             ; continue
+        JBRA       REPEAT             ; continue
 .elseif .defined(SBC)
         JSR        MONRDKEY
         BCS        FINISHED           ; done
-        JMP        REPEAT             ; continue
+        JBRA       REPEAT             ; continue
 .endif
 
 ; OUTPUT THE ERROR INFO and STOP
