@@ -595,18 +595,12 @@ Copy:
         BNE @NotDone1
         RTS                     ; done
 @NotDone1:
-        LDA SL                  ; increment start address
-        CLC
-        ADC #1
-        STA SL
-        BCC @NoCarry1
+        INC SL                  ; increment start address
+        BNE @NoCarry1
         INC SH
 @NoCarry1:
-        LDA DL                  ; increment destination address
-        CLC
-        ADC #1
-        STA DL
-        BCC @NoCarry2
+        INC DL                  ; increment destination address
+        BNE @NoCarry2
         INC DH
 @NoCarry2:
         JMP @copyUp
@@ -713,11 +707,8 @@ Search:
         .byte "Not found", CR, 0
         RTS
 @NotDone:
-        LDA SL                  ; increment address
-        CLC
-        ADC #1
-        STA SL
-        BCC @NoCarry
+        INC SL                  ; increment address
+        BNE @NoCarry
         INC SH
 @NoCarry:
         JMP @search
@@ -802,18 +793,12 @@ Verify:
 @Done:
         RTS                     ; done
 @NotDone:
-        LDA SL                  ; increment start address
-        CLC
-        ADC #1
-        STA SL
-        BCC @NoCarry1
+        INC SL                  ; increment start address
+        BNE @NoCarry1
         INC SH
 @NoCarry1:
-        LDA DL                  ; increment destination address
-        CLC
-        ADC #1
-        STA DL
-        BCC @NoCarry2
+        INC DL                  ; increment destination address
+        BNE @NoCarry2
         INC DH
 @NoCarry2:
         JMP @verify
