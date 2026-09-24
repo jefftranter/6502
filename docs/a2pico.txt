@@ -1,0 +1,67 @@
+                          A2Pico Cheat Sheet
+                             24 Sep 2026
+                   Jeff Tranter <tranter@pobox.com>
+                See: https://jcm-1.com/product/a2pico/
+
+Firmware: A2retroNET-Link  Version: 2026-09-19
+----------------------------------------------
+
+Emulates up to 8 SmartPort drives using microSD card as well as a
+SuperSerial card (in printer mode). Drives map to slot where installed
+as well as unused slots (2 drives per slot). Supported image types:
+hdv, po, 2mg.
+
+Disable SSC: SSC.HIDE.SYSTEM
+Enable SSC: SSC.HIDE.SYSTEM
+Run config (slot 7): CALL 51184 ($C7F0)
+
+USB accesses microSD card via USB mass storage. To go into SSC mode,
+put file ATINIT on boot disk.
+On Linux, serial device appears as /dev/ttyACM0 and mass storage as
+/dev/sda1.
+Config file is A2retronet.txt on microSD card.
+USB Pwr switch should be set to "off".
+
+Hot keys during boot:
+C   - Invoke configuration program.
+N   - Continue autostart boot with next slot.
+1-8 - Boot drive (as drive 1).
+
+Configuration Program Keys:
+<ESC>      Quit the configuration utility (and boot).
+<SPACE>    Toggle between selecting a drive and selecting a disk image file.
+<LEFT>     Select previous drive or disk image file (or directory).
+<RIGHT>    Select next drive or disk image file (or directory).
+<RETURN>   Insert selected disk image file in selected drive (or enter directory).
+-          Remove disk image file from selected drive.
+/          Go to root directory.
+:          Switch between selecting from the USB key and the Micro SD card.
+1-8        Directly select a drive.
+0 or A-Z   Directly select a disk image file (or directory) with a
+           matching name.
+Control-E  Edit disk name.
+Control-S  Enter Settings screen.
+?          Show help screen
+
+ProDOS drive mapping for my system:
+Media Slot Drive
+----- ---- -----
+1     7    1
+2     7    2
+3     4    1
+4     4    2
+5     1    1
+6     1    2
+7     2    1
+8     2    2
+(Slot 6 drives 1 and 2 are Disk II controller drives.)
+
+Firmware: A2retroNET-Drive  Version: 2026-09-19
+-----------------------------------------------
+
+Emulates up to 8 SmartPort drives using microSD card or external USB
+key. Drives map to slot where installed as well as unused slots (2
+drives per slot).
+Use suitable cable to connect to USB key.
+Configuration program is the same as above.
+USB Pwr switch should be set to "on".
