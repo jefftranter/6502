@@ -1,10 +1,16 @@
                           A2Pico Cheat Sheet
-                             24 Sep 2026
+                             25 Sep 2026
                    Jeff Tranter <tranter@pobox.com>
                 See: https://jcm-1.com/product/a2pico/
 
-Firmware: A2retroNET-Link  Version: 2026-09-19
-----------------------------------------------
+Programming Pico firmware:
+Remove a2pico from Apple II or power off computer.
+Press and hold BOOTSEL button on Pico.
+Connect Pico to computer via USB. Should detect and mount USB drive.
+Copy .uf2 file to USB drive.
+
+Firmware: A2retroNET-Link Version: 2026-09-19
+---------------------------------------------
 
 Emulates up to 8 SmartPort drives using microSD card as well as a
 SuperSerial card (in printer mode). Drives map to slot where installed
@@ -56,8 +62,8 @@ Media Slot Drive
 8     2    2
 (Slot 6 drives 1 and 2 are Disk II controller drives.)
 
-Firmware: A2retroNET-Drive  Version: 2026-09-19
------------------------------------------------
+Firmware: A2retroNET-Drive Version: 2026-09-19
+----------------------------------------------
 
 Emulates up to 8 SmartPort drives using microSD card or external USB
 key. Drives map to slot where installed as well as unused slots (2
@@ -65,3 +71,24 @@ drives per slot).
 Use suitable cable to connect to USB key.
 Configuration program is the same as above.
 USB Pwr switch should be set to "on".
+
+Firmware: softSP_A2Pico Version: 2026-09-02
+-------------------------------------------
+
+Allows Disk II interface to support SmartPort devices.
+Also supports UniDisk 3.5" 800K drives.
+Install a2pico in slot 7.
+Need Disk II interface card in slot 6.
+Connect SmartPort or UniDisk device to Disk II (may need adaptor).
+On power up or PR#7 will boot SmartPort device.
+Supports up to four drives, appearing as S7D1, S7D2, S4D1, and S4D2
+
+Firmware: Appli-Card_A2Pico Version: 2026-09-19
+-----------------------------------------------
+
+Emulates a PCPI Appli-Card that contains a Z80 CPU and enables CP/M
+operation.
+Install card in any slot.
+Boot suitable CP/M disk image (must be on storage external to a2pico,
+not on USB or microSD). You can use a second a2pico to provide disk
+storage.
