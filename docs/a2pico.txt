@@ -90,5 +90,10 @@ Emulates a PCPI Appli-Card that contains a Z80 CPU and enables CP/M
 operation.
 Install card in any slot.
 Boot suitable CP/M disk image (must be on storage external to a2pico,
-not on USB or microSD). You can use a second a2pico to provide disk
-storage.
+not on USB or microSD). It can be frustrating to use with only one or
+two 128K floppy drives; hard disk images are much better. You can use
+a second a2pico to provide disk storage.
+Depending on the drivers that are configured, an 80 column card is
+detected and used.
+Some images are in CP/M format and need to be booted directly. Some
+disk images are in ProDOS format.
