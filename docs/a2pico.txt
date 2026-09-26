@@ -23,8 +23,8 @@ Run config (slot 7): CALL 51184 ($C7F0)
 
 USB accesses microSD card via USB mass storage. To go into SSC mode,
 put file ATINIT on boot disk.
-On Linux, serial device appears as /dev/ttyACM0 and mass storage as
-/dev/sda1.
+On Linux, serial device typically appears as /dev/ttyACM0 and mass
+storage as /dev/sda1.
 Config file is A2retronet.txt on microSD card.
 USB Pwr switch should be set to "off".
 
@@ -97,3 +97,15 @@ Depending on the drivers that are configured, an 80 column card is
 detected and used.
 Some images are in CP/M format and need to be booted directly. Some
 disk images are in ProDOS format.
+
+Firmware: Super-Serial-Card_A2Pico Version: 2026-09-19.uf2
+----------------------------------------------------------
+
+Emulates a Super Serial Card using the USB interface.
+
+Settings like baud rate are ignored. Hardware handshake is not
+supported. Runs in SSC Printer Mode. To make serial connection, after
+running "PR#7" and "IN#7", type "Control-I 1D" to set Apple side to
+use 7-bit data. On Linux, serial device typically appears as
+/dev/ttyACM0.
+USB Pwr switch should be set to "off".
