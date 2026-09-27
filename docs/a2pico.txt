@@ -1,5 +1,5 @@
                           A2Pico Cheat Sheet
-                             26 Sep 2026
+                             27 Sep 2026
                    Jeff Tranter <tranter@pobox.com>
                 See: https://jcm-1.com/product/a2pico/
 
@@ -18,11 +18,11 @@ as well as unused slots (2 drives per slot). Supported image types:
 hdv, po, 2mg.
 
 Disable SSC: SSC.HIDE.SYSTEM
-Enable SSC: SSC.HIDE.SYSTEM
+Enable SSC: SSC.SHOW.SYSTEM
 Run config (slot 7): CALL 51184 ($C7F0)
 
-USB accesses microSD card via USB mass storage. To go into SSC mode,
-put file ATINIT on boot disk.
+USB accesses microSD card as an SD-card reader.
+To go into SSC mode, put file ATINIT on boot disk.
 On Linux, serial device typically appears as /dev/ttyACM0 and mass
 storage as /dev/sda1.
 Config file is A2retronet.txt on microSD card.
@@ -41,7 +41,7 @@ Configuration Program Keys:
 <RETURN>   Insert selected disk image file in selected drive (or enter directory).
 -          Remove disk image file from selected drive.
 /          Go to root directory.
-:          Switch between selecting from the USB key and the Micro SD card.
+:          Switch between selecting from the USB key and the microSD card.
 1-8        Directly select a drive.
 0 or A-Z   Directly select a disk image file (or directory) with a
            matching name.
@@ -65,8 +65,9 @@ Media Slot Drive
 Firmware: A2retroNET-Drive Version: 2026-09-19
 ----------------------------------------------
 
-Emulates up to 8 SmartPort drives using microSD card or external USB
-key. Drives map to slot where installed as well as unused slots (2
+Emulates up to 8 SmartPort drives using microSD card adn/or an
+external USB thumb drive.
+Drives map to slot where installed as well as unused slots (2
 drives per slot).
 Use suitable cable to connect to USB key.
 Configuration program is the same as above.
@@ -75,7 +76,7 @@ USB Pwr switch should be set to "on".
 Firmware: softSP_A2Pico Version: 2026-09-02
 -------------------------------------------
 
-Allows Disk II interface to support SmartPort devices.
+Allows Disk II interface in slot 6 to support SmartPort devices.
 Also supports UniDisk 3.5" 800K drives.
 Install a2pico in slot 7.
 Need Disk II interface card in slot 6.
@@ -103,10 +104,10 @@ Firmware: Super-Serial-Card_A2Pico Version: 2026-09-19.uf2
 
 Emulates a Super Serial Card using the USB interface.
 
-Settings like baud rate are ignored. Hardware handshake is not
-supported. Runs in SSC Printer Mode. To make serial connection, after
-running "PR#7" and "IN#7", type "Control-I 1D" to set Apple side to
-use 7-bit data. On Linux, serial device typically appears as
+Baud rate and other UART settings are meaningless. Hardware handshake
+is not supported. Runs in SSC Printer Mode. To make serial connection,
+after running "PR#7" and "IN#7", type "Control-I 1D" to set Apple side
+to use 7-bit data. On Linux, serial device typically appears as
 /dev/ttyACM0.
 USB Pwr switch should be set to "off".
 
