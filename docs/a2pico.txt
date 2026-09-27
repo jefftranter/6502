@@ -114,10 +114,11 @@ Firmware: Mouse-Interface_A2Pico Version: 2026-09-19
 ----------------------------------------------------
 
 Emulates an Apple II Mouse Interface Card supporting a USB mouse.
+Can install in any slot (slot 4 is most common).
 Should work with any software that supports the Mouse Interface Card.
-Some programs may make use of MouseText characters available on the
-Apple IIc and some later versions of Apple IIe and IIGS.
-Use suitable cable to connect to USB mouse.
+Some programs may make use of MouseText characters only available on
+the Apple IIc and some later versions of Apple IIe and IIGS.
+Use suitable cable to connect USB mouse.
 Both left and right USB mouse buttons are mapped to the single
 AppleMouse II button. The middle USB mouse button is mapped to a
 second Apple II mouse button.
