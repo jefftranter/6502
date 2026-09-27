@@ -1,5 +1,5 @@
                           A2Pico Cheat Sheet
-                             25 Sep 2026
+                             26 Sep 2026
                    Jeff Tranter <tranter@pobox.com>
                 See: https://jcm-1.com/product/a2pico/
 
@@ -109,3 +109,16 @@ running "PR#7" and "IN#7", type "Control-I 1D" to set Apple side to
 use 7-bit data. On Linux, serial device typically appears as
 /dev/ttyACM0.
 USB Pwr switch should be set to "off".
+
+Firmware: Mouse-Interface_A2Pico Version: 2026-09-19
+----------------------------------------------------
+
+Emulates an Apple II Mouse Interface Card supporting a USB mouse.
+Should work with any software that supports the Mouse Interface Card.
+Some programs may make use of MouseText characters available on the
+Apple IIc and some later versions of Apple IIe and IIGS.
+Use suitable cable to connect to USB mouse.
+Both left and right USB mouse buttons are mapped to the single
+AppleMouse II button. The middle USB mouse button is mapped to a
+second Apple II mouse button.
+USB Pwr switch should be set to "on".
