@@ -65,7 +65,7 @@ Media Slot Drive
 Firmware: A2retroNET-Drive Version: 2026-09-19
 ----------------------------------------------
 
-Emulates up to 8 SmartPort drives using microSD card adn/or an
+Emulates up to 8 SmartPort drives using microSD card and/or an
 external USB thumb drive.
 Drives map to slot where installed as well as unused slots (2
 drives per slot).
@@ -80,7 +80,9 @@ Allows Disk II interface in slot 6 to support SmartPort devices.
 Also supports UniDisk 3.5" 800K drives.
 Install a2pico in slot 7.
 Need Disk II interface card in slot 6.
-Connect SmartPort or UniDisk device to Disk II (may need adaptor).
+Connect SmartPort or UniDisk device to Disk II.
+Warning: Special cable or adaptor is needed if used with a FloppyEmu
+in SmartPort mode, otherwise hardware can be damaged.
 On power up or PR#7 will boot SmartPort device.
 Supports up to four drives, appearing as S7D1, S7D2, S4D1, and S4D2
 
