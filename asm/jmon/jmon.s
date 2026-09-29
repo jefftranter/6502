@@ -96,6 +96,7 @@
 ; 1.3.11 27-Aug-2026   Optionally use Apple II COUT and RDKEY routines for i/o to
 ;                      support peripheral cards (e.g. 80-column or serial).
 ; 1.3.12 21-Sep-2026   Optional 65C02 optimizations.
+; 1.3.13 29-Sep-2026   Break help info into two parts to fit on screen.
 
 ; Uncomment if you are running on a 65C02 CPU and want to make use of
 ; optimizations.
@@ -344,9 +345,15 @@ Help:
         LDX #<WelcomeMessage
         LDY #>WelcomeMessage
         JSR PrintString
-        LDX #<HelpString
-        LDY #>HelpString
-        JMP PrintString         ; Return via caller
+        LDX #<HelpString1
+        LDY #>HelpString1
+        JSR PrintString
+        JSR PromptToContinue
+        BCS @Done
+        LDX #<HelpString2
+        LDY #>HelpString2
+        JSR PrintString
+@Done:  RTS
 
 ; Call CFFA1 flash interface menu
 
@@ -3355,14 +3362,14 @@ ToUpper:
 
 WelcomeMessage:
 .if .defined(APPLE1) .or .defined(APPLE2) .or .defined(KIM1) .or .defined(SBC)
-        .byte CR,"JMON Monitor 1.3.12 by Jeff Tranter", CR, 0
+        .byte CR,"JMON Monitor 1.3.13 by Jeff Tranter", CR, 0
 .elseif .defined(OSI)
-        .byte CR,"JMON 1.3.12 by J. Tranter", CR, 0
+        .byte CR,"JMON 1.3.13 by J. Tranter", CR, 0
 .endif
 
-; Help string.
-HelpString:
+; Help strings.
 .if .defined(APPLE1)
+HelpString1:
 .ifdef MINIASM
         .byte "Assemble    A <address>", CR
 .endif
@@ -3379,6 +3386,8 @@ HelpString:
         .byte "Clr screen  L", CR
         .byte "CFFA1 menu  M", CR
         .byte "Info        N", CR
+        .byte 0
+HelpString2:
         .byte "Options     O", CR
         .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
@@ -3394,6 +3403,7 @@ HelpString:
         .byte "Help        ?", CR
         .byte 0
 .elseif .defined(APPLE2)
+HelpString1:
 .ifdef MINIASM
         .byte "Assemble    A <address>", CR
 .endif
@@ -3409,6 +3419,8 @@ HelpString:
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
         .byte "Options     O", CR
+        .byte 0
+HelpString2:
         .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
         .byte "Search      S <start> <end> <data>...", CR
@@ -3424,6 +3436,7 @@ HelpString:
         .byte 0
 
 .elseif .defined(OSI)
+HelpString1:
 .ifdef MINIASM
         .byte "Assemble   A <a>", CR
 .endif
@@ -3439,6 +3452,8 @@ HelpString:
         .byte "Clr screen L", CR
         .byte "Info       N", CR
         .byte "Options    O", CR
+        .byte 0
+HelpString2:
         .byte "Loop       P <a>",CR
         .byte "Registers  R", CR
         .byte "Search     S <s><e><d>.", CR
@@ -3454,6 +3469,7 @@ HelpString:
         .byte 0
 
 .elseif .defined(KIM1)
+HelpString1:
 .ifdef MINIASM
         .byte "Assemble    A <address>", CR
 .endif
@@ -3468,6 +3484,8 @@ HelpString:
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
         .byte "Options     O", CR
+        .byte 0
+HelpString2:
         .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
         .byte "Search      S <start> <end> <data>...", CR
@@ -3483,6 +3501,7 @@ HelpString:
         .byte 0
 
 .elseif .defined(SBC)
+HelpString1:
 .ifdef MINIASM
         .byte "Assemble    A <address>", CR
 .endif
@@ -3497,6 +3516,8 @@ HelpString:
         .byte "Checksum    K <start> <end>",CR
         .byte "Clr screen  L", CR
         .byte "Info        N", CR
+        .byte  0
+HelpString2:
         .byte "Options     O", CR
         .byte "Loop        P <address>",CR
         .byte "Registers   R", CR
