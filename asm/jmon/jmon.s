@@ -98,6 +98,7 @@
 ; 1.3.12 21-Sep-2026   Optional 65C02 optimizations.
 ; 1.3.13 29-Sep-2026   Break help info into two parts to fit on screen.
 ;                      Support return to Basic preserving DOS hooks.
+; 1.3.14 30-Sep-2026   Get CPU speed check working on Apple II with Super Serial Card.
 
 ; Uncomment if you are running on a 65C02 CPU and want to make use of
 ; optimizations.
@@ -136,8 +137,18 @@
 
 ; Define DOS if building to run under DOS 3.3 or ProDOS (APPLE2
 ; platform only).
-
 ; DOS     = 1
+
+; Slot containing Super Serial Card (APPLE2 platform only). Used for
+; CPU speed tests. Slot 2 is common and also works with internal
+; serial on Apple IIC.
+.if .defined(APPLE2)
+SER_SLOT = 2
+
+; Calculate base address of 6551 on serial card.
+SER_BASE = $C080 + ($10 * SER_SLOT)
+
+.endif
 
 .if .defined(APPLE1)
     .out "Building for Apple 1/Replica 1"
@@ -3247,27 +3258,27 @@ MultiIOPresent:
 .ifdef APPLE2
 SerialPresent:
         LDA #$00
-        STA $C09A
-        CMP $C09A
+        STA SER_BASE+$0A
+        CMP SER_BASE+$0A
         BNE @NoSerial
         LDA #$FF
-        STA $C09A
-        CMP $C09A
+        STA SER_BASE+$0A
+        CMP SER_BASE+$0A
         BNE @NoSerial
         LDA #$00
-        STA $C09B
-        CMP $C09B
+        STA SER_BASE+$0B
+        CMP SER_BASE+$0B
         BNE @NoSerial
         LDA #$FF
-        STA $C09B
-        CMP $C09B
+        STA SER_BASE+$0B
+        CMP SER_BASE+$0B
         BNE @NoSerial
-        STA $C099
-        LDA $C099
+        STA SER_BASE+$09
+        LDA SER_BASE+$09
         AND #%00000100
         CMP #$00
         BNE @NoSerial
-        LDA $C09A
+        LDA SER_BASE+$0A
         AND #%00011111
         CMP #$00
         BNE @NoSerial

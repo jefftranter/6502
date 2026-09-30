@@ -630,9 +630,9 @@ FindTopOfRAMEnd:            ; End of critical section we don't want to write to 
 
         RTS                 ; Return
 
-; Measure CPU clock speed by sending characters out the serial port of
-; a Multi I/O board and counting how many CPU cycles it takes. Returns
-; value in A that is approximately CPU speed in MHz * 10.
+; Measure CPU clock speed by sending characters out the serial port
+; and counting how many CPU cycles it takes. Returns value in A that
+; is approximately CPU speed in MHz * 10.
 
 .if .defined(APPLE1) .or .defined(APPLE2)
 
@@ -649,11 +649,11 @@ MeasureCPUSpeed:
 
 .ifdef APPLE2
 ; 6551 Chip registers
-        TXDATA = $C098
-        RXDATA = $C098
-        STATUSREG = $C099
-        CMDREG = $C09A
-        CTLREG = $C09B
+        TXDATA = SER_BASE+8
+        RXDATA = SER_BASE+8
+        STATUSREG = SER_BASE+9
+        CMDREG = SER_BASE+10
+        CTLREG = SER_BASE+11
 .endif
 
 ; Set 1 stop bit, 8 bit data, internal clock, 19200bps
@@ -661,8 +661,8 @@ MeasureCPUSpeed:
         STA CTLREG
 
 ; Set no parity, no echo, no TX interrupts, RTS low, no RX interrupts, DTR low
-       LDA #%00001011
-       STA CMDREG
+        LDA #%00001011
+        STA CMDREG
 
         LDA #'A'  ; Character to send
         LDX #0    ; Counter
