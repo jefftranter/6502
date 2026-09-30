@@ -335,7 +335,7 @@ PrintType:
         JBRA Slot1
 NoLC:
         JSR Imprint
-        .asciiz " 0   -- empty or unknown"
+        .asciiz " 0   -- Empty or unknown"
         JSR PrintCR
 Slot1:
         LDA #1                  ; Initialize slot number
@@ -389,56 +389,56 @@ OK3:
         CMP #$00                ; Is it class 0?
         BNE Try1                ; If not, try next class.
         JSR Imprint             ; Display class
-        .asciiz "reserved"
+        .asciiz "Reserved"
         JSR PrintCR
         JMP NextSlot
 Try1:
         CMP #$01
         BNE Try2
         JSR Imprint
-        .asciiz "printer"
+        .asciiz "Printer"
         JSR PrintCR
         JMP NextSlot
 Try2:
         CMP #$02
         BNE Try3
         JSR Imprint
-        .asciiz "joystick or mouse"
+        .asciiz "Joystick or mouse"
         JSR PrintCR
         JMP NextSlot
 Try3:
         CMP #$03
         BNE Try4
         JSR Imprint
-        .asciiz "serial or parallel"
+        .asciiz "Serial or parallel"
         JSR PrintCR
         JMP NextSlot
 Try4:
         CMP #$04
         BNE Try5
         JSR Imprint
-        .asciiz "modem"
+        .asciiz "Modem"
         JSR PrintCR
         JMP NextSlot
 Try5:
         CMP #$05
         BNE Try6
         JSR Imprint
-        .asciiz "sound or speech device"
+        .asciiz "Sound or speech device"
         JSR PrintCR
         JMP NextSlot
 Try6:
         CMP #$06
         BNE Try7
         JSR Imprint
-        .asciiz "clock"
+        .asciiz "Clock"
         JSR PrintCR
         JMP NextSlot
 Try7:
         CMP #$07
         BNE Try8
         JSR Imprint
-        .asciiz "mass storage device"
+        .asciiz "Mass storage device"
         JSR PrintCR
         JMP NextSlot
 Try8:
@@ -452,19 +452,19 @@ Try9:
         CMP #$09
         BNE Try10
         JSR Imprint
-        .asciiz "network or bus interface"
+        .asciiz "Network or bus interface"
         JSR PrintCR
         JBRA NextSlot
 Try10:
         CMP #$0A
         BNE Default
         JSR Imprint
-        .asciiz "special purpose"
+        .asciiz "Special purpose"
         JSR PrintCR
         JBRA NextSlot
 Default:
         JSR Imprint
-        .asciiz "future expansion"
+        .asciiz "Future expansion"
         JSR PrintCR
         JBRA NextSlot
 DiskII:
@@ -487,7 +487,7 @@ DiskII:
         JBRA NextSlot
 EmptySlot:
         JSR Imprint
-        .asciiz "-- empty or unknown"
+        .asciiz "-- Empty or unknown"
         JSR PrintCR
 NextSlot:
         LDA SLOT                ; Get current slot

@@ -99,6 +99,7 @@
 ; 1.3.13 29-Sep-2026   Break help info into two parts to fit on screen.
 ;                      Support return to Basic preserving DOS hooks.
 ; 1.3.14 30-Sep-2026   Get CPU speed check working on Apple II with Super Serial Card.
+;                      Use consistent capitalization for card names.
 
 ; Uncomment if you are running on a 65C02 CPU and want to make use of
 ; optimizations.
