@@ -97,6 +97,7 @@
 ;                      support peripheral cards (e.g. 80-column or serial).
 ; 1.3.12 21-Sep-2026   Optional 65C02 optimizations.
 ; 1.3.13 29-Sep-2026   Break help info into two parts to fit on screen.
+;                      Support return to Basic preserving DOS hooks.
 
 ; Uncomment if you are running on a 65C02 CPU and want to make use of
 ; optimizations.
@@ -132,6 +133,11 @@
 ; Define if you want the mini-assembler, comment out if not.
 ; Should fit in 8K if this is disabled.
 ; MINIASM = 1
+
+; Define DOS if building to run under DOS 3.3 or ProDOS (APPLE2
+; platform only).
+
+; DOS     = 1
 
 .if .defined(APPLE1)
     .out "Building for Apple 1/Replica 1"
@@ -220,8 +226,11 @@
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $FFFE             ; Break/interrupt vector (2 bytes)
 .elseif .defined(APPLE2)
+.if .defined(DOS)
+  BASIC   = $03D0               ; BASIC (cold start with DOS hooks)
+ .else
   BASIC   = $E000               ; BASIC (cold start)
-; BASIC   = $03D0               ; BASIC (cold start with DOS hooks)
+.endif
   MONITOR = $FF69               ; Apple monitor entry point
   ECHO    = 1                   ; Need to echo commands
   BRKVECTOR = $03F0             ; Break/interrupt vector (2 bytes)
@@ -229,7 +238,7 @@
   RDKEY   = $FD0C               ; Read keyboard
   COUT    = $FDED               ; Character output to current device
   COUT1   = $FDF0               ; Character output to screen
-  HOME    = $FC58               ; Home cursir
+  HOME    = $FC58               ; Home cursor
 .elseif .defined(OSI)
   BASIC   = $BD11               ; BASIC Cold Start
   OSIMON  = $FE00               ; OSI monitor entry point
@@ -3069,7 +3078,7 @@ ClearScreen:
 .if .defined(USE_IO_HOOKS)
         JSR HOME        ; Apple II HOME
         LDA #FF         ; Also send form feed, e.g. for 80-column card
-        JBRA PrintChar
+        JMP PrintChar
 .else
         JMP HOME        ; Apple II HOME
 .endif
@@ -3280,9 +3289,15 @@ SerialPresent:
   BASIC1 = $B0
   BASIC2 = $E2
 .elseif .defined(APPLE2)
+.if .defined(DOS)
+  BASIC0 = $4C
+  BASIC1 = $00
+  BASIC2 = $BE
+.else
   BASIC0 = $4C
   BASIC1 = $28
   BASIC2 = $F1
+.endif
 .elseif .defined(OSI) .or .defined(SBC)
   BASIC0 = $A2
   BASIC1 = $FF
