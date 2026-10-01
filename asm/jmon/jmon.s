@@ -2929,6 +2929,9 @@ JMPFL:
 ;   Carry set if user hit <Esc>, clear if used <Enter> or max string length reached.
 ; Registers changed: A, X
 
+; Currently only used by mini-assembler code
+.ifdef MINIASM
+
 ; List of characters to accept. First byte is the length of the list.
 FilterChars:
         .byte 30, "0123456789ABCDEFabcdef#(),XYxy"
@@ -2969,6 +2972,8 @@ EscapePressed:
         STA IN+1,X              ; Store 0 at end of buffer
         STX IN                  ; Store length of string
         RTS                     ; Return
+
+.endif
 
 ; Variable length hex number input routine.
 ; Enter hex bytes from the keyboard terminated in <Return> or <ESC>.
