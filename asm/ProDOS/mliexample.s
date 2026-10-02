@@ -7,17 +7,21 @@
 ; enter it from the Monitor if you wish (remember to use a formatted
 ; disk named /HDD3).
 
+; Returns to ProDOS via a QUIT MLI call.
+
         .org    $2000
 
+PWREDUP =       $03F4   ; Autostart ROM Power-up Mask
 BELL    =       $FF3A   ; Monitor BELL routine
 CROUT   =       $FD8E   ; Monitor CROUT routine
 PRBYTE  =       $FDDA   ; Monitor PRBYTE routine
 MLI     =       $BF00   ; ProDOS system call
 CRECMD  =       $C0     ; CREATE command number
+QUITCMD  =      $65     ; QUIT command number
 
 Main:   jsr     Create  ; CREATE "/HDD3/NEWFILE"
         bne     Error   ; If error, display it
-        rts             ; Otherwise done
+        jmp     Return  ; Otherwise done
 
 Create: jsr     MLI     ; Perform call
         .byte   CRECMD  ; CREATE command number
@@ -27,7 +31,14 @@ Create: jsr     MLI     ; Perform call
 Error:  jsr     PRBYTE  ; Print error code
         jsr     BELL    ; Ring the bell
         jsr     CROUT   ; Print a carriage return
-        rts
+                        ; Fall thru to Return code below
+
+Return:
+;       rts             ; Uncomment this line to simply return (e.g. to Basic)
+        inc     PWREDUP ; Increment the power-up byte to break the checksum
+        jsr     MLI     ; Call ProDOS MLI
+        .byte   QUITCMD ; QUIT command code
+        .word   QUITLIST ; Pointer to parameters
 
 CRELIST:
         .byte   7       ; Seven parameters
@@ -38,6 +49,13 @@ CRELIST:
         .byte   $01     ; Standard file
         .byte   $00,$00 ; Creation date (unused)
         .byte   $00,$00 ; Creation time (unused)
+
+QUITLIST:
+        .byte 4         ; Parameter count
+        .byte 0         ; Reserved
+        .word 0         ; Reserved
+        .byte 0         ; Reserved
+        .word 0         ; Reserved
 
 FILENAME:
         .byte ENDNAME-NAME ; Length of name
