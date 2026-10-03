@@ -27,6 +27,7 @@ SETKBD  =      $FE89            ; Set keyboard to standard (slot 0)
 SETVID  =      $FE93            ; Set video output to standard (slot 0)
 
         .org    $2000           ; Standard start address for ProDOS system programs
+
         sta     CLR80VID        ; Turn off 80-column mode
         sta     KBD             ; Turn off 80STORE feature
         jsr     SETVID          ; Reset video to slot 0
@@ -58,7 +59,7 @@ L2036:  dey                     ; Decrement device number
         ldx     #$9D
 L203E:  lda     L20CF,x         ; Get text to display
         bmi     L204A           ; Branch if not a high-ASCII character
-        jsr     BASCALC         ; Calculate screen screen address for row
+        jsr     BASCALC         ; Calculate screen address for row
         ldy     L20D0,x         ; Get number of characters to display
         .byte   $2C             ; BIT instruction skip trick
 L204A:  sta     (BASL),Y        ; Store character on screen
@@ -71,7 +72,7 @@ L2050:  sta     TEXT,y          ; Write text to screen?
         bpl     L2050           ; Branch until done
         ldx     #$15            ; 21 lines to be displayed on the screen?
 L205A:  txa
-        jsr     BASCALC         ; Calculate screen screen address for row
+        jsr     BASCALC         ; Calculate screen address for row
         ldy     #$14            ; 20 lines to be displayed on the screen?
         lda     #$A1
         sta     (BASL),y        ; Store character on screen
@@ -81,7 +82,7 @@ L205A:  txa
         sta     BASH
         sta     KBDSTRB         ; Clear keyboard strobe
         bne     L2073           ; Always taken
-L2070:  jsr     BELL            ; Beep to indicate error
+ERROR:  jsr     BELL            ; Beep to indicate error
 L2073:  jsr     RDKEY           ; Get key from keyboard
         bit     PB0             ; Open Apple pressed?
         bmi     L20A5           ; Branch if so
@@ -91,10 +92,10 @@ L2073:  jsr     RDKEY           ; Get key from keyboard
         bcs     L2092           ; Branch if less
         cmp     #ESC            ; Compare to Escape key
         beq     L209B           ; Branch if equal
-        cmp     #CR             ; Compare to Cariage Return
+        cmp     #CR             ; Compare to Carriage Return
         beq     L208F           ; Branch if equal
         cmp     #$A0            ; Compare to space key
-        bne     L2073           ; Branch of not equal
+        bne     L2073           ; Branch if not equal
 L208F:  jsr     L20C8           ; Get last drive number, use it to boot
 L2092:  and     #$07            ; Key 1-8 pressed, convert to drive number
         beq     L2073           ; Not valid if zero
@@ -110,10 +111,12 @@ L20A4:  .byte   $04             ; "
 L20A5:  cmp     #ESC            ; Escape key?
         beq     L20AF           ; If so, branch
         and     #$DF
-        cmp     #'Q'+$80        ; Q key ressed?
-        bne     L2070           ; If not, then error
+        cmp     #'Q'+$80        ; Q key pressed?
+        bne     ERROR           ; If not, then error
 L20AF:  bit     PB0             ; Open Apple key pressed?
-        bpl     L2070
+        bpl     ERROR           ; Branch if not
+
+; Unknown if below is used or not - Apple IIGS 65C02 code?
 
         .byte   'B'+$80
         .byte   $80
@@ -133,8 +136,8 @@ L20AF:  bit     PB0             ; Open Apple key pressed?
         .byte   '@'+$80
         .byte   $5C
         .byte   $00
-
-        bne     $20A8
+        .byte   'P'+$80
+        .byte   $E0
 
 L20C8:  lda     DEVNUM          ; Get last device number
         lsr     a               ; Shift into upper nybble
