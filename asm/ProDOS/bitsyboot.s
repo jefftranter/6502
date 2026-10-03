@@ -1,6 +1,16 @@
 ; Reverse engineered source code for ProDOS 8 bitsy.boot program.
 ; From ProDOS 2.4. See https://prodos8.com/bitsy-boot/
 ; Jeff Tranter <tranter@pobox.com>
+;
+; Some things of note:
+; 1. The parameter table for the MLI QUIT call should be 7 bytes in
+;    length but it only uses 1, which should be okay as only the first
+;    parameter is used.
+; 2. It uses some self-modifying code so that a subroutine call can be
+;    shared by calls to different addresses, reducing the code size.
+; 3. The Apple IIGS code uses some 65816 instructions after verifying
+;    that it is running on an Apple IIGS and ProDOS8.
+; 4. The code is small enough to fit within one disk block (512 bytes).
 
 ; Macro to store string bytes in high-ASCII
 .macro hbyte string
@@ -45,7 +55,7 @@ SETVID  =      $FE93            ; Set video output to standard (slot 0)
         jsr     L20C8           ; Get last device number in upper nybble
         and     #$07            ; Clear lower nybble
         ora     #$B0            ; Set some bits
-        sta     L2142           ; Save it
+        sta     L2142           ; Save it on screen
         ldy     DEVCNT          ; Get number of devices/disks
 L201C:  lda     DEVLST,y        ; Get device table entry for the drive
         beq     L2036           ; Skip if inactive
@@ -59,9 +69,9 @@ L201C:  lda     DEVLST,y        ; Get device table entry for the drive
         ora     #'0'+$80        ; Convert to high-ASCII
         plp                     ; Restore original DEVLST value
         bmi     L2033           ; Branch if entry is for drive 2
-        sta     L2103,x         ; Save it
+        sta     L2103,x         ; Save it on screen
         bne     L2036           ; Do next entry
-L2033:  sta     L2112,x         ; Save it
+L2033:  sta     L2112,x         ; Save it on screen
 L2036:  dey                     ; Decrement device number
         bpl     L201C           ; Continue if more entries
         jsr     HOME            ; Clear screen
@@ -75,17 +85,17 @@ L204A:  sta     (BASL),Y        ; Store character on screen
         dey                     ; Decrement screen position
         dex                     ; Decrement character index
         bne     L203E           ; Branch until done
-L2050:  sta     TEXT,y          ; Write text to screen?
+L2050:  sta     TEXT,y          ; Write text to top line of screen
         sta     (BASL),y        ; Write text to screen
         dey                     ; Decrement screen position
         bpl     L2050           ; Branch until done
-        ldx     #$15            ; 21 lines to be displayed on the screen?
+        ldx     #21             ; Want to display vertical line at column 21
 L205A:  txa
-        jsr     BASCALC         ; Calculate screen address for row
-        ldy     #$14            ; 20 lines to be displayed on the screen?
-        lda     #$A1
+        jsr     BASCALC         ; Calculate screen address
+        ldy     #20             ; Want to display vertical line of '!'
+        lda     #'!'+$80
         sta     (BASL),y        ; Store character on screen
-        dex                     ; Decrement line counter
+        dex                     ; Decrement counter
         bne     L205A           ; Repeat until done
         lda     #$10            ; Move cursor to line 16
         sta     BASH
@@ -111,7 +121,7 @@ L2092:  and     #$07            ; Key 1-8 pressed, convert to drive number
         ora     #$C0            ; Change to $Cn, where n is slot number
         sta     L209E+2         ; Change address to call below to $C0n0
 L209B:  jsr     HOME            ; Clear screen
-L209E:  jsr     MLI             ; Make ProDOS MLI QUIT call
+L209E:  jsr     MLI             ; Make ProDOS MLI QUIT call (can be changed by code above)
         .byte   QUIT            ; Command code for QUIT
         .word   L20A4           ; Address of parameter table
 L20A4:  .byte   $04             ; Parameter table
@@ -129,7 +139,7 @@ L20AF:  bit     PB0             ; Open Apple key pressed?
 
         .p816
         rep     #$80            ; Clear N bit in status reg
-        bmi     ERROR           ; Branch if N bit set, must not be running on a 65816
+        bmi     ERROR           ; Branch if N bit set. If so, must not be running on a 65816
         lda     $E100BD         ; OS_BOOT system status byte
         dec     a
         bne     ERROR           ; Error - not running ProDOS8
@@ -172,17 +182,17 @@ L20D0:  hbyte   "-"
         hbyte   "ACTIVE  SLOTS"
 L2103:  .byte   4
         .byte   16
-        hbyte   ". . . . . . ."
+        hbyte   ". . . . . . ." ; This gets overwritten at run time by active slot numbers
 L2112:  .byte   8
         .byte   16
-        hbyte   ". . . . . . ."
+        hbyte   ". . . . . . ." ; This gets overwritten at run time by active slot numbers
         .byte   10
         .byte   16
         hbyte   "1-7:BOOT A SLOT"
         .byte   15
         .byte   17
         hbyte   "RET:BOOT SLOT "
-L2142:  hbyte   "N"
+L2142:  hbyte   "N"            ; This gets overwritten at run time by boot slot
         .byte   18
         .byte   17
         hbyte   "ESC:QUIT TO PRODOS"
