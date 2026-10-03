@@ -7,11 +7,19 @@ CR      =      $8D      ; Carriage Return
 
 QUIT    =      $65      ; MLI QUIT call
 
+BASL    =      $28
+BASH    =      $29
+TEXT    =      $0400    ; Text screen address
 MLI     =      $BF00    ; ProDOS system call
 DEVNUM  =      $BF30
+DEVCNT  =      $BF31
+DEVLST  =      $BF32
 KBD     =      $C000
+KBDSTRB =      $C010
 CLR80VID =     $C00C
 INIT    =      $FB2F
+BASCALC =      $FBC1
+HOME    =      $FC58
 SETKBD  =      $FE89
 SETVID  =      $FE93
 
@@ -24,9 +32,9 @@ SETVID  =      $FE93
         jsr     L20C8
         and     #$07
         ora     #$B0
-        sta     $2142
-        ldy     $BF31
-L201C:  lda     $BF32,y
+        sta     L2142
+        ldy     DEVCNT
+L201C:  lda     DEVLST,y
         beq     L2036
         php
         lsr     a
@@ -43,31 +51,31 @@ L201C:  lda     $BF32,y
 L2033:  sta     L2112,x
 L2036:  dey
         bpl     L201C
-        jsr     $FC58
+        jsr     HOME
         ldx     #$9D
-        lda     $20CF,x
-        bmi     $204A
-        jsr     $FBC1
-        ldy     $20D0,x
-        bit     $2891
+L203E:  lda     L20CF,x
+        bmi     L2049+1
+        jsr     BASCALC
+        ldy     L20D0,x
+L2049:  bit     $2891
         dey
         dex
-        bne     $203E
-        sta     $0400,y
-        sta     ($28),y
+        bne     L203E
+L2050:  sta     TEXT,y
+        sta     (BASL),y
         dey
-        bpl     $2050
+        bpl     L2050
         ldx     #$15
-        txa
-        jsr     $FBC1
+L205A:  txa
+        jsr     BASCALC
         ldy     #$14
         lda     #$A1
-        sta     ($28),y
+        sta     (BASL),y
         dex
-        bne     $205A
+        bne     L205A
         lda     #$10
-        sta     $29
-        sta     $C010
+        sta     BASH
+        sta     KBDSTRB
         bne     $2073
         jsr     $FBDD
         jsr     $FD0C
@@ -119,9 +127,9 @@ L20C8:  lda     DEVNUM
         lsr     a
         lsr     a
         lsr     a
-        rts
+L20CF:  rts
 
-        .byte   '-'+$80
+L20D0:  .byte   '-'+$80
         .byte   $16
         .byte   $29
         .byte   'B'+$80
@@ -235,7 +243,7 @@ L2112:  .byte   $08
         .byte   'O'+$80
         .byte   'T'+$80
         .byte   ' '+$80
-        .byte   'N'+$80
+L2142:  .byte   'N'+$80
         .byte   $12
         .byte   $11
         .byte   'E'+$80
