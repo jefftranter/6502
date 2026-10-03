@@ -2,10 +2,10 @@
 ; From ProDOS 2.4. See https://prodos8.com/bitsy-boot/
 ; Jeff Tranter <tranter@pobox.com>
 
-ESC     =      $9B      ; Escape character
-CR      =      $8D      ; Carriage Return
+ESC     =      $9B              ; Escape character
+CR      =      $8D              ; Carriage Return
 
-QUIT    =      $65      ; MLI QUIT call
+QUIT    =      $65              ; MLI QUIT call
 
 BASL    =      $28              ; Cursor text line (low byte)
 BASH    =      $29              ; Cursor text line (high byte)
@@ -85,26 +85,27 @@ L2070:  jsr     BELL            ; Beep to indicate error
 L2073:  jsr     RDKEY           ; Get key from keyboard
         bit     PB0             ; Open Apple pressed?
         bmi     L20A5           ; Branch if so
-        cmp     #'8'+$80
-        bcs     L20A5
-        cmp     #'1'+$80
-        bcs     L2092
-        cmp     #ESC
-        beq     L209B
-        cmp     #CR
-        beq     L208F
-        cmp     #$A0
-        bne     L2073
-L208F:  jsr     L20C8
-L2092:  and     #$07
-        beq     L2073
+        cmp     #'8'+$80        ; Compare to '8' key
+        bcs     L20A5           ; Branch if less
+        cmp     #'1'+$80        ; Compare to '1' key
+        bcs     L2092           ; Branch if less
+        cmp     #ESC            ; Compare to Escape key
+        beq     L209B           ; Branch if equal
+        cmp     #CR             ; Compare to Cariage Return
+        beq     L208F           ; Branch if equal
+        cmp     #$A0            ; Compare to space key
+        bne     L2073           ; Branch of not equal
+L208F:  jsr     L20C8           ; Get last drive number, use it to boot
+L2092:  and     #$07            ; Key 1-8 pressed, convert to drive number
+        beq     L2073           ; Not valid if zero
         ora     #$C0
         sta     L209E+2         ; Change address to call below?
-L209B:  jsr     HOME
-L209E:  jsr     MLI
+L209B:  jsr     HOME            ; Clear screen
+L209E:  jsr     MLI             ; Make ProDOS MLI QUIT call
         .byte   QUIT            ; Parameter block
-        .word   L20A4
-L20A4:  .byte   $04
+        .word   L20A4           ; "
+L20A4:  .byte   $04             ; "
+                                ; Code above does not return
 
 L20A5:  cmp     #ESC            ; Escape key?
         beq     L20AF           ; If so, branch
