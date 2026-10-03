@@ -17,9 +17,12 @@ DEVLST  =      $BF32
 KBD     =      $C000
 KBDSTRB =      $C010
 CLR80VID =     $C00C
+PB0     =      $C061    ; Open Apple key
 INIT    =      $FB2F
 BASCALC =      $FBC1
+BELL    =      $FBDD
 HOME    =      $FC58
+RDKEY   =      $FD0C
 SETKBD  =      $FE89
 SETVID  =      $FE93
 
@@ -76,14 +79,14 @@ L205A:  txa
         lda     #$10
         sta     BASH
         sta     KBDSTRB
-        bne     $2073
-        jsr     $FBDD
-        jsr     $FD0C
-        bit     $C061
-        bmi     $20A5
-        cmp     #$B8
-        bcs     $20A5
-        cmp     #$B1
+        bne     L2073
+        jsr     BELL
+L2073:  jsr     RDKEY
+        bit     PB0
+        bmi     L20A5
+        cmp     #'8'+$80
+        bcs     L20A5
+        cmp     #'1'+$80
         bcs     $2092
         cmp     #ESC
         beq     $209B
@@ -102,12 +105,12 @@ L205A:  txa
         .word   $20A4
         .byte   $04
 
-        cmp     #ESC
+L20A5:  cmp     #ESC
         beq     $20AF
         and     #$DF
         cmp     #$D1
         bne     $2070
-        bit     $C061
+        bit     PB0
         bpl     $2070
         .byte   'B'+$80
         .byte   $80
