@@ -4,6 +4,8 @@
 
 ESC     =      $9B      ; Escape character
 
+QUIT    =      $65      ; MLI QUIT call
+
 MLI     =      $BF00    ; ProDOS system call
 DEVNUM  =      $BF30
 KBD     =      $C000
@@ -23,8 +25,8 @@ SETVID  =      $FE93
         ora     #$B0
         sta     $2142
         ldy     $BF31
-        lda     $BF32,y
-        beq     $2036
+L201C:  lda     $BF32,y
+        beq     L2036
         php
         lsr     a
         lsr     a
@@ -32,14 +34,14 @@ SETVID  =      $FE93
         and     #$0E
         tax
         lsr     a
-        ora     #$B0
+        ora     #'0'+$80
         plp
-        bmi     $2033
-        sta     $2103,x
-        bne     $2036
-        sta     $2112,x
-        dey
-        bpl     $201C
+        bmi     L2033
+        sta     L2103,x
+        bne     L2036
+L2033:  sta     L2112,x
+L2036:  dey
+        bpl     L201C
         jsr     $FC58
         ldx     #$9D
         lda     $20CF,x
@@ -87,9 +89,11 @@ SETVID  =      $FE93
         sta     $20A0
         jsr     $FC58
         jsr     MLI
-        adc     $A4
-        jsr     $C904
-        .byte   ESC
+        .byte   QUIT            ; Parameter block
+        .word   $20A4
+        .byte   $04
+
+        cmp     #ESC
         beq     $20AF
         and     #$DF
         cmp     #$D1
@@ -167,7 +171,7 @@ L20C8:  lda     DEVNUM
         .byte   $CF
         .byte   $D4
         .byte   $D3
-        .byte   $04
+L2103:  .byte   $04
         .byte   $10
         .byte   $AE
         .byte   $A0
@@ -182,7 +186,7 @@ L20C8:  lda     DEVNUM
         .byte   $AE
         .byte   $A0
         .byte   $AE
-        .byte   08
+L2112:  .byte   $08
         .byte   $10
         .byte   $AE
         .byte   $A0
