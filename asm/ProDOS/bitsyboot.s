@@ -152,42 +152,42 @@ L20CF:  rts
 ; position.
 
 L20D0:  hbyte   "-"
-        .byte   $16
-        .byte   $29
+        .byte   22
+        .byte   41
         hbyte   "BITSY BOOT"
-        .byte   $04
-        .byte   $23
+        .byte   4
+        .byte   35
         hbyte   "1.0"
-        .byte   $15
-        .byte   $28
+        .byte   21
+        .byte   40
         hbyte   "BY"
-        .byte   $09
-        .byte   $1F
+        .byte   9
+        .byte   31
         hbyte   "JOHN"
-        .byte   $0F
-        .byte   $20
+        .byte   15
+        .byte   32
         hbyte   "BROOKS"
-        .byte   $12
-        .byte   $21
+        .byte   18
+        .byte   33
         hbyte   "ACTIVE  SLOTS"
-L2103:  .byte   $04
-        .byte   $10
+L2103:  .byte   4
+        .byte   16
         hbyte   ". . . . . . ."
-L2112:  .byte   $08
-        .byte   $10
+L2112:  .byte   8
+        .byte   16
         hbyte   ". . . . . . ."
-        .byte   $0A
-        .byte   $10
+        .byte   10
+        .byte   16
         hbyte   "1-7:BOOT A SLOT"
-        .byte   $0F
-        .byte   $11
+        .byte   15
+        .byte   17
         hbyte   "RET:BOOT SLOT "
 L2142:  hbyte   "N"
-        .byte   $12
-        .byte   $11
+        .byte   18
+        .byte   17
         hbyte   "ESC:QUIT TO PRODOS"
-        .byte   $17
-        .byte   $12
+        .byte   23
+        .byte   18
         hbyte   "OA-Q:QUIT TO GS/OS"
-        .byte   $17
-        .byte   $28
+        .byte   23
+        .byte   40
