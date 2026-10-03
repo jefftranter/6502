@@ -116,29 +116,20 @@ L20A5:  cmp     #ESC            ; Escape key?
 L20AF:  bit     PB0             ; Open Apple key pressed?
         bpl     ERROR           ; Branch if not
 
-; Unknown if below is used or not - Apple IIGS 65C02 code?
+; Below is 65816 code running on an Apple IIGS.
 
-        .byte   'B'+$80
-        .byte   $80
-        .byte   $30
-        .byte   '8'+$80
-        .byte   '/'+$80
-        .byte   '='+$80
-        .byte   $00
-        .byte   'a'+$80
-        .byte   $3A
-        .byte   'P'+$80
-        .byte   '1'+$80
-        .byte   $18
-        .byte   $FB
-        .byte   '-'+$80
-        .byte   $8B
-        .byte   '@'+$80
-        .byte   $5C
-        .byte   $00
-        .byte   'P'+$80
-        .byte   $E0
+        .p816
+        rep     #$80            ; Clear N bit in status reg
+        bmi     ERROR           ; Branch if N bit set, must not be running on a 65816
+        lda     $E100BD         ; OS_BOOT system status byte
+        dec     a
+        bne     ERROR           ; Error - not running ProDOS 8
+        clc
+        xce                     ; Put CPU in 16-bit native mode
+        lda     $C08B           ; Read RAM Bank 1
+        jml     $E0D000         ; Jump to ROM
 
+        .setcpu "6502"
 L20C8:  lda     DEVNUM          ; Get last device number
         lsr     a               ; Shift into upper nybble
         lsr     a
