@@ -29,39 +29,39 @@ SETVID  =      $FE93            ; Set video output to standard (slot 0)
         .org    $2000           ; Standard start address for ProDOS system programs
         sta     CLR80VID        ; Turn off 80-column mode
         sta     KBD             ; Turn off 80STORE feature
-        jsr     SETVID
-        jsr     SETKBD
-        jsr     INIT
-        jsr     L20C8
-        and     #$07
-        ora     #$B0
-        sta     L2142
-        ldy     DEVCNT
-L201C:  lda     DEVLST,y
-        beq     L2036
-        php
+        jsr     SETVID          ; Reset video to slot 0
+        jsr     SETKBD          ; Reset keyboard to slot 0
+        jsr     INIT            ; Reset system defaults
+        jsr     L20C8           ; Get last device number in upper nybble
+        and     #$07            ; Clear lower nybble
+        ora     #$B0            ; Set some bits
+        sta     L2142           ; Save it
+        ldy     DEVCNT          ; Get number of devices/disks
+L201C:  lda     DEVLST,y        ; Get device table entry for the drive
+        beq     L2036           ; Skip if inactive
+        php                     ; Save original value
+        lsr     a               ; Shift slot number into lower nybble
         lsr     a
         lsr     a
-        lsr     a
-        and     #$0E
-        tax
-        lsr     a
-        ora     #'0'+$80
-        plp
-        bmi     L2033
-        sta     L2103,x
-        bne     L2036
-L2033:  sta     L2112,x
-L2036:  dey
-        bpl     L201C
-        jsr     HOME
+        and     #$0E            ; Clear other bits
+        tax                     ; X now contains slot # *2
+        lsr     a               ; A now contains slot #
+        ora     #'0'+$80        ; Convert to high-ASCII
+        plp                     ; Restore original DEVLST value
+        bmi     L2033           ; Branch if entry is for drive 2
+        sta     L2103,x         ; Save it
+        bne     L2036           ; Do next entry
+L2033:  sta     L2112,x         ; Save it
+L2036:  dey                     ; Decrement device number
+        bpl     L201C           ; Continue if more entries
+        jsr     HOME            ; Clear screen
         ldx     #$9D
-L203E:  lda     L20CF,x
-        bmi     L204A
-        jsr     BASCALC
-        ldy     L20D0,x
+L203E:  lda     L20CF,x         ; Get text to display
+        bmi     L204A           ; Branch if not a high-ASCII character
+        jsr     BASCALC         ; Calculate screen screen address for row
+        ldy     L20D0,x         ; Get number of characters to display
         .byte   $2C             ; BIT instruction skip trick
-L204A:  sta     (BASL),Y
+L204A:  sta     (BASL),Y        ; Store character on screen
         dey
         dex
         bne     L203E
@@ -134,12 +134,18 @@ L20AF:  bit     PB0             ; Open Apple key pressed?
         .byte   $00
 
         bne     $20A8
-L20C8:  lda     DEVNUM
-        lsr     a
+
+L20C8:  lda     DEVNUM          ; Get last device number
+        lsr     a               ; Shift into upper nybble
         lsr     a
         lsr     a
         lsr     a
 L20CF:  rts
+
+; Table of text to display.
+; If high bit is set, contains ASCII characters to display.
+; If high bit not set, contains row and column on screen for text
+; position.
 
 L20D0:  .byte   '-'+$80
         .byte   $16
