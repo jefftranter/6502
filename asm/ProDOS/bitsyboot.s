@@ -1,30 +1,30 @@
 ; Reverse engineered source code for ProDOS 8 bitsy.boot program.
-; From ProDOS 2.4.3.
-; See https://prodos8.com/bitsy-boot/
+; From ProDOS 2.4. See https://prodos8.com/bitsy-boot/
+; Jeff Tranter <tranter@pobox.com>
 
 ESC     =      $9B      ; Escape character
 CR      =      $8D      ; Carriage Return
 
 QUIT    =      $65      ; MLI QUIT call
 
-BASL    =      $28
-BASH    =      $29
-TEXT    =      $0400    ; Text screen address
-MLI     =      $BF00    ; ProDOS system call
-DEVNUM  =      $BF30
-DEVCNT  =      $BF31
-DEVLST  =      $BF32
-KBD     =      $C000
-KBDSTRB =      $C010
-CLR80VID =     $C00C
-PB0     =      $C061    ; Open Apple key
-INIT    =      $FB2F
-BASCALC =      $FBC1
-BELL    =      $FBDD
-HOME    =      $FC58
-RDKEY   =      $FD0C
-SETKBD  =      $FE89
-SETVID  =      $FE93
+BASL    =      $28              ; Cursor text line (low)
+BASH    =      $29              ; Cursor text line (low)
+TEXT    =      $0400            ; Text screen address
+MLI     =      $BF00            ; ProDOS system call
+DEVNUM  =      $BF30            ; Unit number of last disk drive devices
+DEVCNT  =      $BF31            ; Number of active devices (less one)
+DEVLST  =      $BF32            ; Device list table
+KBD     =      $C000            ; Keyboard data
+KBDSTRB =      $C010            ; Keyboard strobe
+CLR80VID =     $C00C            ; Clears 80-column mode
+PB0     =      $C061            ; Open Apple key
+INIT    =      $FB2F            ; Reset system defaults
+BASCALC =      $FBC1            ; Calculate address of screen row
+BELL    =      $FBDD            ; Beep speaker
+HOME    =      $FC58            ; Move cursor to home
+RDKEY   =      $FD0C            ; Get keyboard key
+SETKBD  =      $FE89            ; Set keyboard to standard (slot 0)
+SETVID  =      $FE93            ; Set video output to standard (slot 0)
 
         .org    $2000           ; Standard start address for ProDOS system programs
         sta     CLR80VID        ; Turn off 80-column mode
@@ -103,15 +103,15 @@ L2092:  and     #$07
 L209B:  jsr     HOME
 L209E:  jsr     MLI
         .byte   QUIT            ; Parameter block
-        .word   $20A4
-        .byte   $04
+        .word   L20A4
+L20A4:  .byte   $04
 
 L20A5:  cmp     #ESC
         beq     L20AF
         and     #$DF
         cmp     #$D1
         bne     L2070
-L20AF:  bit     PB0
+L20AF:  bit     PB0             ; Open Apple key pressed?
         bpl     L2070
 
         .byte   'B'+$80
