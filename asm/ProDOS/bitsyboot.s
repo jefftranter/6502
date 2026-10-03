@@ -99,13 +99,13 @@ L2073:  jsr     RDKEY           ; Get key from keyboard
 L208F:  jsr     L20C8           ; Get last drive number, use it to boot
 L2092:  and     #$07            ; Key 1-8 pressed, convert to drive number
         beq     L2073           ; Not valid if zero
-        ora     #$C0
-        sta     L209E+2         ; Change address to call below?
+        ora     #$C0            ; Change to $Cn, where n is slot number
+        sta     L209E+2         ; Change address to call below to $C0n0
 L209B:  jsr     HOME            ; Clear screen
 L209E:  jsr     MLI             ; Make ProDOS MLI QUIT call
-        .byte   QUIT            ; Parameter block
-        .word   L20A4           ; "
-L20A4:  .byte   $04             ; "
+        .byte   QUIT            ; Command code for QUIT
+        .word   L20A4           ; Address of parameter table
+L20A4:  .byte   $04             ; Parameter table
                                 ; Code above does not return
 
 L20A5:  cmp     #ESC            ; Escape key?
@@ -123,7 +123,7 @@ L20AF:  bit     PB0             ; Open Apple key pressed?
         bmi     ERROR           ; Branch if N bit set, must not be running on a 65816
         lda     $E100BD         ; OS_BOOT system status byte
         dec     a
-        bne     ERROR           ; Error - not running ProDOS 8
+        bne     ERROR           ; Error - not running ProDOS8
         clc
         xce                     ; Put CPU in 16-bit native mode
         lda     $C08B           ; Read RAM Bank 1
