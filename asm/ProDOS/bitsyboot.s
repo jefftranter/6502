@@ -7,8 +7,8 @@ CR      =      $8D      ; Carriage Return
 
 QUIT    =      $65      ; MLI QUIT call
 
-BASL    =      $28              ; Cursor text line (low)
-BASH    =      $29              ; Cursor text line (low)
+BASL    =      $28              ; Cursor text line (low byte)
+BASH    =      $29              ; Cursor text line (high byte)
 TEXT    =      $0400            ; Text screen address
 MLI     =      $BF00            ; ProDOS system call
 DEVNUM  =      $BF30            ; Unit number of last disk drive devices
@@ -62,29 +62,29 @@ L203E:  lda     L20CF,x         ; Get text to display
         ldy     L20D0,x         ; Get number of characters to display
         .byte   $2C             ; BIT instruction skip trick
 L204A:  sta     (BASL),Y        ; Store character on screen
-        dey
-        dex
-        bne     L203E
-L2050:  sta     TEXT,y
-        sta     (BASL),y
-        dey
-        bpl     L2050
-        ldx     #$15
+        dey                     ; Decrement screen position
+        dex                     ; Decrement character index
+        bne     L203E           ; Branch until done
+L2050:  sta     TEXT,y          ; Write text to screen?
+        sta     (BASL),y        ; Write text to screen
+        dey                     ; Decrement screen position
+        bpl     L2050           ; Branch until done
+        ldx     #$15            ; 21 lines to be displayed on the screen?
 L205A:  txa
-        jsr     BASCALC
-        ldy     #$14
+        jsr     BASCALC         ; Calculate screen screen address for row
+        ldy     #$14            ; 20 lines to be displayed on the screen?
         lda     #$A1
-        sta     (BASL),y
-        dex
-        bne     L205A
-        lda     #$10
+        sta     (BASL),y        ; Store character on screen
+        dex                     ; Decrement line counter
+        bne     L205A           ; Repeat until done
+        lda     #$10            ; Move cursor to line 16
         sta     BASH
-        sta     KBDSTRB
-        bne     L2073
-L2070:  jsr     BELL
-L2073:  jsr     RDKEY
-        bit     PB0
-        bmi     L20A5
+        sta     KBDSTRB         ; Clear keyboard strobe
+        bne     L2073           ; Always taken
+L2070:  jsr     BELL            ; Beep to indicate error
+L2073:  jsr     RDKEY           ; Get key from keyboard
+        bit     PB0             ; Open Apple pressed?
+        bmi     L20A5           ; Branch if so
         cmp     #'8'+$80
         bcs     L20A5
         cmp     #'1'+$80
@@ -106,11 +106,11 @@ L209E:  jsr     MLI
         .word   L20A4
 L20A4:  .byte   $04
 
-L20A5:  cmp     #ESC
-        beq     L20AF
+L20A5:  cmp     #ESC            ; Escape key?
+        beq     L20AF           ; If so, branch
         and     #$DF
-        cmp     #$D1
-        bne     L2070
+        cmp     #'Q'+$80        ; Q key ressed?
+        bne     L2070           ; If not, then error
 L20AF:  bit     PB0             ; Open Apple key pressed?
         bpl     L2070
 
