@@ -80,7 +80,7 @@ L205A:  txa
         sta     BASH
         sta     KBDSTRB
         bne     L2073
-        jsr     BELL
+L2070:  jsr     BELL
 L2073:  jsr     RDKEY
         bit     PB0
         bmi     L20A5
@@ -109,21 +109,29 @@ L20A5:  cmp     #ESC
         beq     $20AF
         and     #$DF
         cmp     #$D1
-        bne     $2070
-        bit     PB0
-        bpl     $2070
+        bne     L2070
+L20AF:  bit     PB0
+        bpl     L2070
+
         .byte   'B'+$80
         .byte   $80
-        bmi     $2070
-        .byte   $AF
-        lda     $E100,x
+        .byte   $30
+        .byte   '8'+$80
+        .byte   '/'+$80
+        .byte   '='+$80
+        .byte   $00
+        .byte   'a'+$80
         .byte   $3A
-        bne     $2070
-        clc
+        .byte   'P'+$80
+        .byte   '1'+$80
+        .byte   $18
         .byte   $FB
-        lda     $C08B
-        .byte   '\'
-        brk
+        .byte   '-'+$80
+        .byte   $8B
+        .byte   '@'+$80
+        .byte   $5C
+        .byte   $00
+
         bne     $20A8
 L20C8:  lda     DEVNUM
         lsr     a
