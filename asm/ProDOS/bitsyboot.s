@@ -3,6 +3,7 @@
 ; See https://prodos8.com/bitsy-boot/
 
 ESC     =      $9B      ; Escape character
+CR      =      $8D      ; Carriage Return
 
 QUIT    =      $65      ; MLI QUIT call
 
@@ -78,7 +79,7 @@ L2036:  dey
         bcs     $2092
         cmp     #ESC
         beq     $209B
-        cmp     #$8D
+        cmp     #CR
         beq     $208F
         cmp     #$A0
         bne     $2073
@@ -120,160 +121,160 @@ L20C8:  lda     DEVNUM
         lsr     a
         rts
 
-        .byte   $AD
+        .byte   '-'+$80
         .byte   $16
         .byte   $29
-        .byte   $C2
-        .byte   $C9
-        .byte   $D4
-        .byte   $D3
-        .byte   $D9
-        .byte   $A0
-        .byte   $C2
-        .byte   $CF
-        .byte   $CF
-        .byte   $D4
+        .byte   'B'+$80
+        .byte   'I'+$80
+        .byte   'T'+$80
+        .byte   'S'+$80
+        .byte   'Y'+$80
+        .byte   ' '+$80
+        .byte   'B'+$80
+        .byte   'O'+$80
+        .byte   'O'+$80
+        .byte   'T'+$80
         .byte   $04
         .byte   $23
-        .byte   $B1
-        .byte   $AE
-        .byte   $B0
+        .byte   '1'+$80
+        .byte   '.'+$80
+        .byte   '0'+$80
         .byte   $15
         .byte   $28
-        .byte   $C2
-        .byte   $D9
+        .byte   'B'+$80
+        .byte   'Y'+$80
         .byte   $09
         .byte   $1F
-        .byte   $CA
-        .byte   $CF
-        .byte   $C8
-        .byte   $CE
+        .byte   'J'+$80
+        .byte   'O'+$80
+        .byte   'H'+$80
+        .byte   'N'+$80
         .byte   $0F
         .byte   $20
-        .byte   $C2
-        .byte   $D2
-        .byte   $CF
-        .byte   $CF
-        .byte   $CB
-        .byte   $D3
+        .byte   'B'+$80
+        .byte   'R'+$80
+        .byte   'O'+$80
+        .byte   'O'+$80
+        .byte   'K'+$80
+        .byte   'S'+$80
         .byte   $12
         .byte   $21
-        .byte   $C1
-        .byte   $C3
-        .byte   $D4
-        .byte   $C9
-        .byte   $D6
-        .byte   $C5
-        .byte   $A0
-        .byte   $A0
-        .byte   $D3
-        .byte   $CC
-        .byte   $CF
-        .byte   $D4
-        .byte   $D3
+        .byte   'A'+$80
+        .byte   'C'+$80
+        .byte   'T'+$80
+        .byte   'I'+$80
+        .byte   'V'+$80
+        .byte   'E'+$80
+        .byte   ' '+$80
+        .byte   ' '+$80
+        .byte   'S'+$80
+        .byte   'L'+$80
+        .byte   'O'+$80
+        .byte   'T'+$80
+        .byte   'S'+$80
 L2103:  .byte   $04
         .byte   $10
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
 L2112:  .byte   $08
         .byte   $10
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
-        .byte   $A0
-        .byte   $AE
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
+        .byte   ' '+$80
+        .byte   '.'+$80
         .byte   $0A
         .byte   $10
-        .byte   $B1
-        .byte   $AD
-        .byte   $B7
-        .byte   $BA
-        .byte   $C2
-        .byte   $CF
-        .byte   $CF
-        .byte   $D4
-        .byte   $A0
-        .byte   $C1
-        .byte   $A0
-        .byte   $D3
-        .byte   $CC
-        .byte   $CF
-        .byte   $D4
+        .byte   '1'+$80
+        .byte   '-'+$80
+        .byte   '7'+$80
+        .byte   ':'+$80
+        .byte   'B'+$80
+        .byte   'O'+$80
+        .byte   'O'+$80
+        .byte   'T'+$80
+        .byte   ' '+$80
+        .byte   'A'+$80
+        .byte   ' '+$80
+        .byte   'S'+$80
+        .byte   'L'+$80
+        .byte   'O'+$80
+        .byte   'T'+$80
         .byte   $0F
         .byte   $11
-        .byte   $D2
-        .byte   $C5
-        .byte   $D4
-        .byte   $BA
-        .byte   $C2
-        .byte   $CF
-        .byte   $CF
-        .byte   $D4
-        .byte   $A0
-        .byte   $D3
-        .byte   $CC
-        .byte   $CF
-        .byte   $D4
-        .byte   $A0
-        .byte   $CE
+        .byte   'R'+$80
+        .byte   'E'+$80
+        .byte   'T'+$80
+        .byte   ':'+$80
+        .byte   'B'+$80
+        .byte   'O'+$80
+        .byte   'O'+$80
+        .byte   'T'+$80
+        .byte   ' '+$80
+        .byte   'S'+$80
+        .byte   'L'+$80
+        .byte   'O'+$80
+        .byte   'T'+$80
+        .byte   ' '+$80
+        .byte   'N'+$80
         .byte   $12
         .byte   $11
-        .byte   $C5
-        .byte   $D3
-        .byte   $C3
-        .byte   $BA
-        .byte   $D1
-        .byte   $D5
-        .byte   $C9
-        .byte   $D4
-        .byte   $A0
-        .byte   $D4
-        .byte   $CF
-        .byte   $A0
-        .byte   $D0
-        .byte   $D2
-        .byte   $CF
-        .byte   $C4
-        .byte   $CF
-        .byte   $D3
+        .byte   'E'+$80
+        .byte   'S'+$80
+        .byte   'C'+$80
+        .byte   ':'+$80
+        .byte   'Q'+$80
+        .byte   'U'+$80
+        .byte   'I'+$80
+        .byte   'T'+$80
+        .byte   ' '+$80
+        .byte   'T'+$80
+        .byte   'O'+$80
+        .byte   ' '+$80
+        .byte   'P'+$80
+        .byte   'R'+$80
+        .byte   'O'+$80
+        .byte   'D'+$80
+        .byte   'O'+$80
+        .byte   'S'+$80
         .byte   $17
         .byte   $12
-        .byte   $CF
-        .byte   $C1
-        .byte   $AD
-        .byte   $D1
-        .byte   $BA
-        .byte   $D1
-        .byte   $D5
-        .byte   $C9
-        .byte   $D4
-        .byte   $A0
-        .byte   $D4
-        .byte   $CF
-        .byte   $A0
-        .byte   $C7
-        .byte   $D3
-        .byte   $AF
-        .byte   $CF
-        .byte   $D3
+        .byte   'O'+$80
+        .byte   'A'+$80
+        .byte   '-'+$80
+        .byte   'Q'+$80
+        .byte   ':'+$80
+        .byte   'Q'+$80
+        .byte   'U'+$80
+        .byte   'I'+$80
+        .byte   'T'+$80
+        .byte   ' '+$80
+        .byte   'T'+$80
+        .byte   'O'+$80
+        .byte   ' '+$80
+        .byte   'G'+$80
+        .byte   'S'+$80
+        .byte   '/'+$80
+        .byte   'O'+$80
+        .byte   'S'+$80
         .byte   $17
         .byte   $28
