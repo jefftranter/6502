@@ -2,6 +2,15 @@
 ; From ProDOS 2.4. See https://prodos8.com/bitsy-boot/
 ; Jeff Tranter <tranter@pobox.com>
 
+; Macro to store string bytes in high-ASCII
+.macro hbyte string
+    .define _string string
+    .repeat .strlen(_string), i
+        .byte .strat(_string, i) | $80
+    .endrepeat
+.undef _string
+.endmacro
+
 ESC     =      $9B              ; Escape character
 CR      =      $8D              ; Carriage Return
 
@@ -142,160 +151,43 @@ L20CF:  rts
 ; If high bit not set, contains row and column on screen for text
 ; position.
 
-L20D0:  .byte   '-'+$80
+L20D0:  hbyte   "-"
         .byte   $16
         .byte   $29
-        .byte   'B'+$80
-        .byte   'I'+$80
-        .byte   'T'+$80
-        .byte   'S'+$80
-        .byte   'Y'+$80
-        .byte   ' '+$80
-        .byte   'B'+$80
-        .byte   'O'+$80
-        .byte   'O'+$80
-        .byte   'T'+$80
+        hbyte   "BITSY BOOT"
         .byte   $04
         .byte   $23
-        .byte   '1'+$80
-        .byte   '.'+$80
-        .byte   '0'+$80
+        hbyte   "1.0"
         .byte   $15
         .byte   $28
-        .byte   'B'+$80
-        .byte   'Y'+$80
+        hbyte   "BY"
         .byte   $09
         .byte   $1F
-        .byte   'J'+$80
-        .byte   'O'+$80
-        .byte   'H'+$80
-        .byte   'N'+$80
+        hbyte   "JOHN"
         .byte   $0F
         .byte   $20
-        .byte   'B'+$80
-        .byte   'R'+$80
-        .byte   'O'+$80
-        .byte   'O'+$80
-        .byte   'K'+$80
-        .byte   'S'+$80
+        hbyte   "BROOKS"
         .byte   $12
         .byte   $21
-        .byte   'A'+$80
-        .byte   'C'+$80
-        .byte   'T'+$80
-        .byte   'I'+$80
-        .byte   'V'+$80
-        .byte   'E'+$80
-        .byte   ' '+$80
-        .byte   ' '+$80
-        .byte   'S'+$80
-        .byte   'L'+$80
-        .byte   'O'+$80
-        .byte   'T'+$80
-        .byte   'S'+$80
+        hbyte   "ACTIVE  SLOTS"
 L2103:  .byte   $04
         .byte   $10
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
+        hbyte   ". . . . . . ."
 L2112:  .byte   $08
         .byte   $10
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
-        .byte   ' '+$80
-        .byte   '.'+$80
+        hbyte   ". . . . . . ."
         .byte   $0A
         .byte   $10
-        .byte   '1'+$80
-        .byte   '-'+$80
-        .byte   '7'+$80
-        .byte   ':'+$80
-        .byte   'B'+$80
-        .byte   'O'+$80
-        .byte   'O'+$80
-        .byte   'T'+$80
-        .byte   ' '+$80
-        .byte   'A'+$80
-        .byte   ' '+$80
-        .byte   'S'+$80
-        .byte   'L'+$80
-        .byte   'O'+$80
-        .byte   'T'+$80
+        hbyte   "1-7:BOOT A SLOT"
         .byte   $0F
         .byte   $11
-        .byte   'R'+$80
-        .byte   'E'+$80
-        .byte   'T'+$80
-        .byte   ':'+$80
-        .byte   'B'+$80
-        .byte   'O'+$80
-        .byte   'O'+$80
-        .byte   'T'+$80
-        .byte   ' '+$80
-        .byte   'S'+$80
-        .byte   'L'+$80
-        .byte   'O'+$80
-        .byte   'T'+$80
-        .byte   ' '+$80
-L2142:  .byte   'N'+$80
+        hbyte   "RET:BOOT SLOT "
+L2142:  hbyte   "N"
         .byte   $12
         .byte   $11
-        .byte   'E'+$80
-        .byte   'S'+$80
-        .byte   'C'+$80
-        .byte   ':'+$80
-        .byte   'Q'+$80
-        .byte   'U'+$80
-        .byte   'I'+$80
-        .byte   'T'+$80
-        .byte   ' '+$80
-        .byte   'T'+$80
-        .byte   'O'+$80
-        .byte   ' '+$80
-        .byte   'P'+$80
-        .byte   'R'+$80
-        .byte   'O'+$80
-        .byte   'D'+$80
-        .byte   'O'+$80
-        .byte   'S'+$80
+        hbyte   "ESC:QUIT TO PRODOS"
         .byte   $17
         .byte   $12
-        .byte   'O'+$80
-        .byte   'A'+$80
-        .byte   '-'+$80
-        .byte   'Q'+$80
-        .byte   ':'+$80
-        .byte   'Q'+$80
-        .byte   'U'+$80
-        .byte   'I'+$80
-        .byte   'T'+$80
-        .byte   ' '+$80
-        .byte   'T'+$80
-        .byte   'O'+$80
-        .byte   ' '+$80
-        .byte   'G'+$80
-        .byte   'S'+$80
-        .byte   '/'+$80
-        .byte   'O'+$80
-        .byte   'S'+$80
+        hbyte   "OA-Q:QUIT TO GS/OS"
         .byte   $17
         .byte   $28
