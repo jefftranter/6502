@@ -57,10 +57,11 @@ L2036:  dey
         jsr     HOME
         ldx     #$9D
 L203E:  lda     L20CF,x
-        bmi     L2049+1
+        bmi     L204A
         jsr     BASCALC
         ldy     L20D0,x
-L2049:  bit     $2891
+        .byte   $2C             ; BIT instruction skip trick
+L204A:  sta     (BASL),Y
         dey
         dex
         bne     L203E
@@ -87,26 +88,26 @@ L2073:  jsr     RDKEY
         cmp     #'8'+$80
         bcs     L20A5
         cmp     #'1'+$80
-        bcs     $2092
+        bcs     L2092
         cmp     #ESC
-        beq     $209B
+        beq     L209B
         cmp     #CR
-        beq     $208F
+        beq     L208F
         cmp     #$A0
-        bne     $2073
-        jsr     L20C8
-        and     #$07
-        beq     $2073
+        bne     L2073
+L208F:  jsr     L20C8
+L2092:  and     #$07
+        beq     L2073
         ora     #$C0
-        sta     $20A0
-        jsr     $FC58
-        jsr     MLI
+        sta     L209E+2         ; Change address to call below?
+L209B:  jsr     HOME
+L209E:  jsr     MLI
         .byte   QUIT            ; Parameter block
         .word   $20A4
         .byte   $04
 
 L20A5:  cmp     #ESC
-        beq     $20AF
+        beq     L20AF
         and     #$DF
         cmp     #$D1
         bne     L2070
