@@ -3,11 +3,16 @@
 ; Jeff Tranter <tranter@pobox.com>
 ;
 ; Some things of note:
-; 1. The parameter table for the MLI QUIT call should be 7 bytes in
-;    length but it only uses 1, which should be okay as only the first
-;    parameter is used.
-; 2. It uses some self-modifying code so that a subroutine call can be
-;    shared by calls to different addresses, reducing the code size.
+; 1. The MLI QUIT parameter table is specified as seven bytes:
+;    $04 followed by six reserved bytes. The original program only
+;    supplies the initial $04; the following six bytes are executable
+;    code. This works because the QUIT implementation does not use
+;    the remaining reserved bytes, although it does not strictly
+;    conform to the documented parameter table format.
+; 2. It uses self-modifying code to change the destination of the
+;    JSR at L209E. The high byte of the address is replaced with
+;    $C0 | slot, allowing the same instruction to boot any selected
+;    peripheral slot without requiring separate code for each slot.
 ; 3. The Apple IIGS code uses some 65816 instructions after verifying
 ;    that it is running on an Apple IIGS and ProDOS8.
 ; 4. The code is small enough to fit within one disk block (512 bytes).
@@ -30,8 +35,8 @@ BASL    =      $28              ; Cursor text line (low byte)
 BASH    =      $29              ; Cursor text line (high byte)
 TEXT    =      $0400            ; Text screen address
 MLI     =      $BF00            ; ProDOS system call
-DEVNUM  =      $BF30            ; Unit number of last disk drive devices
-DEVCNT  =      $BF31            ; Number of active devices (less one)
+DEVNUM  =      $BF30            ; Slot/drive of most recently accessed device
+DEVCNT  =      $BF31            ; Number of active devices minus one
 DEVLST  =      $BF32            ; Device list table
 KBD     =      $C000            ; Keyboard data
 KBDSTRB =      $C010            ; Keyboard strobe
@@ -52,15 +57,19 @@ SETVID  =      $FE93            ; Set video output to standard (slot 0)
         jsr     SETVID          ; Reset video to slot 0
         jsr     SETKBD          ; Reset keyboard to slot 0
         jsr     INIT            ; Reset system defaults
-        jsr     L20C8           ; Get last device number in upper nybble
-        and     #$07            ; Clear lower nybble
+        jsr     L20C8           ; Get slot number of most recently accessed device
+        and     #$07            ; Clear lower nibble
         ora     #$B0            ; Set some bits
         sta     L2142           ; Save it on screen
-        ldy     DEVCNT          ; Get number of devices/disks
-L201C:  lda     DEVLST,y        ; Get device table entry for the drive
+        ldy     DEVCNT          ; Get last DEVLST index
+
+; DEVLST entries contain drive/slot information in the upper nibble
+; and device characteristics in the lower nibble.
+
+L201C:  lda     DEVLST,y        ; Get device entry: DSSSIIII
         beq     L2036           ; Skip if inactive
         php                     ; Save original value
-        lsr     a               ; Shift slot number into lower nybble
+        lsr     a               ; Shift slot number into lower nibble
         lsr     a
         lsr     a
         and     #$0E            ; Clear other bits
@@ -68,7 +77,7 @@ L201C:  lda     DEVLST,y        ; Get device table entry for the drive
         lsr     a               ; A now contains slot #
         ora     #'0'+$80        ; Convert to high-ASCII
         plp                     ; Restore original DEVLST value
-        bmi     L2033           ; Branch if entry is for drive 2
+        bmi     L2033           ; Drive 2 entries have bit 7 set
         sta     L2103,x         ; Save it on screen
         bne     L2036           ; Do next entry
 L2033:  sta     L2112,x         ; Save it on screen
@@ -80,6 +89,11 @@ L203E:  lda     L20CF,x         ; Get text to display
         bmi     L204A           ; Branch if not a high-ASCII character
         jsr     BASCALC         ; Calculate screen address for row
         ldy     L20D0,x         ; Get number of characters to display
+
+; $2C is BIT abs. Executed here, it consumes the next two bytes (the
+; STA opcode and its operand bytes), effectively skipping the STA
+; instruction and falling through to the common character store.
+
         .byte   $2C             ; BIT instruction skip trick
 L204A:  sta     (BASL),Y        ; Store character on screen
         dey                     ; Decrement screen position
@@ -105,10 +119,10 @@ ERROR:  jsr     BELL            ; Beep to indicate error
 L2073:  jsr     RDKEY           ; Get key from keyboard
         bit     PB0             ; Open Apple pressed?
         bmi     L20A5           ; Branch if so
-        cmp     #'8'+$80        ; Compare to '8' key
-        bcs     L20A5           ; Branch if less
-        cmp     #'1'+$80        ; Compare to '1' key
-        bcs     L2092           ; Branch if less
+        cmp     #'8'+$80        ; Is key >= 8?
+        bcs     L20A5           ; Yes, handle as Open-Apple command or error
+        cmp     #'1'+$80        ; Is key >= 1?
+        bcs     L2092           ; Yes, boot selected slot
         cmp     #ESC            ; Compare to Escape key
         beq     L209B           ; Branch if equal
         cmp     #CR             ; Compare to Carriage Return
@@ -116,9 +130,9 @@ L2073:  jsr     RDKEY           ; Get key from keyboard
         cmp     #$A0            ; Compare to space key
         bne     L2073           ; Branch if not equal
 L208F:  jsr     L20C8           ; Get last drive number, use it to boot
-L2092:  and     #$07            ; Key 1-8 pressed, convert to drive number
+L2092:  and     #$07            ; Convert key 1 - 7 to slot number
         beq     L2073           ; Not valid if zero
-        ora     #$C0            ; Change to $Cn, where n is slot number
+        ora     #$C0            ; Form slot I/O address $Cn00
         sta     L209E+2         ; Change address to call below to $C0n0
 L209B:  jsr     HOME            ; Clear screen
 L209E:  jsr     MLI             ; Make ProDOS MLI QUIT call (can be changed by code above)
@@ -138,28 +152,33 @@ L20AF:  bit     PB0             ; Open Apple key pressed?
 ; Below is 65816 code running on an Apple IIGS.
 
         .p816
+
+; Detect a 65816 by executing REP and testing the resulting N flag.
+; REP #$80 clears N on a 65816; the subsequent BMI rejects a CPU
+; on which this sequence does not behave as expected.
+
         rep     #$80            ; Clear N bit in status reg
         bmi     ERROR           ; Branch if N bit set. If so, must not be running on a 65816
-        lda     $E100BD         ; OS_BOOT system status byte
+        lda     $E100BD         ; Get GS OS_BOOT status
         dec     a
-        bne     ERROR           ; Error - not running ProDOS8
+        bne     ERROR           ; Must indicate ProDOS 8
         clc
         xce                     ; Put CPU in 16-bit native mode
-        lda     $C08B           ; Read RAM Bank 1
+        lda     $C08B           ; Select/read language card RAM Bank 1
         jml     $E0D000         ; Jump to ROM
 
         .setcpu "6502"
-L20C8:  lda     DEVNUM          ; Get last device number
-        lsr     a               ; Shift into upper nybble
+L20C8:  lda     DEVNUM          ; Get most recently accessed device
+        lsr     a               ; Move slot number into low three bits
         lsr     a
         lsr     a
         lsr     a
 L20CF:  rts
 
 ; Table of text to display.
-; If high bit is set, contains ASCII characters to display.
-; If high bit not set, contains row and column on screen for text
-; position.
+; If high bit is set, contains Apple II screen characters to display.
+; If high bit is clear, the next two bytes specify the screen row
+; and column for the text.
 
 L20D0:  hbyte   "-"
         .byte   22
