@@ -1,5 +1,5 @@
                           A2Pico Cheat Sheet
-                             27 Sep 2026
+                             14 Oct 2026
                    Jeff Tranter <tranter@pobox.com>
                 See: https://jcm-1.com/product/a2pico/
 
@@ -9,10 +9,10 @@ Press and hold BOOTSEL button on Pico.
 Connect Pico to computer via USB. Should detect and mount USB drive.
 Copy .uf2 file to USB drive.
 
-Firmware: A2retroNET-Link Version: 2026-09-19
+Firmware: A2retroNET-Link Version: 2026-10-03
 ---------------------------------------------
 
-Emulates up to 8 SmartPort drives using microSD card as well as a
+Emulates up to eight SmartPort drives using microSD card as well as a
 SuperSerial card (in printer mode). Drives map to slot where installed
 as well as unused slots (2 drives per slot). Supported image types:
 hdv, po, 2mg.
@@ -62,7 +62,7 @@ Media Slot Drive
 8     2    2
 (Slot 6 drives 1 and 2 are Disk II controller drives.)
 
-Firmware: A2retroNET-Drive Version: 2026-09-19
+Firmware: A2retroNET-Drive Version: 2026-10-03
 ----------------------------------------------
 
 Emulates up to 8 SmartPort drives using microSD card and/or an
@@ -71,9 +71,10 @@ Drives map to slot where installed as well as unused slots (2
 drives per slot).
 Use suitable cable to connect to USB key.
 Configuration program is the same as above.
+Config file is A2retronet.txt on microSD card or USB.
 USB Pwr switch should be set to "on".
 
-Firmware: softSP_A2Pico Version: 2026-09-02
+Firmware: softSP_A2Pico Version: 2026-10-03
 -------------------------------------------
 
 Allows Disk II interface in slot 6 to support SmartPort devices.
@@ -86,7 +87,7 @@ in SmartPort mode, otherwise hardware can be damaged.
 On power up or PR#7 will boot SmartPort device.
 Supports up to four drives, appearing as S7D1, S7D2, S4D1, and S4D2
 
-Firmware: Appli-Card_A2Pico Version: 2026-09-19
+Firmware: Appli-Card_A2Pico Version: 2026-10-03
 -----------------------------------------------
 
 Emulates a PCPI Appli-Card that contains a Z80 CPU and enables CP/M
@@ -101,7 +102,7 @@ detected and used.
 Some images are in CP/M format and need to be booted directly. Some
 disk images are in ProDOS format.
 
-Firmware: Super-Serial-Card_A2Pico Version: 2026-09-19.uf2
+Firmware: Super-Serial-Card_A2Pico Version: 2026-10-03.uf2
 ----------------------------------------------------------
 
 Emulates a Super Serial Card using the USB interface.
@@ -113,7 +114,7 @@ to use 7-bit data. On Linux, serial device typically appears as
 /dev/ttyACM0.
 USB Pwr switch should be set to "off".
 
-Firmware: Mouse-Interface_A2Pico Version: 2026-09-19
+Firmware: Mouse-Interface_A2Pico Version: 2026-10-03
 ----------------------------------------------------
 
 Emulates an Apple II Mouse Interface Card supporting a USB mouse.
